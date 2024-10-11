@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Migrasi": {
-      "commandName": "Project",
-      "commandLineArgs": "--idpdam=3 --piutang"
+      "commandName": "Project"
     }
   }
 }
