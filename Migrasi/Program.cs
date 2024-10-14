@@ -400,31 +400,26 @@ namespace Migrasi
             {
                 try
                 {
-                    List<Task> piutang =
-                    [
-                        new DataAwal(
-                            processName: $"Piutang",
-                            tableName: "rekening_air",
-                            queryPath: @"Queries\piutang.sql",
-                            parameter: new()
-                            {
-                                { "@idpdam", _idpdam },
-                                { "@lastId", 0 }
-                            },
-                            configuration: cfg).ProsesAsync(),
-                        new DataAwal(
-                            processName: $"Piutang Detail",
-                            tableName: "rekening_air_detail",
-                            queryPath: @"Queries\piutang_detail.sql",
-                            parameter: new()
-                            {
-                                { "@idpdam", _idpdam },
-                                { "@lastId", 0 }
-                            },
-                            configuration: cfg).ProsesAsync()
-                    ];
-
-                    await Task.WhenAll(piutang);
+                    await new DataAwal(
+                        processName: $"Piutang",
+                        tableName: "rekening_air",
+                        queryPath: @"Queries\piutang.sql",
+                        parameter: new()
+                        {
+                            { "@idpdam", _idpdam },
+                            { "@lastId", 0 }
+                        },
+                        configuration: cfg).ProsesAsync();
+                    await new DataAwal(
+                        processName: $"Piutang Detail",
+                        tableName: "rekening_air_detail",
+                        queryPath: @"Queries\piutang_detail.sql",
+                        parameter: new()
+                        {
+                            { "@idpdam", _idpdam },
+                            { "@lastId", 0 }
+                        },
+                        configuration: cfg).ProsesAsync();
                 }
                 catch (Exception)
                 {

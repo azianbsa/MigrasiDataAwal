@@ -1,70 +1,70 @@
 ﻿SELECT
  @idpdam,
  @id:=@id+1 AS idrekeningair,
- @id AS idpelangganair,
- @id AS idperiode,
- 1 AS idgolongan,
- 1 AS iddiameter,
+ pel.idpelanggan AS idpelangganair,
+ per.idperiode,
+ gol.id AS idgolongan,
+ dia.id AS iddiameter,
  1 AS idjenispipa,
  1 AS idkwh,
- 1 AS idrayon,
- 1 AS idkelurahan,
- 1 AS idkolektif,
- 1 AS idadministrasilain,
- 1 AS idpemeliharaanlain,
- 1 AS idretribusilain,
- 1 AS idstatus,
+ ray.id AS idrayon,
+ kel.id AS idkelurahan,
+ kol.id AS idkolektif,
+ adm.id AS idadministrasilain,
+ pem.id AS idpemeliharaanlain,
+ ret.id AS idretribusilain,
+ rek.flagaktif AS idstatus,
  1 AS idflag,
- 0 AS stanlalu,
- 0 AS stanskrg,
- 0 AS stanangkat,
- 0 AS pakai,
+ rek.stanlalu,
+ rek.stanskrg AS stanskrg,
+ rek.stanangkat,
+ rek.pakai,
  0 AS pakaikalkulasi,
- 0 AS biayapemakaian,
- 0 AS administrasi,
- 0 AS pemeliharaan,
- 0 AS retribusi,
- 0 AS pelayanan,
- 0 AS airlimbah,
- 0 AS dendapakai0,
- 0 AS administrasilain,
- 0 AS pemeliharaanlain,
- 0 AS retribusilain,
- 0 AS ppn,
- 0 AS meterai,
- 0 AS rekair,
- 0 AS denda,
+ rek.biayapemakaian,
+ rek.administrasi,
+ rek.pemeliharaan,
+ rek.retribusi,
+ rek.pelayanan,
+ rek.airlimbah,
+ rek.dendapakai0,
+ rek.administrasilain,
+ rek.pemeliharaanlain,
+ rek.retribusilain,
+ rek.ppn,
+ rek.meterai,
+ rek.rekair,
+ rek.dendatunggakan AS denda,
  0 AS diskon,
  0 AS deposit,
- 0 AS total,
+ rek.total,
  0 AS hapussecaraakuntansi,
  NULL AS waktuhapussecaraakuntansi,
  NULL AS iddetailcyclepembacaan,
  NULL AS tglpenentuanbaca,
- 0 AS flagbaca,
+ 1 AS flagbaca,
  0 AS metodebaca,
- NULL AS waktubaca,
- NULL AS jambaca,
- NULL AS petugasbaca,
- NULL AS kelainan,
+ DATE(NOW()) AS waktubaca,
+ DATE_FORMAT(NOW(), '%H:%i:%s') AS jambaca,
+ pbc.idpetugasbaca AS petugasbaca,
+ kln.id AS kelainan,
  0 AS stanbaca,
- NULL AS waktukirimhasilbaca,
- NULL AS jamkirimhasilbaca,
+ DATE(NOW()) AS waktukirimhasilbaca,
+ DATE_FORMAT(NOW(), '%H:%i:%s') AS jamkirimhasilbaca,
  NULL AS memolapangan,
  NULL AS lampiran,
  0 AS taksasi,
  0 AS taksir,
  0 AS flagrequestbacaulang,
  NULL AS waktuupdaterequestbacaulang,
- 0 AS flagkoreksi,
- NULL AS waktukoreksi,
- NULL AS jamkoreksi,
- 0 AS flagverifikasi,
- NULL AS waktuverifikasi,
- NULL AS jamverifikasi,
- 0 AS flagpublish,
- NULL AS waktupublish,
- NULL AS jampublish,
+ 1 AS flagkoreksi,
+ DATE(NOW()) AS waktukoreksi,
+ DATE_FORMAT(NOW(), '%H:%i:%s') AS jamkoreksi,
+ 1 AS flagverifikasi,
+ DATE(NOW()) AS waktuverifikasi,
+ DATE_FORMAT(NOW(), '%H:%i:%s') AS jamverifikasi,
+ rek.flagpublish,
+ DATE(rek.tglpublish) AS waktupublish,
+ DATE_FORMAT(rek.tglpublish, '%H:%i:%s') AS jampublish,
  NULL AS latitude,
  NULL AS longitude,
  NULL AS latitudebulanlalu,
@@ -86,16 +86,46 @@
  NULL AS idangsuran,
  NULL AS idmodule,
  0 AS flagkoreksibilling,
- NULL AS tglmulaidenda1,
- NULL AS tglmulaidenda2,
- NULL AS tglmulaidenda3,
- NULL AS tglmulaidenda4,
- NULL AS tglmulaidendaperbulan,
+ rek.tglmulaidenda AS tglmulaidenda1,
+ rek.tglmulaidenda2,
+ rek.tglmulaidenda3,
+ rek.tglmulaidenda4,
+ rek.tglmulaidendaperbulan,
  0 AS flaghasbeenpublish,
  0 AS flagdrdsusulan,
  NULL AS waktudrdsusulan,
  NOW() AS waktuupdate,
  0 AS flaghapus
 FROM
- piutang
+ piutang rek
+ JOIN (
+	SELECT
+	@idpelanggan:=@idpelanggan+1 AS idpelanggan,
+	nosamb
+	FROM pelanggan
+	,(SELECT @idpelanggan:=0) AS idpelanggan 
+ ) pel ON pel.nosamb = rek.nosamb
+ JOIN (
+	SELECT
+	@idperiode:=@idperiode+1 AS idperiode,
+	periode
+	FROM periode
+	,(SELECT @idperiode:=0) AS idperiode
+ ) per ON per.periode = rek.periode
+ LEFT JOIN golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
+ LEFT JOIN diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
+ LEFT JOIN rayon ray ON ray.koderayon = rek.koderayon
+ LEFT JOIN kelurahan kel ON kel.kodekelurahan = rek.kodekelurahan
+ LEFT JOIN kolektif kol ON kol.kodekolektif = rek.kodekolektif
+ LEFT JOIN byadministrasi_lain adm ON adm.kode = rek.kodeadministrasilain
+ LEFT JOIN bypemeliharaan_lain pem ON pem.kode = rek.kodepemeliharaanlain
+ LEFT JOIN byretribusi_lain ret ON ret.kode = rek.koderetribusilain
+ LEFT JOIN (
+	SELECT
+	@idpetugasbaca:=@idpetugasbaca+1 AS idpetugasbaca,
+	nama
+	FROM pembacameter
+	,(SELECT @idpetugasbaca:=0) AS idpetugasbaca
+ ) pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
+ LEFT JOIN kelainan kln ON kln.kelainan = rek.kelainan
  ,(SELECT @id := 0) AS id;
