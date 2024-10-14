@@ -12,7 +12,7 @@ namespace Migrasi
 
             var arguments = ParseArguments(args);
 
-            if (arguments.ContainsKey("--help"))
+            if (arguments.ContainsKey("--help") || arguments.Count == 0)
             {
                 PrintHelp();
                 return;
