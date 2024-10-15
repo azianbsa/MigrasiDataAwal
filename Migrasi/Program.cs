@@ -6,7 +6,9 @@ namespace Migrasi
     {
         static async Task Main(string[] args)
         {
-            DataAwalConfiguration cfg = new(ConfigurationManager.AppSettings["sourceConnection"]!, ConfigurationManager.AppSettings["targetConnection"]!);
+            DataAwalConfiguration cfg = new(
+                bsbsConnectionString: ConfigurationManager.AppSettings["bsbsConnectionString"]!,
+                v6ConnectionString: ConfigurationManager.AppSettings["v6ConnectionString"]!);
             int _idpdam = -999;
             List<string> _paketBacameter =
             [

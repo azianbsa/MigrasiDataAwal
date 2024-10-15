@@ -2,19 +2,31 @@
 
 namespace Migrasi
 {
-    class DataAwalConfiguration(string sourceConnectionString, string targetConnectionString)
+    class DataAwalConfiguration(string? bsbsConnectionString = "", string? loketConnectionString = "", string? bacameterConnectionString = "", string? v6ConnectionString = "")
     {
-        private readonly string sourceConnectionString = sourceConnectionString;
-        private readonly string targetConnectionString = targetConnectionString;
+        private readonly string bsbsConnectionString = bsbsConnectionString!;
+        private readonly string loketConnectionString = loketConnectionString!;
+        private readonly string bacameterConnectionString = bacameterConnectionString!;
+        private readonly string v6ConnectionString = v6ConnectionString!;
 
-        public MySqlConnection GetSourceConnection()
+        public MySqlConnection GetBsbsConnection()
         {
-            return new MySqlConnection(sourceConnectionString);
+            return new MySqlConnection(bsbsConnectionString);
         }
 
-        public MySqlConnection GetTargetConnection()
+        public MySqlConnection GetLoketConnection()
         {
-            return new MySqlConnection(targetConnectionString);
+            return new MySqlConnection(loketConnectionString);
+        }
+
+        public MySqlConnection GetBacameterConnection()
+        {
+            return new MySqlConnection(bacameterConnectionString);
+        }
+
+        public MySqlConnection GetV6Connection()
+        {
+            return new MySqlConnection(v6ConnectionString);
         }
     }
 }

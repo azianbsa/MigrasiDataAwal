@@ -12,8 +12,10 @@ namespace Migrasi
         readonly string queryPath;
         public int? DrdTahunBulan;
         public Dictionary<string, object?>? Parameter;
-        readonly MySqlConnection sConnection;
-        readonly MySqlConnection tConnection;
+        readonly MySqlConnection bsbsConnection;
+        readonly MySqlConnection loketConnection;
+        readonly MySqlConnection bacameterConnection;
+        readonly MySqlConnection v6Connection;
 
         public DataAwal(string processName, string tableName, string queryPath, DataAwalConfiguration configuration, Dictionary<string, object?>? parameter = null, int? drdTahunBulan = null)
         {
@@ -22,8 +24,10 @@ namespace Migrasi
             this.queryPath = queryPath;
             this.Parameter = parameter;
             this.DrdTahunBulan = drdTahunBulan;
-            this.sConnection = configuration.GetSourceConnection();
-            this.tConnection = configuration.GetTargetConnection();
+            this.bsbsConnection = configuration.GetBsbsConnection();
+            this.loketConnection = configuration.GetV6Connection();
+            this.bacameterConnection = configuration.GetV6Connection();
+            this.v6Connection = configuration.GetV6Connection();
         }
 
         public async Task ProsesAsync()
@@ -31,16 +35,16 @@ namespace Migrasi
             var sw = Stopwatch.StartNew();
             Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Starting");
 
-            await sConnection.OpenAsync();
-            await tConnection.OpenAsync();
-            var trans = await tConnection.BeginTransactionAsync();
+            await bsbsConnection.OpenAsync();
+            await v6Connection.OpenAsync();
+            var trans = await v6Connection.BeginTransactionAsync();
             MySqlBulkCopyResult? result;
 
             try
             {
                 var cmd = await GetCommandWithParameter();
                 using MySqlDataReader reader = await cmd.ExecuteReaderAsync();
-                var bulkCopy = new MySqlBulkCopy(tConnection, trans)
+                var bulkCopy = new MySqlBulkCopy(v6Connection, trans)
                 {
                     DestinationTableName = tableName,
                     ConflictOption = MySqlBulkLoaderConflictOption.Replace,
@@ -57,10 +61,10 @@ namespace Migrasi
             }
             finally
             {
-                await sConnection.CloseAsync();
-                await tConnection.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(sConnection);
-                await MySqlConnection.ClearPoolAsync(tConnection);
+                await bsbsConnection.CloseAsync();
+                await v6Connection.CloseAsync();
+                await MySqlConnection.ClearPoolAsync(bsbsConnection);
+                await MySqlConnection.ClearPoolAsync(v6Connection);
             }
 
             sw.Stop();
@@ -79,7 +83,7 @@ namespace Migrasi
 
         private async Task<MySqlCommand> GetCommandWithParameter()
         {
-            var cmd = new MySqlCommand(await GetQuery(), sConnection);
+            var cmd = new MySqlCommand(await GetQuery(), bsbsConnection);
 
             if (Parameter?.Count > 0)
             {
@@ -108,7 +112,7 @@ namespace Migrasi
                 Name        : {ProcessName}
                 Table       : {tableName}
                 Query       : {queryPath}
-                Parameters  : {string.Join(", ",param)}
+                Parameters  : {string.Join(", ", param)}
 
                 """;
         }
