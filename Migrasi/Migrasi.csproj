@@ -34,6 +34,9 @@
     <None Update="Queries\master_attribute_jenis_bangunan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\master_attribute_jenis_nonair_copy.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\master_attribute_jenis_pipa.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

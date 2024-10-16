@@ -1,0 +1,19 @@
+﻿SELECT
+ @idpdam,
+ idjenisnonair,
+ kodejenisnonair,
+ namajenisnonair,
+ kodesurat,
+ flagpiutangharuslunas,
+ kodeperkiraan,
+ kodebagian,
+ drdnonairkhusus,
+ permohonan,
+ prosesselesai,
+ STATUS,
+ persentaseppn,
+ flaghapus,
+ waktuupdate
+FROM
+ master_attribute_jenis_nonair
+WHERE idpdam=@idpdamcopy;

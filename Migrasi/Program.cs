@@ -9,6 +9,9 @@ namespace Migrasi
             DataAwalConfiguration cfg = new(
                 bsbsConnectionString: ConfigurationManager.AppSettings["bsbsConnectionString"]!,
                 v6ConnectionString: ConfigurationManager.AppSettings["v6ConnectionString"]!);
+            DataAwalConfiguration cfgCopy = new(
+                bsbsConnectionString: ConfigurationManager.AppSettings["v6ConnectionString"]!,
+                v6ConnectionString: ConfigurationManager.AppSettings["v6ConnectionString"]!);
             int _idpdam = -999;
             List<string> _paketBacameter =
             [
@@ -58,6 +61,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Status",
@@ -67,6 +71,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Jenis Bangunan",
@@ -76,6 +81,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Kepemilikan",
@@ -85,6 +91,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Pekerjaan",
@@ -94,6 +101,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Peruntukan",
@@ -103,6 +111,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Jenis Pipa",
@@ -112,6 +121,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Kwh",
@@ -121,6 +131,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Golongan",
@@ -130,6 +141,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Golongan Detail",
@@ -139,6 +151,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Diameter",
@@ -148,6 +161,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Diameter Detail",
@@ -157,6 +171,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Wilayah",
@@ -166,6 +181,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Area",
@@ -175,6 +191,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Rayon",
@@ -184,6 +201,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Blok",
@@ -193,6 +211,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Cabang",
@@ -202,6 +221,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Kecamatan",
@@ -211,6 +231,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Kelurahan",
@@ -220,6 +241,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Dma",
@@ -229,6 +251,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Dmz",
@@ -238,6 +261,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Administrasi Lain",
@@ -247,6 +271,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Pemeliharaan Lain",
@@ -256,6 +281,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Retribusi Lain",
@@ -265,6 +291,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Kolektif",
@@ -274,6 +301,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Sumber Air",
@@ -283,6 +311,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Merek Meter",
@@ -292,6 +321,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Kondisi Meter",
@@ -301,6 +331,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Kelainan",
@@ -310,6 +341,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Petugas Baca",
@@ -319,6 +351,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Periode",
@@ -328,6 +361,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: "Periode Billing",
@@ -337,6 +371,7 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName:"Pelanggan Air",
@@ -347,6 +382,7 @@ namespace Migrasi
                         { "@idpdam", null },
                         { "@lastId", 0 }
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName:"Pelanggan Air Detail",
@@ -357,6 +393,7 @@ namespace Migrasi
                         { "@idpdam", null },
                         { "@lastId", 0 }
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: $"DRD",
@@ -367,6 +404,7 @@ namespace Migrasi
                         { "@idpdam", null },
                         { "@lastId", 0 }
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: $"DRD Detail",
@@ -377,8 +415,9 @@ namespace Migrasi
                         { "@idpdam", null },
                         { "@lastId", 0 }
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
-                new (
+                new(
                     processName: $"Piutang",
                     tableName: "rekening_air",
                     queryPath: @"Queries\piutang.sql",
@@ -387,6 +426,7 @@ namespace Migrasi
                         { "@idpdam", null },
                         { "@lastId", 0 }
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
                     processName: $"Piutang Detail",
@@ -397,7 +437,19 @@ namespace Migrasi
                         { "@idpdam", null },
                         { "@lastId", 0 }
                     },
+                    sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
+                new(
+                    processName: $"Jenis Nonair",
+                    tableName: "master_attribute_jenis_nonair",
+                    queryPath: @"Queries\master_attribute_jenis_nonair_copy.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: SourceConnection.V6,
+                    configuration: cfgCopy),
             ];
 
             var arguments = ParseArguments(args);
