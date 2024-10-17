@@ -8,4 +8,4 @@
  NOW() AS waktuupdate
 FROM
  rayon r
- JOIN `area` a ON a.kodearea = r.area;
+ JOIN `area` a ON a.kodearea = r.kodearea;
