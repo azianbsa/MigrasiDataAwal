@@ -27,5 +27,4 @@ FROM
 	periode
 	FROM periode
 	,(SELECT @idperiode:=0) AS idperiode
- ) per ON per.periode = [tahunbulan]
- ,(SELECT @id := 0) AS id;
+ ) per ON per.periode = [tahunbulan];

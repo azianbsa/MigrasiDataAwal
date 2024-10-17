@@ -404,6 +404,10 @@ namespace Migrasi
                         { "@idpdam", null },
                         { "@lastId", 0 }
                     },
+                    placeholder: new()
+                    {
+                        { "[tahunbulan]", "" }
+                    },
                     sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
                 new(
@@ -414,6 +418,10 @@ namespace Migrasi
                     {
                         { "@idpdam", null },
                         { "@lastId", 0 }
+                    },
+                    placeholder: new()
+                    {
+                        { "[tahunbulan]", "" }
                     },
                     sourceConnection: SourceConnection.Bsbs,
                     configuration: cfg),
@@ -507,11 +515,11 @@ namespace Migrasi
                                         for (var i = _batasBawahPeriode; i < _batasBawahPeriode + 4; i++)
                                         {
                                             process.ProcessName = $"DRD{i}";
-                                            process.DrdTahunBulan = i;
+                                            process.Placeholder!["[tahunbulan]"] = i.ToString();
                                             await process.ProsesAsync();
 
                                             processDetail.ProcessName = $"DRD{i} Detail";
-                                            processDetail.DrdTahunBulan = i;
+                                            processDetail.Placeholder!["[tahunbulan]"] = i.ToString();
                                             await processDetail.ProsesAsync();
                                         }
                                     }

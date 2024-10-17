@@ -8,7 +8,7 @@ namespace Migrasi
     {
         public string Key => ProcessName.Replace(" ", "_").ToLower().ToString();
         public string ProcessName;
-        public int? DrdTahunBulan;
+        public Dictionary<string, string>? Placeholder;
         public Dictionary<string, object?>? Parameter;
         public SourceConnection? sourceConnection;
 
@@ -20,13 +20,13 @@ namespace Migrasi
         readonly MySqlConnection bacameterConnection;
         readonly MySqlConnection v6Connection;
 
-        public DataAwal(string processName, string tableName, string queryPath, SourceConnection? sourceConnection, DataAwalConfiguration configuration, Dictionary<string, object?>? parameter = null, int? drdTahunBulan = null)
+        public DataAwal(string processName, string tableName, string queryPath, SourceConnection? sourceConnection, DataAwalConfiguration configuration, Dictionary<string, object?>? parameter = null, Dictionary<string, string>? placeholder = null)
         {
             this.ProcessName = processName;
             this.tableName = tableName;
             this.queryPath = queryPath;
             this.Parameter = parameter;
-            this.DrdTahunBulan = drdTahunBulan;
+            this.Placeholder = placeholder;
             this.configuration = configuration;
             this.sourceConnection = sourceConnection;
             this.bsbsConnection = configuration.GetBsbsConnection();
@@ -136,10 +136,15 @@ namespace Migrasi
         private async Task<string> GetQuery()
         {
             string query = await File.ReadAllTextAsync(queryPath);
-            if (DrdTahunBulan != null)
+
+            if (Placeholder != null)
             {
-                query = query.Replace("[tahunbulan]", DrdTahunBulan.ToString());
+                foreach (var item in Placeholder)
+                {
+                    query = query.Replace(item.Key, item.Value);
+                }
             }
+
             return query;
         }
 
