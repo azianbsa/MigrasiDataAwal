@@ -462,6 +462,16 @@ namespace Migrasi
 
             var arguments = ParseArguments(args);
 
+            PrintConnection();
+
+            Console.Write("Apakah anda yakin ingin melanjutkan? (y/n): ");
+            var answer = Console.ReadKey();
+            if (answer.KeyChar == 'n')
+            {
+                return;
+            }
+            Console.WriteLine();
+
             #region options
 
             #region idpdam
@@ -576,6 +586,16 @@ namespace Migrasi
             #endregion
 
             #endregion
+        }
+
+        private static void PrintConnection()
+        {
+            Console.WriteLine("Connection list:");
+            Console.WriteLine($"bsbs        : {ConfigurationManager.AppSettings["bsbsConnectionString"]!}");
+            Console.WriteLine($"loket       : {ConfigurationManager.AppSettings["loketConnectionString"]!}");
+            Console.WriteLine($"bacameter   : {ConfigurationManager.AppSettings["bacameterConnectionString"]!}");
+            Console.WriteLine($"v6          : {ConfigurationManager.AppSettings["v6ConnectionString"]!}");
+            Console.WriteLine();
         }
 
         private static async Task CommandNew(DataAwalConfiguration configuration, int idPdam, string? namaPdam, string? idPdamCopy)
