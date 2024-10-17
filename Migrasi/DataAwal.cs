@@ -8,11 +8,13 @@ namespace Migrasi
     {
         public string Key => ProcessName.Replace(" ", "_").ToLower().ToString();
         public string ProcessName;
-        readonly string tableName;
-        readonly string queryPath;
         public int? DrdTahunBulan;
         public Dictionary<string, object?>? Parameter;
         public SourceConnection? sourceConnection;
+
+        readonly string tableName;
+        readonly string queryPath;
+        readonly DataAwalConfiguration configuration;
         readonly MySqlConnection bsbsConnection;
         readonly MySqlConnection loketConnection;
         readonly MySqlConnection bacameterConnection;
@@ -25,6 +27,7 @@ namespace Migrasi
             this.queryPath = queryPath;
             this.Parameter = parameter;
             this.DrdTahunBulan = drdTahunBulan;
+            this.configuration = configuration;
             this.sourceConnection = sourceConnection;
             this.bsbsConnection = configuration.GetBsbsConnection();
             this.loketConnection = configuration.GetLoketConnection();
@@ -38,15 +41,22 @@ namespace Migrasi
             Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Starting");
 
             GetSourceConnection(out MySqlConnection? sConnection);
-            if (sConnection != null) await sConnection.OpenAsync();
+            if (sConnection != null)
+            {
+                await sConnection.OpenAsync();
+            }
+
             await v6Connection.OpenAsync();
             var trans = await v6Connection.BeginTransactionAsync();
+
             MySqlBulkCopyResult? result;
 
             try
             {
                 var cmd = await GetCommandWithParameter();
+                cmd.Connection = sConnection;
                 using MySqlDataReader reader = await cmd.ExecuteReaderAsync();
+
                 var bulkCopy = new MySqlBulkCopy(v6Connection, trans)
                 {
                     DestinationTableName = tableName,
@@ -78,14 +88,47 @@ namespace Migrasi
             Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Finish ({result?.RowsInserted.ToString("N0", CultureInfo.CreateSpecificCulture("id-ID"))} rows) ({sw.Elapsed})");
         }
 
+        public async Task ExecuteAsync()
+        {
+            var sw = Stopwatch.StartNew();
+            Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Starting");
+
+            await v6Connection.OpenAsync();
+            var trans = await v6Connection.BeginTransactionAsync();
+
+            try
+            {
+                var cmd = await GetCommandWithParameter();
+                cmd.Connection = v6Connection;
+                cmd.Transaction = trans;
+                await cmd.ExecuteNonQueryAsync();
+                await trans.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                await trans.RollbackAsync();
+                Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] error ({ProcessName}): {e.Message}");
+                Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] rolling back ({ProcessName})");
+                throw;
+            }
+            finally
+            {
+                await v6Connection.CloseAsync();
+                await MySqlConnection.ClearPoolAsync(v6Connection);
+            }
+
+            sw.Stop();
+            Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Finish ({sw.Elapsed})");
+        }
+
         private void GetSourceConnection(out MySqlConnection? connection)
         {
             connection = sourceConnection switch
             {
-                SourceConnection.Bsbs => bsbsConnection,
-                SourceConnection.Loket => loketConnection,
-                SourceConnection.Bacameter => bacameterConnection,
-                SourceConnection.V6 => v6Connection,
+                SourceConnection.Bsbs => configuration.GetBsbsConnection(),
+                SourceConnection.Loket => configuration.GetLoketConnection(),
+                SourceConnection.Bacameter => configuration.GetBacameterConnection(),
+                SourceConnection.V6 => configuration.GetV6Connection(),
                 _ => null
             };
         }
@@ -102,8 +145,7 @@ namespace Migrasi
 
         private async Task<MySqlCommand> GetCommandWithParameter()
         {
-            GetSourceConnection(out MySqlConnection? connection);
-            var cmd = new MySqlCommand(await GetQuery(), connection ?? v6Connection);
+            var cmd = new MySqlCommand(await GetQuery());
 
             if (Parameter?.Count > 0)
             {

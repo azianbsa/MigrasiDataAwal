@@ -454,22 +454,14 @@ namespace Migrasi
 
             var arguments = ParseArguments(args);
 
-            if (arguments.ContainsKey("help") || arguments.Count == 0)
-            {
-                PrintHelp();
-                return;
-            }
+            #region options
 
-            if (arguments.TryGetValue("ls", out string? _))
-            {
-                PrintProcessList(processList);
-                return;
-            }
-
+            #region idpdam
             if (arguments.TryGetValue("--idpdam", out string? idpdam))
             {
                 _idpdam = !string.IsNullOrWhiteSpace(idpdam) ? int.Parse(idpdam) : -999;
             }
+            #endregion
 
             #region piutang
 
@@ -487,6 +479,7 @@ namespace Migrasi
 
             #endregion
 
+            #region paket
             if (arguments.TryGetValue("--paket", out string? paket) && arguments.TryGetValue("--batas-bawah-periode", out string? batasBawahPeriode))
             {
                 if (string.IsNullOrWhiteSpace(paket)) return;
@@ -545,6 +538,59 @@ namespace Migrasi
 
                 return;
             }
+            #endregion
+
+            #endregion
+
+            #region commands
+
+            #region help
+            if (arguments.ContainsKey("help") || arguments.Count == 0)
+            {
+                CommandHelp();
+                return;
+            }
+            #endregion
+
+            #region ls
+            if (arguments.TryGetValue("ls", out string? _))
+            {
+                CommandLs(processList);
+                return;
+            }
+            #endregion
+
+            #region new
+            if (arguments.TryGetValue("new", out string? _) && arguments.TryGetValue("--nama-pdam", out string? namaPdam) && arguments.TryGetValue("--copy-dari-idpdam", out string? idPdamCopy))
+            {
+                await CommandNew(cfg, _idpdam, namaPdam, idPdamCopy);
+            }
+            #endregion
+
+            #endregion
+        }
+
+        private static async Task CommandNew(DataAwalConfiguration configuration, int idPdam, string? namaPdam, string? idPdamCopy)
+        {
+            try
+            {
+                await new DataAwal(
+                    processName: "Setup New PDAM",
+                    tableName: "",
+                    queryPath: @"Queries\Patches\setup_new_pdam.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", idPdam },
+                        { "@namapdam", namaPdam },
+                        { "@idpdamcopy", int.Parse(idPdamCopy ?? "0") },
+                    },
+                    sourceConnection: null,
+                    configuration: configuration).ExecuteAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"error: {e.Message}");
+            }
         }
 
         private static async Task Piutang(int idPdam, List<DataAwal> processList)
@@ -564,7 +610,7 @@ namespace Migrasi
             }
         }
 
-        private static void PrintProcessList(List<DataAwal> processList)
+        private static void CommandLs(List<DataAwal> processList)
         {
             Console.WriteLine("Process List:");
             Console.WriteLine();
@@ -574,7 +620,7 @@ namespace Migrasi
             }
         }
 
-        private static void PrintHelp()
+        private static void CommandHelp()
         {
             Console.WriteLine("Usage: Migrasi [OPTIONS] COMMAND");
             Console.WriteLine();
@@ -582,12 +628,15 @@ namespace Migrasi
             Console.WriteLine();
             Console.WriteLine("Commands:");
             Console.WriteLine("  ls         Print proses yang bisa dijalankan");
+            Console.WriteLine("  new        Setup pdam baru");
             Console.WriteLine();
             Console.WriteLine("Options:");
             Console.WriteLine("  --idpdam  int                      ID PDAM (default -999)");
             Console.WriteLine("  --paket  string                    Pilih paket (bacameter|basic)");
             Console.WriteLine("  --batas-bawah-periode  int         Drd{tahunbulan} (wajib diisi untuk paket bacameter)");
             Console.WriteLine("  -p, --piutang                      Migrasi piutang");
+            Console.WriteLine("  --nama-pdam string                 Nama pdam untuk pdam baru");
+            Console.WriteLine("  --copy-dari-idpdam int             Copy data dari idpdam");
         }
 
         private static Dictionary<string, string?> ParseArguments(string[] args)

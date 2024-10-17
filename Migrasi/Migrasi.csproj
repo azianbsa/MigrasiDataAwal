@@ -121,6 +121,9 @@
     <None Update="Queries\drd.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\Patches\setup_new_pdam.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\piutang.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
