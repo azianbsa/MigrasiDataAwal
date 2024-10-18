@@ -550,8 +550,9 @@ namespace Migrasi
                             break;
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] error: {e.Message}");
                 }
 
                 return;
