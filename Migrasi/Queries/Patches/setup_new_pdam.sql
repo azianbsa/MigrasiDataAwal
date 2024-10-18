@@ -62,7 +62,7 @@ WHERE idpdam=@idpdamcopy;
 
 DELETE FROM master_tarif_meterai WHERE idpdam=@idpdam;
 INSERT INTO master_tarif_meterai (idpdam,kodeperiodemulaiberlaku)
-VALUES (@idpdam,000101);
+VALUES (@idpdam,'100001');
 
 DELETE FROM master_user_role WHERE idpdam=@idpdam;
 SET @maxId = (SELECT IFNULL(MAX(idrole),0) FROM master_user_role);
