@@ -1,0 +1,25 @@
+﻿SELECT
+ @idpdam,
+ idtipepermohonan,
+ kodetipepermohonan,
+ namatipepermohonan,
+ idjenisnonair,
+ kategori,
+ flagpelangganair,
+ flagpelangganlimbah,
+ flagpelangganlltt,
+ flagnonpelanggan,
+ flagpermohonanpelanggannonaktif,
+ step_spk,
+ step_rab,
+ step_spkpasang,
+ step_beritaacara,
+ step_verifikasi,
+ kolektif,
+ listselainidstatus,
+ flagaktif,
+ flaghapus,
+ waktuupdate
+FROM
+ master_attribute_tipe_permohonan
+WHERE idpdam=@idpdamcopy;

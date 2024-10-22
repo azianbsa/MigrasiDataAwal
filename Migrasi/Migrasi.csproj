@@ -34,7 +34,10 @@
     <None Update="Queries\master_attribute_jenis_bangunan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_jenis_nonair_copy.sql">
+    <None Update="Queries\master_attribute_jenis_nonair.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\master_attribute_jenis_nonair_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\master_attribute_jenis_pipa.sql">
@@ -61,6 +64,12 @@
     <None Update="Queries\master_attribute_kwh.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\master_attribute_label_report.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\master_attribute_loket.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\master_attribute_merek_meter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -82,6 +91,18 @@
     <None Update="Queries\master_attribute_sumber_air.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\master_attribute_tipe_permohonan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\master_attribute_tipe_permohonan_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\master_attribute_tipe_permohonan_detail_ba.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\master_attribute_tipe_permohonan_detail_spk.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\master_attribute_wilayah.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -95,6 +116,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\master_periode_billing.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\master_report_maingroup.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\master_tarif_administrasi_lain.sql">

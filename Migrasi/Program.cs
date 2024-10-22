@@ -9,48 +9,7 @@ namespace Migrasi
             DataAwalConfiguration cfg = new(
                 bsbsConnectionString: ConfigurationManager.AppSettings["bsbsConnectionString"]!,
                 v6ConnectionString: ConfigurationManager.AppSettings["v6ConnectionString"]!);
-            DataAwalConfiguration cfgCopy = new(
-                bsbsConnectionString: ConfigurationManager.AppSettings["v6ConnectionString"]!,
-                v6ConnectionString: ConfigurationManager.AppSettings["v6ConnectionString"]!);
             int _idpdam = -999;
-            List<string> _paketBacameter =
-            [
-                "flag",
-                "status",
-                "jenis_bangunan",
-                "kepemilikan",
-                "pekerjaan",
-                "peruntukan",
-                "jenis_pipa",
-                "kwh",
-                "golongan",
-                "golongan_detail",
-                "diameter",
-                "diameter_detail",
-                "wilayah",
-                "area",
-                "rayon",
-                "blok",
-                "cabang",
-                "kecamatan",
-                "kelurahan",
-                "dma",
-                "dmz",
-                "administrasi_lain",
-                "pemeliharaan_lain",
-                "retribusi_lain",
-                "kolektif",
-                "sumber_air",
-                "merek_meter",
-                "kondisi_meter",
-                "kelainan",
-                "petugas_baca",
-                "periode",
-                "periode_billing",
-                "pelanggan_air",
-                "pelanggan_air_detail",
-                "drd",
-            ];
             List<DataAwal> processList =
             [
                 new(
@@ -450,14 +409,152 @@ namespace Migrasi
                 new(
                     processName: $"Jenis Nonair",
                     tableName: "master_attribute_jenis_nonair",
-                    queryPath: @"Queries\master_attribute_jenis_nonair_copy.sql",
+                    queryPath: @"Queries\master_attribute_jenis_nonair.sql",
                     parameter: new()
                     {
                         { "@idpdam", null },
                         { "@idpdamcopy", 0 }
                     },
-                    sourceConnection: SourceConnection.V6,
-                    configuration: cfgCopy),
+                    sourceConnection: null,
+                    configuration: cfg),
+                new(
+                    processName: $"Jenis Nonair Detail",
+                    tableName: "master_attribute_jenis_nonair_detail",
+                    queryPath: @"Queries\master_attribute_jenis_nonair_detail.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: null,
+                    configuration: cfg),
+                new(
+                    processName: $"Label Report",
+                    tableName: "master_attribute_label_report",
+                    queryPath: @"Queries\master_attribute_label_report.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: null,
+                    configuration: cfg),
+                new(
+                    processName: $"Loket",
+                    tableName: "master_attribute_loket",
+                    queryPath: @"Queries\master_attribute_loket.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: SourceConnection.Loket,
+                    configuration: cfg),
+                new(
+                    processName: $"Tipe Permohonan",
+                    tableName: "master_attribute_tipe_permohonan",
+                    queryPath: @"Queries\master_attribute_tipe_permohonan.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: null,
+                    configuration: cfg),
+                new(
+                    processName: $"Tipe Permohonan Detail",
+                    tableName: "master_attribute_tipe_permohonan_detail",
+                    queryPath: @"Queries\master_attribute_tipe_permohonan_detail.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: null,
+                    configuration: cfg),
+                new(
+                    processName: $"Tipe Permohonan Detail Ba",
+                    tableName: "master_attribute_tipe_permohonan_detail_ba",
+                    queryPath: @"Queries\master_attribute_tipe_permohonan_detail_ba.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: null,
+                    configuration: cfg),
+                new(
+                    processName: $"Tipe Permohonan Detail Spk",
+                    tableName: "master_attribute_tipe_permohonan_detail_spk",
+                    queryPath: @"Queries\master_attribute_tipe_permohonan_detail_spk.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: null,
+                    configuration: cfg),
+                new(
+                    processName: $"Maingroup",
+                    tableName: "master_report_maingroup",
+                    queryPath: @"Queries\master_report_maingroup.sql",
+                    parameter: new()
+                    {
+                        { "@idpdam", null },
+                        { "@idpdamcopy", 0 }
+                    },
+                    sourceConnection: null,
+                    configuration: cfg),
+            ];
+            List<string> _paketBacameter =
+            [
+                "flag",
+                "status",
+                "jenis_bangunan",
+                "kepemilikan",
+                "pekerjaan",
+                "peruntukan",
+                "jenis_pipa",
+                "kwh",
+                "golongan",
+                "golongan_detail",
+                "diameter",
+                "diameter_detail",
+                "wilayah",
+                "area",
+                "rayon",
+                "blok",
+                "cabang",
+                "kecamatan",
+                "kelurahan",
+                "dma",
+                "dmz",
+                "administrasi_lain",
+                "pemeliharaan_lain",
+                "retribusi_lain",
+                "kolektif",
+                "sumber_air",
+                "merek_meter",
+                "kondisi_meter",
+                "kelainan",
+                "petugas_baca",
+                "periode",
+                "periode_billing",
+                "pelanggan_air",
+                "pelanggan_air_detail",
+                "drd",
+            ];
+            List<string> _paketBasic =
+            [
+                "jenis_nonair",
+                "jenis_nonair_detail",
+                "label_report",
+                "loket",
+                "tipe_permohonan",
+                "tipe_permohonan_detail",
+                "tipe_permohonan_detail_ba",
+                "tipe_permohonan_detail_spk",
+                "maingroup",
             ];
 
             var arguments = ParseArguments(args);
