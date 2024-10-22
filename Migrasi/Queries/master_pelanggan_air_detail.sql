@@ -56,4 +56,5 @@ FROM
  LEFT JOIN byadministrasi_lain adm ON adm.kode = pel.kodeadministrasilain
  LEFT JOIN bypemeliharaan_lain pem ON pem.kode = pel.kodepemeliharaanlain
  LEFT JOIN byretribusi_lain ret ON ret.kode = pel.koderetribusilain
- ,(SELECT @id := @lastId) AS id;
+ ,(SELECT @id := @lastId) AS id
+ ORDER BY pel.nosamb;

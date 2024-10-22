@@ -19,7 +19,8 @@ FROM
 	@idpelanggan:=@idpelanggan+1 AS idpelanggan,
 	nosamb
 	FROM pelanggan
-	,(SELECT @idpelanggan:=0) AS idpelanggan 
+	,(SELECT @idpelanggan:=0) AS idpelanggan
+	ORDER BY nosamb
  ) pel ON pel.nosamb = rek.nosamb
  JOIN (
 	SELECT
@@ -27,4 +28,5 @@ FROM
 	periode
 	FROM periode
 	,(SELECT @idperiode:=0) AS idperiode
+	ORDER BY periode
  ) per ON per.periode = [tahunbulan];

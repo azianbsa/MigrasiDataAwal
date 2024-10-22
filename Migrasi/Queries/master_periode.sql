@@ -8,4 +8,5 @@
  NOW() AS waktuupdate
 FROM
  periode
- ,(SELECT @id:=0) AS id;
+ ,(SELECT @id:=0) AS id
+ ORDER BY periode;

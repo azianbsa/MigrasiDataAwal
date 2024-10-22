@@ -26,7 +26,7 @@ SELECT
  NULL AS fotodenah1,
  NULL AS fotodenah2,
  999 AS akurasi,
- 0 AS flaghapus,
+ IF(tanggal_hapus IS NULL, 0, 1) AS flaghapus,
  NOW() AS waktuupdate
 FROM
  pelanggan pel
@@ -36,4 +36,5 @@ FROM
  LEFT JOIN rayon ray ON ray.koderayon = pel.koderayon
  LEFT JOIN kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan
  LEFT JOIN kolektif kol ON kol.kodekolektif = pel.kodekolektif
- ,(SELECT @id := @lastId) AS id;
+ ,(SELECT @id := @lastId) AS id
+ ORDER BY pel.nosamb;
