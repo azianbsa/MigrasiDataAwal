@@ -1,6 +1,6 @@
 SELECT
  @idpdam,
- @id := @id + 1 AS idpelangganair,
+ pel.id AS idpelangganair,
  pel.nosamb,
  pel.norekening,
  pel.nama,
@@ -35,6 +35,4 @@ FROM
  LEFT JOIN merkmeter mer ON mer.merk = pel.merkmeter
  LEFT JOIN rayon ray ON ray.koderayon = pel.koderayon
  LEFT JOIN kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan
- LEFT JOIN kolektif kol ON kol.kodekolektif = pel.kodekolektif
- ,(SELECT @id := @lastId) AS id
- ORDER BY pel.nosamb;
+ LEFT JOIN kolektif kol ON kol.kodekolektif = pel.kodekolektif;

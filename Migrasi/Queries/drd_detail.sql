@@ -1,6 +1,6 @@
 ﻿SELECT
  @idpdam,
- pel.idpelanggan AS idpelangganair,
+ pel.id AS idpelangganair,
  per.idperiode,
  IFNULL(rek.blok1, 0) AS blok1,
  IFNULL(rek.blok2, 0) AS blok2,
@@ -14,14 +14,7 @@
  IFNULL(rek.prog5, 0) AS prog5
 FROM
  drd[tahunbulan] rek
- JOIN (
-	SELECT
-	@idpelanggan:=@idpelanggan+1 AS idpelanggan,
-	nosamb
-	FROM pelanggan
-	,(SELECT @idpelanggan:=0) AS idpelanggan
-	ORDER BY nosamb
- ) pel ON pel.nosamb = rek.nosamb
+ JOIN pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN (
 	SELECT
 	@idperiode:=@idperiode+1 AS idperiode,

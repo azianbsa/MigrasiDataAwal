@@ -1,6 +1,6 @@
 SELECT
  @idpdam,
- @id := @id+ 1 AS idpelangganair,
+ pel.id AS idpelangganair,
  IFNULL(sua.id, -1) AS idsumberair,
  -1 AS iddma,
  -1 AS iddmz,
@@ -55,6 +55,4 @@ FROM
  ) kon ON kon.kodekondisi = pel.kodekondisimeter
  LEFT JOIN byadministrasi_lain adm ON adm.kode = pel.kodeadministrasilain
  LEFT JOIN bypemeliharaan_lain pem ON pem.kode = pel.kodepemeliharaanlain
- LEFT JOIN byretribusi_lain ret ON ret.kode = pel.koderetribusilain
- ,(SELECT @id := @lastId) AS id
- ORDER BY pel.nosamb;
+ LEFT JOIN byretribusi_lain ret ON ret.kode = pel.koderetribusilain;
