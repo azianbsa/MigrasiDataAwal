@@ -18,4 +18,5 @@
  NOW() AS waktuupdate
 FROM
  pembacameter
- ,(SELECT @id:=0) AS id;
+ ,(SELECT @id:=0) AS id
+ ORDER BY nama;

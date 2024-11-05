@@ -1,4 +1,4 @@
-UPDATE pelanggan SET merkmeter='-' WHERE merkmeter='';
+UPDATE pelanggan SET merkmeter='-' WHERE merkmeter IS NULL OR merkmeter='';
 
 REPLACE INTO merkmeter (merk)
 SELECT

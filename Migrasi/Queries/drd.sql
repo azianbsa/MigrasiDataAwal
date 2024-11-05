@@ -121,6 +121,7 @@ FROM
 	nama
 	FROM pembacameter
 	,(SELECT @idpetugasbaca:=0) AS idpetugasbaca
+	ORDER BY nama
  ) pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
  LEFT JOIN kelainan kln ON kln.kelainan = rek.kelainan
  ,(SELECT @id := 0) AS id;
