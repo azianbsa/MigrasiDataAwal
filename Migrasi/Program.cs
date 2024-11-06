@@ -1,4 +1,8 @@
-﻿using System.Configuration;
+﻿using DotNetEnv;
+using Migrasi.Commands;
+using Spectre.Console;
+using Spectre.Console.Cli;
+using System.Configuration;
 
 namespace Migrasi
 {
@@ -608,6 +612,111 @@ namespace Migrasi
                     {
                         case "bacameter":
                             {
+                                #region data pelanggan cleanup
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\tambah_field_id_tabel_pelanggan.sql",
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Golongan",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_golongan.sql",
+                                    placeholder: new()
+                                    {
+                                        { "[table]", "pelanggan" }
+                                    },
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Diameter",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_diameter.sql",
+                                    parameter: [],
+                                    placeholder: new()
+                                    {
+                                        { "[table]", "pelanggan" }
+                                    },
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Merek Meter",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_merek_meter.sql",
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Kelurahan",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_kelurahan.sql",
+                                    placeholder: new()
+                                    {
+                                        { "[table]", "pelanggan" }
+                                    },
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Kolektif",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_kolektif.sql",
+                                    placeholder: new()
+                                    {
+                                        { "[table]", "pelanggan" }
+                                    },
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Sumber Air",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_sumber_air.sql",
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Blok",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_blok.sql",
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Kondisi Meter",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_kondisi_meter.sql",
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Adm. Lain",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_adm_lain.sql",
+                                    placeholder: new()
+                                    {
+                                        { "[table]", "pelanggan" }
+                                    },
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Pem. Lain",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_pem_lain.sql",
+                                    placeholder: new()
+                                    {
+                                        { "[table]", "pelanggan" }
+                                    },
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+                                await new DataAwal(
+                                    processName: "Bsbs Pelanggan Cleanup Ret. Lain",
+                                    tableName: "",
+                                    queryPath: @"Queries\Patches\data_cleanup_ret_lain.sql",
+                                    placeholder: new()
+                                    {
+                                        { "[table]", "pelanggan" }
+                                    },
+                                    sourceConnection: null,
+                                    configuration: cfg).ExecuteAsync1();
+
+                                #endregion
+
                                 foreach (var key in _paketBacameter)
                                 {
                                     var process = processList.Where(s => s.Key == key).First();
@@ -621,6 +730,82 @@ namespace Migrasi
 
                                         for (var i = _batasBawahPeriode; i < _batasBawahPeriode + 4; i++)
                                         {
+                                            #region data drd cleanup
+
+                                            await new DataAwal(
+                                                processName: $"Bsbs DRD{i} Cleanup Golongan",
+                                                tableName: "",
+                                                queryPath: @"Queries\Patches\data_cleanup_golongan.sql",
+                                                placeholder: new()
+                                                {
+                                                    { "[table]", $"drd{i}" }
+                                                },
+                                                sourceConnection: null,
+                                                configuration: cfg).ExecuteAsync1();
+                                            await new DataAwal(
+                                                processName: $"Bsbs DRD{i} Cleanup Diameter",
+                                                tableName: "",
+                                                queryPath: @"Queries\Patches\data_cleanup_diameter.sql",
+                                                parameter: [],
+                                                placeholder: new()
+                                                {
+                                                    { "[table]", $"drd{i}" }
+                                                },
+                                                sourceConnection: null,
+                                                configuration: cfg).ExecuteAsync1();
+                                            await new DataAwal(
+                                                processName: $"Bsbs DRD{i} Cleanup Kelurahan",
+                                                tableName: "",
+                                                queryPath: @"Queries\Patches\data_cleanup_kelurahan.sql",
+                                                placeholder: new()
+                                                {
+                                                    { "[table]", $"drd{i}" }
+                                                },
+                                                sourceConnection: null,
+                                                configuration: cfg).ExecuteAsync1();
+                                            await new DataAwal(
+                                                processName: $"Bsbs DRD{i} Cleanup Kolektif",
+                                                tableName: "",
+                                                queryPath: @"Queries\Patches\data_cleanup_kolektif.sql",
+                                                placeholder: new()
+                                                {
+                                                    { "[table]", $"drd{i}" }
+                                                },
+                                                sourceConnection: null,
+                                                configuration: cfg).ExecuteAsync1();
+                                            await new DataAwal(
+                                                processName: $"Bsbs DRD{i} Cleanup Adm. Lain",
+                                                tableName: "",
+                                                queryPath: @"Queries\Patches\data_cleanup_adm_lain.sql",
+                                                placeholder: new()
+                                                {
+                                                    { "[table]", $"drd{i}" }
+                                                },
+                                                sourceConnection: null,
+                                                configuration: cfg).ExecuteAsync1();
+                                            await new DataAwal(
+                                                processName: $"Bsbs DRD{i} Cleanup Pem. Lain",
+                                                tableName: "",
+                                                queryPath: @"Queries\Patches\data_cleanup_pem_lain.sql",
+                                                placeholder: new()
+                                                {
+                                                    { "[table]", $"drd{i}" }
+                                                },
+                                                sourceConnection: null,
+                                                configuration: cfg).ExecuteAsync1();
+                                            await new DataAwal(
+                                                processName: $"Bsbs DRD{i} Cleanup Ret. Lain",
+                                                tableName: "",
+                                                queryPath: @"Queries\Patches\data_cleanup_ret_lain.sql",
+                                                placeholder: new()
+                                                {
+                                                    { "[table]", $"drd{i}" }
+                                                },
+                                                sourceConnection: null,
+                                                configuration: cfg).ExecuteAsync1();
+
+                                            #endregion
+
                                             process.ProcessName = $"DRD{i}";
                                             process.Placeholder!["[tahunbulan]"] = i.ToString();
                                             await process.ProsesAsync();
@@ -788,5 +973,64 @@ namespace Migrasi
 
             return arguments;
         }
+
+        public static int Main1(string[] args)
+        {
+            #region environment variables
+
+            Env.Load(".env");
+
+            var dbSuffix = (Environment)Enum.Parse(typeof(Environment), Env.GetString("ENVIRONMENT", "Development")) switch
+            {
+                Environment.Development => "_DEV",
+                Environment.Staging => "_STG",
+                Environment.Production => "_PRD",
+                _ => "_DEV"
+            };
+
+            AppSettings.DBHost = Env.GetString($"DB_HOST{dbSuffix}");
+            AppSettings.DBPort = (uint)Env.GetInt($"DB_PORT{dbSuffix}");
+            AppSettings.DBUser = Env.GetString($"DB_USER{dbSuffix}");
+            AppSettings.DBPassword = Env.GetString($"DB_PASSWORD{dbSuffix}");
+            AppSettings.DBName = Env.GetString($"DB_NAME{dbSuffix}");
+
+            #endregion
+
+            var app = new CommandApp();
+
+            app.Configure(config =>
+            {
+                config.PropagateExceptions();
+                config.AddCommand<NewCommand>("new");
+                //config.AddCommand<MasterDataCommand>("master");
+                //config.AddCommand<DrdCommand>("drd");
+                //config.AddCommand<PiutangCommand>("piutang");
+                //config.AddCommand<BayarCommand>("bayar");
+                //config.AddCommand<NonairCommand>("nonair");
+                //config.AddCommand<PermohonanCommand>("permohonan");
+            });
+
+            try
+            {
+                return app.Run(args);
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                return -99;
+            }
+        }
+
+        public static void WriteLogMessage(string message)
+        {
+            AnsiConsole.MarkupLine($"[grey]LOG:[/] {message}[grey]...[/]");
+        }
+    }
+
+    public enum Environment
+    {
+        Development,
+        Staging,
+        Production
     }
 }

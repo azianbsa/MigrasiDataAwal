@@ -1,10 +1,5 @@
 ﻿SET FOREIGN_KEY_CHECKS=0;
 
-SET @q = CONCAT('ALTER TABLE master_attribute_pdam_detail ADD PARTITION (PARTITION pdam',@idpdam,' VALUES IN (',@idpdam,') ENGINE = INNODB)');
-PREPARE stmt FROM @q;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
 DELETE FROM master_attribute_pdam WHERE idpdam=@idpdam;
 INSERT INTO master_attribute_pdam
 SELECT

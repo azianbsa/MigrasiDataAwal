@@ -121,6 +121,40 @@ namespace Migrasi
             Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Finish ({sw.Elapsed})");
         }
 
+        public async Task ExecuteAsync1()
+        {
+            var sw = Stopwatch.StartNew();
+            Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Starting");
+
+            await bsbsConnection.OpenAsync();
+            var trans = await bsbsConnection.BeginTransactionAsync();
+
+            try
+            {
+                var cmd = await GetCommandWithParameter();
+                cmd.Connection = bsbsConnection;
+                cmd.Transaction = trans;
+                cmd.CommandTimeout = 10 * 60;
+                await cmd.ExecuteNonQueryAsync();
+                await trans.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                await trans.RollbackAsync();
+                Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] error ({ProcessName}): {e.Message}");
+                Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] rolling back ({ProcessName})");
+                throw;
+            }
+            finally
+            {
+                await bsbsConnection.CloseAsync();
+                await MySqlConnection.ClearPoolAsync(bsbsConnection);
+            }
+
+            sw.Stop();
+            Console.WriteLine($"[{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}] {ProcessName}...Finish ({sw.Elapsed})");
+        }
+
         private void GetSourceConnection(out MySqlConnection? connection)
         {
             connection = sourceConnection switch
