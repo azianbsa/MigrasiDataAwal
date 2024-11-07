@@ -17,9 +17,6 @@ namespace Migrasi.Commands
 
             [CommandOption("-n|--nama-paket")]
             public Paket? NamaPaket { get; set; }
-
-            [CommandOption("-e|--environment")]
-            public Environment? Environment { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -29,10 +26,6 @@ namespace Migrasi.Commands
                     new SelectionPrompt<Paket>()
                     .Title("Pilih paket :")
                     .AddChoices([Paket.Bacameter, Paket.Basic]));
-            settings.Environment ??= AnsiConsole.Prompt(
-                    new SelectionPrompt<Environment>()
-                    .Title("Target environment :")
-                    .AddChoices([Environment.Development, Environment.Staging, Environment.Production]));
 
             switch (settings.NamaPaket)
             {
@@ -48,7 +41,7 @@ namespace Migrasi.Commands
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
                             .AddRow("Billing", AppSettings.BsbsDBName)
                             .AddRow("Periode data dari", bbPeriode.ToString()!)
-                            .AddRow("Environment", settings.Environment.ToString()!));
+                            .AddRow("Environment", AppSettings.Environment.ToString()));
 
                         var proceedWithSettings = AnsiConsole.Prompt(
                             new TextPrompt<bool>("Proceed with the aformentioned settings?")

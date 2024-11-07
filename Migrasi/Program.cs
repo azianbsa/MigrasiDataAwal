@@ -982,6 +982,8 @@ namespace Migrasi
 
             Env.Load(".env");
 
+            AppSettings.Environment = (Environment)Enum.Parse(typeof(Environment), Env.GetString("ENVIRONMENT", "Development"));
+
             var dbSuffix = (Environment)Enum.Parse(typeof(Environment), Env.GetString("ENVIRONMENT", "Development")) switch
             {
                 Environment.Development => "_DEV",

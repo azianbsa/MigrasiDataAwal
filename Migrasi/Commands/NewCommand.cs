@@ -20,10 +20,6 @@ namespace Migrasi.Commands
 
             [CommandOption("-c|--copy-dari-idpdam")]
             public int? IdPdamCopy { get; set; }
-
-
-            [CommandOption("-e|--environment")]
-            public Environment? Environment { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -31,10 +27,6 @@ namespace Migrasi.Commands
             settings.IdPdam ??= AnsiConsole.Ask<int>("ID PDAM :");
             settings.NamaPdam ??= AnsiConsole.Ask<string>("Nama PDAM :");
             settings.IdPdamCopy ??= AnsiConsole.Ask<int>("Copy data dari ID PDAM :");
-            settings.Environment ??= AnsiConsole.Prompt(
-                    new SelectionPrompt<Environment>()
-                    .Title("Target environment :")
-                    .AddChoices([Environment.Development, Environment.Staging, Environment.Production]));
 
             AnsiConsole.Write(
                 new Table()
@@ -43,7 +35,7 @@ namespace Migrasi.Commands
                 .AddRow("Id pdam", settings.IdPdam.ToString()!)
                 .AddRow("Nama pdam", settings.NamaPdam)
                 .AddRow("Copy data dari pdam", settings.IdPdamCopy.ToString()!)
-                .AddRow("Environment", settings.Environment.ToString()!));
+                .AddRow("Environment", AppSettings.Environment.ToString()));
 
             var proceedWithSettings = AnsiConsole.Prompt(
                 new TextPrompt<bool>("Proceed with the aformentioned settings?")
