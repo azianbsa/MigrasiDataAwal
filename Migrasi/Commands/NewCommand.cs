@@ -3,7 +3,8 @@ using Spectre.Console;
 using MySqlConnector;
 using System.Diagnostics;
 using Dapper;
-using System.Dynamic;
+using Environment = Migrasi.Enums.Environment;
+using Migrasi.Helpers;
 
 namespace Migrasi.Commands
 {
@@ -83,7 +84,7 @@ namespace Migrasi.Commands
                         {
                             var sw = Stopwatch.StartNew();
 
-                            Program.WriteLogMessage("Setting partition");
+                            Utils.WriteLogMessage("Setting partition");
                             var partisiTable = await conn.QueryAsync<string>("SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
                                 new { schema = AppSettings.DBName }, trans);
                             if (partisiTable.Any())
@@ -105,7 +106,7 @@ namespace Migrasi.Commands
                                 }
                             }
 
-                            Program.WriteLogMessage("Setup new pdam");
+                            Utils.WriteLogMessage("Setup new pdam");
                             var query = await File.ReadAllTextAsync(@"Queries\Patches\setup_new_pdam.sql");
                             await conn.ExecuteAsync(query,
                                 new

@@ -1,14 +1,16 @@
 ﻿using DotNetEnv;
 using Migrasi.Commands;
+using Migrasi.Enums;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.Configuration;
+using Environment = Migrasi.Enums.Environment;
 
 namespace Migrasi
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main1(string[] args)
         {
             DataAwalConfiguration cfg = new(
                 bsbsConnectionString: ConfigurationManager.AppSettings["bsbsConnectionString"]!,
@@ -974,7 +976,7 @@ namespace Migrasi
             return arguments;
         }
 
-        public static int Main1(string[] args)
+        public static int Main(string[] args)
         {
             #region environment variables
 
@@ -994,6 +996,12 @@ namespace Migrasi
             AppSettings.DBPassword = Env.GetString($"DB_PASSWORD{dbSuffix}");
             AppSettings.DBName = Env.GetString($"DB_NAME{dbSuffix}");
 
+            AppSettings.BsbsHost = Env.GetString($"DB_HOST_BSBS");
+            AppSettings.BsbsPort = (uint)Env.GetInt($"DB_PORT_BSBS");
+            AppSettings.BsbsUser = Env.GetString($"DB_USER_BSBS");
+            AppSettings.BsbsPassword = Env.GetString($"DB_PASSWORD_BSBS");
+            AppSettings.BsbsDBName = Env.GetString($"DB_NAME_BSBS");
+
             #endregion
 
             var app = new CommandApp();
@@ -1002,8 +1010,7 @@ namespace Migrasi
             {
                 config.PropagateExceptions();
                 config.AddCommand<NewCommand>("new");
-                //config.AddCommand<MasterDataCommand>("master");
-                //config.AddCommand<DrdCommand>("drd");
+                config.AddCommand<PaketCommand>("paket");
                 //config.AddCommand<PiutangCommand>("piutang");
                 //config.AddCommand<BayarCommand>("bayar");
                 //config.AddCommand<NonairCommand>("nonair");
@@ -1012,6 +1019,7 @@ namespace Migrasi
 
             try
             {
+                AnsiConsole.Write(new FigletText("Data Awal v6").Color(Color.Aqua));
                 return app.Run(args);
             }
             catch (Exception ex)
@@ -1020,17 +1028,5 @@ namespace Migrasi
                 return -99;
             }
         }
-
-        public static void WriteLogMessage(string message)
-        {
-            AnsiConsole.MarkupLine($"[grey]LOG:[/] {message}[grey]...[/]");
-        }
-    }
-
-    public enum Environment
-    {
-        Development,
-        Staging,
-        Production
     }
 }
