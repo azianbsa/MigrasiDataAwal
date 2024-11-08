@@ -484,7 +484,7 @@ namespace Migrasi.Commands
                                         {
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                await conn.ExecuteAsync("INSERT INTO kelainan (kelainan) VALUES (@kelainan)",
+                                                await conn.ExecuteAsync("REPLACE INTO kelainan (kelainan) VALUES (@kelainan)",
                                                     kelainan, trans);
                                             });
                                         }
