@@ -67,9 +67,55 @@ namespace Migrasi.Helpers
             }
         }
 
-        public static async Task BsbsClient(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        public static async Task Client(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        {
+            using var conn = new MySqlConnection(AppSettings.ConnectionString);
+            await conn.OpenAsync();
+            var trans = await conn.BeginTransactionAsync();
+
+            try
+            {
+                await operations(conn, trans);
+                await trans.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await trans.RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                await conn.CloseAsync();
+                await MySqlConnection.ClearPoolAsync(conn);
+            }
+        }
+
+        public static async Task ClientBilling(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.ConnectionStringBilling);
+            await conn.OpenAsync();
+            var trans = await conn.BeginTransactionAsync();
+
+            try
+            {
+                await operations(conn, trans);
+                await trans.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await trans.RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                await conn.CloseAsync();
+                await MySqlConnection.ClearPoolAsync(conn);
+            }
+        }
+
+        public static async Task ClientBacameter(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        {
+            using var conn = new MySqlConnection(AppSettings.ConnectionStringBacameter);
             await conn.OpenAsync();
             var trans = await conn.BeginTransactionAsync();
 

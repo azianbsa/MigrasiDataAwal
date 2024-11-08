@@ -1,9 +1,7 @@
 ﻿using Spectre.Console.Cli;
 using Spectre.Console;
-using MySqlConnector;
 using System.Diagnostics;
 using Dapper;
-using Environment = Migrasi.Enums.Environment;
 using Migrasi.Helpers;
 
 namespace Migrasi.Commands
@@ -33,12 +31,20 @@ namespace Migrasi.Commands
                     {
                         var bbPeriode = AnsiConsole.Ask<int>("Periode data dari (yyyyMM) :");
 
+                        string? namaPdam = "";
+                        await Utils.Client(async (conn, trans) =>
+                        {
+                            namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
+                        });
+
                         AnsiConsole.Write(
                             new Table()
                             .AddColumn(new TableColumn("Setting"))
                             .AddColumn(new TableColumn("Value"))
                             .AddRow("Id pdam", settings.IdPdam.ToString()!)
+                            .AddRow("Nama pdam", namaPdam)
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
+                            .AddRow("Bacameter", AppSettings.DBNameBacameter)
                             .AddRow("Billing", AppSettings.DBNameBilling)
                             .AddRow("Periode data dari", bbPeriode.ToString()!)
                             .AddRow("Environment", AppSettings.Environment.ToString()));
@@ -66,7 +72,7 @@ namespace Migrasi.Commands
                                     #region Clean redundan data pelanggan bsbs
 
                                     Utils.WriteLogMessage("Tambah primary key id pelanggan");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
                                             new { schema = AppSettings.DBNameBilling }, trans);
@@ -78,7 +84,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan golongan");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -86,7 +92,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan diameter");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -94,14 +100,14 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan merek meter");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_merek_meter.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan kelurahan");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -109,7 +115,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan kolektif");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -117,28 +123,28 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan sumber air");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_sumber_air.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan blok");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_blok.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan kondisi meter");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kondisi_meter.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan administrasi lain");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -146,7 +152,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan pemeliharaan lain");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -154,7 +160,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan retribusi lain");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -532,13 +538,65 @@ namespace Migrasi.Commands
                                             { "@idpdam", settings.IdPdam }
                                         });
 
+                                    Utils.WriteLogMessage("Proses jadwal baca");
+                                    await Utils.ClientBacameter(async (conn, trans) =>
+                                    {
+                                        var jadwalbaca = await conn.QueryAsync(@"SELECT
+                                            b.nama AS petugasbaca,
+                                            c.koderayon
+                                            FROM
+                                            jadwalbaca a
+                                            JOIN petugasbaca b ON a.idpetugas=b.idpetugas
+                                            JOIN rayon c ON a.idrayon=c.idrayon", transaction: trans);
+                                        if (jadwalbaca.Any())
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                List<dynamic> data = [];
+                                                var listPetugas = await conn.QueryAsync(@"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
+                                                    new { idpdam = settings.IdPdam }, trans);
+                                                var listRayon = await conn.QueryAsync(@"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
+                                                    new { idpdam = settings.IdPdam }, trans);
+
+                                                int id = 1;
+                                                foreach (var item in jadwalbaca)
+                                                {
+                                                    dynamic o = new
+                                                    {
+                                                        idpdam = settings.IdPdam,
+                                                        idjadwalbaca = id++,
+                                                        idpetugasbaca =
+                                                            listPetugas
+                                                                .Where(s => s.petugasbaca.ToLower() == item.petugasbaca.ToLower())
+                                                                .Select(s => s.idpetugasbaca).FirstOrDefault(),
+                                                        idrayon =
+                                                            listRayon
+                                                                .Where(s => s.koderayon == item.koderayon)
+                                                                .Select(s => s.idrayon).FirstOrDefault()
+                                                    };
+
+                                                    if (o.idpetugasbaca != null && o.idrayon != null)
+                                                    {
+                                                        data.Add(o);
+                                                    }
+                                                }
+
+                                                if (data.Count != 0)
+                                                {
+                                                    await conn.ExecuteAsync(@"REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
+                                                    VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)", data, trans);
+                                                }
+                                            });
+                                        }
+                                    });
+
                                     #endregion
 
                                     for (int i = bbPeriode; i < bbPeriode + 4; i++)
                                     {
                                         ctx.Status = $"Proses data drd {(i - bbPeriode) + 1}/4";
                                         Utils.WriteLogMessage("Cek bsbs golongan");
-                                        await Utils.BsbsClient(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
                                             query = query.Replace("[table]", $"drd{i}");
@@ -546,7 +604,7 @@ namespace Migrasi.Commands
                                         });
 
                                         Utils.WriteLogMessage("Cek bsbs diameter");
-                                        await Utils.BsbsClient(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
                                             query = query.Replace("[table]", $"drd{i}");
@@ -554,7 +612,7 @@ namespace Migrasi.Commands
                                         });
 
                                         Utils.WriteLogMessage("Cek bsbs kelurahan");
-                                        await Utils.BsbsClient(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
                                             query = query.Replace("[table]", $"drd{i}");
@@ -562,7 +620,7 @@ namespace Migrasi.Commands
                                         });
 
                                         Utils.WriteLogMessage("Cek bsbs kolektif");
-                                        await Utils.BsbsClient(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
                                             query = query.Replace("[table]", $"drd{i}");
@@ -570,7 +628,7 @@ namespace Migrasi.Commands
                                         });
 
                                         Utils.WriteLogMessage("Cek bsbs administrasi lain");
-                                        await Utils.BsbsClient(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
                                             query = query.Replace("[table]", $"drd{i}");
@@ -578,7 +636,7 @@ namespace Migrasi.Commands
                                         });
 
                                         Utils.WriteLogMessage("Cek bsbs pemeliharaan lain");
-                                        await Utils.BsbsClient(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
                                             query = query.Replace("[table]", $"drd{i}");
@@ -586,7 +644,7 @@ namespace Migrasi.Commands
                                         });
 
                                         Utils.WriteLogMessage("Cek bsbs retribusi lain");
-                                        await Utils.BsbsClient(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
                                             query = query.Replace("[table]", $"drd{i}");
@@ -643,7 +701,7 @@ namespace Migrasi.Commands
                                     #region Clean redundan data pelanggan bsbs
 
                                     Utils.WriteLogMessage("Tambah primary key id pelanggan");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
                                             new { schema = AppSettings.DBNameBilling }, trans);
@@ -655,7 +713,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan golongan");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -663,7 +721,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan diameter");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -671,14 +729,14 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan merek meter");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_merek_meter.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan kelurahan");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -686,7 +744,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan kolektif");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -694,28 +752,28 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan sumber air");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_sumber_air.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan blok");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_blok.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan kondisi meter");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kondisi_meter.sql");
                                         await conn.ExecuteAsync(query, transaction: trans);
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan administrasi lain");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -723,7 +781,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan pemeliharaan lain");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
                                         query = query.Replace("[table]", "pelanggan");
@@ -731,7 +789,7 @@ namespace Migrasi.Commands
                                     });
 
                                     Utils.WriteLogMessage("Cek pelanggan retribusi lain");
-                                    await Utils.BsbsClient(async (conn, trans) =>
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
                                         var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
                                         query = query.Replace("[table]", "pelanggan");
