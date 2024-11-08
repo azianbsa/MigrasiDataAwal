@@ -69,7 +69,7 @@ namespace Migrasi.Helpers
 
         public static async Task BsbsClient(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
-            using var conn = new MySqlConnection(AppSettings.BsbsConnectionString);
+            using var conn = new MySqlConnection(AppSettings.ConnectionStringBilling);
             await conn.OpenAsync();
             var trans = await conn.BeginTransactionAsync();
 

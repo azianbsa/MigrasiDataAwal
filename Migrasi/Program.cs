@@ -998,11 +998,17 @@ namespace Migrasi
             AppSettings.DBPassword = Env.GetString($"DB_PASSWORD{dbSuffix}");
             AppSettings.DBName = Env.GetString($"DB_NAME{dbSuffix}");
 
-            AppSettings.BsbsHost = Env.GetString($"DB_HOST_BSBS");
-            AppSettings.BsbsPort = (uint)Env.GetInt($"DB_PORT_BSBS");
-            AppSettings.BsbsUser = Env.GetString($"DB_USER_BSBS");
-            AppSettings.BsbsPassword = Env.GetString($"DB_PASSWORD_BSBS");
-            AppSettings.BsbsDBName = Env.GetString($"DB_NAME_BSBS");
+            AppSettings.DBHostBilling = Env.GetString($"DB_HOST_BILLING");
+            AppSettings.DBPortBilling = (uint)Env.GetInt($"DB_PORT_BILLING");
+            AppSettings.DBUserBilling = Env.GetString($"DB_USER_BILLING");
+            AppSettings.DBPasswordBilling = Env.GetString($"DB_PASSWORD_BILLING");
+            AppSettings.DBNameBilling = Env.GetString($"DB_NAME_BILLING");
+
+            AppSettings.DBHostBacameter = Env.GetString($"DB_HOST_BACAMETER");
+            AppSettings.DBPortBacameter = (uint)Env.GetInt($"DB_PORT_BACAMETER");
+            AppSettings.DBUserBacameter = Env.GetString($"DB_USER_BACAMETER");
+            AppSettings.DBPasswordBacameter = Env.GetString($"DB_PASSWORD_BACAMETER");
+            AppSettings.DBNameBacameter = Env.GetString($"DB_NAME_BACAMETER");
 
             #endregion
 
