@@ -7,6 +7,4 @@ SELECT
 FROM
  rayon;
  
-UPDATE pelanggan a
-JOIN pelanggan b ON b.nosamb=a.nosamb
-SET a.kodeblok=b.koderayon;
+UPDATE pelanggan SET kodeblok=koderayon;

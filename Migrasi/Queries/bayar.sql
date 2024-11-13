@@ -97,7 +97,7 @@
  NOW() AS waktuupdate,
  0 AS flaghapus
 FROM
- piutang rek
+ [table] rek
  JOIN pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN (
 	SELECT

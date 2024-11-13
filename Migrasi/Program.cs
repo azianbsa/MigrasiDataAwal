@@ -1,9 +1,9 @@
 ﻿using DotNetEnv;
 using Migrasi.Commands;
-using Migrasi.Enums;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.Configuration;
+using System.Diagnostics;
 using Environment = Migrasi.Enums.Environment;
 
 namespace Migrasi
@@ -1025,6 +1025,7 @@ namespace Migrasi
                 //config.AddCommand<PermohonanCommand>("permohonan");
             });
 
+            var sw = Stopwatch.StartNew();
             try
             {
                 AnsiConsole.Write(new FigletText("Data Awal v6").Color(Color.Aqua));
@@ -1034,6 +1035,11 @@ namespace Migrasi
             {
                 AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
                 return -99;
+            }
+            finally
+            {
+                sw.Stop();
+                AnsiConsole.MarkupLine($"[bold green]Program exit. (elapsed {sw.Elapsed})[/]");
             }
         }
     }

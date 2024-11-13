@@ -24,6 +24,14 @@ namespace Migrasi
         public static string DBPasswordBacameter { get; set; }
         public static string DBNameBacameter { get; set; }
 
+        public static string DBHostLoket { get; set; }
+        public static uint DBPortLoket { get; set; }
+        public static string DBUserLoket { get; set; }
+        public static string DBPasswordLoket { get; set; }
+        public static string DBNameLoket { get; set; }
+
+        public static int CommandTimeout { get; set; } = 3600;
+
         public static string ConnectionString => new MySqlConnectionStringBuilder
         {
             Server = DBHost,
@@ -53,6 +61,16 @@ namespace Migrasi
             UserID = DBUserBacameter,
             Password = DBPasswordBacameter,
             Database = DBNameBacameter,
+            AllowUserVariables = true,
+        }.ConnectionString;
+
+        public static string ConnectionStringLoket => new MySqlConnectionStringBuilder
+        {
+            Server = DBHostLoket,
+            Port = DBPortLoket,
+            UserID = DBUserLoket,
+            Password = DBPasswordLoket,
+            Database = DBNameLoket,
             AllowUserVariables = true,
         }.ConnectionString;
     }

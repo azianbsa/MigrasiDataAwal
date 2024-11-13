@@ -1,5 +1,6 @@
 ﻿using MySqlConnector;
 using Spectre.Console;
+using System.Diagnostics;
 
 namespace Migrasi.Helpers
 {
@@ -134,6 +135,14 @@ namespace Migrasi.Helpers
                 await conn.CloseAsync();
                 await MySqlConnection.ClearPoolAsync(conn);
             }
+        }
+
+        public static async Task TrackProgress(string process, Func<Task> fn)
+        {
+            var sw = Stopwatch.StartNew();
+            await fn();
+            sw.Stop();
+            AnsiConsole.MarkupLine($"[bold green]{process} finish (elapsed {sw.Elapsed})[/]");
         }
     }
 }
