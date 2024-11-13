@@ -1292,6 +1292,18 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+
+                                        ctx.Status("Proses user");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_user",
+                                            queryPath: @"Queries\master_user.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+
                                     });
 
                                     Utils.WriteLogMessage("Proses piutang");
