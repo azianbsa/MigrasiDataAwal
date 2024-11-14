@@ -63,12 +63,9 @@ namespace Migrasi.Commands
 
                         try
                         {
-                            var sw = Stopwatch.StartNew();
-
                             await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
-                                    Utils.WriteLogMessage("Clean redundan data pelanggan");
                                     await Utils.TrackProgress("Clean redundan data pelanggan", async () =>
                                     {
                                         ctx.Status("Tambah primary key id pelanggan");
@@ -168,7 +165,6 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    Utils.WriteLogMessage("Proses data master");
                                     await Utils.TrackProgress("Proses data master", async () =>
                                     {
                                         ctx.Status("Proses flag");
@@ -602,12 +598,10 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    Utils.WriteLogMessage("Proses data drd");
                                     await Utils.TrackProgress("Proses data drd", async () =>
                                     {
                                         for (int i = bbPeriode; i < bbPeriode + 4; i++)
                                         {
-                                            Utils.WriteLogMessage($"Clean redundan data drd {(i - bbPeriode) + 1}/4");
                                             await Utils.TrackProgress($"Clean redundan data drd {(i - bbPeriode) + 1}/4", async () =>
                                             {
                                                 ctx.Status("Cek golongan");
@@ -667,7 +661,6 @@ namespace Migrasi.Commands
                                                 });
                                             });
 
-                                            Utils.WriteLogMessage($"Proses data drd {(i - bbPeriode) + 1}/4");
                                             await Utils.TrackProgress($"Proses data drd {(i - bbPeriode) + 1}/4", async () =>
                                             {
                                                 await Utils.BulkCopy(
@@ -701,8 +694,7 @@ namespace Migrasi.Commands
                                     });
                                 });
 
-                            sw.Stop();
-                            AnsiConsole.MarkupLine($"[bold green]Migrasi data bacameter finish (elapsed {sw.Elapsed})[/]");
+                            AnsiConsole.MarkupLine($"[bold green]Migrasi data bacameter finish[/]");
                         }
                         catch (Exception)
                         {
@@ -728,6 +720,7 @@ namespace Migrasi.Commands
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
                             .AddRow("Bacameter", AppSettings.DBNameBacameter)
                             .AddRow("Billing", AppSettings.DBNameBilling)
+                            .AddRow("Loket", AppSettings.DBNameLoket)
                             .AddRow("Environment", AppSettings.Environment.ToString()));
 
                         var proceedWithSettings = AnsiConsole.Prompt(
@@ -744,12 +737,9 @@ namespace Migrasi.Commands
 
                         try
                         {
-                            var sw = Stopwatch.StartNew();
-
                             await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
-                                    Utils.WriteLogMessage("Clean redundan data pelanggan");
                                     await Utils.TrackProgress("Clean redundan data pelanggan", async () =>
                                     {
                                         ctx.Status("Tambah primary key id pelanggan");
@@ -849,7 +839,6 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    Utils.WriteLogMessage("Proses data master");
                                     await Utils.TrackProgress("Proses data master", async () =>
                                     {
                                         ctx.Status("Proses flag");
@@ -1294,6 +1283,10 @@ namespace Migrasi.Commands
                                             });
 
                                         ctx.Status("Proses user");
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync("SET GLOBAL FOREIGN_KEY_CHECKS=0", transaction: trans);
+                                        });
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringLoket,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1303,13 +1296,14 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync("SET GLOBAL FOREIGN_KEY_CHECKS=1", transaction: trans);
+                                        });
                                     });
 
-                                    Utils.WriteLogMessage("Proses piutang");
                                     await Utils.TrackProgress("Proses piutang", async () =>
                                     {
-                                        Utils.WriteLogMessage("Clean redundan data piutang");
                                         await Utils.TrackProgress("Clean redundan data piutang", async () =>
                                         {
                                             ctx.Status("Cek golongan");
@@ -1392,7 +1386,6 @@ namespace Migrasi.Commands
                                             });
                                     });
 
-                                    Utils.WriteLogMessage("Proses bayar");
                                     await Utils.TrackProgress("Proses bayar", async () =>
                                     {
                                         IEnumerable<string?> tahunBayar = [];
@@ -1499,12 +1492,30 @@ namespace Migrasi.Commands
                                                         { "[table]", $"bayar{tahun}" }
                                                     });
                                             });
+
+                                            ctx.Status($"Proses bayar{tahun} transaksi");
+                                            await Utils.TrackProgress($"Proses bayar{tahun} transaksi", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_transaksi",
+                                                    queryPath: @"Queries\bayar_transaksi.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam }
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", $"bayar{tahun}" },
+                                                        { "[dbloket]", AppSettings.DBNameLoket }
+                                                    });
+                                            });
                                         }
                                     });
                                 });
 
-                            sw.Stop();
-                            AnsiConsole.MarkupLine($"[bold green]Migrasi data basic finish (elapsed {sw.Elapsed})[/]");
+                            AnsiConsole.MarkupLine($"[bold green]Migrasi data basic finish[/]");
                         }
                         catch (Exception)
                         {

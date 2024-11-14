@@ -12,6 +12,12 @@ namespace Migrasi
         public static string DBPassword { get; set; }
         public static string DBName { get; set; }
 
+        public static string DBHostStaging { get; set; }
+        public static uint DBPortStaging { get; set; }
+        public static string DBUserStaging { get; set; }
+        public static string DBPasswordStaging { get; set; }
+        public static string DBNameStaging { get; set; }
+
         public static string DBHostBilling { get; set; }
         public static uint DBPortBilling { get; set; }
         public static string DBUserBilling { get; set; }
@@ -39,6 +45,18 @@ namespace Migrasi
             UserID = DBUser,
             Password = DBPassword,
             Database = DBName,
+            AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
+            AllowZeroDateTime = true,
+        }.ConnectionString;
+
+        public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
+        {
+            Server = DBHostStaging,
+            Port = DBPortStaging,
+            UserID = DBUserStaging,
+            Password = DBPasswordStaging,
+            Database = DBNameStaging,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
             AllowZeroDateTime = true,

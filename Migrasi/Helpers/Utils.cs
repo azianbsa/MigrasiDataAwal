@@ -1,6 +1,5 @@
 ﻿using MySqlConnector;
 using Spectre.Console;
-using System.Diagnostics;
 
 namespace Migrasi.Helpers
 {
@@ -32,7 +31,10 @@ namespace Migrasi.Helpers
                     }
                 }
 
-                var cmd = new MySqlCommand(query, sConnection);
+                var cmd = new MySqlCommand(query, sConnection)
+                {
+                    CommandTimeout = AppSettings.CommandTimeout
+                };
 
                 if (parameters?.Count > 0)
                 {
@@ -53,7 +55,7 @@ namespace Migrasi.Helpers
                 await bulkCopy.WriteToServerAsync(reader);
                 await trans.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 await trans.RollbackAsync();
                 throw;
@@ -139,10 +141,9 @@ namespace Migrasi.Helpers
 
         public static async Task TrackProgress(string process, Func<Task> fn)
         {
-            var sw = Stopwatch.StartNew();
+            WriteLogMessage(process);
             await fn();
-            sw.Stop();
-            AnsiConsole.MarkupLine($"[bold green]{process} finish (elapsed {sw.Elapsed})[/]");
+            AnsiConsole.MarkupLine($"[grey]LOG:[/] {process}[bold green] finish[/]");
         }
     }
 }

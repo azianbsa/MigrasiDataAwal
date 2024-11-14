@@ -1,9 +1,6 @@
 ﻿using Spectre.Console.Cli;
 using Spectre.Console;
-using MySqlConnector;
-using System.Diagnostics;
 using Dapper;
-using Environment = Migrasi.Enums.Environment;
 using Migrasi.Helpers;
 
 namespace Migrasi.Commands
@@ -56,73 +53,110 @@ namespace Migrasi.Commands
                     .StartAsync("Processing...",
                     async _ =>
                     {
-                        using var conn = new MySqlConnection(
-                            new MySqlConnectionStringBuilder
-                            {
-                                Server = AppSettings.DBHost,
-                                Port = AppSettings.DBPort,
-                                UserID = AppSettings.DBUser,
-                                Password = AppSettings.DBPassword,
-                                Database = AppSettings.DBName,
-                                AllowUserVariables = true,
-                                AllowLoadLocalInfile = true,
-                                AllowZeroDateTime = true,
-                            }.ConnectionString);
-
-                        await conn.OpenAsync();
-                        var trans = await conn.BeginTransactionAsync();
-
-                        try
-                        {
-                            var sw = Stopwatch.StartNew();
-
-                            Utils.WriteLogMessage("Setting partition");
-                            var partisiTable = await conn.QueryAsync<string>("SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
-                                new { schema = AppSettings.DBName }, trans);
-                            if (partisiTable.Any())
-                            {
-                                foreach (var table in partisiTable)
+                        await AnsiConsole.Status()
+                                .StartAsync("Sedang diproses...", async ctx =>
                                 {
-                                    var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' AND table_name=@table AND partition_name=@partisi",
-                                        new
-                                        {
-                                            schema = AppSettings.DBName,
-                                            table,
-                                            partisi = $"pdam{settings.IdPdam}"
-                                        }, transaction: trans);
-                                    if (!cek.HasValue)
+                                    await Utils.TrackProgress("Setting partition", async () =>
                                     {
-                                        await conn.ExecuteAsync($"ALTER TABLE {table} ADD PARTITION (PARTITION pdam{settings.IdPdam} VALUES IN (@value) ENGINE = INNODB)",
-                                            new { value = settings.IdPdam }, trans);
-                                    }
-                                }
-                            }
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            var partisiTable = await conn.QueryAsync<string>("SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
+                                                new { schema = AppSettings.DBName }, trans);
+                                            if (partisiTable.Any())
+                                            {
+                                                foreach (var table in partisiTable)
+                                                {
+                                                    var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' AND table_name=@table AND partition_name=@partisi",
+                                                        new
+                                                        {
+                                                            schema = AppSettings.DBName,
+                                                            table,
+                                                            partisi = $"pdam{settings.IdPdam}"
+                                                        }, transaction: trans);
+                                                    if (!cek.HasValue)
+                                                    {
+                                                        await conn.ExecuteAsync($"ALTER TABLE {table} ADD PARTITION (PARTITION pdam{settings.IdPdam} VALUES IN (@value) ENGINE = INNODB)",
+                                                            new { value = settings.IdPdam }, trans);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    });
 
-                            Utils.WriteLogMessage("Setup new pdam");
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\setup_new_pdam.sql");
-                            await conn.ExecuteAsync(query,
-                                new
-                                {
-                                    idpdam = settings.IdPdam,
-                                    namapdam = settings.NamaPdam,
-                                    idpdamcopy = settings.IdPdamCopy
-                                }, trans);
+                                    await Utils.TrackProgress("Copy setting_configuration", async () =>
+                                    {
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\setting_configuration_sections.sql",
+                                            tableName: "setting_configuration_sections");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\setting_configuration_items.sql",
+                                            tableName: "setting_configuration_items");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\setting_configuration.sql",
+                                            tableName: "setting_configuration",
+                                            parameters: new()
+                                            {
+                                                { "@idpdamcopy", 1 }
+                                            });
+                                    });
 
-                            await trans.CommitAsync();
+                                    await Utils.TrackProgress("Copy setting_mobile", async () =>
+                                    {
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\setting_mobile_items.sql",
+                                            tableName: "setting_mobile_items");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\setting_mobile.sql",
+                                            tableName: "setting_mobile",
+                                            parameters: new()
+                                            {
+                                                { "@idpdamcopy", 1 }
+                                            });
+                                    });
 
-                            sw.Stop();
-                            AnsiConsole.MarkupLine($"[bold green]Setup new pdam finish (elapsed {sw.Elapsed})[/]");
-                        }
-                        catch (Exception)
-                        {
-                            await trans.RollbackAsync();
-                            throw;
-                        }
-                        finally
-                        {
-                            await conn.CloseAsync();
-                            await MySqlConnection.ClearPoolAsync(conn);
-                        }
+                                    await Utils.TrackProgress("Setting user module role access", async () =>
+                                    {
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\master_user_access.sql",
+                                            tableName: "master_user_access");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\master_user_module.sql",
+                                            tableName: "master_user_module");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\master_user_module_access.sql",
+                                            tableName: "master_user_module_access");
+
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\setup_new_pdam.sql");
+                                            await conn.ExecuteAsync(query,
+                                                new
+                                                {
+                                                    idpdam = settings.IdPdam,
+                                                    namapdam = settings.NamaPdam,
+                                                    idpdamcopy = settings.IdPdamCopy
+                                                }, trans);
+                                        });
+                                    });
+                                });
+
+                        AnsiConsole.MarkupLine($"[bold green]Setup new pdam finish[/]");
                     });
             }
             catch (Exception)

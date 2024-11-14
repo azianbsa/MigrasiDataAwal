@@ -998,6 +998,12 @@ namespace Migrasi
             AppSettings.DBPassword = Env.GetString($"DB_PASSWORD{dbSuffix}");
             AppSettings.DBName = Env.GetString($"DB_NAME{dbSuffix}");
 
+            AppSettings.DBHostStaging = Env.GetString($"DB_HOST_STG");
+            AppSettings.DBPortStaging = (uint)Env.GetInt($"DB_PORT_STG");
+            AppSettings.DBUserStaging = Env.GetString($"DB_USER_STG");
+            AppSettings.DBPasswordStaging = Env.GetString($"DB_PASSWORD_STG");
+            AppSettings.DBNameStaging = Env.GetString($"DB_NAME_STG");
+
             AppSettings.DBHostBilling = Env.GetString($"DB_HOST_BILLING");
             AppSettings.DBPortBilling = (uint)Env.GetInt($"DB_PORT_BILLING");
             AppSettings.DBUserBilling = Env.GetString($"DB_USER_BILLING");
@@ -1009,6 +1015,12 @@ namespace Migrasi
             AppSettings.DBUserBacameter = Env.GetString($"DB_USER_BACAMETER");
             AppSettings.DBPasswordBacameter = Env.GetString($"DB_PASSWORD_BACAMETER");
             AppSettings.DBNameBacameter = Env.GetString($"DB_NAME_BACAMETER");
+            
+            AppSettings.DBHostLoket = Env.GetString($"DB_HOST_LOKET");
+            AppSettings.DBPortLoket = (uint)Env.GetInt($"DB_PORT_LOKET");
+            AppSettings.DBUserLoket = Env.GetString($"DB_USER_LOKET");
+            AppSettings.DBPasswordLoket = Env.GetString($"DB_PASSWORD_LOKET");
+            AppSettings.DBNameLoket = Env.GetString($"DB_NAME_LOKET");
 
             #endregion
 

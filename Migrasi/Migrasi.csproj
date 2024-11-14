@@ -23,6 +23,12 @@
     <None Update=".env.example">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\bayar_transaksi.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\setting_configuration_sections.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\master_attribute_area.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
