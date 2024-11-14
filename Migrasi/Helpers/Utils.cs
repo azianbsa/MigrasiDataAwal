@@ -57,6 +57,7 @@ namespace Migrasi.Helpers
             }
             catch (Exception e)
             {
+                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -81,8 +82,9 @@ namespace Migrasi.Helpers
                 await operations(conn, trans);
                 await trans.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -104,8 +106,9 @@ namespace Migrasi.Helpers
                 await operations(conn, trans);
                 await trans.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -127,8 +130,9 @@ namespace Migrasi.Helpers
                 await operations(conn, trans);
                 await trans.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -141,9 +145,16 @@ namespace Migrasi.Helpers
 
         public static async Task TrackProgress(string process, Func<Task> fn)
         {
-            WriteLogMessage(process);
-            await fn();
-            AnsiConsole.MarkupLine($"[grey]LOG:[/] {process}[bold green] finish[/]");
+            try
+            {
+                WriteLogMessage(process);
+                await fn();
+                AnsiConsole.MarkupLine($"[grey]LOG:[/] {process}[bold green] finish[/]");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

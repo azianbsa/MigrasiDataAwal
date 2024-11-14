@@ -1283,10 +1283,6 @@ namespace Migrasi.Commands
                                             });
 
                                         ctx.Status("Proses user");
-                                        await Utils.Client(async (conn, trans) =>
-                                        {
-                                            await conn.ExecuteAsync("SET GLOBAL FOREIGN_KEY_CHECKS=0", transaction: trans);
-                                        });
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringLoket,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1296,10 +1292,6 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        await Utils.Client(async (conn, trans) =>
-                                        {
-                                            await conn.ExecuteAsync("SET GLOBAL FOREIGN_KEY_CHECKS=1", transaction: trans);
-                                        });
                                     });
 
                                     await Utils.TrackProgress("Proses piutang", async () =>

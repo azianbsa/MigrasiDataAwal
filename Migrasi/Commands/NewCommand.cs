@@ -56,11 +56,6 @@ namespace Migrasi.Commands
                         await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
-                                    await Utils.Client(async (conn, trans) =>
-                                    {
-                                        await conn.ExecuteAsync(@"SET GLOBAL foreign_key_checks = 0;", transaction: trans);
-                                    });
-
                                     await Utils.TrackProgress("Setting partition", async () =>
                                     {
                                         await Utils.Client(async (conn, trans) =>
@@ -147,7 +142,7 @@ namespace Migrasi.Commands
                                             });
                                     });
 
-                                    await Utils.TrackProgress("Copy setting_mobile", async () =>
+                                    await Utils.TrackProgress("Copy setting mobile", async () =>
                                     {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -215,11 +210,6 @@ namespace Migrasi.Commands
                                                     idpdamcopy = settings.IdPdamCopy
                                                 }, trans);
                                         });
-                                    });
-
-                                    await Utils.Client(async (conn, trans) =>
-                                    {
-                                        await conn.ExecuteAsync(@"SET GLOBAL foreign_key_checks = 1;", transaction: trans);
                                     });
                                 });
 

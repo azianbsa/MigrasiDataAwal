@@ -47,92 +47,29 @@ namespace Migrasi.Commands
 
             try
             {
-                var sw = Stopwatch.StartNew();
-
-                await AnsiConsole.Status()
-                    .StartAsync("Sedang diproses...", async ctx =>
+                Utils.WriteLogMessage("Proses piutang");
+                await Utils.BulkCopy(
+                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                    tConnectionStr: AppSettings.ConnectionString,
+                    tableName: "rekening_air",
+                    queryPath: @"Queries\piutang.sql",
+                    parameters: new()
                     {
-                        ctx.Status("Cek bsbs golongan");
-                        await Utils.ClientBilling(async (conn, trans) =>
-                        {
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                            query = query.Replace("[table]", $"piutang");
-                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                        });
-
-                        ctx.Status("Cek bsbs diameter");
-                        await Utils.ClientBilling(async (conn, trans) =>
-                        {
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                            query = query.Replace("[table]", $"piutang");
-                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                        });
-
-                        ctx.Status("Cek bsbs kelurahan");
-                        await Utils.ClientBilling(async (conn, trans) =>
-                        {
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                            query = query.Replace("[table]", $"piutang");
-                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                        });
-
-                        ctx.Status("Cek bsbs kolektif");
-                        await Utils.ClientBilling(async (conn, trans) =>
-                        {
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                            query = query.Replace("[table]", $"piutang");
-                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                        });
-
-                        ctx.Status("Cek bsbs administrasi lain");
-                        await Utils.ClientBilling(async (conn, trans) =>
-                        {
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                            query = query.Replace("[table]", $"piutang");
-                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                        });
-
-                        ctx.Status("Cek bsbs pemeliharaan lain");
-                        await Utils.ClientBilling(async (conn, trans) =>
-                        {
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                            query = query.Replace("[table]", $"piutang");
-                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                        });
-
-                        ctx.Status("Cek bsbs retribusi lain");
-                        await Utils.ClientBilling(async (conn, trans) =>
-                        {
-                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                            query = query.Replace("[table]", $"piutang");
-                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                        });
-
-                        ctx.Status("Proses piutang");
-                        await Utils.BulkCopy(
-                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                            tConnectionStr: AppSettings.ConnectionString,
-                            tableName: "rekening_air",
-                            queryPath: @"Queries\piutang.sql",
-                            parameters: new()
-                            {
-                                { "@idpdam", settings.IdPdam }
-                            });
-
-                        ctx.Status("Proses piutang detail");
-                        await Utils.BulkCopy(
-                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                            tConnectionStr: AppSettings.ConnectionString,
-                            tableName: "rekening_air_detail",
-                            queryPath: @"Queries\piutang_detail.sql",
-                            parameters: new()
-                            {
-                                { "@idpdam", settings.IdPdam }
-                            });
+                                                { "@idpdam", settings.IdPdam }
                     });
 
-                sw.Stop();
-                AnsiConsole.MarkupLine($"[bold green]Migrasi data piutang finish (elapsed {sw.Elapsed})[/]");
+                Utils.WriteLogMessage("Proses piutang detail");
+                await Utils.BulkCopy(
+                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                    tConnectionStr: AppSettings.ConnectionString,
+                    tableName: "rekening_air_detail",
+                    queryPath: @"Queries\piutang_detail.sql",
+                    parameters: new()
+                    {
+                                                { "@idpdam", settings.IdPdam }
+                    });
+
+                AnsiConsole.MarkupLine($"[bold green]Migrasi data piutang finish[/]");
             }
             catch (Exception)
             {

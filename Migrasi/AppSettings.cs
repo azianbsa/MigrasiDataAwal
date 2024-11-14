@@ -48,6 +48,7 @@ namespace Migrasi
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
             AllowZeroDateTime = true,
+            DefaultCommandTimeout = (uint)CommandTimeout
         }.ConnectionString;
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder

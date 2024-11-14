@@ -1,7 +1,7 @@
 ﻿SELECT
  @idpdam,
  pel.id AS idpelangganair,
- per.idperiode,
+ per.idperiode AS idperiode,
  IFNULL(rek.blok1, 0) AS blok1,
  IFNULL(rek.blok2, 0) AS blok2,
  IFNULL(rek.blok3, 0) AS blok3,
