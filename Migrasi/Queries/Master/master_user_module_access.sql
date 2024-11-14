@@ -1,0 +1,1 @@
+﻿SELECT * FROM master_user_module_access

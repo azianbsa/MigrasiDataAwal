@@ -56,6 +56,11 @@ namespace Migrasi.Commands
                         await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
+                                    await Utils.Client(async (conn, trans) =>
+                                    {
+                                        await conn.ExecuteAsync(@"SET GLOBAL foreign_key_checks = 0;", transaction: trans);
+                                    });
+
                                     await Utils.TrackProgress("Setting partition", async () =>
                                     {
                                         await Utils.Client(async (conn, trans) =>
@@ -83,6 +88,41 @@ namespace Migrasi.Commands
                                         });
                                     });
 
+                                    await Utils.TrackProgress("Setup pdam", async () =>
+                                    {
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync(@"
+                                                DELETE FROM master_attribute_pdam WHERE idpdam = @idpdam;
+                                                DELETE FROM master_attribute_pdam_detail WHERE idpdam = @idpdam;
+                                                DELETE FROM setting_configuration WHERE idpdam = @idpdam;
+                                                DELETE FROM setting_mobile WHERE idpdam = @idpdam;
+                                                DELETE FROM master_user_role WHERE idpdam = @idpdam;
+                                                DELETE FROM master_user_role_access WHERE idpdam = @idpdam;
+
+                                                INSERT INTO master_attribute_pdam
+                                                SELECT
+                                                 @idpdam,
+                                                 @namapdam,
+                                                 '-' AS provinsi,
+                                                 '-' AS kota,
+                                                 '-' AS alamatlengkap,
+                                                 'basic' AS tipe,
+                                                 0 AS flaghapus,
+                                                 NOW() waktuupdate;", new { idpdam = settings.IdPdam, namapdam = settings.NamaPdam }, trans);
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                queryPath: @"Queries\Master\master_attribute_pdam_detail.sql",
+                                                tableName: "master_attribute_pdam_detail",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@idpdamcopy", settings.IdPdamCopy },
+                                                });
+                                        });
+                                    });
+
                                     await Utils.TrackProgress("Copy setting_configuration", async () =>
                                     {
                                         await Utils.BulkCopy(
@@ -102,7 +142,8 @@ namespace Migrasi.Commands
                                             tableName: "setting_configuration",
                                             parameters: new()
                                             {
-                                                { "@idpdamcopy", 1 }
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@idpdamcopy", settings.IdPdamCopy },
                                             });
                                     });
 
@@ -120,7 +161,8 @@ namespace Migrasi.Commands
                                             tableName: "setting_mobile",
                                             parameters: new()
                                             {
-                                                { "@idpdamcopy", 1 }
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@idpdamcopy", settings.IdPdamCopy },
                                             });
                                     });
 
@@ -141,6 +183,26 @@ namespace Migrasi.Commands
                                             tConnectionStr: AppSettings.ConnectionString,
                                             queryPath: @"Queries\Master\master_user_module_access.sql",
                                             tableName: "master_user_module_access");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\master_user_role.sql",
+                                            tableName: "master_user_role",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@idpdamcopy", settings.IdPdamCopy },
+                                            });
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\master_user_role_access.sql",
+                                            tableName: "master_user_role_access",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@idpdamcopy", settings.IdPdamCopy },
+                                            });
 
                                         await Utils.Client(async (conn, trans) =>
                                         {
@@ -153,6 +215,11 @@ namespace Migrasi.Commands
                                                     idpdamcopy = settings.IdPdamCopy
                                                 }, trans);
                                         });
+                                    });
+
+                                    await Utils.Client(async (conn, trans) =>
+                                    {
+                                        await conn.ExecuteAsync(@"SET GLOBAL foreign_key_checks = 1;", transaction: trans);
                                     });
                                 });
 
