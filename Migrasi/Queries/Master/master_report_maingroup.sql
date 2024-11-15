@@ -1,0 +1,1 @@
+﻿select * from master_report_maingroup where idpdam = @idpdam

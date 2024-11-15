@@ -1292,6 +1292,128 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+
+                                        ctx.Status("Proses query global");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_query_global",
+                                            queryPath: @"Queries\Master\master_query_global.sql");
+                                    });
+
+                                    await Utils.TrackProgress("Proses report", async () =>
+                                    {
+                                        ctx.Status("Proses config list data");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_attribute_tipe_permohonan_config_list_data",
+                                            queryPath: @"Queries\Master\master_attribute_tipe_permohonan_config_list_data.sql");
+
+                                        ctx.Status("Proses label report");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_attribute_label_report",
+                                            queryPath: @"Queries\Master\master_attribute_label_report.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+
+                                        ctx.Status("Proses report main group");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_report_maingroup",
+                                            queryPath: @"Queries\Master\master_report_maingroup.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+
+                                        ctx.Status("Proses report sub group");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_report_subgroup",
+                                            queryPath: @"Queries\Master\master_report_subgroup.sql");
+                                        
+                                        ctx.Status("Proses report api");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_api",
+                                            queryPath: @"Queries\Master\report_api.sql");
+                                        
+                                        ctx.Status("Proses report model");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_models",
+                                            queryPath: @"Queries\Master\report_models.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+                                        
+                                        ctx.Status("Proses report model source");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_model_sources",
+                                            queryPath: @"Queries\Master\report_model_sources.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+                                        
+                                        ctx.Status("Proses report model sort");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_model_sorts",
+                                            queryPath: @"Queries\Master\report_model_sorts.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+                                        
+                                        ctx.Status("Proses report model prop");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_model_props",
+                                            queryPath: @"Queries\Master\report_model_props.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+                                        
+                                        ctx.Status("Proses report model param");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_model_params",
+                                            queryPath: @"Queries\Master\report_model_params.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+                                        
+                                        ctx.Status("Proses report filter custom");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_filter_custom",
+                                            queryPath: @"Queries\Master\report_filter_custom.sql");
+                                        
+                                        ctx.Status("Proses report filter custom detail");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "report_filter_custom_detail",
+                                            queryPath: @"Queries\Master\report_filter_custom_detail.sql");
                                     });
 
                                     await Utils.TrackProgress("Proses piutang", async () =>

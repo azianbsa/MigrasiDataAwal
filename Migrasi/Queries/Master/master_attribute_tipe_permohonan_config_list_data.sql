@@ -1,0 +1,1 @@
+﻿SELECT * FROM master_attribute_tipe_permohonan_config_list_data

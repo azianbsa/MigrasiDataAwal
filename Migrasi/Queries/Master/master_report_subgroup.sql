@@ -1,0 +1,1 @@
+﻿SELECT * FROM master_report_subgroup

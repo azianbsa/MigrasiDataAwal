@@ -1,0 +1,1 @@
+﻿SELECT * FROM report_model_sorts WHERE idpdam = @idpdam
