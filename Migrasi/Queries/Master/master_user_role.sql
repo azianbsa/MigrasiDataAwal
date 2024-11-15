@@ -8,4 +8,4 @@ flaghapus,
 waktuupdate
 FROM master_user_role,
 (SELECT @i := @maxId) AS i
-WHERE idpdam = @idpdamcopy AND flaghapus = 0;
+WHERE idpdam = @idpdam AND flaghapus = 0;

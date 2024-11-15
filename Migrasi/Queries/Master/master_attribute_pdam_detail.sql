@@ -5,4 +5,4 @@
  waktuupdate
 FROM
  master_attribute_pdam_detail
-WHERE idpdam = @idpdamcopy;
+WHERE idpdam = @idpdam;

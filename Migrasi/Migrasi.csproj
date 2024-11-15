@@ -53,6 +53,9 @@
     <None Update="Queries\Master\setting_configuration_sections.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\Master\setting_gcs.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\Master\setting_mobile.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -5,4 +5,4 @@
  waktuupdate
 FROM
  setting_configuration
-WHERE idpdam = @idpdamcopy;
+WHERE idpdam = @idpdam;

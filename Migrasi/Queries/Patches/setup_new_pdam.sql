@@ -43,20 +43,20 @@
 --  setting_mobile
 -- WHERE idpdam = @idpdamcopy;
 
-DELETE FROM setting_gcs WHERE idpdam = @idpdam;
-INSERT INTO setting_gcs
-SELECT
- @idpdam,
- idgcssetting,
- credential,
- bucket,
- fotometerpath,
- flagaktif,
- flaghapus,
- waktuupdate
-FROM
- setting_gcs
-WHERE idpdam = @idpdamcopy;
+-- DELETE FROM setting_gcs WHERE idpdam = @idpdam;
+-- INSERT INTO setting_gcs
+-- SELECT
+--  @idpdam,
+--  idgcssetting,
+--  credential,
+--  bucket,
+--  fotometerpath,
+--  flagaktif,
+--  flaghapus,
+--  waktuupdate
+-- FROM
+--  setting_gcs
+-- WHERE idpdam = @idpdamcopy;
 
 DELETE FROM master_tarif_meterai WHERE idpdam = @idpdam;
 INSERT INTO master_tarif_meterai (idpdam,kodeperiodemulaiberlaku)

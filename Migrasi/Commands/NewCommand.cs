@@ -48,12 +48,7 @@ namespace Migrasi.Commands
 
             try
             {
-                await AnsiConsole
-                    .Status()
-                    .StartAsync("Processing...",
-                    async _ =>
-                    {
-                        await AnsiConsole.Status()
+                await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
                                     await Utils.TrackProgress("Setting partition", async () =>
@@ -90,6 +85,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(@"
                                                 DELETE FROM master_attribute_pdam WHERE idpdam = @idpdam;
                                                 DELETE FROM master_attribute_pdam_detail WHERE idpdam = @idpdam;
+                                                DELETE FROM setting_gcs WHERE idpdam = @idpdam;
                                                 DELETE FROM setting_configuration WHERE idpdam = @idpdam;
                                                 DELETE FROM setting_mobile WHERE idpdam = @idpdam;
                                                 DELETE FROM master_user_role WHERE idpdam = @idpdam;
@@ -105,20 +101,32 @@ namespace Migrasi.Commands
                                                  'basic' AS tipe,
                                                  0 AS flaghapus,
                                                  NOW() waktuupdate;", new { idpdam = settings.IdPdam, namapdam = settings.NamaPdam }, trans);
-                                            await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringStaging,
-                                                tConnectionStr: AppSettings.ConnectionString,
-                                                queryPath: @"Queries\Master\master_attribute_pdam_detail.sql",
-                                                tableName: "master_attribute_pdam_detail",
-                                                parameters: new()
-                                                {
-                                                    { "@idpdam", settings.IdPdam },
-                                                    { "@idpdamcopy", settings.IdPdamCopy },
-                                                });
                                         });
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\master_attribute_pdam_detail.sql",
+                                            tableName: "master_attribute_pdam_detail",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                            });
                                     });
 
-                                    await Utils.TrackProgress("Copy setting_configuration", async () =>
+                                    await Utils.TrackProgress("Seting gcs", async () =>
+                                    {
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringStaging,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            queryPath: @"Queries\Master\setting_gcs.sql",
+                                            tableName: "setting_gcs",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                            });
+                                    });
+
+                                    await Utils.TrackProgress("Copy setting configuration", async () =>
                                     {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -138,7 +146,6 @@ namespace Migrasi.Commands
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam },
-                                                { "@idpdamcopy", settings.IdPdamCopy },
                                             });
                                     });
 
@@ -157,7 +164,6 @@ namespace Migrasi.Commands
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam },
-                                                { "@idpdamcopy", settings.IdPdamCopy },
                                             });
                                     });
 
@@ -186,7 +192,6 @@ namespace Migrasi.Commands
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam },
-                                                { "@idpdamcopy", settings.IdPdamCopy },
                                             });
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -196,7 +201,6 @@ namespace Migrasi.Commands
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam },
-                                                { "@idpdamcopy", settings.IdPdamCopy },
                                             });
 
                                         await Utils.Client(async (conn, trans) =>
@@ -213,8 +217,7 @@ namespace Migrasi.Commands
                                     });
                                 });
 
-                        AnsiConsole.MarkupLine($"[bold green]Setup new pdam finish[/]");
-                    });
+                AnsiConsole.MarkupLine($"[bold green]Setup new pdam finish[/]");
             }
             catch (Exception)
             {

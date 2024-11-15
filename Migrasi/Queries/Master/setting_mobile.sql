@@ -5,4 +5,4 @@
  waktuupdate
 FROM
  setting_mobile
-WHERE idpdam = @idpdamcopy;
+WHERE idpdam = @idpdam;
