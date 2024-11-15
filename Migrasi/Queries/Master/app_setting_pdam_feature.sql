@@ -1,0 +1,1 @@
+﻿SELECT * FROM app_setting_pdam_feature WHERE idpdam =  @idpdam

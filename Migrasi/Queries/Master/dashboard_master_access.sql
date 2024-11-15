@@ -1,0 +1,1 @@
+﻿SELECT * FROM dashboard_master_access
