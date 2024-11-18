@@ -1,7 +1,5 @@
-﻿using Dapper;
-using DotNetEnv;
+﻿using DotNetEnv;
 using Migrasi.Commands;
-using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.Configuration;
@@ -1043,19 +1041,6 @@ namespace Migrasi
             try
             {
                 AnsiConsole.Write(new FigletText("Data Awal v6").Color(Color.Aqua));
-                await Utils.Client(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(@"
-                        SET GLOBAL foreign_key_checks = 0;
-                        SET GLOBAL innodb_flush_log_at_trx_commit = 2;
-
-                        ALTER TABLE master_pelanggan_air DISABLE KEYS;
-                        ALTER TABLE master_pelanggan_air_detail DISABLE KEYS;
-                        ALTER TABLE rekening_air DISABLE KEYS;
-                        ALTER TABLE rekening_air_detail DISABLE KEYS;
-                        ALTER TABLE rekening_air_transaksi DISABLE KEYS;
-                        ", transaction: trans);
-                });
                 return app.Run(args);
             }
             catch (Exception ex)
@@ -1065,20 +1050,6 @@ namespace Migrasi
             }
             finally
             {
-                await Utils.Client(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(@"
-                        SET GLOBAL foreign_key_checks = 1;
-                        SET GLOBAL innodb_flush_log_at_trx_commit = 1;
-                        
-                        ALTER TABLE master_pelanggan_air ENABLE KEYS;
-                        ALTER TABLE master_pelanggan_air_detail ENABLE KEYS;
-                        ALTER TABLE rekening_air ENABLE KEYS;
-                        ALTER TABLE rekening_air_detail ENABLE KEYS;
-                        ALTER TABLE rekening_air_transaksi ENABLE KEYS;
-
-                        ", transaction: trans);
-                });
                 sw.Stop();
                 AnsiConsole.MarkupLine($"[bold green]Program exit. (elapsed {sw.Elapsed})[/]");
             }

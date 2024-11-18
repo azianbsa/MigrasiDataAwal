@@ -737,6 +737,20 @@ namespace Migrasi.Commands
 
                         try
                         {
+                            await Utils.Client(async (conn, trans) =>
+                            {
+                                await conn.ExecuteAsync(@"
+                                    SET GLOBAL foreign_key_checks = 0;
+                                    SET GLOBAL innodb_flush_log_at_trx_commit = 2;
+
+                                    ALTER TABLE master_pelanggan_air DISABLE KEYS;
+                                    ALTER TABLE master_pelanggan_air_detail DISABLE KEYS;
+                                    ALTER TABLE rekening_air DISABLE KEYS;
+                                    ALTER TABLE rekening_air_detail DISABLE KEYS;
+                                    ALTER TABLE rekening_air_transaksi DISABLE KEYS;
+                                    ", transaction: trans);
+                            });
+
                             await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
@@ -1634,6 +1648,23 @@ namespace Migrasi.Commands
                         catch (Exception)
                         {
                             throw;
+                        }
+                        finally
+                        {
+                            await Utils.Client(async (conn, trans) =>
+                            {
+                                await conn.ExecuteAsync(@"
+                                    SET GLOBAL foreign_key_checks = 1;
+                                    SET GLOBAL innodb_flush_log_at_trx_commit = 1;
+
+                                    ALTER TABLE master_pelanggan_air ENABLE KEYS;
+                                    ALTER TABLE master_pelanggan_air_detail ENABLE KEYS;
+                                    ALTER TABLE rekening_air ENABLE KEYS;
+                                    ALTER TABLE rekening_air_detail ENABLE KEYS;
+                                    ALTER TABLE rekening_air_transaksi ENABLE KEYS;
+
+                                    ", transaction: trans);
+                            });
                         }
 
                         break;
