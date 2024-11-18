@@ -471,6 +471,11 @@ namespace Migrasi.Commands
                                             });
 
                                         ctx.Status("Proses kelainan");
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
+                                                 transaction: trans);
+                                        });
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
                                             var kelainan = await conn.QueryAsync(@"SELECT kelainan FROM kelainan", transaction: trans);
@@ -478,6 +483,7 @@ namespace Migrasi.Commands
                                             {
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
+                                                    await conn.ExecuteAsync("DELETE FROM kelainan", transaction: trans);
                                                     await conn.ExecuteAsync("REPLACE INTO kelainan (kelainan) VALUES (@kelainan)",
                                                         kelainan, trans);
                                                 });
@@ -494,6 +500,24 @@ namespace Migrasi.Commands
                                             });
 
                                         ctx.Status("Proses petugas baca");
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
+                                                 transaction: trans);
+                                        });
+                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        {
+                                            var petugas = await conn.QueryAsync(@"SELECT nama,alamat FROM petugasbaca", transaction: trans);
+                                            if (petugas.Any())
+                                            {
+                                                await Utils.ClientBilling(async (conn, trans) =>
+                                                {
+                                                    await conn.ExecuteAsync("DELETE FROM pembacameter", transaction: trans);
+                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (nama,alamat) VALUES (@nama,@alamat)",
+                                                        petugas, trans);
+                                                });
+                                            }
+                                        });
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -503,6 +527,18 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        {
+                                            var petugas = await conn.QueryAsync(@"SELECT kodepetugas,nama FROM petugasbaca", transaction: trans);
+                                            if (petugas.Any())
+                                            {
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    await conn.ExecuteAsync($"UPDATE master_attribute_petugas_baca SET kodepetugasbaca=@kodepetugas WHERE idpdam={settings.IdPdam} AND LOWER(petugasbaca)=LOWER(@nama)",
+                                                        petugas, trans);
+                                                });
+                                            }
+                                        });
 
                                         ctx.Status("Proses periode");
                                         await Utils.BulkCopy(
@@ -1159,6 +1195,11 @@ namespace Migrasi.Commands
                                             });
 
                                         ctx.Status("Proses kelainan");
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
+                                                 transaction: trans);
+                                        });
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
                                             var kelainan = await conn.QueryAsync(@"SELECT kelainan FROM kelainan", transaction: trans);
@@ -1166,6 +1207,7 @@ namespace Migrasi.Commands
                                             {
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
+                                                    await conn.ExecuteAsync("DELETE FROM kelainan", transaction: trans);
                                                     await conn.ExecuteAsync("REPLACE INTO kelainan (kelainan) VALUES (@kelainan)",
                                                         kelainan, trans);
                                                 });
@@ -1182,6 +1224,24 @@ namespace Migrasi.Commands
                                             });
 
                                         ctx.Status("Proses petugas baca");
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
+                                                 transaction: trans);
+                                        });
+                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        {
+                                            var petugas = await conn.QueryAsync(@"SELECT nama,alamat FROM petugasbaca", transaction: trans);
+                                            if (petugas.Any())
+                                            {
+                                                await Utils.ClientBilling(async (conn, trans) =>
+                                                {
+                                                    await conn.ExecuteAsync("DELETE FROM pembacameter", transaction: trans);
+                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (nama,alamat) VALUES (@nama,@alamat)",
+                                                        petugas, trans);
+                                                });
+                                            }
+                                        });
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1191,6 +1251,18 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        {
+                                            var petugas = await conn.QueryAsync(@"SELECT kodepetugas,nama FROM petugasbaca", transaction: trans);
+                                            if (petugas.Any())
+                                            {
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    await conn.ExecuteAsync($"UPDATE master_attribute_petugas_baca SET kodepetugasbaca=@kodepetugas WHERE idpdam={settings.IdPdam} AND LOWER(petugasbaca)=LOWER(@nama)",
+                                                        petugas, trans);
+                                                });
+                                            }
+                                        });
 
                                         ctx.Status("Proses periode");
                                         await Utils.BulkCopy(
