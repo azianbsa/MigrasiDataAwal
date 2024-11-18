@@ -1030,6 +1030,7 @@ namespace Migrasi
             {
                 config.PropagateExceptions();
                 config.AddCommand<NewCommand>("new");
+                config.AddCommand<NewCopyCommand>("newcopy");
                 config.AddCommand<PaketCommand>("paket");
                 //config.AddCommand<PiutangCommand>("piutang");
                 //config.AddCommand<BayarCommand>("bayar");

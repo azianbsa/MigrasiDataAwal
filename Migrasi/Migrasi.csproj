@@ -293,6 +293,9 @@
     <None Update="Queries\Patches\data_cleanup_sumber_air.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\Patches\setup_new_copy_pdam.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\Patches\setup_new_pdam.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
