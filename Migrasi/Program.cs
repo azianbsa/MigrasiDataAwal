@@ -1031,7 +1031,7 @@ namespace Migrasi
                 config.PropagateExceptions();
                 config.AddCommand<NewCommand>("new");
                 config.AddCommand<PaketCommand>("paket");
-                config.AddCommand<PiutangCommand>("piutang");
+                //config.AddCommand<PiutangCommand>("piutang");
                 //config.AddCommand<BayarCommand>("bayar");
                 //config.AddCommand<NonairCommand>("nonair");
                 //config.AddCommand<PermohonanCommand>("permohonan");
