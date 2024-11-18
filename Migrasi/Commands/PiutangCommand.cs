@@ -1,8 +1,7 @@
-﻿using Spectre.Console.Cli;
-using Spectre.Console;
-using System.Diagnostics;
-using Dapper;
+﻿using Dapper;
 using Migrasi.Helpers;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace Migrasi.Commands
 {

@@ -1015,7 +1015,7 @@ namespace Migrasi
             AppSettings.DBUserBacameter = Env.GetString($"DB_USER_BACAMETER");
             AppSettings.DBPasswordBacameter = Env.GetString($"DB_PASSWORD_BACAMETER");
             AppSettings.DBNameBacameter = Env.GetString($"DB_NAME_BACAMETER");
-            
+
             AppSettings.DBHostLoket = Env.GetString($"DB_HOST_LOKET");
             AppSettings.DBPortLoket = (uint)Env.GetInt($"DB_PORT_LOKET");
             AppSettings.DBUserLoket = Env.GetString($"DB_USER_LOKET");

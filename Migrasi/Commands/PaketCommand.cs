@@ -1,8 +1,7 @@
-﻿using Spectre.Console.Cli;
-using Spectre.Console;
-using System.Diagnostics;
-using Dapper;
+﻿using Dapper;
 using Migrasi.Helpers;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace Migrasi.Commands
 {
@@ -1352,14 +1351,14 @@ namespace Migrasi.Commands
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_report_subgroup",
                                             queryPath: @"Queries\Master\master_report_subgroup.sql");
-                                        
+
                                         ctx.Status("Proses report api");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "report_api",
                                             queryPath: @"Queries\Master\report_api.sql");
-                                        
+
                                         ctx.Status("Proses report model");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1370,7 +1369,7 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        
+
                                         ctx.Status("Proses report model source");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1381,7 +1380,7 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        
+
                                         ctx.Status("Proses report model sort");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1392,7 +1391,7 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        
+
                                         ctx.Status("Proses report model prop");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1403,7 +1402,7 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        
+
                                         ctx.Status("Proses report model param");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1414,14 +1413,14 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        
+
                                         ctx.Status("Proses report filter custom");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "report_filter_custom",
                                             queryPath: @"Queries\Master\report_filter_custom.sql");
-                                        
+
                                         ctx.Status("Proses report filter custom detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
