@@ -476,21 +476,48 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
                                                  transaction: trans);
                                         });
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='kelainan'",
+                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                            if (cek.Any())
+                                            {
+                                                if (!cek.Where(s => s.column_name == "idkelainan").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan CHANGE COLUMN id idkelainan INT(11)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "kodekelainan").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN kodekelainan VARCHAR(10)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "idx").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN idx int(11)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "aktif").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN aktif varchar(1)", transaction: trans);
+                                                }
+                                            }
+                                        });
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var kelainan = await conn.QueryAsync(@"SELECT kelainan FROM kelainan", transaction: trans);
+                                            var kelainan = await conn.QueryAsync(@"SELECT idkelainan,kodekelainan,kelainan,idx,aktif FROM kelainan", transaction: trans);
                                             if (kelainan.Any())
                                             {
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     await conn.ExecuteAsync("DELETE FROM kelainan", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO kelainan (kelainan) VALUES (@kelainan)",
+                                                    await conn.ExecuteAsync("REPLACE INTO kelainan (idkelainan,kodekelainan,kelainan,idx,aktif) VALUES (@idkelainan,@kodekelainan,@kelainan,@idx,@aktif)",
                                                         kelainan, trans);
                                                 });
                                             }
                                         });
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBacameter,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kelainan",
                                             queryPath: @"Queries\master_attribute_kelainan.sql",
@@ -505,15 +532,37 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
                                                  transaction: trans);
                                         });
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pembacameter'",
+                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                            if (cek.Any())
+                                            {
+                                                if (!cek.Where(s => s.column_name == "idpetugas").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN idpetugas int(11)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "kodepetugas").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN kodepetugas varchar(5)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "aktif").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN aktif varchar(1)", transaction: trans);
+                                                }
+                                            }
+                                        });
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var petugas = await conn.QueryAsync(@"SELECT nama,alamat FROM petugasbaca", transaction: trans);
+                                            var petugas = await conn.QueryAsync(@"SELECT idpetugas,kodepetugas,nama,aktif FROM petugasbaca", transaction: trans);
                                             if (petugas.Any())
                                             {
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     await conn.ExecuteAsync("DELETE FROM pembacameter", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (nama,alamat) VALUES (@nama,@alamat)",
+                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (idpetugas,kodepetugas,nama,aktif) VALUES (@idpetugas,@kodepetugas,@nama,@aktif)",
                                                         petugas, trans);
                                                 });
                                             }
@@ -527,18 +576,6 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var petugas = await conn.QueryAsync(@"SELECT kodepetugas,nama FROM petugasbaca", transaction: trans);
-                                            if (petugas.Any())
-                                            {
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync($"UPDATE master_attribute_petugas_baca SET kodepetugasbaca=@kodepetugas WHERE idpdam={settings.IdPdam} AND LOWER(petugasbaca)=LOWER(@nama)",
-                                                        petugas, trans);
-                                                });
-                                            }
-                                        });
 
                                         ctx.Status("Proses periode");
                                         await Utils.BulkCopy(
@@ -579,6 +616,17 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        {
+                                            var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);
+                                            if (pel.Any())
+                                            {
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    await conn.ExecuteAsync($"UPDATE master_pelanggan_air SET latitude=@latitude,longitude=@longitude WHERE idpdam={settings.IdPdam} AND nosamb=@idpelanggan", pel, trans);
+                                                });
+                                            }
+                                        });
 
                                         ctx.Status("Proses jadwal baca");
                                         await Utils.ClientBacameter(async (conn, trans) =>
@@ -1200,15 +1248,42 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
                                                  transaction: trans);
                                         });
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='kelainan'",
+                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                            if (cek.Any())
+                                            {
+                                                if (!cek.Where(s => s.column_name == "idkelainan").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan CHANGE COLUMN id idkelainan INT(11)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "kodekelainan").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN kodekelainan VARCHAR(10)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "idx").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN idx int(11)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "aktif").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN aktif varchar(1)", transaction: trans);
+                                                }
+                                            }
+                                        });
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var kelainan = await conn.QueryAsync(@"SELECT kelainan FROM kelainan", transaction: trans);
+                                            var kelainan = await conn.QueryAsync(@"SELECT idkelainan,kodekelainan,kelainan,idx,aktif FROM kelainan", transaction: trans);
                                             if (kelainan.Any())
                                             {
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     await conn.ExecuteAsync("DELETE FROM kelainan", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO kelainan (kelainan) VALUES (@kelainan)",
+                                                    await conn.ExecuteAsync("REPLACE INTO kelainan (idkelainan,kodekelainan,kelainan,idx,aktif) VALUES (@idkelainan,@kodekelainan,@kelainan,@idx,@aktif)",
                                                         kelainan, trans);
                                                 });
                                             }
@@ -1229,15 +1304,37 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
                                                  transaction: trans);
                                         });
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pembacameter'",
+                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                            if (cek.Any())
+                                            {
+                                                if (!cek.Where(s => s.column_name == "idpetugas").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN idpetugas int(11)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "kodepetugas").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN kodepetugas varchar(5)", transaction: trans);
+                                                }
+
+                                                if (!cek.Where(s => s.column_name == "aktif").Any())
+                                                {
+                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN aktif varchar(1)", transaction: trans);
+                                                }
+                                            }
+                                        });
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var petugas = await conn.QueryAsync(@"SELECT nama,alamat FROM petugasbaca", transaction: trans);
+                                            var petugas = await conn.QueryAsync(@"SELECT idpetugas,kodepetugas,nama,aktif FROM petugasbaca", transaction: trans);
                                             if (petugas.Any())
                                             {
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     await conn.ExecuteAsync("DELETE FROM pembacameter", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (nama,alamat) VALUES (@nama,@alamat)",
+                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (idpetugas,kodepetugas,nama,aktif) VALUES (@idpetugas,@kodepetugas,@nama,@aktif)",
                                                         petugas, trans);
                                                 });
                                             }
@@ -1251,18 +1348,6 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var petugas = await conn.QueryAsync(@"SELECT kodepetugas,nama FROM petugasbaca", transaction: trans);
-                                            if (petugas.Any())
-                                            {
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync($"UPDATE master_attribute_petugas_baca SET kodepetugasbaca=@kodepetugas WHERE idpdam={settings.IdPdam} AND LOWER(petugasbaca)=LOWER(@nama)",
-                                                        petugas, trans);
-                                                });
-                                            }
-                                        });
 
                                         ctx.Status("Proses periode");
                                         await Utils.BulkCopy(
@@ -1303,6 +1388,17 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        {
+                                            var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);
+                                            if (pel.Any())
+                                            {
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    await conn.ExecuteAsync($"UPDATE master_pelanggan_air SET latitude=@latitude,longitude=@longitude WHERE idpdam={settings.IdPdam} AND nosamb=@idpelanggan", pel, trans);
+                                                });
+                                            }
+                                        });
 
                                         ctx.Status("Proses jadwal baca");
                                         await Utils.ClientBacameter(async (conn, trans) =>

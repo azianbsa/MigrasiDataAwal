@@ -45,8 +45,8 @@
  IF(rek.flagkoreksi=1, 0, NULL) AS metodebaca,
  IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktubaca,
  IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jambaca,
- pbc.idpetugasbaca AS petugasbaca,
- kln.id AS kelainan,
+ pbc.kodepetugas AS petugasbaca,
+ kln.idkelainan AS kelainan,
  0 AS stanbaca,
  IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktukirimhasilbaca,
  IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jamkirimhasilbaca,
@@ -115,13 +115,6 @@ FROM
  LEFT JOIN byadministrasi_lain adm ON adm.kode = rek.kodeadministrasilain
  LEFT JOIN bypemeliharaan_lain pem ON pem.kode = rek.kodepemeliharaanlain
  LEFT JOIN byretribusi_lain ret ON ret.kode = rek.koderetribusilain
- LEFT JOIN (
-	SELECT
-	@idpetugasbaca:=@idpetugasbaca+1 AS idpetugasbaca,
-	nama
-	FROM pembacameter
-	,(SELECT @idpetugasbaca:=0) AS idpetugasbaca
-	ORDER BY nama
- ) pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
+ LEFT JOIN pembacameter pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
  LEFT JOIN kelainan kln ON kln.kelainan = rek.kelainan
  ,(SELECT @id := 0) AS id;
