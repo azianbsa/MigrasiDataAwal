@@ -618,7 +618,9 @@ namespace Migrasi.Commands
                                             });
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);
+                                            var year = (bbPeriode + 3).ToString()[..4].Substring(2, 2);
+                                            var month = (bbPeriode + 3).ToString().Substring(4, 2);
+                                            var pel = await conn.QueryAsync($"SELECT idpelanggan,latitude,longitude FROM hasilbaca{month}{year}", transaction: trans);
                                             if (pel.Any())
                                             {
                                                 await Utils.Client(async (conn, trans) =>
