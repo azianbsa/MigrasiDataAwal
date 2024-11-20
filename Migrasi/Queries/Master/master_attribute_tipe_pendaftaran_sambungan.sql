@@ -1,0 +1,1 @@
+﻿SELECT * FROM master_attribute_tipe_pendaftaran_sambungan WHERE idpdam = @idpdam

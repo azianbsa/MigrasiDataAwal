@@ -53,7 +53,34 @@
     <None Update="Queries\Master\master_attribute_label_report.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\Master\master_attribute_material.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_material_paket.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_material_paket_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_ongkos.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_ongkos_paket.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_ongkos_paket_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_paket.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\Master\master_attribute_pdam_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_sumber_pengaduan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\Master\master_attribute_tipe_pendaftaran_sambungan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\Master\master_attribute_tipe_permohonan_config_list_data.sql">
@@ -146,10 +173,10 @@
     <None Update="Queries\master_attribute_jenis_bangunan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_jenis_nonair.sql">
+    <None Update="Queries\Master\master_attribute_jenis_nonair.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_jenis_nonair_detail.sql">
+    <None Update="Queries\Master\master_attribute_jenis_nonair_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\master_attribute_jenis_pipa.sql">
@@ -203,16 +230,16 @@
     <None Update="Queries\master_attribute_sumber_air.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_tipe_permohonan.sql">
+    <None Update="Queries\Master\master_attribute_tipe_permohonan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_tipe_permohonan_detail.sql">
+    <None Update="Queries\Master\master_attribute_tipe_permohonan_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_tipe_permohonan_detail_ba.sql">
+    <None Update="Queries\Master\master_attribute_tipe_permohonan_detail_ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_tipe_permohonan_detail_spk.sql">
+    <None Update="Queries\Master\master_attribute_tipe_permohonan_detail_spk.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\master_attribute_wilayah.sql">

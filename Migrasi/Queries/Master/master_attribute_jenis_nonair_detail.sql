@@ -1,0 +1,1 @@
+﻿SELECT * FROM master_attribute_jenis_nonair_detail WHERE idpdam = @idpdam;
