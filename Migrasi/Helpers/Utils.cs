@@ -1,5 +1,8 @@
-﻿using MySqlConnector;
+﻿using Dapper;
+using Microsoft.Data.Sqlite;
+using MySqlConnector;
 using Spectre.Console;
+using SQLitePCL;
 using System.Diagnostics;
 
 namespace Migrasi.Helpers
@@ -146,6 +149,19 @@ namespace Migrasi.Helpers
 
         public static async Task TrackProgress(string process, Func<Task> fn, bool usingStopwatch = false)
         {
+            Batteries.Init();
+            using var conn = new SqliteConnection("Data Source=database.db");
+            await conn.OpenAsync();
+            var cek = await conn.QueryFirstOrDefaultAsync("SELECT nama,flagproses FROM proses_manager WHERE nama=@nama", new { nama = process });
+            if (cek != null)
+            {
+                if (cek.flagproses == 1)
+                {
+                    WriteLogMessage($"Skip {process}");
+                    return;
+                };
+            }
+
             Stopwatch? sw = null;
             try
             {
@@ -154,11 +170,14 @@ namespace Migrasi.Helpers
                     sw = Stopwatch.StartNew();
                 }
 
-                WriteLogMessage(process);
+                WriteLogMessage($"proses {process}");
                 await fn();
+                await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 1 });
             }
             catch (Exception)
             {
+                AnsiConsole.MarkupLine($"[red]ERR:[/] [bold]{process}[/]");
+                await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 0 });
                 throw;
             }
             finally

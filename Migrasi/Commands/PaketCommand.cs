@@ -2,6 +2,7 @@
 using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System.Diagnostics;
 
 namespace Migrasi.Commands
 {
@@ -79,7 +80,7 @@ namespace Migrasi.Commands
                                             }
                                         });
 
-                                        ctx.Status("Cek golongan");
+                                        ctx.Status("cek golongan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
@@ -87,7 +88,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek diameter");
+                                        ctx.Status("cek diameter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
@@ -95,14 +96,14 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek merek meter");
+                                        ctx.Status("cek merek meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_merek_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek kelurahan");
+                                        ctx.Status("cek kelurahan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
@@ -110,7 +111,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek kolektif");
+                                        ctx.Status("cek kolektif");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
@@ -118,28 +119,28 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek sumber air");
+                                        ctx.Status("cek sumber air");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_sumber_air.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek blok");
+                                        ctx.Status("cek blok");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_blok.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek kondisi meter");
+                                        ctx.Status("cek kondisi meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kondisi_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek administrasi lain");
+                                        ctx.Status("cek administrasi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
@@ -147,7 +148,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek pemeliharaan lain");
+                                        ctx.Status("cek pemeliharaan lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
@@ -155,7 +156,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek retribusi lain");
+                                        ctx.Status("cek retribusi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
@@ -164,9 +165,9 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("Proses data master", async () =>
+                                    await Utils.TrackProgress("data master", async () =>
                                     {
-                                        ctx.Status("Proses flag");
+                                        ctx.Status("proses flag");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -177,7 +178,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses status");
+                                        ctx.Status("proses status");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -188,7 +189,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses jenis bangunan");
+                                        ctx.Status("proses jenis bangunan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -199,7 +200,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kepemilikan");
+                                        ctx.Status("proses kepemilikan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -210,7 +211,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses pekerjaan");
+                                        ctx.Status("proses pekerjaan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -221,7 +222,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses peruntukan");
+                                        ctx.Status("proses peruntukan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -232,7 +233,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses jenis pipa");
+                                        ctx.Status("proses jenis pipa");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -243,7 +244,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kwh");
+                                        ctx.Status("proses kwh");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -254,7 +255,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses golongan");
+                                        ctx.Status("proses golongan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -274,7 +275,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses diameter");
+                                        ctx.Status("proses diameter");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -294,7 +295,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses wilayah");
+                                        ctx.Status("proses wilayah");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -305,7 +306,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses area");
+                                        ctx.Status("proses area");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -316,7 +317,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses rayon");
+                                        ctx.Status("proses rayon");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -327,7 +328,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses blok");
+                                        ctx.Status("proses blok");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -338,7 +339,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses cabang");
+                                        ctx.Status("proses cabang");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -349,7 +350,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kecamatan");
+                                        ctx.Status("proses kecamatan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -360,7 +361,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kelurahan");
+                                        ctx.Status("proses kelurahan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -371,7 +372,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses dma");
+                                        ctx.Status("proses dma");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -382,7 +383,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses dmz");
+                                        ctx.Status("proses dmz");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -393,7 +394,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses administrasi lain");
+                                        ctx.Status("proses administrasi lain");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -404,7 +405,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses pemeliharaan lain");
+                                        ctx.Status("proses pemeliharaan lain");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -415,7 +416,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses retribusi lain");
+                                        ctx.Status("proses retribusi lain");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -426,7 +427,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kolektif");
+                                        ctx.Status("proses kolektif");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -437,7 +438,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses sumber air");
+                                        ctx.Status("proses sumber air");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -448,7 +449,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses merek meter");
+                                        ctx.Status("proses merek meter");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -459,7 +460,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kondisi meter");
+                                        ctx.Status("proses kondisi meter");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -470,7 +471,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kelainan");
+                                        ctx.Status("proses kelainan");
                                         await Utils.Client(async (conn, trans) =>
                                         {
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
@@ -526,7 +527,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses petugas baca");
+                                        ctx.Status("proses petugas baca");
                                         await Utils.Client(async (conn, trans) =>
                                         {
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
@@ -577,7 +578,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses periode");
+                                        ctx.Status("proses periode");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -597,7 +598,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses pelanggan air");
+                                        ctx.Status("proses pelanggan air");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -630,7 +631,7 @@ namespace Migrasi.Commands
                                             }
                                         });
 
-                                        ctx.Status("Proses jadwal baca");
+                                        ctx.Status("proses jadwal baca");
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
                                             var jadwalbaca = await conn.QueryAsync(@"SELECT
@@ -683,13 +684,13 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("Proses data drd", async () =>
+                                    await Utils.TrackProgress("data drd", async () =>
                                     {
                                         for (int i = bbPeriode; i < bbPeriode + 4; i++)
                                         {
                                             await Utils.TrackProgress($"Clean redundan data drd {(i - bbPeriode) + 1}/4", async () =>
                                             {
-                                                ctx.Status("Cek golongan");
+                                                ctx.Status("cek golongan");
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
@@ -697,7 +698,7 @@ namespace Migrasi.Commands
                                                     await conn.ExecuteAsync(query, transaction: trans);
                                                 });
 
-                                                ctx.Status("Cek diameter");
+                                                ctx.Status("cek diameter");
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
@@ -705,7 +706,7 @@ namespace Migrasi.Commands
                                                     await conn.ExecuteAsync(query, transaction: trans);
                                                 });
 
-                                                ctx.Status("Cek kelurahan");
+                                                ctx.Status("cek kelurahan");
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
@@ -713,7 +714,7 @@ namespace Migrasi.Commands
                                                     await conn.ExecuteAsync(query, transaction: trans);
                                                 });
 
-                                                ctx.Status("Cek kolektif");
+                                                ctx.Status("cek kolektif");
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
@@ -721,7 +722,7 @@ namespace Migrasi.Commands
                                                     await conn.ExecuteAsync(query, transaction: trans);
                                                 });
 
-                                                ctx.Status("Cek administrasi lain");
+                                                ctx.Status("cek administrasi lain");
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
@@ -729,7 +730,7 @@ namespace Migrasi.Commands
                                                     await conn.ExecuteAsync(query, transaction: trans);
                                                 });
 
-                                                ctx.Status("Cek pemeliharaan lain");
+                                                ctx.Status("cek pemeliharaan lain");
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
@@ -737,7 +738,7 @@ namespace Migrasi.Commands
                                                     await conn.ExecuteAsync(query, transaction: trans);
                                                 });
 
-                                                ctx.Status("Cek retribusi lain");
+                                                ctx.Status("cek retribusi lain");
                                                 await Utils.ClientBilling(async (conn, trans) =>
                                                 {
                                                     var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
@@ -839,7 +840,7 @@ namespace Migrasi.Commands
                             await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
-                                    await Utils.TrackProgress("Clean redundan data pelanggan", async () =>
+                                    await Utils.TrackProgress("cleanup data pelanggan", async () =>
                                     {
                                         ctx.Status("Tambah primary key id pelanggan");
                                         await Utils.ClientBilling(async (conn, trans) =>
@@ -853,7 +854,7 @@ namespace Migrasi.Commands
                                             }
                                         });
 
-                                        ctx.Status("Cek golongan");
+                                        ctx.Status("cek golongan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
@@ -861,7 +862,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek diameter");
+                                        ctx.Status("cek diameter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
@@ -869,14 +870,14 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek merek meter");
+                                        ctx.Status("cek merek meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_merek_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek kelurahan");
+                                        ctx.Status("cek kelurahan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
@@ -884,7 +885,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek kolektif");
+                                        ctx.Status("cek kolektif");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
@@ -892,28 +893,28 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek sumber air");
+                                        ctx.Status("cek sumber air");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_sumber_air.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek blok");
+                                        ctx.Status("cek blok");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_blok.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek kondisi meter");
+                                        ctx.Status("cek kondisi meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kondisi_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek administrasi lain");
+                                        ctx.Status("cek administrasi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
@@ -921,7 +922,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek pemeliharaan lain");
+                                        ctx.Status("cek pemeliharaan lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
@@ -929,7 +930,7 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Cek retribusi lain");
+                                        ctx.Status("cek retribusi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
@@ -938,9 +939,9 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("Proses data master", async () =>
+                                    await Utils.TrackProgress("data master", async () =>
                                     {
-                                        ctx.Status("Proses flag");
+                                        ctx.Status("proses flag");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -951,7 +952,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses status");
+                                        ctx.Status("proses status");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -962,7 +963,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses jenis bangunan");
+                                        ctx.Status("proses jenis bangunan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -973,7 +974,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kepemilikan");
+                                        ctx.Status("proses kepemilikan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -984,7 +985,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses pekerjaan");
+                                        ctx.Status("proses pekerjaan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -995,7 +996,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses peruntukan");
+                                        ctx.Status("proses peruntukan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1006,7 +1007,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses jenis pipa");
+                                        ctx.Status("proses jenis pipa");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1017,7 +1018,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kwh");
+                                        ctx.Status("proses kwh");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1028,7 +1029,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses golongan");
+                                        ctx.Status("proses golongan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1048,7 +1049,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses diameter");
+                                        ctx.Status("proses diameter");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1068,7 +1069,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses wilayah");
+                                        ctx.Status("proses wilayah");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1079,7 +1080,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses area");
+                                        ctx.Status("proses area");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1090,7 +1091,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses rayon");
+                                        ctx.Status("proses rayon");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1101,7 +1102,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses blok");
+                                        ctx.Status("proses blok");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1112,7 +1113,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses cabang");
+                                        ctx.Status("proses cabang");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1123,7 +1124,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kecamatan");
+                                        ctx.Status("proses kecamatan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1134,7 +1135,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kelurahan");
+                                        ctx.Status("proses kelurahan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1145,7 +1146,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses dma");
+                                        ctx.Status("proses dma");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1156,7 +1157,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses dmz");
+                                        ctx.Status("proses dmz");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1167,7 +1168,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses administrasi lain");
+                                        ctx.Status("proses administrasi lain");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1178,7 +1179,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses pemeliharaan lain");
+                                        ctx.Status("proses pemeliharaan lain");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1189,7 +1190,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses retribusi lain");
+                                        ctx.Status("proses retribusi lain");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1200,7 +1201,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kolektif");
+                                        ctx.Status("proses kolektif");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1211,7 +1212,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses sumber air");
+                                        ctx.Status("proses sumber air");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1222,7 +1223,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses merek meter");
+                                        ctx.Status("proses merek meter");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1233,7 +1234,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kondisi meter");
+                                        ctx.Status("proses kondisi meter");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1244,7 +1245,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses kelainan");
+                                        ctx.Status("proses kelainan");
                                         await Utils.Client(async (conn, trans) =>
                                         {
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
@@ -1300,7 +1301,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses petugas baca");
+                                        ctx.Status("proses petugas baca");
                                         await Utils.Client(async (conn, trans) =>
                                         {
                                             await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
@@ -1351,7 +1352,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses periode");
+                                        ctx.Status("proses periode");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1371,7 +1372,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses jadwal baca");
+                                        ctx.Status("proses jadwal baca");
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
                                             var jadwalbaca = await conn.QueryAsync(@"SELECT
@@ -1423,7 +1424,7 @@ namespace Migrasi.Commands
                                             }
                                         });
 
-                                        ctx.Status("Proses loket");
+                                        ctx.Status("proses loket");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringLoket,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1434,7 +1435,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses user");
+                                        ctx.Status("proses user");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringLoket,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1445,21 +1446,21 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses query global");
+                                        ctx.Status("proses query global");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_query_global",
                                             queryPath: @"Queries\Master\master_query_global.sql");
 
-                                        ctx.Status("Proses config list data");
+                                        ctx.Status("proses config list data");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_tipe_permohonan_config_list_data",
                                             queryPath: @"Queries\Master\master_attribute_tipe_permohonan_config_list_data.sql");
 
-                                        ctx.Status("Proses tipe pendaftaran sambungan");
+                                        ctx.Status("proses tipe pendaftaran sambungan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1470,7 +1471,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses sumber pengaduan");
+                                        ctx.Status("proses sumber pengaduan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1482,9 +1483,9 @@ namespace Migrasi.Commands
                                             });
                                     });
 
-                                    await Utils.TrackProgress("Proses jenis non air", async () =>
+                                    await Utils.TrackProgress("jenis non air", async () =>
                                     {
-                                        ctx.Status("Proses jenis non air");
+                                        ctx.Status("proses jenis non air");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1505,9 +1506,9 @@ namespace Migrasi.Commands
                                             });
                                     });
 
-                                    await Utils.TrackProgress("Proses tipe permohonan", async () =>
+                                    await Utils.TrackProgress("tipe permohonan", async () =>
                                     {
-                                        ctx.Status("Proses tipe permohonan");
+                                        ctx.Status("proses tipe permohonan");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1546,9 +1547,9 @@ namespace Migrasi.Commands
                                             });
                                     });
 
-                                    await Utils.TrackProgress("Proses paket material", async () =>
+                                    await Utils.TrackProgress("paket material", async () =>
                                     {
-                                        ctx.Status("Proses paket material");
+                                        ctx.Status("proses paket material");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringLoket,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1578,9 +1579,9 @@ namespace Migrasi.Commands
                                             });
                                     });
 
-                                    await Utils.TrackProgress("Proses paket ongkos", async () =>
+                                    await Utils.TrackProgress("paket ongkos", async () =>
                                     {
-                                        ctx.Status("Proses paket ongkos");
+                                        ctx.Status("proses paket ongkos");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringLoket,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1611,9 +1612,9 @@ namespace Migrasi.Commands
 
                                     });
 
-                                    await Utils.TrackProgress("Proses paket rab", async () =>
+                                    await Utils.TrackProgress("paket rab", async () =>
                                     {
-                                        ctx.Status("Proses paket rab");
+                                        ctx.Status("proses paket rab");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringLoket,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1629,9 +1630,9 @@ namespace Migrasi.Commands
                                             });
                                     });
 
-                                    await Utils.TrackProgress("Proses report", async () =>
+                                    await Utils.TrackProgress("report", async () =>
                                     {
-                                        ctx.Status("Proses label report");
+                                        ctx.Status("proses label report");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1642,7 +1643,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses report main group");
+                                        ctx.Status("proses report main group");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1653,21 +1654,21 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses report sub group");
+                                        ctx.Status("proses report sub group");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_report_subgroup",
                                             queryPath: @"Queries\Master\master_report_subgroup.sql");
 
-                                        ctx.Status("Proses report api");
+                                        ctx.Status("proses report api");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "report_api",
                                             queryPath: @"Queries\Master\report_api.sql");
 
-                                        ctx.Status("Proses report model");
+                                        ctx.Status("proses report model");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1678,7 +1679,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses report model source");
+                                        ctx.Status("proses report model source");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1689,7 +1690,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses report model sort");
+                                        ctx.Status("proses report model sort");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1700,7 +1701,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses report model prop");
+                                        ctx.Status("proses report model prop");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1711,7 +1712,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses report model param");
+                                        ctx.Status("proses report model param");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1722,14 +1723,14 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses report filter custom");
+                                        ctx.Status("proses report filter custom");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "report_filter_custom",
                                             queryPath: @"Queries\Master\report_filter_custom.sql");
 
-                                        ctx.Status("Proses report filter custom detail");
+                                        ctx.Status("proses report filter custom detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringStaging,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1737,9 +1738,9 @@ namespace Migrasi.Commands
                                             queryPath: @"Queries\Master\report_filter_custom_detail.sql");
                                     });
 
-                                    await Utils.TrackProgress("Proses pelanggan air", async () =>
+                                    await Utils.TrackProgress("pelanggan air", async () =>
                                     {
-                                        ctx.Status("Proses pelanggan air");
+                                        ctx.Status("proses pelanggan air");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1771,68 +1772,68 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("Proses piutang", async () =>
+                                    await Utils.TrackProgress("cleanup data piutang", async () =>
                                     {
-                                        await Utils.TrackProgress("Clean redundan data piutang", async () =>
+                                        ctx.Status("cek golongan");
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            ctx.Status("Cek golongan");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                                query = query.Replace("[table]", $"piutang");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
-
-                                            ctx.Status("Cek diameter");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                                query = query.Replace("[table]", $"piutang");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
-
-                                            ctx.Status("Cek kelurahan");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                                query = query.Replace("[table]", $"piutang");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
-
-                                            ctx.Status("Cek kolektif");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                                query = query.Replace("[table]", $"piutang");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
-
-                                            ctx.Status("Cek administrasi lain");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                                query = query.Replace("[table]", $"piutang");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
-
-                                            ctx.Status("Cek pemeliharaan lain");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                                query = query.Replace("[table]", $"piutang");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
-
-                                            ctx.Status("Cek retribusi lain");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                                query = query.Replace("[table]", $"piutang");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                            query = query.Replace("[table]", $"piutang");
+                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
-                                        ctx.Status("Proses piutang");
+                                        ctx.Status("cek diameter");
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                            query = query.Replace("[table]", $"piutang");
+                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        });
+
+                                        ctx.Status("cek kelurahan");
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                            query = query.Replace("[table]", $"piutang");
+                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        });
+
+                                        ctx.Status("cek kolektif");
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                            query = query.Replace("[table]", $"piutang");
+                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        });
+
+                                        ctx.Status("cek administrasi lain");
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                            query = query.Replace("[table]", $"piutang");
+                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        });
+
+                                        ctx.Status("cek pemeliharaan lain");
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                            query = query.Replace("[table]", $"piutang");
+                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        });
+
+                                        ctx.Status("cek retribusi lain");
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                            query = query.Replace("[table]", $"piutang");
+                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        });
+                                    });
+
+                                    await Utils.TrackProgress("piutang", async () =>
+                                    {
+                                        ctx.Status("proses piutang");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1843,7 +1844,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("Proses piutang detail");
+                                        ctx.Status("proses piutang detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1855,133 +1856,129 @@ namespace Migrasi.Commands
                                             });
                                     }, usingStopwatch: true);
 
-                                    await Utils.TrackProgress("Proses bayar", async () =>
+                                    IEnumerable<string?> tahunBayar = [];
+                                    await Utils.ClientBilling(async (conn, trans) =>
                                     {
-                                        IEnumerable<string?> tahunBayar = [];
-                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        tahunBayar = await conn.QueryAsync<string?>("SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
+                                            new { table_schema = AppSettings.DBNameBilling }, trans);
+                                    });
+
+                                    foreach (var tahun in tahunBayar)
+                                    {
+                                        await Utils.TrackProgress($"cleanup data bayar{tahun}", async () =>
                                         {
-                                            tahunBayar = await conn.QueryAsync<string?>("SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                                new { table_schema = AppSettings.DBNameBilling }, trans);
+                                            ctx.Status($"Cek golongan");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                                query = query.Replace("[table]", $"bayar{tahun}");
+                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            });
+
+                                            ctx.Status($"Cek diameter");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                                query = query.Replace("[table]", $"bayar{tahun}");
+                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            });
+
+                                            ctx.Status($"Cek kelurahan");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                                query = query.Replace("[table]", $"bayar{tahun}");
+                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            });
+
+                                            ctx.Status($"Cek kolektif");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                                query = query.Replace("[table]", $"bayar{tahun}");
+                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            });
+
+                                            ctx.Status($"Cek administrasi lain");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                                query = query.Replace("[table]", $"bayar{tahun}");
+                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            });
+
+                                            ctx.Status($"Cek pemeliharaan lain");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                                query = query.Replace("[table]", $"bayar{tahun}");
+                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            });
+
+                                            ctx.Status($"Cek retribusi lain");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                                query = query.Replace("[table]", $"bayar{tahun}");
+                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            });
                                         });
 
-                                        foreach (var tahun in tahunBayar)
+                                        ctx.Status($"proses bayar{tahun}");
+                                        await Utils.TrackProgress($"bayar{tahun}", async () =>
                                         {
-                                            Utils.WriteLogMessage($"Clean redundan data bayar{tahun}");
-                                            await Utils.TrackProgress($"Clean redundan data bayar{tahun}", async () =>
-                                            {
-                                                ctx.Status($"Cek golongan");
-                                                await Utils.ClientBilling(async (conn, trans) =>
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air",
+                                                queryPath: @"Queries\bayar.sql",
+                                                parameters: new()
                                                 {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                                    query = query.Replace("[table]", $"bayar{tahun}");
-                                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                });
-
-                                                ctx.Status($"Cek diameter");
-                                                await Utils.ClientBilling(async (conn, trans) =>
+                                                    { "@idpdam", settings.IdPdam }
+                                                },
+                                                placeholders: new()
                                                 {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                                    query = query.Replace("[table]", $"bayar{tahun}");
-                                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                                    { "[table]", $"bayar{tahun}" }
                                                 });
+                                        }, usingStopwatch: true);
 
-                                                ctx.Status($"Cek kelurahan");
-                                                await Utils.ClientBilling(async (conn, trans) =>
+                                        ctx.Status($"proses bayar{tahun} detail");
+                                        await Utils.TrackProgress($"bayar{tahun} detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_detail",
+                                                queryPath: @"Queries\bayar_detail.sql",
+                                                parameters: new()
                                                 {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                                    query = query.Replace("[table]", $"bayar{tahun}");
-                                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                });
-
-                                                ctx.Status($"Cek kolektif");
-                                                await Utils.ClientBilling(async (conn, trans) =>
+                                                    { "@idpdam", settings.IdPdam }
+                                                },
+                                                placeholders: new()
                                                 {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                                    query = query.Replace("[table]", $"bayar{tahun}");
-                                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                                    { "[table]", $"bayar{tahun}" }
                                                 });
+                                        }, usingStopwatch: true);
 
-                                                ctx.Status($"Cek administrasi lain");
-                                                await Utils.ClientBilling(async (conn, trans) =>
+                                        ctx.Status($"proses bayar{tahun} transaksi");
+                                        await Utils.TrackProgress($"bayar{tahun} transaksi", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_transaksi",
+                                                queryPath: @"Queries\bayar_transaksi.sql",
+                                                parameters: new()
                                                 {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                                    query = query.Replace("[table]", $"bayar{tahun}");
-                                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                });
-
-                                                ctx.Status($"Cek pemeliharaan lain");
-                                                await Utils.ClientBilling(async (conn, trans) =>
+                                                    { "@idpdam", settings.IdPdam }
+                                                },
+                                                placeholders: new()
                                                 {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                                    query = query.Replace("[table]", $"bayar{tahun}");
-                                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                                    { "[table]", $"bayar{tahun}" },
+                                                    { "[dbloket]", AppSettings.DBNameLoket }
                                                 });
-
-                                                ctx.Status($"Cek retribusi lain");
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                                    query = query.Replace("[table]", $"bayar{tahun}");
-                                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                });
-                                            });
-
-                                            ctx.Status($"Proses bayar{tahun}");
-                                            await Utils.TrackProgress($"Proses bayar{tahun}", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air",
-                                                    queryPath: @"Queries\bayar.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam }
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", $"bayar{tahun}" }
-                                                    });
-                                            });
-
-                                            ctx.Status($"Proses bayar{tahun} detail");
-                                            await Utils.TrackProgress($"Proses bayar{tahun} detail", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_detail",
-                                                    queryPath: @"Queries\bayar_detail.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam }
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", $"bayar{tahun}" }
-                                                    });
-                                            });
-
-                                            ctx.Status($"Proses bayar{tahun} transaksi");
-                                            await Utils.TrackProgress($"Proses bayar{tahun} transaksi", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_transaksi",
-                                                    queryPath: @"Queries\bayar_transaksi.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam }
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", $"bayar{tahun}" },
-                                                        { "[dbloket]", AppSettings.DBNameLoket }
-                                                    });
-                                            });
-                                        }
-                                    }, usingStopwatch: true);
+                                        }, usingStopwatch: true);
+                                    }
                                 });
 
                             AnsiConsole.MarkupLine($"[bold green]Migrasi data basic finish[/]");

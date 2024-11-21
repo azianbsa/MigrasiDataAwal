@@ -1,4 +1,18 @@
-﻿SELECT
+﻿DROP TEMPORARY TABLE IF EXISTS temp_dataawal_periode;
+CREATE TEMPORARY TABLE temp_dataawal_periode (
+    idperiode INT,
+    periode VARCHAR(10),
+    INDEX idx_temp_dataawal_periode_periode (periode)
+);
+INSERT INTO temp_dataawal_periode
+SELECT
+@idperiode:=@idperiode+1 AS idperiode,
+periode
+FROM periode
+,(SELECT @idperiode:=0) AS idperiode
+ORDER BY periode;
+
+SELECT
  @idpdam,
  @id:=@id+1 AS idrekeningair,
  pel.id AS idpelangganair,
@@ -99,14 +113,7 @@
 FROM
  [table] rek
  JOIN pelanggan pel ON pel.nosamb = rek.nosamb
- JOIN (
-	SELECT
-	@idperiode:=@idperiode+1 AS idperiode,
-	periode
-	FROM periode
-	,(SELECT @idperiode:=0) AS idperiode
-	ORDER BY periode
- ) per ON per.periode = rek.periode
+ JOIN temp_dataawal_periode per ON per.periode = rek.periode
  LEFT JOIN golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
  LEFT JOIN diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
  LEFT JOIN rayon ray ON ray.koderayon = rek.koderayon

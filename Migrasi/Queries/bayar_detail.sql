@@ -1,4 +1,18 @@
-﻿SELECT
+﻿DROP TEMPORARY TABLE IF EXISTS temp_dataawal_periode;
+CREATE TEMPORARY TABLE temp_dataawal_periode (
+    idperiode INT,
+    periode VARCHAR(10),
+    INDEX idx_temp_dataawal_periode_periode (periode)
+);
+INSERT INTO temp_dataawal_periode
+SELECT
+@idperiode:=@idperiode+1 AS idperiode,
+periode
+FROM periode
+,(SELECT @idperiode:=0) AS idperiode
+ORDER BY periode;
+
+SELECT
  @idpdam,
  pel.id AS idpelangganair,
  per.idperiode AS idperiode,
@@ -15,12 +29,5 @@
 FROM
  [table] rek
  JOIN pelanggan pel ON pel.nosamb = rek.nosamb
- JOIN (
-	SELECT
-	@idperiode:=@idperiode+1 AS idperiode,
-	periode
-	FROM periode
-	,(SELECT @idperiode:=0) AS idperiode
-	ORDER BY periode
- ) per ON per.periode = rek.periode
+ JOIN temp_dataawal_periode per ON per.periode = rek.periode
  ,(SELECT @id := 0) AS id;
