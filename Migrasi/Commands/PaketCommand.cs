@@ -66,7 +66,7 @@ namespace Migrasi.Commands
                             await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
-                                    await Utils.TrackProgress("Clean redundan data pelanggan", async () =>
+                                    await Utils.TrackProgress("cleanup data pelanggan", async () =>
                                     {
                                         ctx.Status("Tambah primary key id pelanggan");
                                         await Utils.ClientBilling(async (conn, trans) =>
@@ -598,39 +598,6 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
 
-                                        ctx.Status("proses pelanggan air");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_pelanggan_air",
-                                            queryPath: @"Queries\master_pelanggan_air.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_pelanggan_air_detail",
-                                            queryPath: @"Queries\master_pelanggan_air_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var year = (bbPeriode + 3).ToString()[..4].Substring(2, 2);
-                                            var month = (bbPeriode + 3).ToString().Substring(4, 2);
-                                            var pel = await conn.QueryAsync($"SELECT idpelanggan,latitude,longitude FROM hasilbaca{month}{year}", transaction: trans);
-                                            if (pel.Any())
-                                            {
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync($"UPDATE master_pelanggan_air SET latitude=@latitude,longitude=@longitude WHERE idpdam={settings.IdPdam} AND nosamb=@idpelanggan", pel, trans);
-                                                });
-                                            }
-                                        });
-
                                         ctx.Status("proses jadwal baca");
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
@@ -684,100 +651,134 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("data drd", async () =>
+                                    await Utils.TrackProgress("pelanggan air", async () =>
                                     {
-                                        for (int i = bbPeriode; i < bbPeriode + 4; i++)
+                                        ctx.Status("proses pelanggan air");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_pelanggan_air",
+                                            queryPath: @"Queries\master_pelanggan_air.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+                                        ctx.Status("proses pelanggan air detail");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "master_pelanggan_air_detail",
+                                            queryPath: @"Queries\master_pelanggan_air_detail.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam }
+                                            });
+                                        ctx.Status("update latlong pelanggan air");
+                                        await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            await Utils.TrackProgress($"Clean redundan data drd {(i - bbPeriode) + 1}/4", async () =>
+                                            var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);
+                                            if (pel.Any())
                                             {
-                                                ctx.Status("cek golongan");
-                                                await Utils.ClientBilling(async (conn, trans) =>
+                                                await Utils.Client(async (conn, trans) =>
                                                 {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                                    query = query.Replace("[table]", $"drd{i}");
-                                                    await conn.ExecuteAsync(query, transaction: trans);
+                                                    await conn.ExecuteAsync($"UPDATE master_pelanggan_air SET latitude=@latitude,longitude=@longitude WHERE idpdam={settings.IdPdam} AND nosamb=@idpelanggan", pel, trans);
                                                 });
-
-                                                ctx.Status("cek diameter");
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                                    query = query.Replace("[table]", $"drd{i}");
-                                                    await conn.ExecuteAsync(query, transaction: trans);
-                                                });
-
-                                                ctx.Status("cek kelurahan");
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                                    query = query.Replace("[table]", $"drd{i}");
-                                                    await conn.ExecuteAsync(query, transaction: trans);
-                                                });
-
-                                                ctx.Status("cek kolektif");
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                                    query = query.Replace("[table]", $"drd{i}");
-                                                    await conn.ExecuteAsync(query, transaction: trans);
-                                                });
-
-                                                ctx.Status("cek administrasi lain");
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                                    query = query.Replace("[table]", $"drd{i}");
-                                                    await conn.ExecuteAsync(query, transaction: trans);
-                                                });
-
-                                                ctx.Status("cek pemeliharaan lain");
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                                    query = query.Replace("[table]", $"drd{i}");
-                                                    await conn.ExecuteAsync(query, transaction: trans);
-                                                });
-
-                                                ctx.Status("cek retribusi lain");
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                                    query = query.Replace("[table]", $"drd{i}");
-                                                    await conn.ExecuteAsync(query, transaction: trans);
-                                                });
-                                            });
-
-                                            await Utils.TrackProgress($"Proses data drd {(i - bbPeriode) + 1}/4", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air",
-                                                    queryPath: @"Queries\drd.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam }
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[tahunbulan]", i.ToString() }
-                                                    });
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_detail",
-                                                    queryPath: @"Queries\drd_detail.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam }
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[tahunbulan]", i.ToString() }
-                                                    });
-                                            });
-                                        }
+                                            }
+                                        });
                                     });
+
+                                    for (int i = bbPeriode; i < bbPeriode + 4; i++)
+                                    {
+                                        await Utils.TrackProgress($"cleanup data drd{i}", async () =>
+                                        {
+                                            ctx.Status("cek golongan");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                                query = query.Replace("[table]", $"drd{i}");
+                                                await conn.ExecuteAsync(query, transaction: trans);
+                                            });
+
+                                            ctx.Status("cek diameter");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                                query = query.Replace("[table]", $"drd{i}");
+                                                await conn.ExecuteAsync(query, transaction: trans);
+                                            });
+
+                                            ctx.Status("cek kelurahan");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                                query = query.Replace("[table]", $"drd{i}");
+                                                await conn.ExecuteAsync(query, transaction: trans);
+                                            });
+
+                                            ctx.Status("cek kolektif");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                                query = query.Replace("[table]", $"drd{i}");
+                                                await conn.ExecuteAsync(query, transaction: trans);
+                                            });
+
+                                            ctx.Status("cek administrasi lain");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                                query = query.Replace("[table]", $"drd{i}");
+                                                await conn.ExecuteAsync(query, transaction: trans);
+                                            });
+
+                                            ctx.Status("cek pemeliharaan lain");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                                query = query.Replace("[table]", $"drd{i}");
+                                                await conn.ExecuteAsync(query, transaction: trans);
+                                            });
+
+                                            ctx.Status("cek retribusi lain");
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                                query = query.Replace("[table]", $"drd{i}");
+                                                await conn.ExecuteAsync(query, transaction: trans);
+                                            });
+                                        });
+
+                                        ctx.Status($"proses drd{i}");
+                                        await Utils.TrackProgress($"data drd{i}", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air",
+                                                queryPath: @"Queries\drd.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[tahunbulan]", i.ToString() }
+                                                });
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_detail",
+                                                queryPath: @"Queries\drd_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[tahunbulan]", i.ToString() }
+                                                });
+                                        });
+                                    }
                                 });
 
                             AnsiConsole.MarkupLine($"[bold green]Migrasi data bacameter finish[/]");
@@ -1744,6 +1745,7 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                        ctx.Status("proses pelanggan air detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1753,6 +1755,7 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                        ctx.Status("update latlong pelanggan air");
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
                                             var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);

@@ -49,7 +49,7 @@ namespace Migrasi.Commands
                 await AnsiConsole.Status()
                     .StartAsync("Sedang diproses...", async ctx =>
                     {
-                        await Utils.TrackProgress("Setting partition", async () =>
+                        await Utils.TrackProgress("setting partition", async () =>
                         {
                             await Utils.Client(async (conn, trans) =>
                             {
@@ -76,7 +76,7 @@ namespace Migrasi.Commands
                             });
                         });
 
-                        await Utils.TrackProgress("Setup pdam", async () =>
+                        await Utils.TrackProgress("setup pdam", async () =>
                         {
                             await Utils.Client(async (conn, trans) =>
                             {
