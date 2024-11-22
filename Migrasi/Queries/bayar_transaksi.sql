@@ -44,20 +44,20 @@ SELECT
  @idpdam,
  pel.id AS idpelangganair,
  per.idperiode AS idperiode,
- byr.nolpp AS nomortransaksi,
+ rek.nolpp AS nomortransaksi,
  1 AS statustransaksi,
- byr.tglbayar AS waktutransaksi,
- LEFT(byr.periode, 4) AS tahuntransaksi,
+ rek.tglbayar AS waktutransaksi,
+ LEFT(rek.periode, 4) AS tahuntransaksi,
  usr.iduser AS iduser,
  lo.idloket AS idloket,
  NULL AS idkolektiftransaksi,
  NULL AS idalasanbatal,
  NULL AS keterangan,
- byr.waktu AS waktuupdate
+ rek.waktu AS waktuupdate
 FROM
- [table] byr
- LEFT JOIN pelanggan pel ON pel.nosamb = byr.nosamb
- LEFT JOIN temp_dataawal_periode per ON per.periode = byr.periode
- LEFT JOIN temp_dataawal_userloket usr ON usr.nama = byr.kasir
- LEFT JOIN temp_dataawal_loket lo ON lo.loket = byr.namaloket
- WHERE byr.flaglunas = 1 AND byr.flagbatal = 0;
+ [table] rek
+ LEFT JOIN pelanggan pel ON pel.nosamb = rek.nosamb
+ LEFT JOIN temp_dataawal_periode per ON per.periode = rek.periode
+ LEFT JOIN temp_dataawal_userloket usr ON usr.nama = rek.kasir
+ LEFT JOIN temp_dataawal_loket lo ON lo.loket = rek.namaloket
+ WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 0 AND rek.flaglunas = 1 AND rek.flagbatal = 0;

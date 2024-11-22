@@ -828,12 +828,6 @@ namespace Migrasi.Commands
                                 await conn.ExecuteAsync(@"
                                     SET GLOBAL foreign_key_checks = 0;
                                     SET GLOBAL innodb_flush_log_at_trx_commit = 2;
-
-                                    ALTER TABLE master_pelanggan_air DISABLE KEYS;
-                                    ALTER TABLE master_pelanggan_air_detail DISABLE KEYS;
-                                    ALTER TABLE rekening_air DISABLE KEYS;
-                                    ALTER TABLE rekening_air_detail DISABLE KEYS;
-                                    ALTER TABLE rekening_air_transaksi DISABLE KEYS;
                                     ", transaction: trans);
                             });
 
@@ -1772,7 +1766,7 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("cleanup data piutang", async () =>
+                                    await Utils.TrackProgress("cleanup data piutang non angsuran", async () =>
                                     {
                                         ctx.Status("cek golongan");
                                         await Utils.ClientBilling(async (conn, trans) =>
@@ -1831,9 +1825,15 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("piutang", async () =>
+                                    await Utils.TrackProgress("piutang non angsuran", async () =>
                                     {
-                                        ctx.Status("proses piutang");
+                                        var lastId = 0;
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                        });
+
+                                        ctx.Status("proses piutang non angsuran");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1841,10 +1841,11 @@ namespace Migrasi.Commands
                                             queryPath: @"Queries\piutang.sql",
                                             parameters: new()
                                             {
-                                                { "@idpdam", settings.IdPdam }
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@lastid", lastId },
                                             });
 
-                                        ctx.Status("proses piutang detail");
+                                        ctx.Status("proses piutang non angsuran detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1855,6 +1856,38 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
                                     }, usingStopwatch: true);
+
+                                    //await Utils.TrackProgress("piutang angsuran", async () =>
+                                    //{
+                                    //    var lastIdRekeningAir = 0;
+                                    //    await Utils.Client(async (conn, trans) =>
+                                    //    {
+                                    //        lastIdRekeningAir = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                    //    });
+
+                                    //    ctx.Status("proses piutang");
+                                    //    await Utils.BulkCopy(
+                                    //        sConnectionStr: AppSettings.ConnectionStringBilling,
+                                    //        tConnectionStr: AppSettings.ConnectionString,
+                                    //        tableName: "rekening_air",
+                                    //        queryPath: @"Queries\piutang_angsuran.sql",
+                                    //        parameters: new()
+                                    //        {
+                                    //            { "@idpdam", settings.IdPdam },
+                                    //            { "@lastid", lastIdRekeningAir },
+                                    //        });
+
+                                    //    ctx.Status("proses piutang detail");
+                                    //    await Utils.BulkCopy(
+                                    //        sConnectionStr: AppSettings.ConnectionStringBilling,
+                                    //        tConnectionStr: AppSettings.ConnectionString,
+                                    //        tableName: "rekening_air_detail",
+                                    //        queryPath: @"Queries\piutang_detail_angsuran.sql",
+                                    //        parameters: new()
+                                    //        {
+                                    //            { "@idpdam", settings.IdPdam }
+                                    //        });
+                                    //}, usingStopwatch: true);
 
                                     IEnumerable<string?> tahunBayar = [];
                                     await Utils.ClientBilling(async (conn, trans) =>
@@ -1924,8 +1957,14 @@ namespace Migrasi.Commands
                                             });
                                         });
 
-                                        ctx.Status($"proses bayar{tahun}");
-                                        await Utils.TrackProgress($"bayar{tahun}", async () =>
+                                        var lastId = 0;
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                        });
+
+                                        ctx.Status($"proses bayar{tahun} non angsuran");
+                                        await Utils.TrackProgress($"bayar{tahun} non angsuran", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -1934,7 +1973,8 @@ namespace Migrasi.Commands
                                                 queryPath: @"Queries\bayar.sql",
                                                 parameters: new()
                                                 {
-                                                    { "@idpdam", settings.IdPdam }
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@lastid", lastId },
                                                 },
                                                 placeholders: new()
                                                 {
@@ -1942,8 +1982,8 @@ namespace Migrasi.Commands
                                                 });
                                         }, usingStopwatch: true);
 
-                                        ctx.Status($"proses bayar{tahun} detail");
-                                        await Utils.TrackProgress($"bayar{tahun} detail", async () =>
+                                        ctx.Status($"proses bayar{tahun} detail non angsuran");
+                                        await Utils.TrackProgress($"bayar{tahun} detail non angsuran", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -1960,8 +2000,8 @@ namespace Migrasi.Commands
                                                 });
                                         }, usingStopwatch: true);
 
-                                        ctx.Status($"proses bayar{tahun} transaksi");
-                                        await Utils.TrackProgress($"bayar{tahun} transaksi", async () =>
+                                        ctx.Status($"proses bayar{tahun} transaksi non angsuran");
+                                        await Utils.TrackProgress($"bayar{tahun} transaksi non angsuran", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -1994,13 +2034,6 @@ namespace Migrasi.Commands
                                 await conn.ExecuteAsync(@"
                                     SET GLOBAL foreign_key_checks = 1;
                                     SET GLOBAL innodb_flush_log_at_trx_commit = 1;
-
-                                    ALTER TABLE master_pelanggan_air ENABLE KEYS;
-                                    ALTER TABLE master_pelanggan_air_detail ENABLE KEYS;
-                                    ALTER TABLE rekening_air ENABLE KEYS;
-                                    ALTER TABLE rekening_air_detail ENABLE KEYS;
-                                    ALTER TABLE rekening_air_transaksi ENABLE KEYS;
-
                                     ", transaction: trans);
                             });
                         }

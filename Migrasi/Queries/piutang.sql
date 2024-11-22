@@ -96,7 +96,7 @@ SELECT
  0 AS persentase3bulanlalu,
  NULL AS kelainanbulanlalu,
  NULL AS kelainan2bulanlalu,
- 0 AS flagangsur,
+ rek.flagangsur AS flagangsur,
  NULL AS idangsuran,
  NULL AS idmodule,
  0 AS flagkoreksibilling,
@@ -124,4 +124,5 @@ FROM
  LEFT JOIN byretribusi_lain ret ON ret.kode = rek.koderetribusilain
  LEFT JOIN pembacameter pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
  LEFT JOIN kelainan kln ON kln.kelainan = rek.kelainan
- ,(SELECT @id := 0) AS id;
+ ,(SELECT @id := @lastid) AS id
+ WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 0;

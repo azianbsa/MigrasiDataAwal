@@ -157,7 +157,7 @@ namespace Migrasi.Helpers
             {
                 if (cek.flagproses == 1)
                 {
-                    WriteLogMessage($"Skip {process}");
+                    WriteLogMessage($"skip {process}");
                     return;
                 };
             }
