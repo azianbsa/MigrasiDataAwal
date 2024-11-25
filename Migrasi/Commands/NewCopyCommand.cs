@@ -21,16 +21,18 @@ namespace Migrasi.Commands
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            settings.IdPdam ??= AnsiConsole.Ask<int>("ID PDAM :");
-            settings.NamaPdam ??= AnsiConsole.Ask<string>("Nama PDAM :");
+            settings.IdPdam ??= AnsiConsole.Ask<int>("idpdam :");
+            settings.NamaPdam ??= AnsiConsole.Ask<string>("nama pdam :");
+            settings.IdPdamCopy ??= AnsiConsole.Ask<int>("copy dari pdam :");
 
             AnsiConsole.Write(
                 new Table()
                 .AddColumn(new TableColumn("Setting"))
                 .AddColumn(new TableColumn("Value"))
-                .AddRow("Id pdam", settings.IdPdam.ToString()!)
-                .AddRow("Nama pdam", settings.NamaPdam)
-                .AddRow("Environment", AppSettings.Environment.ToString()));
+                .AddRow("idpdam", settings.IdPdam.ToString()!)
+                .AddRow("nama pdam", settings.NamaPdam)
+                .AddRow("copy dari pdam", settings.IdPdamCopy.ToString()!)
+                .AddRow("environment", AppSettings.Environment.ToString()));
 
             var proceedWithSettings = AnsiConsole.Prompt(
                 new TextPrompt<bool>("Proceed with the aformentioned settings?")
