@@ -73,7 +73,7 @@ SELECT
  rek.flagkoreksi AS flagkoreksi,
  IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktukoreksi,
  IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jamkoreksi,
- 1 AS flagverifikasi,
+ rek.flagkoreksi AS flagverifikasi,
  IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktuverifikasi,
  IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jamverifikasi,
  rek.flagpublish AS flagpublish,
@@ -125,4 +125,4 @@ FROM
  LEFT JOIN pembacameter pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
  LEFT JOIN kelainan kln ON kln.kelainan = rek.kelainan
  ,(SELECT @id := @lastid) AS id
- WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 0;
+ WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 0 AND rek.flaglunas = 1 AND rek.flagbatal = 0;

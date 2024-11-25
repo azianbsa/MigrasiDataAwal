@@ -1769,7 +1769,7 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("cleanup data piutang non angsuran", async () =>
+                                    await Utils.TrackProgress("cleanup data piutang", async () =>
                                     {
                                         ctx.Status("cek golongan");
                                         await Utils.ClientBilling(async (conn, trans) =>
@@ -1859,38 +1859,6 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
                                     }, usingStopwatch: true);
-
-                                    //await Utils.TrackProgress("piutang angsuran", async () =>
-                                    //{
-                                    //    var lastIdRekeningAir = 0;
-                                    //    await Utils.Client(async (conn, trans) =>
-                                    //    {
-                                    //        lastIdRekeningAir = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                    //    });
-
-                                    //    ctx.Status("proses piutang");
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringBilling,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air",
-                                    //        queryPath: @"Queries\piutang_angsuran.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@lastid", lastIdRekeningAir },
-                                    //        });
-
-                                    //    ctx.Status("proses piutang detail");
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringBilling,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air_detail",
-                                    //        queryPath: @"Queries\piutang_detail_angsuran.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam }
-                                    //        });
-                                    //}, usingStopwatch: true);
 
                                     IEnumerable<string?> tahunBayar = [];
                                     await Utils.ClientBilling(async (conn, trans) =>

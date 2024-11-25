@@ -47,7 +47,7 @@ SELECT
  rek.nolpp AS nomortransaksi,
  1 AS statustransaksi,
  rek.tglbayar AS waktutransaksi,
- LEFT(rek.periode, 4) AS tahuntransaksi,
+ YEAR(rek.tglbayar) AS tahuntransaksi,
  usr.iduser AS iduser,
  lo.idloket AS idloket,
  NULL AS idkolektiftransaksi,
