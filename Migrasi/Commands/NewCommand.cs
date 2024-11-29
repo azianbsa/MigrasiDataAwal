@@ -260,7 +260,7 @@ namespace Migrasi.Commands
                     });
 
                 AnsiConsole.MarkupLine("");
-                AnsiConsole.MarkupLine($"[bold green]Setup pdam {settings.NamaPdam} finish.[/]");
+                AnsiConsole.MarkupLine($"[bold green]Setup {settings.NamaPdam} finish.[/]");
             }
             catch (Exception)
             {
