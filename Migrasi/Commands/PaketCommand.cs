@@ -668,7 +668,9 @@ namespace Migrasi.Commands
                                         ctx.Status("update latlong pelanggan air");
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);
+                                            var month = (periodeHMin4 + 3).ToString().Substring(4, 2);
+                                            var year = (periodeHMin4 + 3).ToString().Substring(2, 2);
+                                            var pel = await conn.QueryAsync($"SELECT idpelanggan,latitude,longitude FROM hasilbaca{month}{year}", transaction: trans);
                                             if (pel.Any())
                                             {
                                                 await Utils.Client(async (conn, trans) =>
