@@ -125,4 +125,4 @@ FROM
  LEFT JOIN pembacameter pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
  LEFT JOIN kelainan kln ON kln.kelainan = rek.kelainan
  ,(SELECT @id := @lastid) AS id
- WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 0;
+ WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = @flagangsur;

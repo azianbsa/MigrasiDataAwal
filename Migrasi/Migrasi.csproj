@@ -346,6 +346,12 @@
     <None Update="Queries\bayar_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\piutang_angsuran.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\piutang_angsuran_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\piutang_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

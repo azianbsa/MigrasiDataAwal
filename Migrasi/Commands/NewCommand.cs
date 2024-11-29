@@ -18,25 +18,17 @@ namespace Migrasi.Commands
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            settings.IdPdam ??= AnsiConsole.Ask<int>("ID PDAM :");
-            settings.NamaPdam ??= AnsiConsole.Ask<string>("Nama PDAM :");
+            settings.IdPdam ??= AnsiConsole.Ask<int>("ID:");
+            settings.NamaPdam ??= AnsiConsole.Ask<string>("Nama:");
 
             AnsiConsole.Write(
                 new Table()
                 .AddColumn(new TableColumn("Setting"))
                 .AddColumn(new TableColumn("Value"))
-                .AddRow("Id pdam", settings.IdPdam.ToString()!)
-                .AddRow("Nama pdam", settings.NamaPdam)
+                .AddRow("Pdam", $"{settings.IdPdam} {settings.NamaPdam}")
                 .AddRow("Environment", AppSettings.Environment.ToString()));
 
-            var proceedWithSettings = AnsiConsole.Prompt(
-                new TextPrompt<bool>("Proceed with the aformentioned settings?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(true)
-                .WithConverter(choice => choice ? "y" : "n"));
-
-            if (!proceedWithSettings)
+            if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
             {
                 return 0;
             }
@@ -267,7 +259,8 @@ namespace Migrasi.Commands
                         });
                     });
 
-                AnsiConsole.MarkupLine($"[bold green]Setup pdam {settings.NamaPdam} finish[/]");
+                AnsiConsole.MarkupLine("");
+                AnsiConsole.MarkupLine($"[bold green]Setup pdam {settings.NamaPdam} finish.[/]");
             }
             catch (Exception)
             {

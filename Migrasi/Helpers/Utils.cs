@@ -14,6 +14,11 @@ namespace Migrasi.Helpers
             AnsiConsole.MarkupLine($"[grey]LOG:[/] {message}[grey]...[/]");
         }
 
+        public static void WriteErrMessage(string message)
+        {
+            AnsiConsole.MarkupLine($"[red]ERR:[/] [bold]{message}[/]");
+        }
+
         public static async Task BulkCopy(string sConnectionStr, string tConnectionStr, string queryPath, string tableName, Dictionary<string, object?>? parameters = null, Dictionary<string, string>? placeholders = null)
         {
             using var sConnection = new MySqlConnection(sConnectionStr);
@@ -59,9 +64,9 @@ namespace Migrasi.Helpers
                 await bulkCopy.WriteToServerAsync(reader);
                 await trans.CommitAsync();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
+                WriteErrMessage(tableName);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -86,9 +91,8 @@ namespace Migrasi.Helpers
                 await operations(conn, trans);
                 await trans.CommitAsync();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -110,9 +114,8 @@ namespace Migrasi.Helpers
                 await operations(conn, trans);
                 await trans.CommitAsync();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -134,9 +137,8 @@ namespace Migrasi.Helpers
                 await operations(conn, trans);
                 await trans.CommitAsync();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -149,9 +151,7 @@ namespace Migrasi.Helpers
 
         public static async Task TrackProgress(string process, Func<Task> fn, bool usingStopwatch = false)
         {
-            Batteries.Init();
-            using var conn = new SqliteConnection("Data Source=database.db");
-            await conn.OpenAsync();
+            using SqliteConnection conn = await SqliteConnectionFactory();
             var cek = await conn.QueryFirstOrDefaultAsync("SELECT nama,flagproses FROM proses_manager WHERE nama=@nama", new { nama = process });
             if (cek != null)
             {
@@ -176,7 +176,7 @@ namespace Migrasi.Helpers
             }
             catch (Exception)
             {
-                AnsiConsole.MarkupLine($"[red]ERR:[/] [bold]{process}[/]");
+                WriteErrMessage(process);
                 await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 0 });
                 throw;
             }
@@ -192,6 +192,24 @@ namespace Migrasi.Helpers
                     AnsiConsole.MarkupLine($"[grey]LOG:[/] {process}[bold green] finish[/]");
                 }
             }
+        }
+
+        public static async Task<SqliteConnection> SqliteConnectionFactory()
+        {
+            Batteries.Init();
+            var conn = new SqliteConnection("Data Source=database.db");
+            await conn.OpenAsync();
+            return conn;
+        }
+
+        public static bool ConfirmationPrompt(string message, bool defaultChoice = true)
+        {
+            return AnsiConsole.Prompt(
+                new TextPrompt<bool>(message)
+                    .AddChoice(true)
+                    .AddChoice(false)
+                    .DefaultValue(defaultChoice)
+                    .WithConverter(choice => choice ? "y" : "n"));
         }
     }
 }

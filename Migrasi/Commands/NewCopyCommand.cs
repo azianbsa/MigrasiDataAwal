@@ -2,6 +2,7 @@
 using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System.ComponentModel;
 
 namespace Migrasi.Commands
 {
@@ -15,33 +16,26 @@ namespace Migrasi.Commands
             [CommandOption("-n|--nama-pdam")]
             public string? NamaPdam { get; set; }
 
-            [CommandOption("-c|--copy-dari-pdam")]
+            [CommandOption("-s|--sumber")]
+            [Description("Copy data dari pdam existing")]
             public int? IdPdamCopy { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            settings.IdPdam ??= AnsiConsole.Ask<int>("idpdam :");
-            settings.NamaPdam ??= AnsiConsole.Ask<string>("nama pdam :");
-            settings.IdPdamCopy ??= AnsiConsole.Ask<int>("copy dari pdam :");
+            settings.IdPdam ??= AnsiConsole.Ask<int>("ID:");
+            settings.NamaPdam ??= AnsiConsole.Ask<string>("Nama:");
+            settings.IdPdamCopy ??= AnsiConsole.Ask<int>("Sumber:");
 
             AnsiConsole.Write(
                 new Table()
                 .AddColumn(new TableColumn("Setting"))
                 .AddColumn(new TableColumn("Value"))
-                .AddRow("idpdam", settings.IdPdam.ToString()!)
-                .AddRow("nama pdam", settings.NamaPdam)
-                .AddRow("copy dari pdam", settings.IdPdamCopy.ToString()!)
-                .AddRow("environment", AppSettings.Environment.ToString()));
+                .AddRow("Pdam", $"{settings.IdPdam} {settings.NamaPdam}")
+                .AddRow("Sumber", $"Pdam {settings.IdPdamCopy}")
+                .AddRow("Environment", AppSettings.Environment.ToString()));
 
-            var proceedWithSettings = AnsiConsole.Prompt(
-                new TextPrompt<bool>("Proceed with the aformentioned settings?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(true)
-                .WithConverter(choice => choice ? "y" : "n"));
-
-            if (!proceedWithSettings)
+            if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
             {
                 return 0;
             }
@@ -94,7 +88,8 @@ namespace Migrasi.Commands
                         });
                     });
 
-                AnsiConsole.MarkupLine($"[bold green]Setup pdam {settings.NamaPdam} finish[/]");
+                AnsiConsole.MarkupLine("");
+                AnsiConsole.MarkupLine($"[bold green]Setup pdam {settings.NamaPdam} finish.[/]");
             }
             catch (Exception)
             {
