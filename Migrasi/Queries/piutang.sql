@@ -110,8 +110,7 @@ SELECT
  NULL AS waktudrdsusulan,
  NOW() AS waktuupdate,
  0 AS flaghapus
-FROM
- piutang rek
+FROM [table] rek
  JOIN pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN temp_dataawal_periode per ON per.periode = rek.periode
  LEFT JOIN golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1

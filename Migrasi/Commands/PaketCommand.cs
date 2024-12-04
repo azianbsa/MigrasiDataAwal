@@ -1833,6 +1833,10 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam },
                                                 { "@lastid", lastId },
                                                 { "@flagangsur", 0 },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[table]", "piutang" }
                                             });
 
                                         ctx.Status("proses piutang non angsuran detail");
@@ -1845,8 +1849,180 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam },
                                                 { "@flagangsur", 0 },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[table]", "piutang" }
                                             });
                                     }, usingStopwatch: true);
+
+                                    await Utils.TrackProgress("piutang angsuran", async () =>
+                                    {
+                                        ctx.Status("proses piutang angsuran master");
+                                        var lastId = 0;
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                        });
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_air",
+                                            queryPath: @"Queries\piutang.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@lastid", lastId },
+                                                { "@flagangsur", 1 },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[table]", "piutang" }
+                                            });
+
+                                        ctx.Status("proses piutang non angsuran master detail");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_air_detail",
+                                            queryPath: @"Queries\piutang_detail.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@flagangsur", 1 },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[table]", "piutang" }
+                                            });
+
+                                        ctx.Status("proses piutang angsuran detail");
+                                        var lastIdAngsuranDetail = 0;
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
+                                        });
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_air_angsuran_detail",
+                                            queryPath: @"Queries\piutang_angsuran_detail.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@lastid", lastIdAngsuranDetail },
+                                            });
+
+                                        ctx.Status("proses piutang angsuran");
+                                        var lastIdAngsuran = 0;
+                                        var jnsNonair = 0;
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
+                                            jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
+                                        });
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_air_angsuran",
+                                            queryPath: @"Queries\piutang_angsuran.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@lastid", lastIdAngsuran },
+                                                { "@jnsnonair", jnsNonair },
+                                            });
+
+                                        ctx.Status("update jumlah termin");
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            var termin = await conn.QueryAsync(@"
+                                                DROP TEMPORARY TABLE IF EXISTS temp_dataawal_piutang_termin;
+                                                CREATE TEMPORARY TABLE temp_dataawal_piutang_termin AS
+                                                SELECT periode,nosamb,COUNT(*) AS termin
+                                                FROM piutang
+                                                WHERE kode <> CONCAT(periode,'.',nosamb) AND SUBSTRING_INDEX(kode, '.', -1) <> 0
+                                                GROUP BY periode,nosamb;
+
+                                                SELECT
+                                                rek.periode,
+                                                rek.nosamb,
+                                                ter.termin
+                                                FROM piutang rek
+                                                JOIN temp_dataawal_piutang_termin ter ON ter.periode = rek.periode AND ter.nosamb = rek.nosamb
+                                                WHERE rek.kode = CONCAT(rek.periode,'.',rek.nosamb) AND rek.flagangsur = 1;
+                                                ", transaction: trans);
+
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                foreach (var t in termin)
+                                                {
+                                                    await conn.ExecuteAsync(@"
+                                                        UPDATE rekening_air_angsuran
+                                                        SET jumlahtermin = @termin
+                                                        WHERE idpdam = @idpdam
+                                                        AND SUBSTRING_INDEX(SUBSTRING_INDEX(noangsuran, '.', 2), '.', -1) = @periode
+                                                        AND SUBSTRING_INDEX(noangsuran, '.', -1) = @nosamb",
+                                                        new
+                                                        {
+                                                            termin = t.termin,
+                                                            idpdam = settings.IdPdam,
+                                                            periode = t.periode,
+                                                            nosamb = t.nosamb
+                                                        },
+                                                        trans);
+                                                }
+                                            });
+                                        });
+
+                                        //ctx.Status("update jumlah uang muka");
+
+                                        //sambungkan dengan rekening air
+
+                                    }, usingStopwatch: true);
+
+                                    await Utils.TrackProgress("piutang angsur lunas", async () =>
+                                    {
+                                        ctx.Status("proses piutang angsuran master");
+                                        var lastId = 0;
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                        });
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_air",
+                                            queryPath: @"Queries\piutang.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@lastid", lastId },
+                                                { "@flagangsur", 1 },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[table]", "piutang_angsurlunas" }
+                                            });
+
+                                        ctx.Status("proses bayar angsuran master detail");
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_air_detail",
+                                            queryPath: @"Queries\piutang_detail.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@flagangsur", 1 },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[table]", "piutang_angsurlunas" }
+                                            });
+                                    }, usingStopwatch: true);
+
+                                    #region bayar
 
                                     IEnumerable<string?> tahunBayar = [];
                                     await Utils.ClientBilling(async (conn, trans) =>
@@ -1934,6 +2110,7 @@ namespace Migrasi.Commands
                                                 {
                                                     { "@idpdam", settings.IdPdam },
                                                     { "@lastid", lastId },
+                                                    { "@flagangsur", 0 },
                                                 },
                                                 placeholders: new()
                                                 {
@@ -1951,7 +2128,8 @@ namespace Migrasi.Commands
                                                 queryPath: @"Queries\bayar_detail.sql",
                                                 parameters: new()
                                                 {
-                                                    { "@idpdam", settings.IdPdam }
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@flagangsur", 0 },
                                                 },
                                                 placeholders: new()
                                                 {
@@ -1979,120 +2157,98 @@ namespace Migrasi.Commands
                                         }, usingStopwatch: true);
                                     }
 
-                                    await Utils.TrackProgress("piutang angsuran", async () =>
+                                    foreach (var tahun in tahunBayar)
                                     {
-                                        ctx.Status("proses piutang angsuran master");
                                         var lastId = 0;
                                         await Utils.Client(async (conn, trans) =>
                                         {
                                             lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                                         });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_air",
-                                            queryPath: @"Queries\piutang.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam },
-                                                { "@lastid", lastId },
-                                                { "@flagangsur", 1 },
-                                            });
 
-                                        ctx.Status("proses piutang non angsuran master detail");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_air_detail",
-                                            queryPath: @"Queries\piutang_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam },
-                                                { "@flagangsur", 1 },
-                                            });
-
-                                        ctx.Status("proses piutang angsuran detail");
-                                        var lastIdAngsuranDetail = 0;
-                                        await Utils.Client(async (conn, trans) =>
+                                        ctx.Status($"proses bayar{tahun} angsuran");
+                                        await Utils.TrackProgress($"bayar{tahun} angsuran", async () =>
                                         {
-                                            lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
-                                        });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_air_angsuran_detail",
-                                            queryPath: @"Queries\piutang_angsuran_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam },
-                                                { "@lastid", lastIdAngsuranDetail },
-                                            });
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air",
+                                                queryPath: @"Queries\bayar.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@lastid", lastId },
+                                                    { "@flagangsur", 1 },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[table]", $"bayar{tahun}" }
+                                                });
+                                        }, usingStopwatch: true);
 
-                                        ctx.Status("proses piutang angsuran");
-                                        var lastIdAngsuran = 0;
-                                        var jnsNonair = 0;
-                                        await Utils.Client(async (conn, trans) =>
+                                        ctx.Status($"proses bayar{tahun} detail angsuran");
+                                        await Utils.TrackProgress($"bayar{tahun} detail angsuran", async () =>
                                         {
-                                            lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
-                                            jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
-                                        });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_air_angsuran",
-                                            queryPath: @"Queries\piutang_angsuran.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam },
-                                                { "@lastid", lastIdAngsuran },
-                                                { "@jnsnonair", jnsNonair },
-                                            });
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_detail",
+                                                queryPath: @"Queries\bayar_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@flagangsur", 1 },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[table]", $"bayar{tahun}" }
+                                                });
+                                        }, usingStopwatch: true);
 
-                                        ctx.Status("update jumlah termin");
-                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        ctx.Status($"proses bayar{tahun} angsuran detail");
+                                        await Utils.TrackProgress($"bayar{tahun} angsuran detail", async () =>
                                         {
-                                            var termin = await conn.QueryAsync(@"
-                                                DROP TEMPORARY TABLE IF EXISTS temp_dataawal_piutang_termin;
-                                                CREATE TEMPORARY TABLE temp_dataawal_piutang_termin AS
-                                                SELECT periode,nosamb,COUNT(*) AS termin
-                                                FROM piutang
-                                                WHERE kode <> CONCAT(periode,'.',nosamb) AND SUBSTRING_INDEX(kode, '.', -1) <> 0
-                                                GROUP BY periode,nosamb;
-
-                                                SELECT
-                                                rek.periode,
-                                                rek.nosamb,
-                                                ter.termin
-                                                FROM piutang rek
-                                                JOIN temp_dataawal_piutang_termin ter ON ter.periode = rek.periode AND ter.nosamb = rek.nosamb
-                                                WHERE rek.kode = CONCAT(rek.periode,'.',rek.nosamb) AND rek.flagangsur = 1;
-                                                ", transaction: trans);
-
+                                            var lastIdAngsuranDetail = 0;
                                             await Utils.Client(async (conn, trans) =>
                                             {
-                                                foreach (var t in termin)
-                                                {
-                                                    await conn.ExecuteAsync(@"
-                                                        UPDATE rekening_air_angsuran
-                                                        SET jumlahtermin = @termin
-                                                        WHERE idpdam = @idpdam
-                                                        AND SUBSTRING_INDEX(SUBSTRING_INDEX(noangsuran, '.', 2), '.', -1) = @periode
-                                                        AND SUBSTRING_INDEX(noangsuran, '.', -1) = @nosamb",
-                                                        new
-                                                        {
-                                                            termin = t.termin,
-                                                            idpdam = settings.IdPdam,
-                                                            periode = t.periode,
-                                                            nosamb = t.nosamb
-                                                        },
-                                                        trans);
-                                                }
+                                                lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
                                             });
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_angsuran_detail",
+                                                queryPath: @"Queries\bayar_angsuran_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@lastid", lastIdAngsuranDetail },
+                                                });
                                         });
 
-                                        //ctx.Status("update jumlah uang muka");
+                                        ctx.Status($"proses bayar{tahun} angsuran");
+                                        await Utils.TrackProgress($"bayar{tahun} angsuran", async () =>
+                                        {
+                                            var lastIdAngsuran = 0;
+                                            var jnsNonair = 0;
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
+                                                jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
+                                            });
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_angsuran",
+                                                queryPath: @"Queries\bayar_angsuran.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@lastid", lastIdAngsuran },
+                                                    { "@jnsnonair", jnsNonair },
+                                                });
+                                        });
+                                    }
 
-                                    });
+                                    #endregion
                                 });
 
                             AnsiConsole.MarkupLine("");

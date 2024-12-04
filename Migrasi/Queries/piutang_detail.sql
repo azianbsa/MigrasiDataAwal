@@ -27,7 +27,7 @@ SELECT
  IFNULL(rek.prog4, 0) AS prog4,
  IFNULL(rek.prog5, 0) AS prog5
 FROM
- piutang rek
+ [table] rek
  JOIN pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN temp_dataawal_periode per ON per.periode = rek.periode
  WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = @flagangsur;
