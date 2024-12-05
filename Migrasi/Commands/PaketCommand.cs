@@ -2183,8 +2183,8 @@ namespace Migrasi.Commands
 
                                     foreach (var tahun in tahunBayar)
                                     {
-                                        ctx.Status($"proses bayar{tahun}|rekening_air_angsuran_detail");
-                                        await Utils.TrackProgress($"bayar{tahun}|rekening_air_angsuran_detail", async () =>
+                                        ctx.Status($"proses bayar{tahun} angsuran|rekening_air_angsuran_detail");
+                                        await Utils.TrackProgress($"bayar{tahun} angsuran|rekening_air_angsuran_detail", async () =>
                                         {
                                             var lastIdAngsuranDetail = 0;
                                             await Utils.Client(async (conn, trans) =>
