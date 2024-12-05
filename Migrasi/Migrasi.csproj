@@ -346,7 +346,7 @@
     <None Update="Queries\bayar_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\bayar_angsuran.sql">
+    <None Update="Queries\piutang_angsur_lunas_angsuran.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\piutang_angsuran.sql">

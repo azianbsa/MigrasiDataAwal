@@ -1,12 +1,12 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS temp_dataawal_piutang_gelondongan;
 CREATE TEMPORARY TABLE temp_dataawal_piutang_gelondongan AS
-SELECT periode,nosamb,noangsuran
-FROM piutang WHERE kode <> CONCAT(periode, '.', nosamb) GROUP BY periode, nosamb, noangsuran;
+SELECT periode,nosamb
+FROM piutang WHERE kode <> CONCAT(periode, '.', nosamb) GROUP BY periode, nosamb;
 
 SELECT
  @idpdam,
  @id := @id+1 AS idangsuran,
- CONCAT(gld.noangsuran,'.',rek.kode) AS noangsuran,
+ CONCAT(IFNULL(rek.noangsuran,''),'.',rek.kode) AS noangsuran,
  @jnsnonair AS idjenisnonair,
  pel.id AS idpelangganair,
  pel.nama AS nama,

@@ -1817,7 +1817,7 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("piutang non angsuran", async () =>
                                     {
-                                        ctx.Status("proses piutang non angsuran");
+                                        ctx.Status("proses piutang non angsuran|rekening_air");
                                         var lastId = 0;
                                         await Utils.Client(async (conn, trans) =>
                                         {
@@ -1839,7 +1839,7 @@ namespace Migrasi.Commands
                                                 { "[table]", "piutang" }
                                             });
 
-                                        ctx.Status("proses piutang non angsuran detail");
+                                        ctx.Status("proses piutang non angsuran|rekening_air_detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1858,7 +1858,7 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("piutang angsuran", async () =>
                                     {
-                                        ctx.Status("proses piutang angsuran master");
+                                        ctx.Status("proses piutang angsuran|rekening_air");
                                         var lastId = 0;
                                         await Utils.Client(async (conn, trans) =>
                                         {
@@ -1880,7 +1880,7 @@ namespace Migrasi.Commands
                                                 { "[table]", "piutang" }
                                             });
 
-                                        ctx.Status("proses piutang non angsuran master detail");
+                                        ctx.Status("proses piutang angsuran|rekening_air_detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -1896,7 +1896,7 @@ namespace Migrasi.Commands
                                                 { "[table]", "piutang" }
                                             });
 
-                                        ctx.Status("proses piutang angsuran detail");
+                                        ctx.Status("proses piutang angsuran|rekening_air_angsuran_detail");
                                         var lastIdAngsuranDetail = 0;
                                         await Utils.Client(async (conn, trans) =>
                                         {
@@ -1913,7 +1913,7 @@ namespace Migrasi.Commands
                                                 { "@lastid", lastIdAngsuranDetail },
                                             });
 
-                                        ctx.Status("proses piutang angsuran");
+                                        ctx.Status("proses piutang angsuran|rekening_air_angsuran");
                                         var lastIdAngsuran = 0;
                                         var jnsNonair = 0;
                                         await Utils.Client(async (conn, trans) =>
@@ -1983,7 +1983,7 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("piutang angsur lunas", async () =>
                                     {
-                                        ctx.Status("proses piutang angsuran master");
+                                        ctx.Status("proses piutang angsur lunas|rekening_air");
                                         var lastId = 0;
                                         await Utils.Client(async (conn, trans) =>
                                         {
@@ -2005,7 +2005,7 @@ namespace Migrasi.Commands
                                                 { "[table]", "piutang_angsurlunas" }
                                             });
 
-                                        ctx.Status("proses bayar angsuran master detail");
+                                        ctx.Status("proses piutang angsur lunas|rekening_air_detail");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -2015,6 +2015,30 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam },
                                                 { "@flagangsur", 1 },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[table]", "piutang_angsurlunas" }
+                                            });
+
+                                        ctx.Status($"proses piutang angsur lunas|rekening_air_angsuran");
+                                        var lastIdAngsuran = 0;
+                                        var jnsNonair = 0;
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
+                                            jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
+                                        });
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_air_angsuran",
+                                            queryPath: @"Queries\piutang_angsur_lunas_angsuran.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@lastid", lastIdAngsuran },
+                                                { "@jnsnonair", jnsNonair },
                                             },
                                             placeholders: new()
                                             {
@@ -2098,8 +2122,8 @@ namespace Migrasi.Commands
                                             lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                                         });
 
-                                        ctx.Status($"proses bayar{tahun} non angsuran");
-                                        await Utils.TrackProgress($"bayar{tahun} non angsuran", async () =>
+                                        ctx.Status($"proses bayar{tahun}|rekening_air");
+                                        await Utils.TrackProgress($"bayar{tahun}|rekening_air", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -2118,8 +2142,8 @@ namespace Migrasi.Commands
                                                 });
                                         }, usingStopwatch: true);
 
-                                        ctx.Status($"proses bayar{tahun} detail non angsuran");
-                                        await Utils.TrackProgress($"bayar{tahun} detail non angsuran", async () =>
+                                        ctx.Status($"proses bayar{tahun}|rekening_air_detail");
+                                        await Utils.TrackProgress($"bayar{tahun}|rekening_air_detail", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -2137,8 +2161,8 @@ namespace Migrasi.Commands
                                                 });
                                         }, usingStopwatch: true);
 
-                                        ctx.Status($"proses bayar{tahun} transaksi non angsuran");
-                                        await Utils.TrackProgress($"bayar{tahun} transaksi non angsuran", async () =>
+                                        ctx.Status($"proses bayar{tahun}|rekening_air_transaksi");
+                                        await Utils.TrackProgress($"bayar{tahun}|rekening_air_transaksi", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -2159,53 +2183,8 @@ namespace Migrasi.Commands
 
                                     foreach (var tahun in tahunBayar)
                                     {
-                                        var lastId = 0;
-                                        await Utils.Client(async (conn, trans) =>
-                                        {
-                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                        });
-
-                                        ctx.Status($"proses bayar{tahun} angsuran");
-                                        await Utils.TrackProgress($"bayar{tahun} angsuran", async () =>
-                                        {
-                                            await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                tConnectionStr: AppSettings.ConnectionString,
-                                                tableName: "rekening_air",
-                                                queryPath: @"Queries\bayar.sql",
-                                                parameters: new()
-                                                {
-                                                    { "@idpdam", settings.IdPdam },
-                                                    { "@lastid", lastId },
-                                                    { "@flagangsur", 1 },
-                                                },
-                                                placeholders: new()
-                                                {
-                                                    { "[table]", $"bayar{tahun}" }
-                                                });
-                                        }, usingStopwatch: true);
-
-                                        ctx.Status($"proses bayar{tahun} detail angsuran");
-                                        await Utils.TrackProgress($"bayar{tahun} detail angsuran", async () =>
-                                        {
-                                            await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                tConnectionStr: AppSettings.ConnectionString,
-                                                tableName: "rekening_air_detail",
-                                                queryPath: @"Queries\bayar_detail.sql",
-                                                parameters: new()
-                                                {
-                                                    { "@idpdam", settings.IdPdam },
-                                                    { "@flagangsur", 1 },
-                                                },
-                                                placeholders: new()
-                                                {
-                                                    { "[table]", $"bayar{tahun}" }
-                                                });
-                                        }, usingStopwatch: true);
-
-                                        ctx.Status($"proses bayar{tahun} angsuran detail");
-                                        await Utils.TrackProgress($"bayar{tahun} angsuran detail", async () =>
+                                        ctx.Status($"proses bayar{tahun}|rekening_air_angsuran_detail");
+                                        await Utils.TrackProgress($"bayar{tahun}|rekening_air_angsuran_detail", async () =>
                                         {
                                             var lastIdAngsuranDetail = 0;
                                             await Utils.Client(async (conn, trans) =>
@@ -2221,33 +2200,6 @@ namespace Migrasi.Commands
                                                 {
                                                     { "@idpdam", settings.IdPdam },
                                                     { "@lastid", lastIdAngsuranDetail },
-                                                },
-                                                placeholders: new()
-                                                {
-                                                    { "[table]", $"bayar{tahun}" }
-                                                });
-                                        });
-
-                                        ctx.Status($"proses bayar{tahun} angsuran");
-                                        await Utils.TrackProgress($"bayar{tahun} angsuran", async () =>
-                                        {
-                                            var lastIdAngsuran = 0;
-                                            var jnsNonair = 0;
-                                            await Utils.Client(async (conn, trans) =>
-                                            {
-                                                lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
-                                                jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
-                                            });
-                                            await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                tConnectionStr: AppSettings.ConnectionString,
-                                                tableName: "rekening_air_angsuran",
-                                                queryPath: @"Queries\bayar_angsuran.sql",
-                                                parameters: new()
-                                                {
-                                                    { "@idpdam", settings.IdPdam },
-                                                    { "@lastid", lastIdAngsuran },
-                                                    { "@jnsnonair", jnsNonair },
                                                 },
                                                 placeholders: new()
                                                 {
