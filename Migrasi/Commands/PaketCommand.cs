@@ -2221,6 +2221,10 @@ namespace Migrasi.Commands
                                                 {
                                                     { "@idpdam", settings.IdPdam },
                                                     { "@lastid", lastIdAngsuranDetail },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[table]", $"bayar{tahun}" }
                                                 });
                                         });
 
@@ -2244,6 +2248,10 @@ namespace Migrasi.Commands
                                                     { "@idpdam", settings.IdPdam },
                                                     { "@lastid", lastIdAngsuran },
                                                     { "@jnsnonair", jnsNonair },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[table]", $"bayar{tahun}" }
                                                 });
                                         });
                                     }
