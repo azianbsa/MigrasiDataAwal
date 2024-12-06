@@ -126,6 +126,29 @@ namespace Migrasi.Helpers
             }
         }
 
+        public static async Task ClientLoket(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        {
+            using var conn = new MySqlConnection(AppSettings.ConnectionStringLoket);
+            await conn.OpenAsync();
+            var trans = await conn.BeginTransactionAsync();
+
+            try
+            {
+                await operations(conn, trans);
+                await trans.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await trans.RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                await conn.CloseAsync();
+                await MySqlConnection.ClearPoolAsync(conn);
+            }
+        }
+
         public static async Task ClientBacameter(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.ConnectionStringBacameter);

@@ -292,6 +292,15 @@
     <None Update="Queries\master_user.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\nonair.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\nonair_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\nonair_transaksi.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\Patches\data_cleanup_adm_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
