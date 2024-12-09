@@ -23,14 +23,14 @@ SELECT
  DATE_FORMAT(DATE_ADD(STR_TO_DATE(CONCAT(rek.periode,'01'), '%Y%m%d'), INTERVAL 1 MONTH), '%Y-%m-01') AS tglmulaitagihpertama,
  rek.nolpp AS noberitaacara,
  NULL AS tglberitaacara,
- rek.flagpublish AS flagpublish,
- rek.tglpublish AS waktupublish,
+ 1 AS flagpublish,
+ now() AS waktupublish,
  0 AS flaglunas,
  NULL AS waktulunas,
  0 AS flaghapus,
  NOW() AS waktuupdate
 FROM piutang rek
 JOIN temp_dataawal_piutang_gelondongan gld ON gld.periode = rek.periode AND gld.nosamb = rek.nosamb
-JOIN pelanggan pel ON pel.nosamb = rek.nosamb
+JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
 ,(SELECT @id := @lastid) AS id
 WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 1;

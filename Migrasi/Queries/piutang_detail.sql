@@ -8,7 +8,7 @@ INSERT INTO temp_dataawal_periode
 SELECT
 @idperiode:=@idperiode+1 AS idperiode,
 periode
-FROM periode
+FROM [bsbs].periode
 ,(SELECT @idperiode:=0) AS idperiode
 ORDER BY periode;
 

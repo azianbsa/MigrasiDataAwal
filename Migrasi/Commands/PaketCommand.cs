@@ -1758,61 +1758,61 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("cleanup data piutang", async () =>
                                     {
-                                        ctx.Status("cek golongan");
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                            query = query.Replace("[table]", $"piutang");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek golongan");
+                                        //await Utils.ClientLoket(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                        //    query = query.Replace("[table]", $"piutang");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek diameter");
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                            query = query.Replace("[table]", $"piutang");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek diameter");
+                                        //await Utils.ClientLoket(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                        //    query = query.Replace("[table]", $"piutang");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek kelurahan");
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                            query = query.Replace("[table]", $"piutang");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek kelurahan");
+                                        //await Utils.ClientLoket(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                        //    query = query.Replace("[table]", $"piutang");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek kolektif");
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                            query = query.Replace("[table]", $"piutang");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek kolektif");
+                                        //await Utils.ClientLoket(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                        //    query = query.Replace("[table]", $"piutang");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek administrasi lain");
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                            query = query.Replace("[table]", $"piutang");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek administrasi lain");
+                                        //await Utils.ClientLoket(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                        //    query = query.Replace("[table]", $"piutang");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek pemeliharaan lain");
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                            query = query.Replace("[table]", $"piutang");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek pemeliharaan lain");
+                                        //await Utils.ClientLoket(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                        //    query = query.Replace("[table]", $"piutang");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek retribusi lain");
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                            query = query.Replace("[table]", $"piutang");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek retribusi lain");
+                                        //await Utils.ClientLoket(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                        //    query = query.Replace("[table]", $"piutang");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
                                     });
 
                                     await Utils.TrackProgress("piutang non angsuran", async () =>
@@ -1836,7 +1836,8 @@ namespace Migrasi.Commands
                                             },
                                             placeholders: new()
                                             {
-                                                { "[table]", "piutang" }
+                                                { "[table]", "piutang" },
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
 
                                         ctx.Status("proses piutang non angsuran|rekening_air_detail");
@@ -1852,7 +1853,8 @@ namespace Migrasi.Commands
                                             },
                                             placeholders: new()
                                             {
-                                                { "[table]", "piutang" }
+                                                { "[table]", "piutang" },
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
                                     }, usingStopwatch: true);
 
@@ -1877,7 +1879,8 @@ namespace Migrasi.Commands
                                             },
                                             placeholders: new()
                                             {
-                                                { "[table]", "piutang" }
+                                                { "[table]", "piutang" },
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
 
                                         ctx.Status("proses piutang angsuran|rekening_air_detail");
@@ -1893,7 +1896,8 @@ namespace Migrasi.Commands
                                             },
                                             placeholders: new()
                                             {
-                                                { "[table]", "piutang" }
+                                                { "[table]", "piutang" },
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
 
                                         ctx.Status("proses piutang angsuran|rekening_air_angsuran_detail");
@@ -1911,6 +1915,10 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam },
                                                 { "@lastid", lastIdAngsuranDetail },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
 
                                         ctx.Status("proses piutang angsuran|rekening_air_angsuran");
@@ -1931,6 +1939,10 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam },
                                                 { "@lastid", lastIdAngsuran },
                                                 { "@jnsnonair", jnsNonair },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
 
                                         ctx.Status("update jumlah termin");
@@ -2002,7 +2014,8 @@ namespace Migrasi.Commands
                                             },
                                             placeholders: new()
                                             {
-                                                { "[table]", "piutang_angsurlunas" }
+                                                { "[table]", "piutang_angsurlunas" },
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
 
                                         ctx.Status("proses piutang angsur lunas|rekening_air_detail");
@@ -2018,7 +2031,8 @@ namespace Migrasi.Commands
                                             },
                                             placeholders: new()
                                             {
-                                                { "[table]", "piutang_angsurlunas" }
+                                                { "[table]", "piutang_angsurlunas" },
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
 
                                         ctx.Status($"proses piutang angsur lunas|rekening_air_angsuran");
@@ -2042,78 +2056,79 @@ namespace Migrasi.Commands
                                             },
                                             placeholders: new()
                                             {
-                                                { "[table]", "piutang_angsurlunas" }
+                                                { "[table]", "piutang_angsurlunas" },
+                                                { "[bsbs]", AppSettings.DBNameBilling },
                                             });
                                     }, usingStopwatch: true);
 
                                     #region bayar
 
                                     IEnumerable<string?> tahunBayar = [];
-                                    await Utils.ClientBilling(async (conn, trans) =>
+                                    await Utils.ClientLoket(async (conn, trans) =>
                                     {
                                         tahunBayar = await conn.QueryAsync<string?>("SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                            new { table_schema = AppSettings.DBNameBilling }, trans);
+                                            new { table_schema = AppSettings.DBNameLoket }, trans);
                                     });
 
                                     foreach (var tahun in tahunBayar)
                                     {
                                         await Utils.TrackProgress($"cleanup data bayar{tahun}", async () =>
                                         {
-                                            ctx.Status($"Cek golongan");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                                query = query.Replace("[table]", $"bayar{tahun}");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            //ctx.Status($"Cek golongan");
+                                            //await Utils.ClientBilling(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                            //    query = query.Replace("[table]", $"bayar{tahun}");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
 
-                                            ctx.Status($"Cek diameter");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                                query = query.Replace("[table]", $"bayar{tahun}");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            //ctx.Status($"Cek diameter");
+                                            //await Utils.ClientBilling(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                            //    query = query.Replace("[table]", $"bayar{tahun}");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
 
-                                            ctx.Status($"Cek kelurahan");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                                query = query.Replace("[table]", $"bayar{tahun}");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            //ctx.Status($"Cek kelurahan");
+                                            //await Utils.ClientBilling(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                            //    query = query.Replace("[table]", $"bayar{tahun}");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
 
-                                            ctx.Status($"Cek kolektif");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                                query = query.Replace("[table]", $"bayar{tahun}");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            //ctx.Status($"Cek kolektif");
+                                            //await Utils.ClientBilling(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                            //    query = query.Replace("[table]", $"bayar{tahun}");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
 
-                                            ctx.Status($"Cek administrasi lain");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                                query = query.Replace("[table]", $"bayar{tahun}");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            //ctx.Status($"Cek administrasi lain");
+                                            //await Utils.ClientBilling(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                            //    query = query.Replace("[table]", $"bayar{tahun}");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
 
-                                            ctx.Status($"Cek pemeliharaan lain");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                                query = query.Replace("[table]", $"bayar{tahun}");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            //ctx.Status($"Cek pemeliharaan lain");
+                                            //await Utils.ClientBilling(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                            //    query = query.Replace("[table]", $"bayar{tahun}");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
 
-                                            ctx.Status($"Cek retribusi lain");
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                                query = query.Replace("[table]", $"bayar{tahun}");
-                                                await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            });
+                                            //ctx.Status($"Cek retribusi lain");
+                                            //await Utils.ClientBilling(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                            //    query = query.Replace("[table]", $"bayar{tahun}");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
                                         });
 
                                         var lastId = 0;
@@ -2138,7 +2153,8 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[table]", $"bayar{tahun}" }
+                                                    { "[table]", $"bayar{tahun}" },
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
                                                 });
                                         }, usingStopwatch: true);
 
@@ -2157,7 +2173,8 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[table]", $"bayar{tahun}" }
+                                                    { "[table]", $"bayar{tahun}" },
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
                                                 });
                                         }, usingStopwatch: true);
 
@@ -2176,7 +2193,8 @@ namespace Migrasi.Commands
                                                 placeholders: new()
                                                 {
                                                     { "[table]", $"bayar{tahun}" },
-                                                    { "[dbloket]", AppSettings.DBNameLoket }
+                                                    { "[dbloket]", AppSettings.DBNameLoket },
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
                                                 });
                                         }, usingStopwatch: true);
                                     }

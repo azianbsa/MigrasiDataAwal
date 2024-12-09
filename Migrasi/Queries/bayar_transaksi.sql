@@ -8,7 +8,7 @@ INSERT INTO temp_dataawal_periode
 SELECT
 @idperiode:=@idperiode+1 AS idperiode,
 periode
-FROM periode
+FROM [bsbs].periode
 ,(SELECT @idperiode:=0) AS idperiode
 ORDER BY periode;
 
@@ -29,12 +29,14 @@ ORDER BY nama;
 DROP TEMPORARY TABLE IF EXISTS temp_dataawal_loket;
 CREATE TEMPORARY TABLE temp_dataawal_loket (
     idloket INT,
+    kodeloket VARCHAR(50),
     loket VARCHAR(50),
     INDEX idx_temp_dataawal_loket_loket (loket)
 );
 INSERT INTO temp_dataawal_loket
 SELECT
 @idloket := @idloket + 1 AS idloket,
+kodeloket,
 loket
 FROM [dbloket].loket
 ,(SELECT @idloket := 0) AS idloket
@@ -53,11 +55,11 @@ SELECT
  NULL AS idkolektiftransaksi,
  NULL AS idalasanbatal,
  NULL AS keterangan,
- rek.waktu AS waktuupdate
+ NOW() AS waktuupdate
 FROM
  [table] rek
- LEFT JOIN pelanggan pel ON pel.nosamb = rek.nosamb
+ LEFT JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
  LEFT JOIN temp_dataawal_periode per ON per.periode = rek.periode
  LEFT JOIN temp_dataawal_userloket usr ON usr.nama = rek.kasir
- LEFT JOIN temp_dataawal_loket lo ON lo.loket = rek.namaloket
+ LEFT JOIN temp_dataawal_loket lo ON lo.kodeloket = rek.loketbayar
  WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 0 AND rek.flaglunas = 1 AND rek.flagbatal = 0;

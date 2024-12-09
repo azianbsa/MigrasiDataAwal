@@ -8,7 +8,7 @@ INSERT INTO temp_dataawal_periode
 SELECT
 @idperiode:=@idperiode+1 AS idperiode,
 periode
-FROM periode
+FROM [bsbs].periode
 ,(SELECT @idperiode:=0) AS idperiode
 ORDER BY periode;
 
@@ -28,7 +28,7 @@ SELECT
  IFNULL(rek.prog5, 0) AS prog5
 FROM
  [table] rek
- JOIN pelanggan pel ON pel.nosamb = rek.nosamb
+ JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN temp_dataawal_periode per ON per.periode = rek.periode
  ,(SELECT @id := 0) AS id
  WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = @flagangsur AND rek.flaglunas = 1 AND rek.flagbatal = 0;
