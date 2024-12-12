@@ -64,9 +64,13 @@ namespace Migrasi.Helpers
                 await bulkCopy.WriteToServerAsync(reader);
                 await trans.CommitAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                WriteErrMessage(tableName);
+                var msg = $@"
+                process: {tableName}
+                message: {e.InnerException?.Message ?? e.Message}
+                stack-trace: {e.InnerException?.StackTrace ?? e.StackTrace}";
+                WriteErrMessage(msg);
                 await trans.RollbackAsync();
                 throw;
             }
