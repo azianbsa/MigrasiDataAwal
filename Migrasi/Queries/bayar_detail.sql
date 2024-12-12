@@ -6,10 +6,10 @@ CREATE TEMPORARY TABLE temp_dataawal_periode (
 );
 INSERT INTO temp_dataawal_periode
 SELECT
-@idperiode:=@idperiode+1 AS idperiode,
+@idperiode := @idperiode+1 AS idperiode,
 periode
 FROM [bsbs].periode
-,(SELECT @idperiode:=0) AS idperiode
+,(SELECT @idperiode := 0) AS idperiode
 ORDER BY periode;
 
 SELECT
@@ -31,4 +31,8 @@ FROM
  JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN temp_dataawal_periode per ON per.periode = rek.periode
  ,(SELECT @id := 0) AS id
- WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = @flagangsur AND rek.flaglunas = 1 AND rek.flagbatal = 0;
+ WHERE rek.periode = @periode
+ AND rek.kode = CONCAT(rek.periode, '.', rek.nosamb)
+ AND rek.flaglunas = 1
+ AND rek.flagbatal = 0
+ AND rek.flagangsur = 0

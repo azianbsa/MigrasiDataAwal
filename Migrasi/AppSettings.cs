@@ -48,7 +48,9 @@ namespace Migrasi
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
             AllowZeroDateTime = true,
-            DefaultCommandTimeout = (uint)CommandTimeout
+            DefaultCommandTimeout = (uint)CommandTimeout,
+            ConnectionTimeout = (uint)CommandTimeout,
+            Pooling = false,
         }.ConnectionString;
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
@@ -71,6 +73,9 @@ namespace Migrasi
             Password = DBPasswordBilling,
             Database = DBNameBilling,
             AllowUserVariables = true,
+            DefaultCommandTimeout = (uint)CommandTimeout,
+            ConnectionTimeout = (uint)CommandTimeout,
+            Pooling = false,
         }.ConnectionString;
 
         public static string ConnectionStringBacameter => new MySqlConnectionStringBuilder
@@ -91,6 +96,9 @@ namespace Migrasi
             Password = DBPasswordLoket,
             Database = DBNameLoket,
             AllowUserVariables = true,
+            DefaultCommandTimeout = (uint)CommandTimeout,
+            ConnectionTimeout = (uint)CommandTimeout,
+            Pooling = false,
         }.ConnectionString;
     }
 }

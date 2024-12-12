@@ -6,10 +6,10 @@ CREATE TEMPORARY TABLE temp_dataawal_periode (
 );
 INSERT INTO temp_dataawal_periode
 SELECT
-@idperiode:=@idperiode+1 AS idperiode,
+@idperiode := @idperiode+1 AS idperiode,
 periode
 FROM [bsbs].periode
-,(SELECT @idperiode:=0) AS idperiode
+,(SELECT @idperiode := 0) AS idperiode
 ORDER BY periode;
 
 SELECT
@@ -22,7 +22,7 @@ SELECT
  1 AS idjenispipa,
  1 AS idkwh,
  ray.id AS idrayon,
- NULL AS idkelurahan,
+ kel.id AS idkelurahan,
  kol.id AS idkolektif,
  adm.id AS idadministrasilain,
  pem.id AS idpemeliharaanlain,
@@ -117,7 +117,7 @@ FROM
  LEFT JOIN [bsbs].golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
  LEFT JOIN [bsbs].diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
  LEFT JOIN [bsbs].rayon ray ON ray.koderayon = rek.koderayon
- -- LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = rek.kodekelurahan
+ LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan
  LEFT JOIN [bsbs].kolektif kol ON kol.kodekolektif = rek.kodekolektif
  LEFT JOIN [bsbs].byadministrasi_lain adm ON adm.kode = rek.kodeadministrasilain
  LEFT JOIN [bsbs].bypemeliharaan_lain pem ON pem.kode = rek.kodepemeliharaanlain
@@ -125,4 +125,8 @@ FROM
  LEFT JOIN [bsbs].pembacameter pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
  LEFT JOIN [bsbs].kelainan kln ON kln.kelainan = rek.kelainan
  ,(SELECT @id := @lastid) AS id
- WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = @flagangsur AND rek.flaglunas = 1 AND rek.flagbatal = 0;
+ WHERE rek.periode = @periode
+ AND rek.kode = CONCAT(rek.periode, '.', rek.nosamb)
+ AND rek.flaglunas = 1
+ AND rek.flagbatal = 0
+ AND rek.flagangsur = 0

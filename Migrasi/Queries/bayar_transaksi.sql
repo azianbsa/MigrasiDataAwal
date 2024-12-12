@@ -6,10 +6,10 @@ CREATE TEMPORARY TABLE temp_dataawal_periode (
 );
 INSERT INTO temp_dataawal_periode
 SELECT
-@idperiode:=@idperiode+1 AS idperiode,
+@idperiode := @idperiode+1 AS idperiode,
 periode
 FROM [bsbs].periode
-,(SELECT @idperiode:=0) AS idperiode
+,(SELECT @idperiode := 0) AS idperiode
 ORDER BY periode;
 
 DROP TEMPORARY TABLE IF EXISTS temp_dataawal_userloket;
@@ -22,7 +22,7 @@ INSERT INTO temp_dataawal_userloket
 SELECT
 @iduser := @iduser + 1 AS iduser,
 nama
-FROM [dbloket].userloket
+FROM userloket
 ,(SELECT @iduser := 0) AS iduser
 ORDER BY nama;
 
@@ -38,7 +38,7 @@ SELECT
 @idloket := @idloket + 1 AS idloket,
 kodeloket,
 loket
-FROM [dbloket].loket
+FROM loket
 ,(SELECT @idloket := 0) AS idloket
 ORDER BY kodeloket;
 
@@ -62,4 +62,8 @@ FROM
  LEFT JOIN temp_dataawal_periode per ON per.periode = rek.periode
  LEFT JOIN temp_dataawal_userloket usr ON usr.nama = rek.kasir
  LEFT JOIN temp_dataawal_loket lo ON lo.kodeloket = rek.loketbayar
- WHERE rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 0 AND rek.flaglunas = 1 AND rek.flagbatal = 0;
+ WHERE rek.periode = @periode
+ AND rek.kode = CONCAT(rek.periode, '.', rek.nosamb)
+ AND rek.flaglunas = 1
+ AND rek.flagbatal = 0
+ AND rek.flagangsur = 0

@@ -68,6 +68,7 @@ namespace Migrasi
                 config.AddCommand<NewCommand>("new");
                 config.AddCommand<NewCopyCommand>("newcopy");
                 config.AddCommand<PaketCommand>("paket");
+                config.AddCommand<PiutangCommand>("piutang");
             });
 
             var sw = Stopwatch.StartNew();

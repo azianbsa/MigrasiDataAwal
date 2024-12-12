@@ -27,8 +27,8 @@
  NOW() AS waktuupdate
 FROM
  nonair na
- LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
+ LEFT JOIN [bsbs].pelanggan pel ON pel.nosamb = na.dibebankankepada
  LEFT JOIN jenisnonair jns ON jns.jenis = na.jenis
- LEFT JOIN rayon ryn ON ryn.koderayon = na.koderayon
- LEFT JOIN golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
+ LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon = na.koderayon
+ LEFT JOIN [bsbs].golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
  WHERE na.flaghapus = 0 AND na.flagangsur = 0;
