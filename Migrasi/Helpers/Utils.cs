@@ -16,7 +16,7 @@ namespace Migrasi.Helpers
 
         public static void WriteErrMessage(string message)
         {
-            AnsiConsole.MarkupLine($"[red]ERR:[/] [bold]{message}[/]");
+            AnsiConsole.WriteLine($"{message}");
         }
 
         public static async Task BulkCopy(string sConnectionStr, string tConnectionStr, string queryPath, string tableName, Dictionary<string, object?>? parameters = null, Dictionary<string, string>? placeholders = null)

@@ -64,6 +64,7 @@ FROM
  LEFT JOIN temp_dataawal_loket lo ON lo.kodeloket = rek.loketbayar
  WHERE rek.periode = @periode
  AND rek.kode = CONCAT(rek.periode, '.', rek.nosamb)
+ AND rek.tglbayar IS NOT NULL
  AND rek.flaglunas = 1
  AND rek.flagbatal = 0
  AND rek.flagangsur = 0
