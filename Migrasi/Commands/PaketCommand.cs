@@ -1743,72 +1743,74 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    await Utils.TrackProgress("cleanup data piutang", async () =>
-                                    {
-                                        //ctx.Status("cek golongan");
-                                        //await Utils.ClientLoket(async (conn, trans) =>
-                                        //{
-                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                        //    query = query.Replace("[table]", $"piutang");
-                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        //});
-
-                                        //ctx.Status("cek diameter");
-                                        //await Utils.ClientLoket(async (conn, trans) =>
-                                        //{
-                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                        //    query = query.Replace("[table]", $"piutang");
-                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        //});
-
-                                        //ctx.Status("cek kelurahan");
-                                        //await Utils.ClientLoket(async (conn, trans) =>
-                                        //{
-                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                        //    query = query.Replace("[table]", $"piutang");
-                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        //});
-
-                                        //ctx.Status("cek kolektif");
-                                        //await Utils.ClientLoket(async (conn, trans) =>
-                                        //{
-                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                        //    query = query.Replace("[table]", $"piutang");
-                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        //});
-
-                                        //ctx.Status("cek administrasi lain");
-                                        //await Utils.ClientLoket(async (conn, trans) =>
-                                        //{
-                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                        //    query = query.Replace("[table]", $"piutang");
-                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        //});
-
-                                        //ctx.Status("cek pemeliharaan lain");
-                                        //await Utils.ClientLoket(async (conn, trans) =>
-                                        //{
-                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                        //    query = query.Replace("[table]", $"piutang");
-                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        //});
-
-                                        //ctx.Status("cek retribusi lain");
-                                        //await Utils.ClientLoket(async (conn, trans) =>
-                                        //{
-                                        //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                        //    query = query.Replace("[table]", $"piutang");
-                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        //});
-                                    });
-
-                                    #region piutang & bayar non angsuran
+                                    #region piutang, bayar & nonair non angsuran
                                     await Utils.TrackProgress("piutang", async () =>
                                     {
+                                        await Utils.TrackProgress("cleanup data piutang", async () =>
+                                        {
+                                            //ctx.Status("cek golongan");
+                                            //await Utils.ClientLoket(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                            //    query = query.Replace("[table]", $"piutang");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
+
+                                            //ctx.Status("cek diameter");
+                                            //await Utils.ClientLoket(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                            //    query = query.Replace("[table]", $"piutang");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
+
+                                            //ctx.Status("cek kelurahan");
+                                            //await Utils.ClientLoket(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                            //    query = query.Replace("[table]", $"piutang");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
+
+                                            //ctx.Status("cek kolektif");
+                                            //await Utils.ClientLoket(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                            //    query = query.Replace("[table]", $"piutang");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
+
+                                            //ctx.Status("cek administrasi lain");
+                                            //await Utils.ClientLoket(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                            //    query = query.Replace("[table]", $"piutang");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
+
+                                            //ctx.Status("cek pemeliharaan lain");
+                                            //await Utils.ClientLoket(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                            //    query = query.Replace("[table]", $"piutang");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
+
+                                            //ctx.Status("cek retribusi lain");
+                                            //await Utils.ClientLoket(async (conn, trans) =>
+                                            //{
+                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                            //    query = query.Replace("[table]", $"piutang");
+                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                            //});
+
+                                            await Task.FromResult(0);
+                                        });
+
                                         IEnumerable<int>? listPeriode = [];
                                         await Utils.ClientLoket(async (conn, trans) =>
                                         {
-                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang GROUP BY periode", transaction: trans);
+                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
                                         });
 
                                         foreach (var periode in listPeriode)
@@ -1836,12 +1838,13 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
+                                                        { "[table]", "piutang" },
                                                         { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
                                             ctx.Status($"proses piutang-{periode}|rekening_air_detail");
-                                            await Utils.TrackProgress($"proses piutang-{periode}|rekening_air_detail", async () =>
+                                            await Utils.TrackProgress($"piutang-{periode}|rekening_air_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
                                                     sConnectionStr: AppSettings.ConnectionStringLoket,
@@ -1856,6 +1859,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
+                                                        { "[table]", "piutang" },
                                                         { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
@@ -1864,15 +1868,15 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("bayar", async () =>
                                     {
-                                        IEnumerable<string?> tahunBayar = [];
+                                        IEnumerable<string?> bayarTahun = [];
                                         await Utils.ClientLoket(async (conn, trans) =>
                                         {
-                                            tahunBayar = await conn.QueryAsync<string?>(@"
+                                            bayarTahun = await conn.QueryAsync<string?>(@"
                                             SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
                                             new { table_schema = AppSettings.DBNameLoket }, trans);
                                         });
 
-                                        foreach (var tahun in tahunBayar)
+                                        foreach (var tahun in bayarTahun)
                                         {
                                             await Utils.TrackProgress($"cleanup data bayar{tahun}", async () =>
                                             {
@@ -2012,287 +2016,407 @@ namespace Migrasi.Commands
                                             }
                                         }
                                     });
-                                    #endregion
-
-                                    #region piutang & bayar angsuran
-
-                                    //await Utils.TrackProgress("piutang angsuran", async () =>
-                                    //{
-                                    //    ctx.Status("proses piutang angsuran|rekening_air");
-                                    //    var lastId = 0;
-                                    //    await Utils.Client(async (conn, trans) =>
-                                    //    {
-                                    //        lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                    //    });
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air",
-                                    //        queryPath: @"Queries\piutang.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@lastid", lastId },
-                                    //            { "@flagangsur", 1 },
-                                    //        },
-                                    //        placeholders: new()
-                                    //        {
-                                    //            { "[table]", "piutang" },
-                                    //            { "[bsbs]", AppSettings.DBNameBilling },
-                                    //        });
-
-                                    //    ctx.Status("proses piutang angsuran|rekening_air_detail");
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air_detail",
-                                    //        queryPath: @"Queries\piutang_detail.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@flagangsur", 1 },
-                                    //        },
-                                    //        placeholders: new()
-                                    //        {
-                                    //            { "[table]", "piutang" },
-                                    //            { "[bsbs]", AppSettings.DBNameBilling },
-                                    //        });
-
-                                    //    ctx.Status("proses piutang angsuran|rekening_air_angsuran_detail");
-                                    //    var lastIdAngsuranDetail = 0;
-                                    //    await Utils.Client(async (conn, trans) =>
-                                    //    {
-                                    //        lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
-                                    //    });
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air_angsuran_detail",
-                                    //        queryPath: @"Queries\piutang_angsuran_detail.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@lastid", lastIdAngsuranDetail },
-                                    //        },
-                                    //        placeholders: new()
-                                    //        {
-                                    //            { "[bsbs]", AppSettings.DBNameBilling },
-                                    //        });
-
-                                    //    ctx.Status("proses piutang angsuran|rekening_air_angsuran");
-                                    //    var lastIdAngsuran = 0;
-                                    //    var jnsNonair = 0;
-                                    //    await Utils.Client(async (conn, trans) =>
-                                    //    {
-                                    //        lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
-                                    //        jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
-                                    //    });
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air_angsuran",
-                                    //        queryPath: @"Queries\piutang_angsuran.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@lastid", lastIdAngsuran },
-                                    //            { "@jnsnonair", jnsNonair },
-                                    //        },
-                                    //        placeholders: new()
-                                    //        {
-                                    //            { "[bsbs]", AppSettings.DBNameBilling },
-                                    //        });
-
-                                    //    ctx.Status("update jumlah termin");
-                                    //    await Utils.ClientBilling(async (conn, trans) =>
-                                    //    {
-                                    //        var termin = await conn.QueryAsync(@"
-                                    //            DROP TEMPORARY TABLE IF EXISTS temp_dataawal_piutang_termin;
-                                    //            CREATE TEMPORARY TABLE temp_dataawal_piutang_termin AS
-                                    //            SELECT periode,nosamb,COUNT(*) AS termin
-                                    //            FROM piutang
-                                    //            WHERE kode <> CONCAT(periode,'.',nosamb) AND SUBSTRING_INDEX(kode, '.', -1) <> 0
-                                    //            GROUP BY periode,nosamb;
-
-                                    //            SELECT
-                                    //            rek.periode,
-                                    //            rek.nosamb,
-                                    //            ter.termin
-                                    //            FROM piutang rek
-                                    //            JOIN temp_dataawal_piutang_termin ter ON ter.periode = rek.periode AND ter.nosamb = rek.nosamb
-                                    //            WHERE rek.kode = CONCAT(rek.periode,'.',rek.nosamb) AND rek.flagangsur = 1;
-                                    //            ", transaction: trans);
-
-                                    //        await Utils.Client(async (conn, trans) =>
-                                    //        {
-                                    //            foreach (var t in termin)
-                                    //            {
-                                    //                await conn.ExecuteAsync(@"
-                                    //                    UPDATE rekening_air_angsuran
-                                    //                    SET jumlahtermin = @termin
-                                    //                    WHERE idpdam = @idpdam
-                                    //                    AND SUBSTRING_INDEX(SUBSTRING_INDEX(noangsuran, '.', 2), '.', -1) = @periode
-                                    //                    AND SUBSTRING_INDEX(noangsuran, '.', -1) = @nosamb",
-                                    //                    new
-                                    //                    {
-                                    //                        termin = t.termin,
-                                    //                        idpdam = settings.IdPdam,
-                                    //                        periode = t.periode,
-                                    //                        nosamb = t.nosamb
-                                    //                    },
-                                    //                    trans);
-                                    //            }
-                                    //        });
-                                    //    });
-
-                                    //    //ctx.Status("update jumlah uang muka");
-
-                                    //    //sambungkan dengan rekening air
-
-                                    //}, usingStopwatch: true);
-
-                                    //await Utils.TrackProgress("piutang angsur lunas", async () =>
-                                    //{
-                                    //    ctx.Status("proses piutang angsur lunas|rekening_air");
-                                    //    var lastId = 0;
-                                    //    await Utils.Client(async (conn, trans) =>
-                                    //    {
-                                    //        lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                    //    });
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air",
-                                    //        queryPath: @"Queries\piutang.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@lastid", lastId },
-                                    //            { "@flagangsur", 1 },
-                                    //        },
-                                    //        placeholders: new()
-                                    //        {
-                                    //            { "[table]", "piutang_angsurlunas" },
-                                    //            { "[bsbs]", AppSettings.DBNameBilling },
-                                    //        });
-
-                                    //    ctx.Status("proses piutang angsur lunas|rekening_air_detail");
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air_detail",
-                                    //        queryPath: @"Queries\piutang_detail.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@flagangsur", 1 },
-                                    //        },
-                                    //        placeholders: new()
-                                    //        {
-                                    //            { "[table]", "piutang_angsurlunas" },
-                                    //            { "[bsbs]", AppSettings.DBNameBilling },
-                                    //        });
-
-                                    //    ctx.Status($"proses piutang angsur lunas|rekening_air_angsuran");
-                                    //    var lastIdAngsuran = 0;
-                                    //    var jnsNonair = 0;
-                                    //    await Utils.Client(async (conn, trans) =>
-                                    //    {
-                                    //        lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
-                                    //        jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
-                                    //    });
-                                    //    await Utils.BulkCopy(
-                                    //        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //        tConnectionStr: AppSettings.ConnectionString,
-                                    //        tableName: "rekening_air_angsuran",
-                                    //        queryPath: @"Queries\piutang_angsur_lunas_angsuran.sql",
-                                    //        parameters: new()
-                                    //        {
-                                    //            { "@idpdam", settings.IdPdam },
-                                    //            { "@lastid", lastIdAngsuran },
-                                    //            { "@jnsnonair", jnsNonair },
-                                    //        },
-                                    //        placeholders: new()
-                                    //        {
-                                    //            { "[table]", "piutang_angsurlunas" },
-                                    //            { "[bsbs]", AppSettings.DBNameBilling },
-                                    //        });
-                                    //}, usingStopwatch: true);
-
-                                    //IEnumerable<string?> tahunBayar = [];
-                                    //await Utils.ClientLoket(async (conn, trans) =>
-                                    //{
-                                    //    tahunBayar = await conn.QueryAsync<string?>("SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                    //        new { table_schema = AppSettings.DBNameLoket }, trans);
-                                    //});
-
-                                    //foreach (var tahun in tahunBayar)
-                                    //{
-                                    //    ctx.Status($"proses bayar{tahun} angsuran|rekening_air_angsuran_detail");
-                                    //    await Utils.TrackProgress($"bayar{tahun} angsuran|rekening_air_angsuran_detail", async () =>
-                                    //    {
-                                    //        var lastIdAngsuranDetail = 0;
-                                    //        await Utils.Client(async (conn, trans) =>
-                                    //        {
-                                    //            lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
-                                    //        });
-                                    //        await Utils.BulkCopy(
-                                    //            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                    //            tConnectionStr: AppSettings.ConnectionString,
-                                    //            tableName: "rekening_air_angsuran_detail",
-                                    //            queryPath: @"Queries\bayar_angsuran_detail.sql",
-                                    //            parameters: new()
-                                    //            {
-                                    //                { "@idpdam", settings.IdPdam },
-                                    //                { "@lastid", lastIdAngsuranDetail },
-                                    //            },
-                                    //            placeholders: new()
-                                    //            {
-                                    //                { "[table]", $"bayar{tahun}" },
-                                    //                { "[bsbs]", AppSettings.DBNameBilling },
-                                    //            });
-                                    //    });
-                                    //}
-                                    #endregion
 
                                     await Utils.TrackProgress("nonair", async () =>
                                     {
-                                        ctx.Status("proses nonair|rekening_nonair");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_nonair",
-                                            queryPath: @"Queries\nonair.sql",
-                                            parameters: new()
+                                        IEnumerable<int>? listPeriode = [];
+                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        {
+                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM nonair GROUP BY periode", transaction: trans);
+                                        });
+
+                                        foreach (var periode in listPeriode)
+                                        {
+                                            ctx.Status($"proses nonair-{periode}|rekening_nonair");
+                                            await Utils.TrackProgress($"nonair-{periode}|rekening_nonair", async () =>
                                             {
-                                                { "@idpdam", settings.IdPdam },
-                                            },
-                                            placeholders: new()
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_nonair",
+                                                    queryPath: @"Queries\nonair.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses nonair-{periode}|rekening_nonair_detail");
+                                            await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_detail", async () =>
                                             {
-                                                { "[bsbs]", AppSettings.DBNameBilling },
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_nonair_detail",
+                                                    queryPath: @"Queries\nonair_detail.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses nonair-{periode}|rekening_nonair_transaksi");
+                                            await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_transaksi", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_nonair_transaksi",
+                                                    queryPath: @"Queries\nonair_transaksi.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                    });
+                                            }, usingStopwatch: true);
+                                        }
+                                    });
+                                    #endregion
+
+                                    #region piutang, bayar & nonair angsuran
+                                    await Utils.TrackProgress("piutang angsuran", async () =>
+                                    {
+                                        IEnumerable<int>? listPeriode = [];
+                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        {
+                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
+                                        });
+
+                                        foreach (var periode in listPeriode)
+                                        {
+                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air");
+                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air", async () =>
+                                            {
+                                                var lastId = 0;
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                                });
+
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air",
+                                                    queryPath: @"Queries\piutang.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastId },
+                                                        { "@periode", periode },
+                                                        { "@flagangsur", 1 },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", "piutang" },
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air_detail");
+                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_detail", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_detail",
+                                                    queryPath: @"Queries\piutang_detail.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                        { "@flagangsur", 1 },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", "piutang" },
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air_angsuran");
+                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_angsuran", async () =>
+                                            {
+                                                var lastIdAngsuran = 0;
+                                                var jnsNonair = 0;
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
+                                                    jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
+                                                });
+
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_angsuran",
+                                                    queryPath: @"Queries\piutang_angsuran.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastIdAngsuran },
+                                                        { "@jnsnonair", jnsNonair },
+                                                        { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air_angsuran_detail");
+                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_angsuran_detail", async () =>
+                                            {
+                                                var lastIdAngsuranDetail = 0;
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
+                                                });
+
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_angsuran_detail",
+                                                    queryPath: @"Queries\piutang_angsuran_detail.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastIdAngsuranDetail },
+                                                        { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+                                        }
+                                    });
+
+                                    await Utils.TrackProgress("angsur lunas", async () =>
+                                    {
+                                        IEnumerable<int>? listPeriode = [];
+                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        {
+                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang_angsurlunas WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
+                                        });
+
+                                        foreach (var periode in listPeriode)
+                                        {
+                                            ctx.Status($"proses angsur lunas-{periode}|rekening_air");
+                                            await Utils.TrackProgress($"angsur lunas-{periode}|rekening_air", async () =>
+                                            {
+                                                var lastId = 0;
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                                });
+
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air",
+                                                    queryPath: @"Queries\piutang.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastId },
+                                                        { "@periode", periode },
+                                                        { "@flagangsur", 1 },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", "piutang_angsurlunas" },
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses angsur lunas-{periode}|rekening_air_detail");
+                                            await Utils.TrackProgress($"angsur lunas-{periode}|rekening_air_detail", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_detail",
+                                                    queryPath: @"Queries\piutang_detail.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                        { "@flagangsur", 1 },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", "piutang_angsurlunas" },
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses angsur lunas-{periode}|rekening_air_angsuran");
+                                            await Utils.TrackProgress($"angsur lunas-{periode}|rekening_air_angsuran", async () =>
+                                            {
+                                                var lastIdAngsuran = 0;
+                                                var jnsNonair = 0;
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
+                                                    jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
+                                                });
+
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_angsuran",
+                                                    queryPath: @"Queries\piutang_angsur_lunas_angsuran.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastIdAngsuran },
+                                                        { "@periode", periode },
+                                                        { "@jnsnonair", jnsNonair },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+                                        }
+                                    });
+
+                                    await Utils.TrackProgress("bayar angsuran", async () =>
+                                    {
+                                        IEnumerable<string?> bayarTahun = [];
+                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        {
+                                            bayarTahun = await conn.QueryAsync<string?>("SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
+                                                new { table_schema = AppSettings.DBNameLoket }, trans);
+                                        });
+
+                                        foreach (var tahun in bayarTahun)
+                                        {
+                                            IEnumerable<int>? listPeriode = [];
+                                            await Utils.ClientLoket(async (conn, trans) =>
+                                            {
+                                                listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
                                             });
 
-                                        ctx.Status("proses nonair detail|rekening_nonair_detail");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_nonair_detail",
-                                            queryPath: @"Queries\nonair_detail.sql",
-                                            parameters: new()
+                                            foreach (var periode in listPeriode)
                                             {
-                                                { "@idpdam", settings.IdPdam },
-                                            });
+                                                ctx.Status($"proses bayar{tahun} angsuran-{periode}|rekening_air_angsuran_detail");
+                                                await Utils.TrackProgress($"bayar{tahun} angsuran-{periode}|rekening_air_angsuran_detail", async () =>
+                                                {
+                                                    var lastIdAngsuranDetail = 0;
+                                                    await Utils.Client(async (conn, trans) =>
+                                                    {
+                                                        lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
+                                                    });
 
-                                        ctx.Status("proses nonair transaksi|rekening_nonair_transaksi");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_nonair_transaksi",
-                                            queryPath: @"Queries\nonair_transaksi.sql",
-                                            parameters: new()
+                                                    await Utils.BulkCopy(
+                                                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                        tConnectionStr: AppSettings.ConnectionString,
+                                                        tableName: "rekening_air_angsuran_detail",
+                                                        queryPath: @"Queries\bayar_angsuran_detail.sql",
+                                                        parameters: new()
+                                                        {
+                                                            { "@idpdam", settings.IdPdam },
+                                                            { "@lastid", lastIdAngsuranDetail },
+                                                            { "@periode", periode },
+                                                        },
+                                                        placeholders: new()
+                                                        {
+                                                            { "[table]", $"bayar{tahun}" },
+                                                            { "[bsbs]", AppSettings.DBNameBilling },
+                                                        });
+                                                }, usingStopwatch: true);
+                                            }
+                                        }
+                                    });
+
+                                    await Utils.TrackProgress("patch angsuran", async () =>
+                                    {
+                                        ctx.Status("proses bind angsuran > rekening air");
+                                        await Utils.TrackProgress("bind angsuran > rekening air", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
                                             {
-                                                { "@idpdam", settings.IdPdam },
+                                                await conn.ExecuteAsync(@"
+                                                UPDATE rekening_air a
+                                                JOIN (
+                                                SELECT
+                                                a.idpdam,
+                                                a.idangsuran,
+                                                b.idperiode,
+                                                a.idpelangganair
+                                                FROM rekening_air_angsuran a
+                                                JOIN master_periode b ON b.idpdam = a.idpdam AND b.kodeperiode = SUBSTRING_INDEX(SUBSTRING_INDEX(a.noangsuran, '.', -2), '.', 1) AND b.flaghapus = 0
+                                                WHERE a.idpdam = @idpdam
+                                                ) b ON b.idpdam = a.idpdam AND b.idperiode = a.idperiode AND b.idpelangganair = a.idpelangganair
+                                                SET a.idangsuran = b.idangsuran
+                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
                                             });
+                                        }, usingStopwatch: true);
+
+                                        //ctx.Status("update jumlah termin");
+                                        //await Utils.ClientBilling(async (conn, trans) =>
+                                        //{
+                                        //    var termin = await conn.QueryAsync(@"
+                                        //        DROP TEMPORARY TABLE IF EXISTS temp_dataawal_piutang_termin;
+                                        //        CREATE TEMPORARY TABLE temp_dataawal_piutang_termin AS
+                                        //        SELECT periode,nosamb,COUNT(*) AS termin
+                                        //        FROM piutang
+                                        //        WHERE kode <> CONCAT(periode,'.',nosamb) AND SUBSTRING_INDEX(kode, '.', -1) <> 0
+                                        //        GROUP BY periode,nosamb;
+
+                                        //        SELECT
+                                        //        rek.periode,
+                                        //        rek.nosamb,
+                                        //        ter.termin
+                                        //        FROM piutang rek
+                                        //        JOIN temp_dataawal_piutang_termin ter ON ter.periode = rek.periode AND ter.nosamb = rek.nosamb
+                                        //        WHERE rek.kode = CONCAT(rek.periode,'.',rek.nosamb) AND rek.flagangsur = 1;
+                                        //        ", transaction: trans);
+
+                                        //    await Utils.Client(async (conn, trans) =>
+                                        //    {
+                                        //        foreach (var t in termin)
+                                        //        {
+                                        //            await conn.ExecuteAsync(@"
+                                        //                UPDATE rekening_air_angsuran
+                                        //                SET jumlahtermin = @termin
+                                        //                WHERE idpdam = @idpdam
+                                        //                AND SUBSTRING_INDEX(SUBSTRING_INDEX(noangsuran, '.', 2), '.', -1) = @periode
+                                        //                AND SUBSTRING_INDEX(noangsuran, '.', -1) = @nosamb",
+                                        //                new
+                                        //                {
+                                        //                    termin = t.termin,
+                                        //                    idpdam = settings.IdPdam,
+                                        //                    periode = t.periode,
+                                        //                    nosamb = t.nosamb
+                                        //                },
+                                        //                trans);
+                                        //        }
+                                        //    });
+                                        //});
+
+                                        //ctx.Status("update jumlah uang muka");
+
+                                        //sambungkan dengan rekening air
+
+                                        await Task.FromResult(0);
+                                    });
+                                    #endregion
+
+                                    await Utils.TrackProgress("pengaduan", async () =>
+                                    {
+                                        await Task.FromResult(0);
+                                    });
+
+                                    await Utils.TrackProgress("permohonan", async () =>
+                                    {
+                                        await Task.FromResult(0);
                                     });
                                 });
 

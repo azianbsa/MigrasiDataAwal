@@ -35,4 +35,4 @@ FROM
  nonair na
  LEFT JOIN temp_dataawal_user us ON us.nama=na.kasir
  LEFT JOIN temp_dataawal_loket lo ON lo.kodeloket=na.loketbayar
- WHERE flaghapus=0 AND flagangsur=0 AND flaglunas=1 AND flagbatal=0
+ WHERE flaghapus=0 AND flagangsur=0 AND flaglunas=1 AND flagbatal=0 AND na.periode = @periode

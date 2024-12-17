@@ -9,9 +9,9 @@ namespace Migrasi.Helpers
 {
     public static class Utils
     {
-        public static void WriteLogMessage(string message)
+        public static void WriteLogMessage(string message, bool skip = false)
         {
-            AnsiConsole.MarkupLine($"[grey]LOG:[/] {message}[grey]...[/]");
+            AnsiConsole.MarkupLine($"[grey]LOG:[/] {message}[grey]...[/]" + (skip ? "skip" : ""));
         }
 
         public static void WriteErrMessage(string message)
@@ -249,7 +249,7 @@ namespace Migrasi.Helpers
             {
                 if (cek.flagproses == 1)
                 {
-                    WriteLogMessage($"skip {process}");
+                    WriteLogMessage(message: process, skip: true);
                     return;
                 };
             }

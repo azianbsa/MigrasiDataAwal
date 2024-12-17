@@ -31,4 +31,4 @@ FROM
  LEFT JOIN jenisnonair jns ON jns.jenis = na.jenis
  LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon = na.koderayon
  LEFT JOIN [bsbs].golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
- WHERE na.flaghapus = 0 AND na.flagangsur = 0;
+ WHERE na.flaghapus = 0 AND na.flagangsur = 0 AND na.periode = @periode;

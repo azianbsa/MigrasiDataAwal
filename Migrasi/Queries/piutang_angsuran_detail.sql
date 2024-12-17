@@ -29,7 +29,7 @@ SELECT
  NULL AS idalasanbatal,
  NULL AS keterangan,
  ray.id AS idrayon,
- NULL AS idkelurahan,
+ kel.id AS idkelurahan,
  gol.id AS idgolongan,
  dia.id AS iddiameter,
  DATE_FORMAT(DATE_ADD(STR_TO_DATE(CONCAT(rek.periode,'01'), '%Y%m%d'), INTERVAL 1 MONTH), '%Y-%m-01') AS tglmulaitagih,
@@ -56,6 +56,6 @@ FROM
  LEFT JOIN [bsbs].golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
  LEFT JOIN [bsbs].diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
  LEFT JOIN [bsbs].rayon ray ON ray.koderayon = rek.koderayon
- -- LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = rek.kodekelurahan
+ LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan
  ,(SELECT @id := @lastid) AS id
- WHERE rek.kode <> CONCAT(rek.periode, '.', rek.nosamb);
+ WHERE rek.periode = @periode AND rek.kode <> CONCAT(rek.periode, '.', rek.nosamb);

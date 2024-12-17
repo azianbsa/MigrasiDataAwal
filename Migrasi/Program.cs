@@ -65,10 +65,12 @@ namespace Migrasi
             app.Configure(config =>
             {
                 config.PropagateExceptions();
-                config.AddCommand<NewCommand>("new");
-                config.AddCommand<NewCopyCommand>("newcopy");
-                config.AddCommand<PaketCommand>("paket");
-                config.AddCommand<PiutangCommand>("piutang");
+                config.AddCommand<NewCommand>("new")
+                    .WithDescription("Setup new pdam untuk paket basic");
+                config.AddCommand<NewCopyCommand>("newcopy")
+                    .WithDescription("Setup new pdam untuk paket bacameter only");
+                config.AddCommand<PaketCommand>("paket")
+                    .WithDescription("Migrasi data paket bacameter only, basic");
             });
 
             var sw = Stopwatch.StartNew();
