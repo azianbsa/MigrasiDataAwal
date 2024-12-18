@@ -58,8 +58,8 @@ SELECT
  NOW() AS waktuupdate
 FROM
  [table] rek
- LEFT JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
- LEFT JOIN temp_dataawal_periode per ON per.periode = rek.periode
+ JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
+ JOIN temp_dataawal_periode per ON per.periode = rek.periode
  LEFT JOIN temp_dataawal_userloket usr ON usr.nama = rek.kasir
  LEFT JOIN temp_dataawal_loket lo ON lo.kodeloket = rek.loketbayar
  WHERE rek.periode = @periode

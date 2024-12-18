@@ -38,6 +38,8 @@
  dendatunggakanperbulan,
  trf_denda_berdasarkan_persen AS trfdendaberdasarkanpersen,
  0 AS biayaadminberlakupada,
+ 0 AS dendatunggakanperhari,
+ 0 AS maxtotaldendaperhari,
  NOW() AS waktuupdate
 FROM
  golongan

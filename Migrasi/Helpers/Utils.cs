@@ -14,9 +14,11 @@ namespace Migrasi.Helpers
             AnsiConsole.MarkupLine($"[grey]LOG:[/] {message}[grey]...[/]" + (skip ? "skip" : ""));
         }
 
-        public static void WriteErrMessage(string message)
+        public static void WriteErrMessage(Exception exception, string process, string message)
         {
-            AnsiConsole.WriteLine($"{message}");
+            AnsiConsole.MarkupLine($"[red]ERR:[/] process: {process}");
+            AnsiConsole.MarkupLine($"[red]ERR:[/] message: {message}");
+            AnsiConsole.WriteException(exception, ExceptionFormats.ShortenEverything);
         }
 
         public static async Task BulkCopy(string sConnectionStr, string tConnectionStr, string queryPath, string tableName, Dictionary<string, object?>? parameters = null, Dictionary<string, string>? placeholders = null)
@@ -66,11 +68,7 @@ namespace Migrasi.Helpers
             }
             catch (Exception e)
             {
-                var msg = $@"
-                process: {tableName}
-                message: {e.InnerException?.Message ?? e.Message}
-                stack-trace: {e.InnerException?.StackTrace ?? e.StackTrace}";
-                WriteErrMessage(msg);
+                WriteErrMessage(exception: e, process: tableName, message: e.InnerException?.Message ?? e.Message);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -135,7 +133,7 @@ namespace Migrasi.Helpers
             }
             catch (Exception e)
             {
-                WriteErrMessage($"{tableName}: {e.Message}");
+                WriteErrMessage(exception: e, process: tableName, message: e.InnerException?.Message ?? e.Message);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -266,9 +264,9 @@ namespace Migrasi.Helpers
                 await fn();
                 await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 1 });
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                WriteErrMessage(process);
+                WriteErrMessage(exception: e, process: process, message: e.InnerException?.Message ?? e.Message);
                 await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 0 });
                 throw;
             }

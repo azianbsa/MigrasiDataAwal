@@ -910,836 +910,1086 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("data master", async () =>
                                     {
-                                        ctx.Status("proses flag");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            queryPath: @"Queries\master_attribute_flag.sql",
-                                            tableName: "master_attribute_flag",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses status");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_status",
-                                            queryPath: @"Queries\master_attribute_status.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses jenis bangunan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_jenis_bangunan",
-                                            queryPath: @"Queries\master_attribute_jenis_bangunan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses kepemilikan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_kepemilikan",
-                                            queryPath: @"Queries\master_attribute_kepemilikan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses pekerjaan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_pekerjaan",
-                                            queryPath: @"Queries\master_attribute_pekerjaan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses peruntukan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_peruntukan",
-                                            queryPath: @"Queries\master_attribute_peruntukan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses jenis pipa");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_jenis_pipa",
-                                            queryPath: @"Queries\master_attribute_jenis_pipa.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses kwh");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_kwh",
-                                            queryPath: @"Queries\master_attribute_kwh.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses golongan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_tarif_golongan",
-                                            queryPath: @"Queries\master_tarif_golongan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_tarif_golongan_detail",
-                                            queryPath: @"Queries\master_tarif_golongan_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses diameter");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_tarif_diameter",
-                                            queryPath: @"Queries\master_tarif_diameter.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_tarif_diameter_detail",
-                                            queryPath: @"Queries\master_tarif_diameter_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses wilayah");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_wilayah",
-                                            queryPath: @"Queries\master_attribute_wilayah.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses area");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_area",
-                                            queryPath: @"Queries\master_attribute_area.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses rayon");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_rayon",
-                                            queryPath: @"Queries\master_attribute_rayon.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses blok");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_blok",
-                                            queryPath: @"Queries\master_attribute_blok.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses cabang");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_cabang",
-                                            queryPath: @"Queries\master_attribute_cabang.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses kecamatan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_kecamatan",
-                                            queryPath: @"Queries\master_attribute_kecamatan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses kelurahan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_kelurahan",
-                                            queryPath: @"Queries\master_attribute_kelurahan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses dma");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_dma",
-                                            queryPath: @"Queries\master_attribute_dma.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses dmz");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_dmz",
-                                            queryPath: @"Queries\master_attribute_dmz.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses administrasi lain");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_tarif_administrasi_lain",
-                                            queryPath: @"Queries\master_tarif_administrasi_lain.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses pemeliharaan lain");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_tarif_pemeliharaan_lain",
-                                            queryPath: @"Queries\master_tarif_pemeliharaan_lain.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses retribusi lain");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_tarif_retribusi_lain",
-                                            queryPath: @"Queries\master_tarif_retribusi_lain.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses kolektif");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_kolektif",
-                                            queryPath: @"Queries\master_attribute_kolektif.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses sumber air");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_sumber_air",
-                                            queryPath: @"Queries\master_attribute_sumber_air.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses merek meter");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_merek_meter",
-                                            queryPath: @"Queries\master_attribute_merek_meter.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses kondisi meter");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_kondisi_meter",
-                                            queryPath: @"Queries\master_attribute_kondisi_meter.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses kelainan");
-                                        await Utils.Client(async (conn, trans) =>
+                                        ctx.Status("proses flag|master_attribute_flag");
+                                        await Utils.TrackProgress("flag|master_attribute_flag", async () =>
                                         {
-                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
-                                                 transaction: trans);
-                                        });
-                                        await Utils.ClientBilling(async (conn, trans) =>
-                                        {
-                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='kelainan'",
-                                                new { schema = AppSettings.DBNameBilling }, trans);
-                                            if (cek.Any())
-                                            {
-                                                if (!cek.Where(s => s.column_name == "idkelainan").Any())
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                queryPath: @"Queries\master_attribute_flag.sql",
+                                                tableName: "master_attribute_flag",
+                                                parameters: new()
                                                 {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan CHANGE COLUMN id idkelainan INT(11)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "kodekelainan").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN kodekelainan VARCHAR(10)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "idx").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN idx int(11)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "aktif").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN aktif varchar(1)", transaction: trans);
-                                                }
-                                            }
-                                        });
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var kelainan = await conn.QueryAsync(@"SELECT idkelainan,kodekelainan,kelainan,idx,aktif FROM kelainan", transaction: trans);
-                                            if (kelainan.Any())
-                                            {
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync("DELETE FROM kelainan", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO kelainan (idkelainan,kodekelainan,kelainan,idx,aktif) VALUES (@idkelainan,@kodekelainan,@kelainan,@idx,@aktif)",
-                                                        kelainan, trans);
+                                                    { "@idpdam", settings.IdPdam }
                                                 });
-                                            }
                                         });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_kelainan",
-                                            queryPath: @"Queries\master_attribute_kelainan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
 
-                                        ctx.Status("proses petugas baca");
-                                        await Utils.Client(async (conn, trans) =>
+                                        ctx.Status("proses status|master_attribute_status");
+                                        await Utils.TrackProgress("status|master_attribute_status", async () =>
                                         {
-                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
-                                                 transaction: trans);
-                                        });
-                                        await Utils.ClientBilling(async (conn, trans) =>
-                                        {
-                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pembacameter'",
-                                                new { schema = AppSettings.DBNameBilling }, trans);
-                                            if (cek.Any())
-                                            {
-                                                if (!cek.Where(s => s.column_name == "idpetugas").Any())
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_status",
+                                                queryPath: @"Queries\master_attribute_status.sql",
+                                                parameters: new()
                                                 {
-                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN idpetugas int(11)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "kodepetugas").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN kodepetugas varchar(5)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "aktif").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN aktif varchar(1)", transaction: trans);
-                                                }
-                                            }
-                                        });
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var petugas = await conn.QueryAsync(@"SELECT idpetugas,kodepetugas,nama,aktif FROM petugasbaca", transaction: trans);
-                                            if (petugas.Any())
-                                            {
-                                                await Utils.ClientBilling(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync("DELETE FROM pembacameter", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (idpetugas,kodepetugas,nama,aktif) VALUES (@idpetugas,@kodepetugas,@nama,@aktif)",
-                                                        petugas, trans);
+                                                    { "@idpdam", settings.IdPdam }
                                                 });
-                                            }
                                         });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_petugas_baca",
-                                            queryPath: @"Queries\master_attribute_petugas_baca.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
 
-                                        ctx.Status("proses periode");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_periode",
-                                            queryPath: @"Queries\master_periode.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_periode_billing",
-                                            queryPath: @"Queries\master_periode_billing.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-
-                                        ctx.Status("proses jadwal baca");
-                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        ctx.Status("proses jenis bangunan|master_attribute_jenis_bangunan");
+                                        await Utils.TrackProgress("jenis bangunan|master_attribute_jenis_bangunan", async () =>
                                         {
-                                            var jadwalbaca = await conn.QueryAsync(@"SELECT
-                                            b.nama AS petugasbaca,
-                                            c.koderayon
-                                            FROM
-                                            jadwalbaca a
-                                            JOIN petugasbaca b ON a.idpetugas=b.idpetugas
-                                            JOIN rayon c ON a.idrayon=c.idrayon", transaction: trans);
-                                            if (jadwalbaca.Any())
-                                            {
-                                                await Utils.Client(async (conn, trans) =>
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_jenis_bangunan",
+                                                queryPath: @"Queries\master_attribute_jenis_bangunan.sql",
+                                                parameters: new()
                                                 {
-                                                    List<dynamic> data = [];
-                                                    var listPetugas = await conn.QueryAsync(@"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
-                                                        new { idpdam = settings.IdPdam }, trans);
-                                                    var listRayon = await conn.QueryAsync(@"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
-                                                        new { idpdam = settings.IdPdam }, trans);
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                                    int id = 1;
-                                                    foreach (var item in jadwalbaca)
+                                        ctx.Status("proses kepemilikan|master_attribute_kepemilikan");
+                                        await Utils.TrackProgress("kepemilikan|master_attribute_kepemilikan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_kepemilikan",
+                                                queryPath: @"Queries\master_attribute_kepemilikan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses pekerjaan|master_attribute_pekerjaan");
+                                        await Utils.TrackProgress("pekerjaan|master_attribute_pekerjaan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_pekerjaan",
+                                                queryPath: @"Queries\master_attribute_pekerjaan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses peruntukan|master_attribute_peruntukan");
+                                        await Utils.TrackProgress("peruntukan|master_attribute_peruntukan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_peruntukan",
+                                                queryPath: @"Queries\master_attribute_peruntukan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses jenis pipa|master_attribute_jenis_pipa");
+                                        await Utils.TrackProgress("jenis pipa|master_attribute_jenis_pipa", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_jenis_pipa",
+                                                queryPath: @"Queries\master_attribute_jenis_pipa.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses kwh|master_attribute_kwh");
+                                        await Utils.TrackProgress("kwh|master_attribute_kwh", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_kwh",
+                                                queryPath: @"Queries\master_attribute_kwh.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses golongan|master_tarif_golongan");
+                                        await Utils.TrackProgress("golongan|master_tarif_golongan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_tarif_golongan",
+                                                queryPath: @"Queries\master_tarif_golongan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses golongan|master_tarif_golongan_detail");
+                                        await Utils.TrackProgress("golongan|master_tarif_golongan_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_tarif_golongan_detail",
+                                                queryPath: @"Queries\master_tarif_golongan_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses diameter|master_tarif_diameter");
+                                        await Utils.TrackProgress("diameter|master_tarif_diameter", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_tarif_diameter",
+                                                queryPath: @"Queries\master_tarif_diameter.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses diameter|master_tarif_diameter_detail");
+                                        await Utils.TrackProgress("diameter|master_tarif_diameter_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_tarif_diameter_detail",
+                                                queryPath: @"Queries\master_tarif_diameter_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses wilayah|master_attribute_wilayah");
+                                        await Utils.TrackProgress("wilayah|master_attribute_wilayah", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_wilayah",
+                                                queryPath: @"Queries\master_attribute_wilayah.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses area|master_attribute_area");
+                                        await Utils.TrackProgress("area|master_attribute_area", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_area",
+                                                queryPath: @"Queries\master_attribute_area.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses rayon|master_attribute_rayon");
+                                        await Utils.TrackProgress("rayon|master_attribute_rayon", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_rayon",
+                                                queryPath: @"Queries\master_attribute_rayon.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses blok|master_attribute_blok");
+                                        await Utils.TrackProgress("blok|master_attribute_blok", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_blok",
+                                                queryPath: @"Queries\master_attribute_blok.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses cabang|master_attribute_cabang");
+                                        await Utils.TrackProgress("cabang|master_attribute_cabang", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_cabang",
+                                                queryPath: @"Queries\master_attribute_cabang.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses kecamatan|master_attribute_kecamatan");
+                                        await Utils.TrackProgress("kecamatan|master_attribute_kecamatan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_kecamatan",
+                                                queryPath: @"Queries\master_attribute_kecamatan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses kelurahan|master_attribute_kelurahan");
+                                        await Utils.TrackProgress("kelurahan|master_attribute_kelurahan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_kelurahan",
+                                                queryPath: @"Queries\master_attribute_kelurahan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses dma|master_attribute_dma");
+                                        await Utils.TrackProgress("dma|master_attribute_dma", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_dma",
+                                                queryPath: @"Queries\master_attribute_dma.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses dmz|master_attribute_dmz");
+                                        await Utils.TrackProgress("dmz|master_attribute_dmz", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_dmz",
+                                                queryPath: @"Queries\master_attribute_dmz.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses administrasi lain|master_tarif_administrasi_lain");
+                                        await Utils.TrackProgress("administrasi lain|master_tarif_administrasi_lain", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_tarif_administrasi_lain",
+                                                queryPath: @"Queries\master_tarif_administrasi_lain.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses pemeliharaan lain|master_tarif_pemeliharaan_lain");
+                                        await Utils.TrackProgress("pemeliharaan lain|master_tarif_pemeliharaan_lain", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_tarif_pemeliharaan_lain",
+                                                queryPath: @"Queries\master_tarif_pemeliharaan_lain.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses retribusi lain|master_tarif_retribusi_lain");
+                                        await Utils.TrackProgress("retribusi lain|master_tarif_retribusi_lain", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_tarif_retribusi_lain",
+                                                queryPath: @"Queries\master_tarif_retribusi_lain.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses kolektif|master_attribute_kolektif");
+                                        await Utils.TrackProgress("kolektif|master_attribute_kolektif", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                ALTER TABLE master_attribute_kolektif
+                                                CHANGE kodekolektif kodekolektif VARCHAR (50) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL", transaction: trans);
+                                            });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_kolektif",
+                                                queryPath: @"Queries\master_attribute_kolektif.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses sumber air|master_attribute_sumber_air");
+                                        await Utils.TrackProgress("sumber air|master_attribute_sumber_air", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_sumber_air",
+                                                queryPath: @"Queries\master_attribute_sumber_air.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses merek meter|master_attribute_merek_meter");
+                                        await Utils.TrackProgress("merek meter|master_attribute_merek_meter", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_merek_meter",
+                                                queryPath: @"Queries\master_attribute_merek_meter.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses kondisi meter|master_attribute_kondisi_meter");
+                                        await Utils.TrackProgress("kondisi meter|master_attribute_kondisi_meter", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                ALTER TABLE master_attribute_kondisi_meter
+                                                 CHANGE kodekondisimeter kodekondisimeter VARCHAR (50) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL", transaction: trans);
+                                            });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_kondisi_meter",
+                                                queryPath: @"Queries\master_attribute_kondisi_meter.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses kelainan|master_attribute_kelainan");
+                                        await Utils.TrackProgress("kelainan|master_attribute_kelainan", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
+                                                     transaction: trans);
+                                            });
+
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='kelainan'",
+                                                    new { schema = AppSettings.DBNameBilling }, trans);
+                                                if (cek.Any())
+                                                {
+                                                    if (!cek.Where(s => s.column_name == "idkelainan").Any())
                                                     {
-                                                        dynamic o = new
-                                                        {
-                                                            idpdam = settings.IdPdam,
-                                                            idjadwalbaca = id++,
-                                                            idpetugasbaca =
-                                                                listPetugas
-                                                                    .Where(s => s.petugasbaca.ToLower() == item.petugasbaca.ToLower())
-                                                                    .Select(s => s.idpetugasbaca).FirstOrDefault(),
-                                                            idrayon =
-                                                                listRayon
-                                                                    .Where(s => s.koderayon == item.koderayon)
-                                                                    .Select(s => s.idrayon).FirstOrDefault()
-                                                        };
+                                                        await conn.ExecuteAsync("ALTER TABLE kelainan CHANGE COLUMN id idkelainan INT(11)", transaction: trans);
+                                                    }
 
-                                                        if (o.idpetugasbaca != null && o.idrayon != null)
+                                                    if (!cek.Where(s => s.column_name == "kodekelainan").Any())
+                                                    {
+                                                        await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN kodekelainan VARCHAR(10)", transaction: trans);
+                                                    }
+
+                                                    if (!cek.Where(s => s.column_name == "idx").Any())
+                                                    {
+                                                        await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN idx int(11)", transaction: trans);
+                                                    }
+
+                                                    if (!cek.Where(s => s.column_name == "aktif").Any())
+                                                    {
+                                                        await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN aktif varchar(1)", transaction: trans);
+                                                    }
+                                                }
+                                            });
+
+                                            await Utils.ClientBacameter(async (conn, trans) =>
+                                            {
+                                                var kelainan = await conn.QueryAsync(@"SELECT idkelainan,kodekelainan,kelainan,idx,aktif FROM kelainan", transaction: trans);
+                                                if (kelainan.Any())
+                                                {
+                                                    await Utils.ClientBilling(async (conn, trans) =>
+                                                    {
+                                                        await conn.ExecuteAsync("DELETE FROM kelainan", transaction: trans);
+                                                        await conn.ExecuteAsync("REPLACE INTO kelainan (idkelainan,kodekelainan,kelainan,idx,aktif) VALUES (@idkelainan,@kodekelainan,@kelainan,@idx,@aktif)",
+                                                            kelainan, trans);
+                                                    });
+                                                }
+                                            });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_kelainan",
+                                                queryPath: @"Queries\master_attribute_kelainan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses petugas baca|master_attribute_petugas_baca");
+                                        await Utils.TrackProgress("petugas baca|master_attribute_petugas_baca", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
+                                                     transaction: trans);
+                                            });
+
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pembacameter'",
+                                                    new { schema = AppSettings.DBNameBilling }, trans);
+                                                if (cek.Any())
+                                                {
+                                                    if (!cek.Where(s => s.column_name == "idpetugas").Any())
+                                                    {
+                                                        await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN idpetugas int(11)", transaction: trans);
+                                                    }
+
+                                                    if (!cek.Where(s => s.column_name == "kodepetugas").Any())
+                                                    {
+                                                        await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN kodepetugas varchar(5)", transaction: trans);
+                                                    }
+
+                                                    if (!cek.Where(s => s.column_name == "aktif").Any())
+                                                    {
+                                                        await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN aktif varchar(1)", transaction: trans);
+                                                    }
+                                                }
+                                            });
+                                            
+                                            await Utils.ClientBacameter(async (conn, trans) =>
+                                            {
+                                                var petugas = await conn.QueryAsync(@"SELECT idpetugas,kodepetugas,nama,aktif FROM petugasbaca", transaction: trans);
+                                                if (petugas.Any())
+                                                {
+                                                    await Utils.ClientBilling(async (conn, trans) =>
+                                                    {
+                                                        await conn.ExecuteAsync("DELETE FROM pembacameter", transaction: trans);
+                                                        await conn.ExecuteAsync("REPLACE INTO pembacameter (idpetugas,kodepetugas,nama,aktif) VALUES (@idpetugas,@kodepetugas,@nama,@aktif)",
+                                                            petugas, trans);
+                                                    });
+                                                }
+                                            });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_petugas_baca",
+                                                queryPath: @"Queries\master_attribute_petugas_baca.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses periode|master_periode");
+                                        await Utils.TrackProgress("periode|master_periode", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_periode",
+                                                queryPath: @"Queries\master_periode.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses periode|master_periode_billing");
+                                        await Utils.TrackProgress("periode|master_periode_billing", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_periode_billing",
+                                                queryPath: @"Queries\master_periode_billing.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses jadwal baca|master_attribute_jadwal_baca");
+                                        await Utils.TrackProgress("jadwal baca|master_attribute_jadwal_baca", async () =>
+                                        {
+                                            await Utils.ClientBacameter(async (conn, trans) =>
+                                            {
+                                                var jadwalbaca = await conn.QueryAsync(@"
+                                                SELECT
+                                                b.nama AS petugasbaca,
+                                                c.koderayon
+                                                FROM
+                                                jadwalbaca a
+                                                JOIN petugasbaca b ON a.idpetugas=b.idpetugas
+                                                JOIN rayon c ON a.idrayon=c.idrayon", transaction: trans);
+                                                if (jadwalbaca.Any())
+                                                {
+                                                    await Utils.Client(async (conn, trans) =>
+                                                    {
+                                                        List<dynamic> data = [];
+                                                        var listPetugas = await conn.QueryAsync(@"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
+                                                            new { idpdam = settings.IdPdam }, trans);
+                                                        var listRayon = await conn.QueryAsync(@"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
+                                                            new { idpdam = settings.IdPdam }, trans);
+
+                                                        int id = 1;
+                                                        foreach (var item in jadwalbaca)
                                                         {
-                                                            data.Add(o);
+                                                            dynamic o = new
+                                                            {
+                                                                idpdam = settings.IdPdam,
+                                                                idjadwalbaca = id++,
+                                                                idpetugasbaca =
+                                                                    listPetugas
+                                                                        .Where(s => s.petugasbaca.ToLower() == item.petugasbaca.ToLower())
+                                                                        .Select(s => s.idpetugasbaca).FirstOrDefault(),
+                                                                idrayon =
+                                                                    listRayon
+                                                                        .Where(s => s.koderayon == item.koderayon)
+                                                                        .Select(s => s.idrayon).FirstOrDefault()
+                                                            };
+
+                                                            if (o.idpetugasbaca != null && o.idrayon != null)
+                                                            {
+                                                                data.Add(o);
+                                                            }
                                                         }
-                                                    }
 
-                                                    if (data.Count != 0)
-                                                    {
-                                                        await conn.ExecuteAsync(@"REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
-                                                    VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)", data, trans);
-                                                    }
-                                                });
-                                            }
+                                                        if (data.Count != 0)
+                                                        {
+                                                            await conn.ExecuteAsync(@"
+                                                            REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
+                                                            VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)", data, trans);
+                                                        }
+                                                    });
+                                                }
+                                            });
                                         });
 
-                                        ctx.Status("proses loket");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_loket",
-                                            queryPath: @"Queries\master_attribute_loket.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses loket|master_attribute_loket");
+                                        await Utils.TrackProgress("loket|master_attribute_loket", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_loket",
+                                                queryPath: @"Queries\master_attribute_loket.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses user");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_user",
-                                            queryPath: @"Queries\master_user.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses user|master_user");
+                                        await Utils.TrackProgress("user|master_user", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_user",
+                                                queryPath: @"Queries\master_user.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses query global");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_query_global",
-                                            queryPath: @"Queries\Master\master_query_global.sql");
+                                        ctx.Status("proses query global|master_query_global");
+                                        await Utils.TrackProgress("query global|master_query_global", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_query_global",
+                                                queryPath: @"Queries\Master\master_query_global.sql");
+                                        });
 
-                                        ctx.Status("proses config list data");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_tipe_permohonan_config_list_data",
-                                            queryPath: @"Queries\Master\master_attribute_tipe_permohonan_config_list_data.sql");
+                                        ctx.Status("proses config list data|master_attribute_tipe_permohonan_config_list_data");
+                                        await Utils.TrackProgress("config list data|master_attribute_tipe_permohonan_config_list_data", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_tipe_permohonan_config_list_data",
+                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_config_list_data.sql");
+                                        });
 
-                                        ctx.Status("proses tipe pendaftaran sambungan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_tipe_pendaftaran_sambungan",
-                                            queryPath: @"Queries\Master\master_attribute_tipe_pendaftaran_sambungan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses tipe pendaftaran sambungan|master_attribute_tipe_pendaftaran_sambungan");
+                                        await Utils.TrackProgress("tipe pendaftaran sambungan|master_attribute_tipe_pendaftaran_sambungan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_tipe_pendaftaran_sambungan",
+                                                queryPath: @"Queries\Master\master_attribute_tipe_pendaftaran_sambungan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
                                         ctx.Status("proses sumber pengaduan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_sumber_pengaduan",
-                                            queryPath: @"Queries\Master\master_attribute_sumber_pengaduan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        await Utils.TrackProgress("sumber pengaduan|master_attribute_sumber_pengaduan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_sumber_pengaduan",
+                                                queryPath: @"Queries\Master\master_attribute_sumber_pengaduan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
                                     });
 
                                     await Utils.TrackProgress("jenis non air", async () =>
                                     {
-                                        ctx.Status("proses jenis non air");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_jenis_nonair",
-                                            queryPath: @"Queries\Master\master_attribute_jenis_nonair.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_jenis_nonair_detail",
-                                            queryPath: @"Queries\Master\master_attribute_jenis_nonair_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses jenis non air|master_attribute_jenis_nonair");
+                                        await Utils.TrackProgress("jenis non air|master_attribute_jenis_nonair", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_jenis_nonair",
+                                                queryPath: @"Queries\Master\master_attribute_jenis_nonair.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses jenis non air|master_attribute_jenis_nonair_detail");
+                                        await Utils.TrackProgress("jenis non air|master_attribute_jenis_nonair_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_jenis_nonair_detail",
+                                                queryPath: @"Queries\Master\master_attribute_jenis_nonair_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
                                     });
 
                                     await Utils.TrackProgress("tipe permohonan", async () =>
                                     {
-                                        ctx.Status("proses tipe permohonan");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_tipe_permohonan",
-                                            queryPath: @"Queries\Master\master_attribute_tipe_permohonan.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_tipe_permohonan_detail",
-                                            queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_tipe_permohonan_detail_ba",
-                                            queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail_ba.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_tipe_permohonan_detail_spk",
-                                            queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail_spk.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses tipe permohonan|master_attribute_tipe_permohonan");
+                                        await Utils.TrackProgress("tipe permohonan|master_attribute_tipe_permohonan", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_tipe_permohonan",
+                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses tipe permohonan|master_attribute_tipe_permohonan_detail");
+                                        await Utils.TrackProgress("tipe permohonan|master_attribute_tipe_permohonan_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_tipe_permohonan_detail",
+                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses tipe permohonan|master_attribute_tipe_permohonan_detail_ba");
+                                        await Utils.TrackProgress("tipe permohonan|master_attribute_tipe_permohonan_detail_ba", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_tipe_permohonan_detail_ba",
+                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail_ba.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses tipe permohonan|master_attribute_tipe_permohonan_detail_spk");
+                                        await Utils.TrackProgress("tipe permohonan|master_attribute_tipe_permohonan_detail_spk", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_tipe_permohonan_detail_spk",
+                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail_spk.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
                                     });
 
                                     await Utils.TrackProgress("paket material", async () =>
                                     {
-                                        ctx.Status("proses paket material");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_material",
-                                            queryPath: @"Queries\Master\master_attribute_material.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_material_paket",
-                                            queryPath: @"Queries\Master\master_attribute_material_paket.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_material_paket_detail",
-                                            queryPath: @"Queries\Master\master_attribute_material_paket_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses paket material|master_attribute_material");
+                                        await Utils.TrackProgress("paket material|master_attribute_material", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_material",
+                                                queryPath: @"Queries\Master\master_attribute_material.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses paket material|master_attribute_material_paket");
+                                        await Utils.TrackProgress("paket material|master_attribute_material_paket", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_material_paket",
+                                                queryPath: @"Queries\Master\master_attribute_material_paket.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses paket material|master_attribute_material_paket_detail");
+                                        await Utils.TrackProgress("paket material|master_attribute_material_paket_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_material_paket_detail",
+                                                queryPath: @"Queries\Master\master_attribute_material_paket_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
                                     });
 
                                     await Utils.TrackProgress("paket ongkos", async () =>
                                     {
-                                        ctx.Status("proses paket ongkos");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_ongkos",
-                                            queryPath: @"Queries\Master\master_attribute_ongkos.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_ongkos_paket",
-                                            queryPath: @"Queries\Master\master_attribute_ongkos_paket.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_ongkos_paket_detail",
-                                            queryPath: @"Queries\Master\master_attribute_ongkos_paket_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses paket ongkos|master_attribute_ongkos");
+                                        await Utils.TrackProgress("paket ongkos|master_attribute_ongkos", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_ongkos",
+                                                queryPath: @"Queries\Master\master_attribute_ongkos.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
+                                        ctx.Status("proses paket ongkos|master_attribute_ongkos_paket");
+                                        await Utils.TrackProgress("paket ongkos|master_attribute_ongkos_paket", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_ongkos_paket",
+                                                queryPath: @"Queries\Master\master_attribute_ongkos_paket.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses paket ongkos|master_attribute_ongkos_paket_detail");
+                                        await Utils.TrackProgress("paket ongkos|master_attribute_ongkos_paket_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_ongkos_paket_detail",
+                                                queryPath: @"Queries\Master\master_attribute_ongkos_paket_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
                                     });
 
                                     await Utils.TrackProgress("paket rab", async () =>
                                     {
-                                        ctx.Status("proses paket rab");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_paket",
-                                            queryPath: @"Queries\Master\master_attribute_paket.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            },
-                                            placeholders: new()
-                                            {
-                                                { "[bsbs]", AppSettings.DBNameBilling }
-                                            });
+                                        ctx.Status("proses paket rab|master_attribute_paket");
+                                        await Utils.TrackProgress("paket rab|master_attribute_paket", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_paket",
+                                                queryPath: @"Queries\Master\master_attribute_paket.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling }
+                                                });
+                                        });
                                     });
 
                                     await Utils.TrackProgress("report", async () =>
                                     {
-                                        ctx.Status("proses label report");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_attribute_label_report",
-                                            queryPath: @"Queries\Master\master_attribute_label_report.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses label report|master_attribute_label_report");
+                                        await Utils.TrackProgress("label report|master_attribute_label_report", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_attribute_label_report",
+                                                queryPath: @"Queries\Master\master_attribute_label_report.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses report main group");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_report_maingroup",
-                                            queryPath: @"Queries\Master\master_report_maingroup.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses report main group|master_report_maingroup");
+                                        await Utils.TrackProgress("report main group|master_report_maingroup", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_report_maingroup",
+                                                queryPath: @"Queries\Master\master_report_maingroup.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses report sub group");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_report_subgroup",
-                                            queryPath: @"Queries\Master\master_report_subgroup.sql");
+                                        ctx.Status("proses report sub group|master_report_subgroup");
+                                        await Utils.TrackProgress("report sub group|master_report_subgroup", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_report_subgroup",
+                                                queryPath: @"Queries\Master\master_report_subgroup.sql");
+                                        });
 
-                                        ctx.Status("proses report api");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_api",
-                                            queryPath: @"Queries\Master\report_api.sql");
+                                        ctx.Status("proses report api|report_api");
+                                        await Utils.TrackProgress("report api|report_api", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_api",
+                                                queryPath: @"Queries\Master\report_api.sql");
+                                        });
 
-                                        ctx.Status("proses report model");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_models",
-                                            queryPath: @"Queries\Master\report_models.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses report model|report_models");
+                                        await Utils.TrackProgress("report model|report_models", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_models",
+                                                queryPath: @"Queries\Master\report_models.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses report model source");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_model_sources",
-                                            queryPath: @"Queries\Master\report_model_sources.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses report model source|report_model_sources");
+                                        await Utils.TrackProgress("report model source|report_model_sources", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_model_sources",
+                                                queryPath: @"Queries\Master\report_model_sources.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses report model sort");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_model_sorts",
-                                            queryPath: @"Queries\Master\report_model_sorts.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses report model sort|report_model_sorts");
+                                        await Utils.TrackProgress("report model sort|report_model_sorts", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_model_sorts",
+                                                queryPath: @"Queries\Master\report_model_sorts.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses report model prop");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_model_props",
-                                            queryPath: @"Queries\Master\report_model_props.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses report model prop|report_model_props");
+                                        await Utils.TrackProgress("report model prop|report_model_props", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_model_props",
+                                                queryPath: @"Queries\Master\report_model_props.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses report model param");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_model_params",
-                                            queryPath: @"Queries\Master\report_model_params.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
+                                        ctx.Status("proses report model param|report_model_params");
+                                        await Utils.TrackProgress("report model param|report_model_params", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_model_params",
+                                                queryPath: @"Queries\Master\report_model_params.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
 
-                                        ctx.Status("proses report filter custom");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_filter_custom",
-                                            queryPath: @"Queries\Master\report_filter_custom.sql");
+                                        ctx.Status("proses report filter custom|report_filter_custom");
+                                        await Utils.TrackProgress("report filter custom|report_filter_custom", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_filter_custom",
+                                                queryPath: @"Queries\Master\report_filter_custom.sql");
+                                        });
 
-                                        ctx.Status("proses report filter custom detail");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringStaging,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "report_filter_custom_detail",
-                                            queryPath: @"Queries\Master\report_filter_custom_detail.sql");
+                                        ctx.Status("proses report filter custom detail|report_filter_custom_detail");
+                                        await Utils.TrackProgress("report filter custom detail|report_filter_custom_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringStaging,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "report_filter_custom_detail",
+                                                queryPath: @"Queries\Master\report_filter_custom_detail.sql");
+                                        });
                                     });
 
                                     await Utils.TrackProgress("pelanggan air", async () =>
                                     {
-                                        ctx.Status("proses pelanggan air");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_pelanggan_air",
-                                            queryPath: @"Queries\master_pelanggan_air.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        ctx.Status("proses pelanggan air detail");
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "master_pelanggan_air_detail",
-                                            queryPath: @"Queries\master_pelanggan_air_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam }
-                                            });
-                                        ctx.Status("update latlong pelanggan air");
-                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        ctx.Status("proses pelanggan air|master_pelanggan_air");
+                                        await Utils.TrackProgress("pelanggan air|master_pelanggan_air", async () =>
                                         {
-                                            var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);
-                                            if (pel.Any())
-                                            {
-                                                await Utils.Client(async (conn, trans) =>
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_pelanggan_air",
+                                                queryPath: @"Queries\master_pelanggan_air.sql",
+                                                parameters: new()
                                                 {
-                                                    await conn.ExecuteAsync($"UPDATE master_pelanggan_air SET latitude=@latitude,longitude=@longitude WHERE idpdam={settings.IdPdam} AND nosamb=@idpelanggan", pel, trans);
+                                                    { "@idpdam", settings.IdPdam }
                                                 });
-                                            }
+                                        });
+
+                                        ctx.Status("proses pelanggan air|master_pelanggan_air_detail");
+                                        await Utils.TrackProgress("pelanggan air|master_pelanggan_air_detail", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                ALTER TABLE master_pelanggan_air_detail
+                                                 CHANGE alamatpemilik alamatpemilik VARCHAR (250) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
+                                            });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "master_pelanggan_air_detail",
+                                                queryPath: @"Queries\master_pelanggan_air_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam }
+                                                });
+                                        });
+
+                                        ctx.Status("proses update latlong pelanggan air");
+                                        await Utils.TrackProgress("update latlong pelanggan air", async () =>
+                                        {
+                                            await Utils.ClientBacameter(async (conn, trans) =>
+                                            {
+                                                var pel = await conn.QueryAsync("SELECT idpelanggan,latitude,longitude FROM pelanggan", transaction: trans);
+                                                if (pel.Any())
+                                                {
+                                                    await Utils.Client(async (conn, trans) =>
+                                                    {
+                                                        await conn.ExecuteAsync($"UPDATE master_pelanggan_air SET latitude=@latitude,longitude=@longitude WHERE idpdam={settings.IdPdam} AND nosamb=@idpelanggan", pel, trans);
+                                                    });
+                                                }
+                                            });
                                         });
                                     });
 
@@ -2359,53 +2609,68 @@ namespace Migrasi.Commands
                                             });
                                         }, usingStopwatch: true);
 
-                                        //ctx.Status("update jumlah termin");
-                                        //await Utils.ClientBilling(async (conn, trans) =>
-                                        //{
-                                        //    var termin = await conn.QueryAsync(@"
-                                        //        DROP TEMPORARY TABLE IF EXISTS temp_dataawal_piutang_termin;
-                                        //        CREATE TEMPORARY TABLE temp_dataawal_piutang_termin AS
-                                        //        SELECT periode,nosamb,COUNT(*) AS termin
-                                        //        FROM piutang
-                                        //        WHERE kode <> CONCAT(periode,'.',nosamb) AND SUBSTRING_INDEX(kode, '.', -1) <> 0
-                                        //        GROUP BY periode,nosamb;
+                                        ctx.Status("proses bind angsuran > angsuran detail");
+                                        await Utils.TrackProgress("bind angsuran > angsuran detail", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                update rekening_air_angsuran_detail a
+                                                join (
+                                                SELECT
+                                                a.idpdam,
+                                                a.idangsuran,
+                                                b.idperiode,
+                                                a.idpelangganair
+                                                FROM rekening_air_angsuran a
+                                                JOIN master_periode b ON b.idpdam = a.idpdam AND b.kodeperiode = SUBSTRING_INDEX(SUBSTRING_INDEX(a.noangsuran, '.', -2), '.', 1) AND b.flaghapus = 0
+                                                WHERE a.idpdam = @idpdam
+                                                ) b on b.idpdam = a.idpdam and b.idperiode = a.idperiode and b.idpelangganair = a.idpelangganair
+                                                set a.idangsuran = b.idangsuran
+                                                where a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                            });
+                                        });
 
-                                        //        SELECT
-                                        //        rek.periode,
-                                        //        rek.nosamb,
-                                        //        ter.termin
-                                        //        FROM piutang rek
-                                        //        JOIN temp_dataawal_piutang_termin ter ON ter.periode = rek.periode AND ter.nosamb = rek.nosamb
-                                        //        WHERE rek.kode = CONCAT(rek.periode,'.',rek.nosamb) AND rek.flagangsur = 1;
-                                        //        ", transaction: trans);
+                                        ctx.Status("proses update jumlah termin angsuran");
+                                        await Utils.TrackProgress("update jumlah termin angsuran", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                UPDATE rekening_air_angsuran a
+                                                JOIN (
+                                                SELECT
+                                                idpdam,
+                                                idangsuran,
+                                                COUNT(*) AS jumlahtermin
+                                                FROM rekening_air_angsuran_detail
+                                                WHERE idpdam = @idpdam AND termin <> 0
+                                                GROUP BY idpdam, idangsuran
+                                                ) b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran
+                                                SET a.jumlahtermin = b.jumlahtermin
+                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                            });
+                                        });
 
-                                        //    await Utils.Client(async (conn, trans) =>
-                                        //    {
-                                        //        foreach (var t in termin)
-                                        //        {
-                                        //            await conn.ExecuteAsync(@"
-                                        //                UPDATE rekening_air_angsuran
-                                        //                SET jumlahtermin = @termin
-                                        //                WHERE idpdam = @idpdam
-                                        //                AND SUBSTRING_INDEX(SUBSTRING_INDEX(noangsuran, '.', 2), '.', -1) = @periode
-                                        //                AND SUBSTRING_INDEX(noangsuran, '.', -1) = @nosamb",
-                                        //                new
-                                        //                {
-                                        //                    termin = t.termin,
-                                        //                    idpdam = settings.IdPdam,
-                                        //                    periode = t.periode,
-                                        //                    nosamb = t.nosamb
-                                        //                },
-                                        //                trans);
-                                        //        }
-                                        //    });
-                                        //});
-
-                                        //ctx.Status("update jumlah uang muka");
-
-                                        //sambungkan dengan rekening air
-
-                                        await Task.FromResult(0);
+                                        ctx.Status("proses update jumlah uang muka angsuran");
+                                        await Utils.TrackProgress("update jumlah uang muka angsuran", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                UPDATE rekening_air_angsuran a
+                                                JOIN (
+                                                SELECT
+                                                idpdam,
+                                                idangsuran,
+                                                total AS jumlahuangmuka
+                                                FROM rekening_air_angsuran_detail
+                                                WHERE idpdam = @idpdam AND termin = 0
+                                                ) b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran
+                                                SET a.jumlahuangmuka = b.jumlahuangmuka
+                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                            });
+                                        });
                                     });
                                     #endregion
 

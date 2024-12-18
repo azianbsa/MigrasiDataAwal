@@ -85,9 +85,8 @@ namespace Migrasi
 
                 return app.Run(args);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
                 return -99;
             }
             finally
