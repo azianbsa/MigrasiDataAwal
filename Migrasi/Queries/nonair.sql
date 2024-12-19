@@ -5,7 +5,7 @@
  pel.id AS idpelangganair,
  NULL AS idpelangganlimbah,
  NULL AS idpelangganlltt,
- na.periode AS kodeperiode,
+ IF(na.periode='',NULL,na.periode) AS kodeperiode,
  na.nomor AS nomornonair,
  na.keterangan AS keterangan,
  na.total AS total,
@@ -31,4 +31,4 @@ FROM
  LEFT JOIN jenisnonair jns ON jns.jenis = na.jenis
  LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon = na.koderayon
  LEFT JOIN [bsbs].golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
- WHERE na.flaghapus = 0 AND na.flagangsur = 0 AND na.periode = @periode;
+ WHERE na.flaghapus = 0 AND na.flagangsur = 0 AND (na.periode = @periode OR na.periode IS NULL OR na.periode = '')

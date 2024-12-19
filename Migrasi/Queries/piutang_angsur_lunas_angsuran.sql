@@ -24,7 +24,7 @@
  rek.tglbayar AS waktulunas,
  0 AS flaghapus,
  NOW() AS waktuupdate
-FROM [table] rek
+FROM piutang_angsurlunas rek
 JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
 ,(SELECT @id := @lastid) AS id
 WHERE rek.periode = @periode AND rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 1 AND rek.flaglunas = 1 AND rek.flagbatal = 0;

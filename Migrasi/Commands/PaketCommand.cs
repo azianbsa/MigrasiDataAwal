@@ -2272,7 +2272,14 @@ namespace Migrasi.Commands
                                         IEnumerable<int>? listPeriode = [];
                                         await Utils.ClientLoket(async (conn, trans) =>
                                         {
-                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM nonair GROUP BY periode", transaction: trans);
+                                            listPeriode = await conn.QueryAsync<int>($@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode", transaction: trans);
+                                        });
+
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync(@"
+                                            ALTER TABLE rekening_nonair_transaksi
+                                                CHANGE keterangan keterangan VARCHAR (1000) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
                                         });
 
                                         foreach (var periode in listPeriode)
@@ -2452,6 +2459,13 @@ namespace Migrasi.Commands
                                         await Utils.ClientLoket(async (conn, trans) =>
                                         {
                                             listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang_angsurlunas WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
+                                        });
+
+                                        await Utils.Client(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync(@"
+                                            ALTER TABLE rekening_air_angsuran
+                                                CHANGE alamat alamat VARCHAR (250) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
                                         });
 
                                         foreach (var periode in listPeriode)
