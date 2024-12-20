@@ -2686,6 +2686,44 @@ namespace Migrasi.Commands
                                             });
                                         });
                                     });
+
+                                    await Utils.TrackProgress("nonair angsuran", async () =>
+                                    {
+                                        IEnumerable<int>? listPeriode = [];
+                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        {
+                                            listPeriode = await conn.QueryAsync<int>($@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode", transaction: trans);
+                                        });
+
+                                        foreach (var periode in listPeriode)
+                                        {
+                                            ctx.Status($"proses nonair angsuran-{periode}|rekening_nonair_angsuran_detail");
+                                            await Utils.TrackProgress("nonair angsuran-{periode}|rekening_nonair_angsuran_detail", async () =>
+                                            {
+                                                var lastIdAngsuranDetail = 0;
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_nonair_angsuran_detail", transaction: trans);
+                                                });
+
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_nonair_angsuran_detail",
+                                                    queryPath: @"Queries\nonair_angsuran_detail.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastIdAngsuranDetail },
+                                                        { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                    });
+                                            }, usingStopwatch: true);
+                                        }
+                                    });
                                     #endregion
 
                                     await Utils.TrackProgress("pengaduan", async () =>
