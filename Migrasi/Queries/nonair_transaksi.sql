@@ -4,7 +4,7 @@ SELECT
  @id := @id + 1 AS idloket,
  kodeloket
 FROM
- loket,
+ [loket].loket,
  (SELECT @id := 0) AS id
  ORDER BY kodeloket;
 
@@ -14,7 +14,7 @@ SELECT
 @id := @id + 1 AS iduser,
 ul.nama
 FROM
- userloket ul
+ [loket].userloket ul
  ,(SELECT @id := 0) AS id
  ORDER BY nama;
 

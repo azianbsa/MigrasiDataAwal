@@ -31,6 +31,6 @@ SELECT
  NOW() AS waktuupdate
 FROM piutang rek
 JOIN temp_dataawal_piutang_gelondongan gld ON gld.periode = rek.periode AND gld.nosamb = rek.nosamb
-JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
+JOIN pelanggan pel ON pel.nosamb = rek.nosamb
 ,(SELECT @id := @lastid) AS id
 WHERE rek.periode = @periode AND rek.kode = CONCAT(rek.periode, '.', rek.nosamb) AND rek.flagangsur = 1;

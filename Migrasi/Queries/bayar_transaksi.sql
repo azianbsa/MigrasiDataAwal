@@ -8,7 +8,7 @@ INSERT INTO temp_dataawal_periode
 SELECT
 @idperiode := @idperiode+1 AS idperiode,
 periode
-FROM [bsbs].periode
+FROM periode
 ,(SELECT @idperiode := 0) AS idperiode
 ORDER BY periode;
 
@@ -22,7 +22,7 @@ INSERT INTO temp_dataawal_userloket
 SELECT
 @iduser := @iduser + 1 AS iduser,
 nama
-FROM userloket
+FROM [loket].userloket
 ,(SELECT @iduser := 0) AS iduser
 ORDER BY nama;
 
@@ -38,7 +38,7 @@ SELECT
 @idloket := @idloket + 1 AS idloket,
 kodeloket,
 loket
-FROM loket
+FROM [loket].loket
 ,(SELECT @idloket := 0) AS idloket
 ORDER BY kodeloket;
 
@@ -58,7 +58,7 @@ SELECT
  NOW() AS waktuupdate
 FROM
  [table] rek
- JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
+ JOIN pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN temp_dataawal_periode per ON per.periode = rek.periode
  LEFT JOIN temp_dataawal_userloket usr ON usr.nama = rek.kasir
  LEFT JOIN temp_dataawal_loket lo ON lo.kodeloket = rek.loketbayar

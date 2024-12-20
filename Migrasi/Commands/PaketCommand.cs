@@ -2058,7 +2058,7 @@ namespace Migrasi.Commands
                                         });
 
                                         IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
                                         });
@@ -2075,7 +2075,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air",
                                                     queryPath: @"Queries\piutang.sql",
@@ -2089,7 +2089,6 @@ namespace Migrasi.Commands
                                                     placeholders: new()
                                                     {
                                                         { "[table]", "piutang" },
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2097,7 +2096,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"piutang-{periode}|rekening_air_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_detail",
                                                     queryPath: @"Queries\piutang_detail.sql",
@@ -2110,7 +2109,6 @@ namespace Migrasi.Commands
                                                     placeholders: new()
                                                     {
                                                         { "[table]", "piutang" },
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
                                         }
@@ -2119,11 +2117,11 @@ namespace Migrasi.Commands
                                     await Utils.TrackProgress("bayar", async () =>
                                     {
                                         IEnumerable<string?> bayarTahun = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             bayarTahun = await conn.QueryAsync<string?>(@"
                                             SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                            new { table_schema = AppSettings.DBNameLoket }, trans);
+                                            new { table_schema = AppSettings.DBNameBilling }, trans);
                                         });
 
                                         foreach (var tahun in bayarTahun)
@@ -2190,7 +2188,7 @@ namespace Migrasi.Commands
                                             });
 
                                             IEnumerable<int>? listPeriode = [];
-                                            await Utils.ClientLoket(async (conn, trans) =>
+                                            await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
                                             });
@@ -2207,7 +2205,7 @@ namespace Migrasi.Commands
                                                     });
 
                                                     await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
                                                         tConnectionStr: AppSettings.ConnectionString,
                                                         tableName: "rekening_air",
                                                         queryPath: @"Queries\bayar.sql",
@@ -2220,7 +2218,6 @@ namespace Migrasi.Commands
                                                         placeholders: new()
                                                         {
                                                             { "[table]", $"bayar{tahun}" },
-                                                            { "[bsbs]", AppSettings.DBNameBilling },
                                                         });
                                                 }, usingStopwatch: true);
 
@@ -2228,7 +2225,7 @@ namespace Migrasi.Commands
                                                 await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_detail", async () =>
                                                 {
                                                     await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
                                                         tConnectionStr: AppSettings.ConnectionString,
                                                         tableName: "rekening_air_detail",
                                                         queryPath: @"Queries\bayar_detail.sql",
@@ -2240,7 +2237,6 @@ namespace Migrasi.Commands
                                                         placeholders: new()
                                                         {
                                                             { "[table]", $"bayar{tahun}" },
-                                                            { "[bsbs]", AppSettings.DBNameBilling },
                                                         });
                                                 }, usingStopwatch: true);
 
@@ -2248,7 +2244,7 @@ namespace Migrasi.Commands
                                                 await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_transaksi", async () =>
                                                 {
                                                     await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
                                                         tConnectionStr: AppSettings.ConnectionString,
                                                         tableName: "rekening_air_transaksi",
                                                         queryPath: @"Queries\bayar_transaksi.sql",
@@ -2260,7 +2256,7 @@ namespace Migrasi.Commands
                                                         placeholders: new()
                                                         {
                                                             { "[table]", $"bayar{tahun}" },
-                                                            { "[bsbs]", AppSettings.DBNameBilling },
+                                                            { "[loket]", AppSettings.DBNameLoket },
                                                         });
                                                 }, usingStopwatch: true);
                                             }
@@ -2270,7 +2266,7 @@ namespace Migrasi.Commands
                                     await Utils.TrackProgress("nonair", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             listPeriode = await conn.QueryAsync<int>($@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode", transaction: trans);
                                         });
@@ -2288,7 +2284,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair",
                                                     queryPath: @"Queries\nonair.sql",
@@ -2299,7 +2295,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                        { "[loket]", AppSettings.DBNameLoket },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2307,7 +2303,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_detail",
                                                     queryPath: @"Queries\nonair_detail.sql",
@@ -2322,7 +2318,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_transaksi", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_transaksi",
                                                     queryPath: @"Queries\nonair_transaksi.sql",
@@ -2330,6 +2326,10 @@ namespace Migrasi.Commands
                                                     {
                                                         { "@idpdam", settings.IdPdam },
                                                         { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[loket]", AppSettings.DBNameLoket },
                                                     });
                                             }, usingStopwatch: true);
                                         }
@@ -2340,7 +2340,7 @@ namespace Migrasi.Commands
                                     await Utils.TrackProgress("piutang angsuran", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
                                         });
@@ -2357,7 +2357,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air",
                                                     queryPath: @"Queries\piutang.sql",
@@ -2371,7 +2371,6 @@ namespace Migrasi.Commands
                                                     placeholders: new()
                                                     {
                                                         { "[table]", "piutang" },
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2379,7 +2378,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_detail",
                                                     queryPath: @"Queries\piutang_detail.sql",
@@ -2392,7 +2391,6 @@ namespace Migrasi.Commands
                                                     placeholders: new()
                                                     {
                                                         { "[table]", "piutang" },
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2408,7 +2406,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_angsuran",
                                                     queryPath: @"Queries\piutang_angsuran.sql",
@@ -2418,10 +2416,6 @@ namespace Migrasi.Commands
                                                         { "@lastid", lastIdAngsuran },
                                                         { "@jnsnonair", jnsNonair },
                                                         { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2435,7 +2429,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_angsuran_detail",
                                                     queryPath: @"Queries\piutang_angsuran_detail.sql",
@@ -2444,10 +2438,6 @@ namespace Migrasi.Commands
                                                         { "@idpdam", settings.IdPdam },
                                                         { "@lastid", lastIdAngsuranDetail },
                                                         { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
                                         }
@@ -2456,7 +2446,7 @@ namespace Migrasi.Commands
                                     await Utils.TrackProgress("angsur lunas", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang_angsurlunas WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
                                         });
@@ -2480,7 +2470,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air",
                                                     queryPath: @"Queries\piutang.sql",
@@ -2494,7 +2484,6 @@ namespace Migrasi.Commands
                                                     placeholders: new()
                                                     {
                                                         { "[table]", "piutang_angsurlunas" },
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2502,7 +2491,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"angsur lunas-{periode}|rekening_air_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_detail",
                                                     queryPath: @"Queries\piutang_detail.sql",
@@ -2515,7 +2504,6 @@ namespace Migrasi.Commands
                                                     placeholders: new()
                                                     {
                                                         { "[table]", "piutang_angsurlunas" },
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2531,7 +2519,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_angsuran",
                                                     queryPath: @"Queries\piutang_angsur_lunas_angsuran.sql",
@@ -2541,10 +2529,6 @@ namespace Migrasi.Commands
                                                         { "@lastid", lastIdAngsuran },
                                                         { "@periode", periode },
                                                         { "@jnsnonair", jnsNonair },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
                                         }
@@ -2553,16 +2537,16 @@ namespace Migrasi.Commands
                                     await Utils.TrackProgress("bayar angsuran", async () =>
                                     {
                                         IEnumerable<string?> bayarTahun = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             bayarTahun = await conn.QueryAsync<string?>("SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                                new { table_schema = AppSettings.DBNameLoket }, trans);
+                                                new { table_schema = AppSettings.DBNameBilling }, trans);
                                         });
 
                                         foreach (var tahun in bayarTahun)
                                         {
                                             IEnumerable<int>? listPeriode = [];
-                                            await Utils.ClientLoket(async (conn, trans) =>
+                                            await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
                                             });
@@ -2579,7 +2563,7 @@ namespace Migrasi.Commands
                                                     });
 
                                                     await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
                                                         tConnectionStr: AppSettings.ConnectionString,
                                                         tableName: "rekening_air_angsuran_detail",
                                                         queryPath: @"Queries\bayar_angsuran_detail.sql",
@@ -2592,7 +2576,6 @@ namespace Migrasi.Commands
                                                         placeholders: new()
                                                         {
                                                             { "[table]", $"bayar{tahun}" },
-                                                            { "[bsbs]", AppSettings.DBNameBilling },
                                                         });
                                                 }, usingStopwatch: true);
                                             }
@@ -2690,7 +2673,7 @@ namespace Migrasi.Commands
                                     await Utils.TrackProgress("nonair angsuran", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             listPeriode = await conn.QueryAsync<int>($@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode", transaction: trans);
                                         });
@@ -2707,7 +2690,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_angsuran_detail",
                                                     queryPath: @"Queries\nonair_angsuran_detail.sql",
@@ -2719,7 +2702,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
+                                                        { "[loket]", AppSettings.DBNameLoket },
                                                     });
                                             }, usingStopwatch: true);
                                         }

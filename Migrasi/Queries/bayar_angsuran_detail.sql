@@ -8,7 +8,7 @@ INSERT INTO temp_dataawal_periode
 SELECT
 @idperiode:=@idperiode+1 AS idperiode,
 periode
-FROM [bsbs].periode
+FROM periode
 ,(SELECT @idperiode:=0) AS idperiode
 ORDER BY periode;
 
@@ -51,12 +51,12 @@ SELECT
  NOW() AS waktuupdate
 FROM
  [table] rek
- JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
+ JOIN pelanggan pel ON pel.nosamb = rek.nosamb
  JOIN temp_dataawal_periode per ON per.periode = rek.periode
- LEFT JOIN [bsbs].golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
- LEFT JOIN [bsbs].diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
- LEFT JOIN [bsbs].rayon ray ON ray.koderayon = rek.koderayon
- LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan
+ LEFT JOIN golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
+ LEFT JOIN diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
+ LEFT JOIN rayon ray ON ray.koderayon = rek.koderayon
+ LEFT JOIN kelurahan kel ON kel.kodekelurahan = rek.kodekelurahan
  ,(SELECT @id := @lastid) AS id
  WHERE rek.periode = @periode
  AND rek.kode <> CONCAT(rek.periode, '.', rek.nosamb)
