@@ -2626,7 +2626,7 @@ namespace Migrasi.Commands
                                                 set a.idangsuran = b.idangsuran
                                                 where a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
                                             });
-                                        });
+                                        }, usingStopwatch: true);
 
                                         ctx.Status("proses update jumlah termin angsuran");
                                         await Utils.TrackProgress("update jumlah termin angsuran", async () =>
@@ -2647,7 +2647,7 @@ namespace Migrasi.Commands
                                                 SET a.jumlahtermin = b.jumlahtermin
                                                 WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
                                             });
-                                        });
+                                        }, usingStopwatch: true);
 
                                         ctx.Status("proses update jumlah uang muka angsuran");
                                         await Utils.TrackProgress("update jumlah uang muka angsuran", async () =>
@@ -2667,11 +2667,81 @@ namespace Migrasi.Commands
                                                 SET a.jumlahuangmuka = b.jumlahuangmuka
                                                 WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
                                             });
-                                        });
+                                        }, usingStopwatch: true);
                                     });
 
                                     await Utils.TrackProgress("nonair angsuran", async () =>
                                     {
+                                        var limit = 200_000;
+                                        var offset = 0;
+                                        while (true)
+                                        {
+                                            var cek = 0;
+                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            {
+                                                cek = await conn.QueryFirstOrDefaultAsync<int>(@"
+                                                SELECT COUNT(*) FROM nonair WHERE flagangsur=1 AND flaghapus=1 AND termin=0 AND ketjenis NOT LIKE 'Uang_Muka%' LIMIT @limit OFFSET @offset",
+                                                new { limit = limit, offset = 0 }, transaction: trans);
+                                            });
+
+                                            if (cek == 0)
+                                            {
+                                                break;
+                                            }
+
+                                            ctx.Status($"proses nonair angsuran-(limit {limit} offset {offset})|rekening_nonair");
+                                            await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_nonair",
+                                                    queryPath: @"Queries\nonair_angsuran_mst.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[loket]", AppSettings.DBNameLoket },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_detail");
+                                            await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_detail", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_nonair_detail",
+                                                    queryPath: @"Queries\nonair_detail_angsuran_mst.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_angsuran");
+                                            await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_angsuran", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_nonair_angsuran",
+                                                    queryPath: @"Queries\nonair_angsuran.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[loket]", AppSettings.DBNameLoket },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            offset += limit;
+                                        }
+
                                         IEnumerable<int>? listPeriode = [];
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
@@ -2706,6 +2776,126 @@ namespace Migrasi.Commands
                                                     });
                                             }, usingStopwatch: true);
                                         }
+                                    });
+
+                                    await Utils.TrackProgress("patch angsuran nonair", async () =>
+                                    {
+                                        ctx.Status("proses bind idangsuran -> nonair");
+                                        await Utils.TrackProgress("bind idangsuran -> nonair", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync($@"
+                                                UPDATE rekening_nonair a
+                                                JOIN rekening_nonair_angsuran b ON b.idpdam = a.idpdam AND b.noangsuran = a.nomornonair
+                                                SET a.idangsuran = b.idangsuran
+                                                WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
+                                            });
+                                        });
+
+                                        ctx.Status("proses bind idnonair -> nonair angsuran");
+                                        await Utils.TrackProgress("bind idnonair -> nonair angsuran", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync($@"
+                                                UPDATE rekening_nonair_angsuran a
+                                                JOIN rekening_nonair b ON b.idpdam = a.idpdam AND b.nomornonair = a.noangsuran
+                                                SET a.idnonair = b.idnonair
+                                                WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
+                                            });
+                                        });
+
+                                        ctx.Status("proses bind idnonair -> nonair angsuran detail");
+                                        await Utils.TrackProgress("bind idnonair -> nonair angsuran detail", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync($@"
+                                                UPDATE rekening_nonair_angsuran_detail a
+                                                JOIN rekening_nonair b ON b.idpdam = a.idpdam AND b.nomornonair = SUBSTRING_INDEX(a.nomortransaksi, '.', 1)
+                                                SET a.idnonair = b.idnonair
+                                                WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
+                                            });
+                                        });
+
+                                        ctx.Status("proses bind idangsuran -> nonair angsuran detail");
+                                        await Utils.TrackProgress("bind idangsuran -> nonair angsuran detail", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync($@"
+                                                UPDATE rekening_nonair_angsuran_detail a
+                                                JOIN rekening_nonair_angsuran b ON b.idpdam = a.idpdam AND b.noangsuran = SUBSTRING_INDEX(a.nomortransaksi, '.', 1)
+                                                SET a.idangsuran = b.idangsuran
+                                                WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
+                                            });
+                                        });
+
+                                        ctx.Status("proses update jumlah termin|rekening_nonair_angsuran");
+                                        await Utils.TrackProgress("update jumlah termin|rekening_nonair_angsuran", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                UPDATE rekening_nonair_angsuran a
+                                                JOIN (
+
+                                                SELECT idpdam,idangsuran,COUNT(*) AS jumlahtermin
+                                                FROM rekening_nonair_angsuran_detail
+                                                WHERE idpdam = @idpdam AND termin <> 0
+                                                GROUP BY idpdam,idangsuran
+
+                                                ) b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran
+                                                SET a.jumlahtermin = b.jumlahtermin
+                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                            });
+                                        }, usingStopwatch: true);
+
+                                        ctx.Status("proses update jumlah uang muka|rekening_nonair_angsuran");
+                                        await Utils.TrackProgress("update jumlah uang muka|rekening_nonair_angsuran", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                UPDATE rekening_nonair_angsuran a
+                                                JOIN rekening_nonair_angsuran_detail b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran AND b.termin = 0
+                                                SET a.jumlahuangmuka = b.total
+                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                            });
+                                        }, usingStopwatch: true);
+
+                                        ctx.Status("proses update nomor angsuran|rekening_nonair_angsuran");
+                                        await Utils.TrackProgress("update nomor angsuran|rekening_nonair_angsuran", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                UPDATE rekening_nonair_angsuran a
+                                                JOIN (
+
+                                                SELECT idpdam,idangsuran,SUBSTRING_INDEX(nomortransaksi,'.',-1) AS noangsuran
+                                                FROM rekening_nonair_angsuran_detail
+                                                WHERE idpdam = @idpdam
+                                                GROUP BY idpdam,idangsuran,SUBSTRING_INDEX(nomortransaksi,'.',-1)
+
+                                                ) b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran
+                                                SET a.noangsuran = b.noangsuran
+                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                            });
+                                        }, usingStopwatch: true);
+
+                                        ctx.Status("proses update nomor transaksi|rekening_nonair_angsuran_detail");
+                                        await Utils.TrackProgress("update nomor transaksi|rekening_nonair_angsuran_detail", async () =>
+                                        {
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                UPDATE rekening_nonair_angsuran_detail
+                                                SET nomortransaksi = SUBSTRING_INDEX(nomortransaksi,'.',1)
+                                                WHERE idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                            });
+                                        }, usingStopwatch: true);
                                     });
                                     #endregion
 

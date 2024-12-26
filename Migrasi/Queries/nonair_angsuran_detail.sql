@@ -22,14 +22,14 @@ SELECT
  na.id,
  @idpdam,
  NULL AS idangsuran,
- jns.id AS idnonair,
+ NULL AS idnonair,
  pel.id AS idpelangganair,
  NULL AS idpelangganlimbah,
  NULL AS idpelangganlltt,
  na.periode AS kodeperiode,
  na.termin AS termin,
  IF(na.flagbatal=0,na.flaglunas,0) AS statustransaksi,
- na.urutan AS nomortransaksi,
+ CONCAT(na.nomor,'.',IFNULL(na.noangsuran,'-')) AS nomortransaksi,
  na.waktubayar AS waktutransaksi,
  YEAR(na.waktubayar) AS tahuntransaksi,
  us.iduser AS iduser,
@@ -55,7 +55,6 @@ SELECT
 FROM
  nonair na
  LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
- LEFT JOIN [loket].jenisnonair jns ON jns.jenis = na.jenis
  LEFT JOIN rayon ryn ON ryn.koderayon = na.koderayon
  LEFT JOIN golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
  LEFT JOIN temp_dataawal_user us ON us.nama = na.kasir
