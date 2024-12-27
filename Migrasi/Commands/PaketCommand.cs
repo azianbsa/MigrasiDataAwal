@@ -2681,7 +2681,7 @@ namespace Migrasi.Commands
                                             {
                                                 cek = await conn.QueryFirstOrDefaultAsync<int>(@"
                                                 SELECT COUNT(*) FROM nonair WHERE flagangsur=1 AND flaghapus=1 AND termin=0 AND ketjenis NOT LIKE 'Uang_Muka%' LIMIT @limit OFFSET @offset",
-                                                new { limit = limit, offset = 0 }, transaction: trans);
+                                                new { limit = limit, offset = offset }, trans);
                                             });
 
                                             if (cek == 0)
@@ -2751,8 +2751,15 @@ namespace Migrasi.Commands
                                         foreach (var periode in listPeriode)
                                         {
                                             ctx.Status($"proses nonair angsuran-{periode}|rekening_nonair_angsuran_detail");
-                                            await Utils.TrackProgress("nonair angsuran-{periode}|rekening_nonair_angsuran_detail", async () =>
+                                            await Utils.TrackProgress($"nonair angsuran-{periode}|rekening_nonair_angsuran_detail", async () =>
                                             {
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    await conn.ExecuteAsync(@"
+                                                    ALTER TABLE rekening_nonair_angsuran_detail
+                                                     CHANGE nomortransaksi nomortransaksi VARCHAR (100) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
+                                                });
+
                                                 var lastIdAngsuranDetail = 0;
                                                 await Utils.Client(async (conn, trans) =>
                                                 {
@@ -2785,11 +2792,22 @@ namespace Migrasi.Commands
                                         {
                                             await Utils.Client(async (conn, trans) =>
                                             {
-                                                await conn.ExecuteAsync($@"
-                                                UPDATE rekening_nonair a
-                                                JOIN rekening_nonair_angsuran b ON b.idpdam = a.idpdam AND b.noangsuran = a.nomornonair
-                                                SET a.idangsuran = b.idangsuran
-                                                WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
+                                                var listPeriode = await conn.QueryAsync<int>(@"
+                                                SELECT CASE WHEN kodeperiode IS NULL THEN -1 ELSE kodeperiode END AS kodeperiode FROM rekening_nonair WHERE idpdam = @idpdam GROUP BY kodeperiode",
+                                                new { idpdam = settings.IdPdam }, trans);
+
+                                                foreach (var periode in listPeriode)
+                                                {
+                                                    ctx.Status($"proses bind idangsuran -> nonair-{periode}");
+                                                    await Utils.TrackProgress($"bind idangsuran -> nonair-{periode}", async () =>
+                                                    {
+                                                        await conn.ExecuteAsync($@"
+                                                        UPDATE rekening_nonair a
+                                                        JOIN rekening_nonair_angsuran b ON b.idpdam = a.idpdam AND b.noangsuran = a.nomornonair
+                                                        SET a.idangsuran = b.idangsuran
+                                                        WHERE a.idpdam = @idpdam AND (a.kodeperiode = @periode OR a.kodeperiode IS NULL)", new { idpdam = settings.IdPdam, periode = periode }, trans);
+                                                    });
+                                                }
                                             });
                                         });
 
@@ -2899,11 +2917,13 @@ namespace Migrasi.Commands
                                     });
                                     #endregion
 
+                                    //TODO: pengaduan
                                     await Utils.TrackProgress("pengaduan", async () =>
                                     {
                                         await Task.FromResult(0);
                                     });
 
+                                    //TODO: permohonan
                                     await Utils.TrackProgress("permohonan", async () =>
                                     {
                                         await Task.FromResult(0);
