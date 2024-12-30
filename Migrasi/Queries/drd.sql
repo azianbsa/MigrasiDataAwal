@@ -91,6 +91,7 @@
  rek.tglmulaidenda3 AS tglmulaidenda3,
  rek.tglmulaidenda4 AS tglmulaidenda4,
  rek.tglmulaidendaperbulan AS tglmulaidendaperbulan,
+ NULL AS tglmulaidendaperhari,
  0 AS flaghasbeenpublish,
  0 AS flagdrdsusulan,
  NULL AS waktudrdsusulan,
