@@ -28,7 +28,7 @@
 FROM
  nonair na
  LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
- LEFT JOIN [loket].jenisnonair jns ON jns.jenis = na.jenis
+ LEFT JOIN temp_dataawal_jenisnonair jns ON jns.jenis = na.jenis
  LEFT JOIN rayon ryn ON ryn.koderayon = na.koderayon
  LEFT JOIN golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
  WHERE na.flagangsur = 1 AND na.flaghapus = 1 AND na.termin = 0 AND na.ketjenis NOT LIKE 'Uang_Muka%'

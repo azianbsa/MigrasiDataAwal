@@ -2278,6 +2278,8 @@ namespace Migrasi.Commands
                                                 CHANGE keterangan keterangan VARCHAR (1000) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
                                         });
 
+                                        //TODO: copy jenisnonair ke db v6 dari staging
+
                                         foreach (var periode in listPeriode)
                                         {
                                             ctx.Status($"proses nonair-{periode}|rekening_nonair");
@@ -2809,7 +2811,7 @@ namespace Migrasi.Commands
                                                     });
                                                 }
                                             });
-                                        });
+                                        }, usingStopwatch: true);
 
                                         ctx.Status("proses bind idnonair -> nonair angsuran");
                                         await Utils.TrackProgress("bind idnonair -> nonair angsuran", async () =>
@@ -2822,7 +2824,7 @@ namespace Migrasi.Commands
                                                 SET a.idnonair = b.idnonair
                                                 WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
                                             });
-                                        });
+                                        }, usingStopwatch: true);
 
                                         ctx.Status("proses bind idnonair -> nonair angsuran detail");
                                         await Utils.TrackProgress("bind idnonair -> nonair angsuran detail", async () =>
@@ -2835,7 +2837,7 @@ namespace Migrasi.Commands
                                                 SET a.idnonair = b.idnonair
                                                 WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
                                             });
-                                        });
+                                        }, usingStopwatch: true);
 
                                         ctx.Status("proses bind idangsuran -> nonair angsuran detail");
                                         await Utils.TrackProgress("bind idangsuran -> nonair angsuran detail", async () =>
@@ -2848,7 +2850,7 @@ namespace Migrasi.Commands
                                                 SET a.idangsuran = b.idangsuran
                                                 WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
                                             });
-                                        });
+                                        }, usingStopwatch: true);
 
                                         ctx.Status("proses update jumlah termin|rekening_nonair_angsuran");
                                         await Utils.TrackProgress("update jumlah termin|rekening_nonair_angsuran", async () =>

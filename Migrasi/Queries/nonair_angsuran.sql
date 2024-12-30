@@ -40,6 +40,6 @@ SELECT
 FROM
  nonair na
  LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
- LEFT JOIN [loket].jenisnonair jns ON jns.jenis = na.jenis
+ LEFT JOIN temp_dataawal_jenisnonair jns ON jns.jenis = na.jenis
  LEFT JOIN temp_dataawal_user us ON us.nama = na.kasir
  WHERE na.flagangsur = 1 AND na.flaghapus = 1 AND na.termin = 0 AND na.ketjenis NOT LIKE 'Uang_Muka%'
