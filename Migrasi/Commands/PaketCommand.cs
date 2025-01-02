@@ -2808,10 +2808,10 @@ namespace Migrasi.Commands
                                                         JOIN rekening_nonair_angsuran b ON b.idpdam = a.idpdam AND b.noangsuran = a.nomornonair
                                                         SET a.idangsuran = b.idangsuran
                                                         WHERE a.idpdam = @idpdam AND (a.kodeperiode = @periode OR a.kodeperiode IS NULL)", new { idpdam = settings.IdPdam, periode = periode }, trans);
-                                                    });
+                                                    }, usingStopwatch: true);
                                                 }
                                             });
-                                        }, usingStopwatch: true);
+                                        });
 
                                         ctx.Status("proses bind idnonair -> nonair angsuran");
                                         await Utils.TrackProgress("bind idnonair -> nonair angsuran", async () =>
