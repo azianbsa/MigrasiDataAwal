@@ -63,7 +63,8 @@ namespace Migrasi.Helpers
                     ConflictOption = MySqlBulkLoaderConflictOption.Replace,
                 };
 
-                await bulkCopy.WriteToServerAsync(reader);
+                var result = await bulkCopy.WriteToServerAsync(reader);
+                WriteLogMessage($"RowsInserted ({tableName}): {result.RowsInserted}");
                 await trans.CommitAsync();
             }
             catch (Exception e)
