@@ -2804,10 +2804,20 @@ namespace Migrasi.Commands
                                                     await Utils.TrackProgress($"bind idangsuran -> nonair-{periode}", async () =>
                                                     {
                                                         await conn.ExecuteAsync($@"
-                                                        UPDATE rekening_nonair a
+                                                        DROP TEMPORARY TABLE IF EXISTS temp_mapping;
+
+                                                        CREATE TEMPORARY TABLE temp_mapping AS
+                                                        SELECT a.idnonair,b.idangsuran
+                                                        FROM rekening_nonair a
                                                         JOIN rekening_nonair_angsuran b ON b.idpdam = a.idpdam AND b.noangsuran = a.nomornonair
+                                                        WHERE a.idpdam = @idpdam AND (a.kodeperiode = @periode OR a.kodeperiode IS NULL);
+
+                                                        ALTER TABLE temp_mapping ADD PRIMARY KEY (idnonair);
+
+                                                        UPDATE rekening_nonair a
+                                                        JOIN temp_mapping b ON b.idnonair = a.idnonair
                                                         SET a.idangsuran = b.idangsuran
-                                                        WHERE a.idpdam = @idpdam AND (a.kodeperiode = @periode OR a.kodeperiode IS NULL)", new { idpdam = settings.IdPdam, periode = periode }, trans);
+                                                        WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam, periode = periode }, trans);
                                                     }, usingStopwatch: true);
                                                 }
                                             });
@@ -2820,7 +2830,7 @@ namespace Migrasi.Commands
                                             {
                                                 await conn.ExecuteAsync($@"
                                                 UPDATE rekening_nonair_angsuran a
-                                                JOIN rekening_nonair b ON b.idpdam = a.idpdam AND b.nomornonair = a.noangsuran
+                                                JOIN rekening_nonair b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran
                                                 SET a.idnonair = b.idnonair
                                                 WHERE a.idpdam = {settings.IdPdam}", transaction: trans);
                                             });
@@ -2920,9 +2930,53 @@ namespace Migrasi.Commands
                                     #endregion
 
                                     //TODO: pengaduan
-                                    await Utils.TrackProgress("pengaduan", async () =>
+                                    await Utils.TrackProgress("pengaduan pelanggan air", async () =>
                                     {
-                                        await Task.FromResult(0);
+                                        await Utils.TrackProgress("pengaduan pelanggan air|permohonan_pelanggan_air", async () =>
+                                        {
+                                            IEnumerable<dynamic>? tipe = [];                    
+                                            await Utils.Client(async (conn, trans) =>
+                                            {
+                                                tipe = await conn.QueryAsync(@"
+                                                SELECT a.idtipepermohonan,a.idjenisnonair,b.kodejenisnonair
+                                                FROM master_attribute_tipe_permohonan a
+                                                JOIN master_attribute_jenis_nonair b ON b.idpdam = a.idpdam AND b.idjenisnonair = a.idjenisnonair
+                                                WHERE a.idpdam = @idpdam AND a.flaghapus = 0 AND a.kategori = 'Pengaduan'", new { idpdam = settings.IdPdam }, trans);
+                                            });
+
+                                            await Utils.ClientLoket(async (conn, trans) =>
+                                            {
+                                                if (tipe != null)
+                                                {
+                                                    await conn.ExecuteAsync(@"
+                                                    DROP TABLE IF EXISTS temp_dataawal_tipepermohonan;
+
+                                                    CREATE TABLE temp_dataawal_tipepermohonan (
+                                                    idtipepermohonan INT,
+                                                    idjenisnonair INT,
+                                                    kodejenisnonair VARCHAR(50)
+                                                    )", transaction: trans);
+
+                                                    await conn.ExecuteAsync(@"
+                                                    INSERT INTO temp_dataawal_tipepermohonan
+                                                    VALUES (@idtipepermohonan,@idjenisnonair,@kodejenisnonair)", tipe, trans);
+                                                }
+                                            });
+                                            //next ini
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "permohonan_pelanggan_air",
+                                                queryPath: @"Queries\permohonan_pelanggan_air.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                });
+                                        }, usingStopwatch: true);
                                     });
 
                                     //TODO: permohonan
