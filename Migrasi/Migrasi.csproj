@@ -358,6 +358,15 @@
     <None Update="Queries\bayar.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\pengaduan_pelanggan_ba.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_pelanggan_spk.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_pelanggan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\piutang.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

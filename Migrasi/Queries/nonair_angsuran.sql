@@ -13,7 +13,7 @@ SELECT
  na.id AS idangsuran,
  na.nomor AS noangsuran,
  NULL AS idnonair,
- jns.id AS idjenisnonair,
+ jns.idjenisnonair AS idjenisnonair,
  pel.id AS idpelangganair,
  NULL AS idpelangganlimbah,
  NULL AS idpelangganlltt,
@@ -40,6 +40,6 @@ SELECT
 FROM
  nonair na
  LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
- LEFT JOIN temp_dataawal_jenisnonair jns ON jns.jenis = na.jenis
+ LEFT JOIN temp_dataawal_jenisnonair jns ON jns.kodejenisnonair = na.jenis
  LEFT JOIN temp_dataawal_user us ON us.nama = na.kasir
  WHERE na.flagangsur = 1 AND na.flaghapus = 1 AND na.termin = 0 AND na.ketjenis NOT LIKE 'Uang_Muka%'

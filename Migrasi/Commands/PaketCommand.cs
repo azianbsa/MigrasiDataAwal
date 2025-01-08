@@ -2271,14 +2271,35 @@ namespace Migrasi.Commands
                                             listPeriode = await conn.QueryAsync<int>($@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode", transaction: trans);
                                         });
 
+                                        IEnumerable<dynamic>? jenis = [];
+
                                         await Utils.Client(async (conn, trans) =>
                                         {
                                             await conn.ExecuteAsync(@"
                                             ALTER TABLE rekening_nonair_transaksi
                                                 CHANGE keterangan keterangan VARCHAR (1000) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
+
+                                            jenis = await conn.QueryAsync(@"
+                                            SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0", new { idpdam = settings.IdPdam }, trans);
                                         });
 
-                                        //TODO: copy jenisnonair ke db v6 dari staging
+                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        {
+                                            if (jenis != null)
+                                            {
+                                                await conn.ExecuteAsync(@"
+                                                DROP TABLE IF EXISTS temp_dataawal_jenisnonair;
+
+                                                CREATE TABLE temp_dataawal_jenisnonair (
+                                                idjenisnonair INT,
+                                                kodejenisnonair VARCHAR(50)
+                                                )", transaction: trans);
+
+                                                await conn.ExecuteAsync(@"
+                                                INSERT INTO temp_dataawal_jenisnonair
+                                                VALUES (@idjenisnonair,@kodejenisnonair)", jenis, trans);
+                                            }
+                                        });
 
                                         foreach (var periode in listPeriode)
                                         {
@@ -2929,12 +2950,12 @@ namespace Migrasi.Commands
                                     });
                                     #endregion
 
-                                    //TODO: pengaduan
                                     await Utils.TrackProgress("pengaduan pelanggan air", async () =>
                                     {
                                         await Utils.TrackProgress("pengaduan pelanggan air|permohonan_pelanggan_air", async () =>
                                         {
-                                            IEnumerable<dynamic>? tipe = [];                    
+                                            IEnumerable<dynamic>? tipe = [];
+
                                             await Utils.Client(async (conn, trans) =>
                                             {
                                                 tipe = await conn.QueryAsync(@"
@@ -2962,12 +2983,12 @@ namespace Migrasi.Commands
                                                     VALUES (@idtipepermohonan,@idjenisnonair,@kodejenisnonair)", tipe, trans);
                                                 }
                                             });
-                                            //next ini
+
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "permohonan_pelanggan_air",
-                                                queryPath: @"Queries\permohonan_pelanggan_air.sql",
+                                                queryPath: @"Queries\pengaduan_pelanggan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam },
@@ -2975,6 +2996,32 @@ namespace Migrasi.Commands
                                                 placeholders: new()
                                                 {
                                                     { "[bsbs]", AppSettings.DBNameBilling },
+                                                });
+                                        }, usingStopwatch: true);
+
+                                        await Utils.TrackProgress("pengaduan pelanggan air|permohonan_pelanggan_air_spk", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "permohonan_pelanggan_air_spk",
+                                                queryPath: @"Queries\pengaduan_pelanggan_spk.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                });
+                                        }, usingStopwatch: true);
+
+                                        await Utils.TrackProgress("pengaduan pelanggan air|permohonan_pelanggan_air_ba", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "permohonan_pelanggan_air_ba",
+                                                queryPath: @"Queries\pengaduan_pelanggan_ba.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
                                                 });
                                         }, usingStopwatch: true);
                                     });
