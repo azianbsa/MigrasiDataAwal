@@ -364,13 +364,13 @@
     <None Update="Queries\bayar.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_ba.sql">
+    <None Update="Queries\pengaduan\ba_pengaduan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_spk.sql">
+    <None Update="Queries\pengaduan\spk_pengaduan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan.sql">
+    <None Update="Queries\pengaduan\pengaduan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\piutang.sql">

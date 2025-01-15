@@ -1409,7 +1409,7 @@ namespace Migrasi.Commands
                                                     }
                                                 }
                                             });
-                                            
+
                                             await Utils.ClientBacameter(async (conn, trans) =>
                                             {
                                                 var petugas = await conn.QueryAsync(@"SELECT idpetugas,kodepetugas,nama,aktif FROM petugasbaca", transaction: trans);
@@ -2964,78 +2964,7 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("pengaduan pelanggan air", async () =>
                                     {
-                                        await Utils.TrackProgress("pengaduan pelanggan air|permohonan_pelanggan_air", async () =>
-                                        {
-                                            IEnumerable<dynamic>? tipe = [];
-
-                                            await Utils.Client(async (conn, trans) =>
-                                            {
-                                                tipe = await conn.QueryAsync(@"
-                                                SELECT a.idtipepermohonan,a.idjenisnonair,b.kodejenisnonair
-                                                FROM master_attribute_tipe_permohonan a
-                                                JOIN master_attribute_jenis_nonair b ON b.idpdam = a.idpdam AND b.idjenisnonair = a.idjenisnonair
-                                                WHERE a.idpdam = @idpdam AND a.flaghapus = 0 AND a.kategori = 'Pengaduan'", new { idpdam = settings.IdPdam }, trans);
-                                            });
-
-                                            await Utils.ClientLoket(async (conn, trans) =>
-                                            {
-                                                if (tipe != null)
-                                                {
-                                                    await conn.ExecuteAsync(@"
-                                                    DROP TABLE IF EXISTS temp_dataawal_tipepermohonan;
-
-                                                    CREATE TABLE temp_dataawal_tipepermohonan (
-                                                    idtipepermohonan INT,
-                                                    idjenisnonair INT,
-                                                    kodejenisnonair VARCHAR(50)
-                                                    )", transaction: trans);
-
-                                                    await conn.ExecuteAsync(@"
-                                                    INSERT INTO temp_dataawal_tipepermohonan
-                                                    VALUES (@idtipepermohonan,@idjenisnonair,@kodejenisnonair)", tipe, trans);
-                                                }
-                                            });
-
-                                            await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                tConnectionStr: AppSettings.ConnectionString,
-                                                tableName: "permohonan_pelanggan_air",
-                                                queryPath: @"Queries\pengaduan_pelanggan.sql",
-                                                parameters: new()
-                                                {
-                                                    { "@idpdam", settings.IdPdam },
-                                                },
-                                                placeholders: new()
-                                                {
-                                                    { "[bsbs]", AppSettings.DBNameBilling },
-                                                });
-                                        }, usingStopwatch: true);
-
-                                        await Utils.TrackProgress("pengaduan pelanggan air|permohonan_pelanggan_air_spk", async () =>
-                                        {
-                                            await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                tConnectionStr: AppSettings.ConnectionString,
-                                                tableName: "permohonan_pelanggan_air_spk",
-                                                queryPath: @"Queries\pengaduan_pelanggan_spk.sql",
-                                                parameters: new()
-                                                {
-                                                    { "@idpdam", settings.IdPdam },
-                                                });
-                                        }, usingStopwatch: true);
-
-                                        await Utils.TrackProgress("pengaduan pelanggan air|permohonan_pelanggan_air_ba", async () =>
-                                        {
-                                            await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                tConnectionStr: AppSettings.ConnectionString,
-                                                tableName: "permohonan_pelanggan_air_ba",
-                                                queryPath: @"Queries\pengaduan_pelanggan_ba.sql",
-                                                parameters: new()
-                                                {
-                                                    { "@idpdam", settings.IdPdam },
-                                                });
-                                        }, usingStopwatch: true);
+                                        await Pengaduan(settings);
                                     });
 
                                     await Utils.TrackProgress("balik nama", async () =>
@@ -3123,6 +3052,78 @@ namespace Migrasi.Commands
             await Utils.ClientLoket(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_ba_balik_nama", transaction: trans);
+            });
+        }
+
+        private async Task Pengaduan(Settings settings)
+        {
+            IEnumerable<dynamic>? tipe = [];
+
+            await Utils.Client(async (conn, trans) =>
+            {
+                tipe = await conn.QueryAsync(@"
+                SELECT a.idtipepermohonan,a.idjenisnonair,b.kodejenisnonair
+                FROM master_attribute_tipe_permohonan a
+                JOIN master_attribute_jenis_nonair b ON b.idpdam = a.idpdam AND b.idjenisnonair = a.idjenisnonair
+                WHERE a.idpdam = @idpdam AND a.flaghapus = 0 AND a.kategori = 'Pengaduan'", new { idpdam = settings.IdPdam }, trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                if (tipe != null)
+                {
+                    await conn.ExecuteAsync(@"
+                    DROP TABLE IF EXISTS __temp_tipe_permohonan;
+
+                    CREATE TABLE __temp_tipe_permohonan (
+                    idtipepermohonan INT,
+                    idjenisnonair INT,
+                    kodejenisnonair VARCHAR(50)
+                    )", transaction: trans);
+
+                    await conn.ExecuteAsync(@"
+                    INSERT INTO __temp_tipe_permohonan
+                    VALUES (@idtipepermohonan,@idjenisnonair,@kodejenisnonair)", tipe, trans);
+                }
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\pengaduan\pengaduan.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk",
+                queryPath: @"Queries\pengaduan\spk_pengaduan.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\pengaduan\ba_pengaduan.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_tipe_permohonan", transaction: trans);
             });
         }
     }
