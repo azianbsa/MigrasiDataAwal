@@ -2363,9 +2363,9 @@ namespace Migrasi.Commands
                                     await Utils.TrackProgress("piutang angsuran", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        await Utils.ClientLoket(async (conn, trans) =>
                                         {
-                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
+                                            listPeriode = await conn.QueryAsync<int>(@"SELECT periode FROM piutang WHERE flagangsur=1 GROUP BY periode", transaction: trans);
                                         });
 
                                         foreach (var periode in listPeriode)
@@ -2380,20 +2380,19 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air",
-                                                    queryPath: @"Queries\piutang.sql",
+                                                    queryPath: @"Queries\piutang_angsuran\piutang.sql",
                                                     parameters: new()
                                                     {
                                                         { "@idpdam", settings.IdPdam },
                                                         { "@lastid", lastId },
                                                         { "@periode", periode },
-                                                        { "@flagangsur", 1 },
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[table]", "piutang" },
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2401,19 +2400,18 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_detail",
-                                                    queryPath: @"Queries\piutang_detail.sql",
+                                                    queryPath: @"Queries\piutang_angsuran\piutang_detail.sql",
                                                     parameters: new()
                                                     {
                                                         { "@idpdam", settings.IdPdam },
                                                         { "@periode", periode },
-                                                        { "@flagangsur", 1 },
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[table]", "piutang" },
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2429,40 +2427,54 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_angsuran",
-                                                    queryPath: @"Queries\piutang_angsuran.sql",
+                                                    queryPath: @"Queries\piutang_angsuran\piutang_angsuran.sql",
                                                     parameters: new()
                                                     {
                                                         { "@idpdam", settings.IdPdam },
                                                         { "@lastid", lastIdAngsuran },
                                                         { "@jnsnonair", jnsNonair },
                                                         { "@periode", periode },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air_angsuran_detail");
-                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_angsuran_detail", async () =>
-                                            {
-                                                var lastIdAngsuranDetail = 0;
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
-                                                });
-
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_angsuran_detail",
-                                                    queryPath: @"Queries\piutang_angsuran_detail.sql",
-                                                    parameters: new()
+                                                    },
+                                                    placeholders: new()
                                                     {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastIdAngsuranDetail },
-                                                        { "@periode", periode },
+                                                        { "[bsbs]", AppSettings.DBNameBilling },
                                                     });
                                             }, usingStopwatch: true);
+
+                                            IEnumerable<string>? listNosamb = [];
+                                            await Utils.ClientLoket(async (conn, trans) =>
+                                            {
+                                                listNosamb = await conn.QueryAsync<string>(@"SELECT nosamb FROM piutang WHERE flagangsur=1 AND periode=@periode", new { periode }, transaction: trans);
+                                            });
+
+                                            foreach (var nosamb in listNosamb)
+                                            {
+                                                ctx.Status($"proses piutang angsuran-{periode}.{nosamb}|rekening_air_angsuran_detail");
+                                                await Utils.TrackProgress($"piutang angsuran-{periode}.{nosamb}|rekening_air_angsuran_detail", async () =>
+                                                {
+                                                    var lastIdAngsuranDetail = 0;
+                                                    await Utils.Client(async (conn, trans) =>
+                                                    {
+                                                        lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
+                                                    });
+
+                                                    await Utils.BulkCopy(
+                                                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                        tConnectionStr: AppSettings.ConnectionString,
+                                                        tableName: "rekening_air_angsuran_detail",
+                                                        queryPath: @"Queries\piutang_angsuran\piutang_angsuran_detail.sql",
+                                                        parameters: new()
+                                                        {
+                                                            { "@idpdam", settings.IdPdam },
+                                                            { "@lastid", lastIdAngsuranDetail },
+                                                            { "@periode", periode },
+                                                            { "@nosamb", nosamb },
+                                                        });
+                                                }, usingStopwatch: true);
+                                            }
                                         }
                                     });
 
@@ -3026,10 +3038,9 @@ namespace Migrasi.Commands
                                         }, usingStopwatch: true);
                                     });
 
-                                    //TODO: permohonan
-                                    await Utils.TrackProgress("permohonan", async () =>
+                                    await Utils.TrackProgress("balik nama", async () =>
                                     {
-                                        await Task.FromResult(0);
+                                        await BalikNama(settings);
                                     });
                                 });
 
@@ -3058,6 +3069,61 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task BalikNama(Settings settings)
+        {
+            var lastId = 0;
+            var idBalikNama = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                idBalikNama = await conn.QueryFirstOrDefaultAsync<int>(@"", transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\balik_nama\balik_nama.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", idBalikNama },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync($@"
+                CREATE TABLE __temp_ba_balik_nama AS
+                SELECT
+                @id := @id+1 AS id,
+                bn.nomor
+                FROM permohonan_balik_nama bn
+                JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = bn.nosamb
+                ,(SELECT @id := @lastid) AS id
+                WHERE bn.flaghapus = 0", new { lastid = lastId }, trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\balik_nama\ba_balik_nama.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_ba_balik_nama", transaction: trans);
+            });
         }
     }
 }
