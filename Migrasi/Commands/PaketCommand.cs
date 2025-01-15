@@ -3078,7 +3078,7 @@ namespace Migrasi.Commands
             await Utils.Client(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-                idBalikNama = await conn.QueryFirstOrDefaultAsync<int>(@"", transaction: trans);
+                idBalikNama = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BALIK_NAMA'", transaction: trans);
             });
 
             await Utils.BulkCopy(
