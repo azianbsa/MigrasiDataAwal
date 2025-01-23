@@ -68,7 +68,7 @@ namespace Migrasi.Commands
                                                 new { schema = AppSettings.DBNameBilling }, trans);
                                             if (cek is null)
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\tambah_field_id_tabel_pelanggan.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\tambah_field_id_tabel_pelanggan.sql");
                                                 await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                             }
                                         });
@@ -76,7 +76,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek golongan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -84,7 +84,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek diameter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -92,14 +92,14 @@ namespace Migrasi.Commands
                                         ctx.Status("cek merek meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_merek_meter.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_merek_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
                                         ctx.Status("cek kelurahan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -107,7 +107,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek kolektif");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -115,21 +115,21 @@ namespace Migrasi.Commands
                                         ctx.Status("cek sumber air");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_sumber_air.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_sumber_air.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
                                         ctx.Status("cek kondisi meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kondisi_meter.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kondisi_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
                                         ctx.Status("cek administrasi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -137,7 +137,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek pemeliharaan lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -145,7 +145,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek retribusi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -157,7 +157,7 @@ namespace Migrasi.Commands
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
-                                            queryPath: @"Queries\master_attribute_flag.sql",
+                                            queryPath: @"Queries\master\master_attribute_flag.sql",
                                             tableName: "master_attribute_flag",
                                             parameters: new()
                                             {
@@ -169,7 +169,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_status",
-                                            queryPath: @"Queries\master_attribute_status.sql",
+                                            queryPath: @"Queries\master\master_attribute_status.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -180,7 +180,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_jenis_bangunan",
-                                            queryPath: @"Queries\master_attribute_jenis_bangunan.sql",
+                                            queryPath: @"Queries\master\master_attribute_jenis_bangunan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -191,7 +191,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kepemilikan",
-                                            queryPath: @"Queries\master_attribute_kepemilikan.sql",
+                                            queryPath: @"Queries\master\master_attribute_kepemilikan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -202,7 +202,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_pekerjaan",
-                                            queryPath: @"Queries\master_attribute_pekerjaan.sql",
+                                            queryPath: @"Queries\master\master_attribute_pekerjaan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -213,7 +213,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_peruntukan",
-                                            queryPath: @"Queries\master_attribute_peruntukan.sql",
+                                            queryPath: @"Queries\master\master_attribute_peruntukan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -224,7 +224,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_jenis_pipa",
-                                            queryPath: @"Queries\master_attribute_jenis_pipa.sql",
+                                            queryPath: @"Queries\master\master_attribute_jenis_pipa.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -235,7 +235,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kwh",
-                                            queryPath: @"Queries\master_attribute_kwh.sql",
+                                            queryPath: @"Queries\master\master_attribute_kwh.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -246,7 +246,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_golongan",
-                                            queryPath: @"Queries\master_tarif_golongan.sql",
+                                            queryPath: @"Queries\master\master_tarif_golongan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -255,7 +255,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_golongan_detail",
-                                            queryPath: @"Queries\master_tarif_golongan_detail.sql",
+                                            queryPath: @"Queries\master\master_tarif_golongan_detail.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -266,7 +266,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_diameter",
-                                            queryPath: @"Queries\master_tarif_diameter.sql",
+                                            queryPath: @"Queries\master\master_tarif_diameter.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -275,7 +275,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_diameter_detail",
-                                            queryPath: @"Queries\master_tarif_diameter_detail.sql",
+                                            queryPath: @"Queries\master\master_tarif_diameter_detail.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -286,7 +286,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_wilayah",
-                                            queryPath: @"Queries\master_attribute_wilayah.sql",
+                                            queryPath: @"Queries\master\master_attribute_wilayah.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -297,7 +297,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_area",
-                                            queryPath: @"Queries\master_attribute_area.sql",
+                                            queryPath: @"Queries\master\master_attribute_area.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -308,7 +308,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_rayon",
-                                            queryPath: @"Queries\master_attribute_rayon.sql",
+                                            queryPath: @"Queries\master\master_attribute_rayon.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -319,7 +319,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_blok",
-                                            queryPath: @"Queries\master_attribute_blok.sql",
+                                            queryPath: @"Queries\master\master_attribute_blok.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -330,7 +330,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_cabang",
-                                            queryPath: @"Queries\master_attribute_cabang.sql",
+                                            queryPath: @"Queries\master\master_attribute_cabang.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -341,7 +341,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kecamatan",
-                                            queryPath: @"Queries\master_attribute_kecamatan.sql",
+                                            queryPath: @"Queries\master\master_attribute_kecamatan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -352,7 +352,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kelurahan",
-                                            queryPath: @"Queries\master_attribute_kelurahan.sql",
+                                            queryPath: @"Queries\master\master_attribute_kelurahan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -363,7 +363,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_dma",
-                                            queryPath: @"Queries\master_attribute_dma.sql",
+                                            queryPath: @"Queries\master\master_attribute_dma.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -374,7 +374,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_dmz",
-                                            queryPath: @"Queries\master_attribute_dmz.sql",
+                                            queryPath: @"Queries\master\master_attribute_dmz.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -385,7 +385,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_administrasi_lain",
-                                            queryPath: @"Queries\master_tarif_administrasi_lain.sql",
+                                            queryPath: @"Queries\master\master_tarif_administrasi_lain.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -396,7 +396,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_pemeliharaan_lain",
-                                            queryPath: @"Queries\master_tarif_pemeliharaan_lain.sql",
+                                            queryPath: @"Queries\master\master_tarif_pemeliharaan_lain.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -407,7 +407,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_retribusi_lain",
-                                            queryPath: @"Queries\master_tarif_retribusi_lain.sql",
+                                            queryPath: @"Queries\master\master_tarif_retribusi_lain.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -418,7 +418,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kolektif",
-                                            queryPath: @"Queries\master_attribute_kolektif.sql",
+                                            queryPath: @"Queries\master\master_attribute_kolektif.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -429,7 +429,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_sumber_air",
-                                            queryPath: @"Queries\master_attribute_sumber_air.sql",
+                                            queryPath: @"Queries\master\master_attribute_sumber_air.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -440,7 +440,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_merek_meter",
-                                            queryPath: @"Queries\master_attribute_merek_meter.sql",
+                                            queryPath: @"Queries\master\master_attribute_merek_meter.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -451,7 +451,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kondisi_meter",
-                                            queryPath: @"Queries\master_attribute_kondisi_meter.sql",
+                                            queryPath: @"Queries\master\master_attribute_kondisi_meter.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -507,7 +507,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBacameter,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kelainan",
-                                            queryPath: @"Queries\master_attribute_kelainan.sql",
+                                            queryPath: @"Queries\master\master_attribute_kelainan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -558,7 +558,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_petugas_baca",
-                                            queryPath: @"Queries\master_attribute_petugas_baca.sql",
+                                            queryPath: @"Queries\master\master_attribute_petugas_baca.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -569,7 +569,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_periode",
-                                            queryPath: @"Queries\master_periode.sql",
+                                            queryPath: @"Queries\master\master_periode.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -578,7 +578,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBilling,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_periode_billing",
-                                            queryPath: @"Queries\master_periode_billing.sql",
+                                            queryPath: @"Queries\master\master_periode_billing.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -682,7 +682,7 @@ namespace Migrasi.Commands
                                             ctx.Status("cek golongan");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
                                                 query = query.Replace("[table]", $"drd{i}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
@@ -690,7 +690,7 @@ namespace Migrasi.Commands
                                             ctx.Status("cek diameter");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
                                                 query = query.Replace("[table]", $"drd{i}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
@@ -698,7 +698,7 @@ namespace Migrasi.Commands
                                             ctx.Status("cek kelurahan");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
                                                 query = query.Replace("[table]", $"drd{i}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
@@ -706,7 +706,7 @@ namespace Migrasi.Commands
                                             ctx.Status("cek kolektif");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
                                                 query = query.Replace("[table]", $"drd{i}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
@@ -714,7 +714,7 @@ namespace Migrasi.Commands
                                             ctx.Status("cek administrasi lain");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
                                                 query = query.Replace("[table]", $"drd{i}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
@@ -722,7 +722,7 @@ namespace Migrasi.Commands
                                             ctx.Status("cek pemeliharaan lain");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
                                                 query = query.Replace("[table]", $"drd{i}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
@@ -730,7 +730,7 @@ namespace Migrasi.Commands
                                             ctx.Status("cek retribusi lain");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
                                                 query = query.Replace("[table]", $"drd{i}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
@@ -825,7 +825,7 @@ namespace Migrasi.Commands
                                                 new { schema = AppSettings.DBNameBilling }, trans);
                                             if (cek is null)
                                             {
-                                                var query = await File.ReadAllTextAsync(@"Queries\Patches\tambah_field_id_tabel_pelanggan.sql");
+                                                var query = await File.ReadAllTextAsync(@"Queries\patches\tambah_field_id_tabel_pelanggan.sql");
                                                 await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                             }
                                         });
@@ -833,7 +833,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek golongan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -841,7 +841,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek diameter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -849,14 +849,14 @@ namespace Migrasi.Commands
                                         ctx.Status("cek merek meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_merek_meter.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_merek_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
                                         ctx.Status("cek kelurahan");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -864,7 +864,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek kolektif");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -872,21 +872,21 @@ namespace Migrasi.Commands
                                         ctx.Status("cek sumber air");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_sumber_air.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_sumber_air.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
                                         ctx.Status("cek kondisi meter");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kondisi_meter.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kondisi_meter.sql");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
 
                                         ctx.Status("cek administrasi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -894,7 +894,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek pemeliharaan lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -902,7 +902,7 @@ namespace Migrasi.Commands
                                         ctx.Status("cek retribusi lain");
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
-                                            var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
+                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
                                             query = query.Replace("[table]", "pelanggan");
                                             await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
                                         });
@@ -916,7 +916,7 @@ namespace Migrasi.Commands
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
-                                                queryPath: @"Queries\master_attribute_flag.sql",
+                                                queryPath: @"Queries\master\master_attribute_flag.sql",
                                                 tableName: "master_attribute_flag",
                                                 parameters: new()
                                                 {
@@ -931,7 +931,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_status",
-                                                queryPath: @"Queries\master_attribute_status.sql",
+                                                queryPath: @"Queries\master\master_attribute_status.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -945,7 +945,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_jenis_bangunan",
-                                                queryPath: @"Queries\master_attribute_jenis_bangunan.sql",
+                                                queryPath: @"Queries\master\master_attribute_jenis_bangunan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -959,7 +959,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kepemilikan",
-                                                queryPath: @"Queries\master_attribute_kepemilikan.sql",
+                                                queryPath: @"Queries\master\master_attribute_kepemilikan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -973,7 +973,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_pekerjaan",
-                                                queryPath: @"Queries\master_attribute_pekerjaan.sql",
+                                                queryPath: @"Queries\master\master_attribute_pekerjaan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -987,7 +987,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_peruntukan",
-                                                queryPath: @"Queries\master_attribute_peruntukan.sql",
+                                                queryPath: @"Queries\master\master_attribute_peruntukan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1001,7 +1001,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_jenis_pipa",
-                                                queryPath: @"Queries\master_attribute_jenis_pipa.sql",
+                                                queryPath: @"Queries\master\master_attribute_jenis_pipa.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1015,7 +1015,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kwh",
-                                                queryPath: @"Queries\master_attribute_kwh.sql",
+                                                queryPath: @"Queries\master\master_attribute_kwh.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1029,7 +1029,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_golongan",
-                                                queryPath: @"Queries\master_tarif_golongan.sql",
+                                                queryPath: @"Queries\master\master_tarif_golongan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1043,7 +1043,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_golongan_detail",
-                                                queryPath: @"Queries\master_tarif_golongan_detail.sql",
+                                                queryPath: @"Queries\master\master_tarif_golongan_detail.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1057,7 +1057,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_diameter",
-                                                queryPath: @"Queries\master_tarif_diameter.sql",
+                                                queryPath: @"Queries\master\master_tarif_diameter.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1071,7 +1071,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_diameter_detail",
-                                                queryPath: @"Queries\master_tarif_diameter_detail.sql",
+                                                queryPath: @"Queries\master\master_tarif_diameter_detail.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1085,7 +1085,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_wilayah",
-                                                queryPath: @"Queries\master_attribute_wilayah.sql",
+                                                queryPath: @"Queries\master\master_attribute_wilayah.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1099,7 +1099,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_area",
-                                                queryPath: @"Queries\master_attribute_area.sql",
+                                                queryPath: @"Queries\master\master_attribute_area.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1113,7 +1113,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_rayon",
-                                                queryPath: @"Queries\master_attribute_rayon.sql",
+                                                queryPath: @"Queries\master\master_attribute_rayon.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1127,7 +1127,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_blok",
-                                                queryPath: @"Queries\master_attribute_blok.sql",
+                                                queryPath: @"Queries\master\master_attribute_blok.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1141,7 +1141,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_cabang",
-                                                queryPath: @"Queries\master_attribute_cabang.sql",
+                                                queryPath: @"Queries\master\master_attribute_cabang.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1155,7 +1155,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kecamatan",
-                                                queryPath: @"Queries\master_attribute_kecamatan.sql",
+                                                queryPath: @"Queries\master\master_attribute_kecamatan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1169,7 +1169,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kelurahan",
-                                                queryPath: @"Queries\master_attribute_kelurahan.sql",
+                                                queryPath: @"Queries\master\master_attribute_kelurahan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1183,7 +1183,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_dma",
-                                                queryPath: @"Queries\master_attribute_dma.sql",
+                                                queryPath: @"Queries\master\master_attribute_dma.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1197,7 +1197,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_dmz",
-                                                queryPath: @"Queries\master_attribute_dmz.sql",
+                                                queryPath: @"Queries\master\master_attribute_dmz.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1211,7 +1211,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_administrasi_lain",
-                                                queryPath: @"Queries\master_tarif_administrasi_lain.sql",
+                                                queryPath: @"Queries\master\master_tarif_administrasi_lain.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1225,7 +1225,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_pemeliharaan_lain",
-                                                queryPath: @"Queries\master_tarif_pemeliharaan_lain.sql",
+                                                queryPath: @"Queries\master\master_tarif_pemeliharaan_lain.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1239,7 +1239,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_retribusi_lain",
-                                                queryPath: @"Queries\master_tarif_retribusi_lain.sql",
+                                                queryPath: @"Queries\master\master_tarif_retribusi_lain.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1260,7 +1260,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kolektif",
-                                                queryPath: @"Queries\master_attribute_kolektif.sql",
+                                                queryPath: @"Queries\master\master_attribute_kolektif.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1274,7 +1274,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_sumber_air",
-                                                queryPath: @"Queries\master_attribute_sumber_air.sql",
+                                                queryPath: @"Queries\master\master_attribute_sumber_air.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1288,7 +1288,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_merek_meter",
-                                                queryPath: @"Queries\master_attribute_merek_meter.sql",
+                                                queryPath: @"Queries\master\master_attribute_merek_meter.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1309,7 +1309,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kondisi_meter",
-                                                queryPath: @"Queries\master_attribute_kondisi_meter.sql",
+                                                queryPath: @"Queries\master\master_attribute_kondisi_meter.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1371,7 +1371,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kelainan",
-                                                queryPath: @"Queries\master_attribute_kelainan.sql",
+                                                queryPath: @"Queries\master\master_attribute_kelainan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1428,7 +1428,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_petugas_baca",
-                                                queryPath: @"Queries\master_attribute_petugas_baca.sql",
+                                                queryPath: @"Queries\master\master_attribute_petugas_baca.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1442,7 +1442,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_periode",
-                                                queryPath: @"Queries\master_periode.sql",
+                                                queryPath: @"Queries\master\master_periode.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1456,7 +1456,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_periode_billing",
-                                                queryPath: @"Queries\master_periode_billing.sql",
+                                                queryPath: @"Queries\master\master_periode_billing.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1527,7 +1527,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_loket",
-                                                queryPath: @"Queries\master_attribute_loket.sql",
+                                                queryPath: @"Queries\master\master_attribute_loket.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1541,7 +1541,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_user",
-                                                queryPath: @"Queries\master_user.sql",
+                                                queryPath: @"Queries\master\master_user.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1555,7 +1555,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_query_global",
-                                                queryPath: @"Queries\Master\master_query_global.sql");
+                                                queryPath: @"Queries\master\master_query_global.sql");
                                         });
 
                                         ctx.Status("proses config list data|master_attribute_tipe_permohonan_config_list_data");
@@ -1565,7 +1565,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_tipe_permohonan_config_list_data",
-                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_config_list_data.sql");
+                                                queryPath: @"Queries\master\master_attribute_tipe_permohonan_config_list_data.sql");
                                         });
 
                                         ctx.Status("proses tipe pendaftaran sambungan|master_attribute_tipe_pendaftaran_sambungan");
@@ -1575,7 +1575,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_tipe_pendaftaran_sambungan",
-                                                queryPath: @"Queries\Master\master_attribute_tipe_pendaftaran_sambungan.sql",
+                                                queryPath: @"Queries\master\master_attribute_tipe_pendaftaran_sambungan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1589,7 +1589,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_sumber_pengaduan",
-                                                queryPath: @"Queries\Master\master_attribute_sumber_pengaduan.sql",
+                                                queryPath: @"Queries\master\master_attribute_sumber_pengaduan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1606,7 +1606,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_jenis_nonair",
-                                                queryPath: @"Queries\Master\master_attribute_jenis_nonair.sql",
+                                                queryPath: @"Queries\master\jenis_nonair\master_attribute_jenis_nonair.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1620,7 +1620,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_jenis_nonair_detail",
-                                                queryPath: @"Queries\Master\master_attribute_jenis_nonair_detail.sql",
+                                                queryPath: @"Queries\master\jenis_nonair\master_attribute_jenis_nonair_detail.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1637,7 +1637,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_tipe_permohonan",
-                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan.sql",
+                                                queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1651,7 +1651,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_tipe_permohonan_detail",
-                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail.sql",
+                                                queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1665,7 +1665,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_tipe_permohonan_detail_ba",
-                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail_ba.sql",
+                                                queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_ba.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1679,7 +1679,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_tipe_permohonan_detail_spk",
-                                                queryPath: @"Queries\Master\master_attribute_tipe_permohonan_detail_spk.sql",
+                                                queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_spk.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1696,7 +1696,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_material",
-                                                queryPath: @"Queries\Master\master_attribute_material.sql",
+                                                queryPath: @"Queries\master\paket_material\master_attribute_material.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1710,7 +1710,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_material_paket",
-                                                queryPath: @"Queries\Master\master_attribute_material_paket.sql",
+                                                queryPath: @"Queries\master\paket_material\master_attribute_material_paket.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1724,7 +1724,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_material_paket_detail",
-                                                queryPath: @"Queries\Master\master_attribute_material_paket_detail.sql",
+                                                queryPath: @"Queries\master\paket_material\master_attribute_material_paket_detail.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1741,7 +1741,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_ongkos",
-                                                queryPath: @"Queries\Master\master_attribute_ongkos.sql",
+                                                queryPath: @"Queries\master\paket_ongkos\master_attribute_ongkos.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1755,7 +1755,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_ongkos_paket",
-                                                queryPath: @"Queries\Master\master_attribute_ongkos_paket.sql",
+                                                queryPath: @"Queries\master\paket_ongkos\master_attribute_ongkos_paket.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1769,7 +1769,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_ongkos_paket_detail",
-                                                queryPath: @"Queries\Master\master_attribute_ongkos_paket_detail.sql",
+                                                queryPath: @"Queries\master\paket_ongkos\master_attribute_ongkos_paket_detail.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1786,7 +1786,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringLoket,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_paket",
-                                                queryPath: @"Queries\Master\master_attribute_paket.sql",
+                                                queryPath: @"Queries\master\master_attribute_paket.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1807,7 +1807,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_label_report",
-                                                queryPath: @"Queries\Master\master_attribute_label_report.sql",
+                                                queryPath: @"Queries\master\report\master_attribute_label_report.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1821,7 +1821,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_report_maingroup",
-                                                queryPath: @"Queries\Master\master_report_maingroup.sql",
+                                                queryPath: @"Queries\master\report\master_report_maingroup.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1835,7 +1835,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_report_subgroup",
-                                                queryPath: @"Queries\Master\master_report_subgroup.sql");
+                                                queryPath: @"Queries\master\report\master_report_subgroup.sql");
                                         });
 
                                         ctx.Status("proses report api|report_api");
@@ -1845,7 +1845,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_api",
-                                                queryPath: @"Queries\Master\report_api.sql");
+                                                queryPath: @"Queries\master\report\report_api.sql");
                                         });
 
                                         ctx.Status("proses report model|report_models");
@@ -1855,7 +1855,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_models",
-                                                queryPath: @"Queries\Master\report_models.sql",
+                                                queryPath: @"Queries\master\report\report_models.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1869,7 +1869,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_model_sources",
-                                                queryPath: @"Queries\Master\report_model_sources.sql",
+                                                queryPath: @"Queries\master\report\report_model_sources.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1883,7 +1883,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_model_sorts",
-                                                queryPath: @"Queries\Master\report_model_sorts.sql",
+                                                queryPath: @"Queries\master\report\report_model_sorts.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1897,7 +1897,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_model_props",
-                                                queryPath: @"Queries\Master\report_model_props.sql",
+                                                queryPath: @"Queries\master\report\report_model_props.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1911,7 +1911,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_model_params",
-                                                queryPath: @"Queries\Master\report_model_params.sql",
+                                                queryPath: @"Queries\master\report\report_model_params.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
@@ -1925,7 +1925,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_filter_custom",
-                                                queryPath: @"Queries\Master\report_filter_custom.sql");
+                                                queryPath: @"Queries\master\report\report_filter_custom.sql");
                                         });
 
                                         ctx.Status("proses report filter custom detail|report_filter_custom_detail");
@@ -1935,7 +1935,7 @@ namespace Migrasi.Commands
                                                 sConnectionStr: AppSettings.ConnectionStringStaging,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "report_filter_custom_detail",
-                                                queryPath: @"Queries\Master\report_filter_custom_detail.sql");
+                                                queryPath: @"Queries\master\report\report_filter_custom_detail.sql");
                                         });
                                     });
 
@@ -1996,67 +1996,6 @@ namespace Migrasi.Commands
                                     #region piutang, bayar & nonair non angsuran
                                     await Utils.TrackProgress("piutang", async () =>
                                     {
-                                        await Utils.TrackProgress("cleanup data piutang", async () =>
-                                        {
-                                            //ctx.Status("cek golongan");
-                                            //await Utils.ClientLoket(async (conn, trans) =>
-                                            //{
-                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                            //    query = query.Replace("[table]", $"piutang");
-                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            //});
-
-                                            //ctx.Status("cek diameter");
-                                            //await Utils.ClientLoket(async (conn, trans) =>
-                                            //{
-                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                            //    query = query.Replace("[table]", $"piutang");
-                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            //});
-
-                                            //ctx.Status("cek kelurahan");
-                                            //await Utils.ClientLoket(async (conn, trans) =>
-                                            //{
-                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                            //    query = query.Replace("[table]", $"piutang");
-                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            //});
-
-                                            //ctx.Status("cek kolektif");
-                                            //await Utils.ClientLoket(async (conn, trans) =>
-                                            //{
-                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                            //    query = query.Replace("[table]", $"piutang");
-                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            //});
-
-                                            //ctx.Status("cek administrasi lain");
-                                            //await Utils.ClientLoket(async (conn, trans) =>
-                                            //{
-                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                            //    query = query.Replace("[table]", $"piutang");
-                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            //});
-
-                                            //ctx.Status("cek pemeliharaan lain");
-                                            //await Utils.ClientLoket(async (conn, trans) =>
-                                            //{
-                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                            //    query = query.Replace("[table]", $"piutang");
-                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            //});
-
-                                            //ctx.Status("cek retribusi lain");
-                                            //await Utils.ClientLoket(async (conn, trans) =>
-                                            //{
-                                            //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                            //    query = query.Replace("[table]", $"piutang");
-                                            //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                            //});
-
-                                            await Task.FromResult(0);
-                                        });
-
                                         IEnumerable<int>? listPeriode = [];
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
@@ -2126,67 +2065,6 @@ namespace Migrasi.Commands
 
                                         foreach (var tahun in bayarTahun)
                                         {
-                                            await Utils.TrackProgress($"cleanup data bayar{tahun}", async () =>
-                                            {
-                                                //ctx.Status($"Cek golongan");
-                                                //await Utils.ClientBilling(async (conn, trans) =>
-                                                //{
-                                                //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_golongan.sql");
-                                                //    query = query.Replace("[table]", $"bayar{tahun}");
-                                                //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                //});
-
-                                                //ctx.Status($"Cek diameter");
-                                                //await Utils.ClientBilling(async (conn, trans) =>
-                                                //{
-                                                //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_diameter.sql");
-                                                //    query = query.Replace("[table]", $"bayar{tahun}");
-                                                //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                //});
-
-                                                //ctx.Status($"Cek kelurahan");
-                                                //await Utils.ClientBilling(async (conn, trans) =>
-                                                //{
-                                                //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kelurahan.sql");
-                                                //    query = query.Replace("[table]", $"bayar{tahun}");
-                                                //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                //});
-
-                                                //ctx.Status($"Cek kolektif");
-                                                //await Utils.ClientBilling(async (conn, trans) =>
-                                                //{
-                                                //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_kolektif.sql");
-                                                //    query = query.Replace("[table]", $"bayar{tahun}");
-                                                //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                //});
-
-                                                //ctx.Status($"Cek administrasi lain");
-                                                //await Utils.ClientBilling(async (conn, trans) =>
-                                                //{
-                                                //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_adm_lain.sql");
-                                                //    query = query.Replace("[table]", $"bayar{tahun}");
-                                                //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                //});
-
-                                                //ctx.Status($"Cek pemeliharaan lain");
-                                                //await Utils.ClientBilling(async (conn, trans) =>
-                                                //{
-                                                //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_pem_lain.sql");
-                                                //    query = query.Replace("[table]", $"bayar{tahun}");
-                                                //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                //});
-
-                                                //ctx.Status($"Cek retribusi lain");
-                                                //await Utils.ClientBilling(async (conn, trans) =>
-                                                //{
-                                                //    var query = await File.ReadAllTextAsync(@"Queries\Patches\data_cleanup_ret_lain.sql");
-                                                //    query = query.Replace("[table]", $"bayar{tahun}");
-                                                //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                                //});
-
-                                                await Task.FromResult(0);
-                                            });
-
                                             IEnumerable<int>? listPeriode = [];
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
@@ -2359,8 +2237,7 @@ namespace Migrasi.Commands
                                     });
                                     #endregion
 
-                                    #region piutang, bayar & nonair angsuran
-                                    await Utils.TrackProgress("piutang angsuran", async () =>
+                                    await Utils.TrackProgress("angsuran air", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
                                         await Utils.ClientLoket(async (conn, trans) =>
@@ -2368,344 +2245,150 @@ namespace Migrasi.Commands
                                             listPeriode = await conn.QueryAsync<int>(@"SELECT periode FROM piutang WHERE flagangsur=1 GROUP BY periode", transaction: trans);
                                         });
 
-                                        foreach (var periode in listPeriode)
+                                        await Utils.ClientLoket(async (conn, trans) =>
                                         {
-                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air");
-                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air", async () =>
-                                            {
-                                                var lastId = 0;
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                                });
+                                            await conn.ExecuteAsync(
+                                                sql: @"
+                                                DROP TABLE IF EXISTS __tmp_angsuranair;
 
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air",
-                                                    queryPath: @"Queries\piutang_angsuran\piutang.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastId },
-                                                        { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air_detail");
-                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_detail", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_detail",
-                                                    queryPath: @"Queries\piutang_angsuran\piutang_detail.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            ctx.Status($"proses piutang angsuran-{periode}|rekening_air_angsuran");
-                                            await Utils.TrackProgress($"piutang angsuran-{periode}|rekening_air_angsuran", async () =>
-                                            {
-                                                var lastIdAngsuran = 0;
-                                                var jnsNonair = 0;
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
-                                                    jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
-                                                });
-
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_angsuran",
-                                                    queryPath: @"Queries\piutang_angsuran\piutang_angsuran.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastIdAngsuran },
-                                                        { "@jnsnonair", jnsNonair },
-                                                        { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[bsbs]", AppSettings.DBNameBilling },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            IEnumerable<string>? listNosamb = [];
-                                            await Utils.ClientLoket(async (conn, trans) =>
-                                            {
-                                                listNosamb = await conn.QueryAsync<string>(@"SELECT nosamb FROM piutang WHERE flagangsur=1 AND periode=@periode", new { periode }, transaction: trans);
-                                            });
-
-                                            foreach (var nosamb in listNosamb)
-                                            {
-                                                ctx.Status($"proses piutang angsuran-{periode}.{nosamb}|rekening_air_angsuran_detail");
-                                                await Utils.TrackProgress($"piutang angsuran-{periode}.{nosamb}|rekening_air_angsuran_detail", async () =>
-                                                {
-                                                    var lastIdAngsuranDetail = 0;
-                                                    await Utils.Client(async (conn, trans) =>
-                                                    {
-                                                        lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
-                                                    });
-
-                                                    await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                        tConnectionStr: AppSettings.ConnectionString,
-                                                        tableName: "rekening_air_angsuran_detail",
-                                                        queryPath: @"Queries\piutang_angsuran\piutang_angsuran_detail.sql",
-                                                        parameters: new()
-                                                        {
-                                                            { "@idpdam", settings.IdPdam },
-                                                            { "@lastid", lastIdAngsuranDetail },
-                                                            { "@periode", periode },
-                                                            { "@nosamb", nosamb },
-                                                        });
-                                                }, usingStopwatch: true);
-                                            }
-                                        }
-                                    });
-
-                                    await Utils.TrackProgress("angsur lunas", async () =>
-                                    {
-                                        IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientBilling(async (conn, trans) =>
-                                        {
-                                            listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM piutang_angsurlunas WHERE periode IS NOT NULL AND periode <> '' GROUP BY periode", transaction: trans);
+                                                CREATE TABLE __tmp_angsuranair AS
+                                                SELECT b.id AS idangsuran,b.noangsuran,CONCAT(a.periode,'.',a.nomor)kode,b.flaglunas
+                                                FROM detailangsuran a
+                                                JOIN daftarangsuran b ON b.noangsuran=a.noangsuran
+                                                WHERE b.keperluan='JNS-36'
+                                                GROUP BY a.periode,a.nomor ORDER BY a.nomor,a.periode",
+                                                transaction: trans);
                                         });
 
-                                        await Utils.Client(async (conn, trans) =>
+                                        await Utils.TrackProgress($"angsuran air piutang|rekening_air", async () =>
                                         {
-                                            await conn.ExecuteAsync(@"
-                                            ALTER TABLE rekening_air_angsuran
-                                                CHANGE alamat alamat VARCHAR (250) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
-                                        });
-
-                                        foreach (var periode in listPeriode)
-                                        {
-                                            ctx.Status($"proses angsur lunas-{periode}|rekening_air");
-                                            await Utils.TrackProgress($"angsur lunas-{periode}|rekening_air", async () =>
+                                            var lastId = 0;
+                                            await Utils.Client(async (conn, trans) =>
                                             {
-                                                var lastId = 0;
-                                                await Utils.Client(async (conn, trans) =>
+                                                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                            });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air",
+                                                queryPath: @"Queries\angsuran_air\piutang_rekening_air.sql",
+                                                parameters: new()
                                                 {
-                                                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@lastid", lastId },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
                                                 });
+                                        }, usingStopwatch: true);
 
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air",
-                                                    queryPath: @"Queries\piutang.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastId },
-                                                        { "@periode", periode },
-                                                        { "@flagangsur", 1 },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "piutang_angsurlunas" },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            ctx.Status($"proses angsur lunas-{periode}|rekening_air_detail");
-                                            await Utils.TrackProgress($"angsur lunas-{periode}|rekening_air_detail", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_detail",
-                                                    queryPath: @"Queries\piutang_detail.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                        { "@flagangsur", 1 },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "piutang_angsurlunas" },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            ctx.Status($"proses angsur lunas-{periode}|rekening_air_angsuran");
-                                            await Utils.TrackProgress($"angsur lunas-{periode}|rekening_air_angsuran", async () =>
-                                            {
-                                                var lastIdAngsuran = 0;
-                                                var jnsNonair = 0;
-                                                await Utils.Client(async (conn, trans) =>
+                                        await Utils.TrackProgress($"angsuran air piutang|rekening_air_detail", async () =>
+                                        {
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_detail",
+                                                queryPath: @"Queries\angsuran_air\piutang_rekening_air_detail.sql",
+                                                parameters: new()
                                                 {
-                                                    lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
-                                                    jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
+                                                    { "@idpdam", settings.IdPdam },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
                                                 });
+                                        }, usingStopwatch: true);
 
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_angsuran",
-                                                    queryPath: @"Queries\piutang_angsur_lunas_angsuran.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastIdAngsuran },
-                                                        { "@periode", periode },
-                                                        { "@jnsnonair", jnsNonair },
-                                                    });
-                                            }, usingStopwatch: true);
-                                        }
-                                    });
-
-                                    await Utils.TrackProgress("bayar angsuran", async () =>
-                                    {
-                                        IEnumerable<string?> bayarTahun = [];
-                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        await Utils.TrackProgress($"angsuran air bayar|rekening_air", async () =>
                                         {
-                                            bayarTahun = await conn.QueryAsync<string?>("SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                                new { table_schema = AppSettings.DBNameBilling }, trans);
-                                        });
-
-                                        foreach (var tahun in bayarTahun)
-                                        {
-                                            IEnumerable<int>? listPeriode = [];
-                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            var lastId = 0;
+                                            await Utils.Client(async (conn, trans) =>
                                             {
-                                                listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
+                                                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                                             });
 
-                                            foreach (var periode in listPeriode)
-                                            {
-                                                ctx.Status($"proses bayar{tahun} angsuran-{periode}|rekening_air_angsuran_detail");
-                                                await Utils.TrackProgress($"bayar{tahun} angsuran-{periode}|rekening_air_angsuran_detail", async () =>
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air",
+                                                queryPath: @"Queries\angsuran_air\bayar_rekening_air.sql",
+                                                parameters: new()
                                                 {
-                                                    var lastIdAngsuranDetail = 0;
-                                                    await Utils.Client(async (conn, trans) =>
-                                                    {
-                                                        lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
-                                                    });
-
-                                                    await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                        tConnectionStr: AppSettings.ConnectionString,
-                                                        tableName: "rekening_air_angsuran_detail",
-                                                        queryPath: @"Queries\bayar_angsuran_detail.sql",
-                                                        parameters: new()
-                                                        {
-                                                            { "@idpdam", settings.IdPdam },
-                                                            { "@lastid", lastIdAngsuranDetail },
-                                                            { "@periode", periode },
-                                                        },
-                                                        placeholders: new()
-                                                        {
-                                                            { "[table]", $"bayar{tahun}" },
-                                                        });
-                                                }, usingStopwatch: true);
-                                            }
-                                        }
-                                    });
-
-                                    await Utils.TrackProgress("patch angsuran", async () =>
-                                    {
-                                        ctx.Status("proses bind angsuran > rekening air");
-                                        await Utils.TrackProgress("bind angsuran > rekening air", async () =>
-                                        {
-                                            await Utils.Client(async (conn, trans) =>
-                                            {
-                                                await conn.ExecuteAsync(@"
-                                                UPDATE rekening_air a
-                                                JOIN (
-                                                SELECT
-                                                a.idpdam,
-                                                a.idangsuran,
-                                                b.idperiode,
-                                                a.idpelangganair
-                                                FROM rekening_air_angsuran a
-                                                JOIN master_periode b ON b.idpdam = a.idpdam AND b.kodeperiode = SUBSTRING_INDEX(SUBSTRING_INDEX(a.noangsuran, '.', -2), '.', 1) AND b.flaghapus = 0
-                                                WHERE a.idpdam = @idpdam
-                                                ) b ON b.idpdam = a.idpdam AND b.idperiode = a.idperiode AND b.idpelangganair = a.idpelangganair
-                                                SET a.idangsuran = b.idangsuran
-                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
-                                            });
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@lastid", lastId },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                });
                                         }, usingStopwatch: true);
 
-                                        ctx.Status("proses bind angsuran > angsuran detail");
-                                        await Utils.TrackProgress("bind angsuran > angsuran detail", async () =>
+                                        await Utils.TrackProgress($"angsuran air bayar|rekening_air_detail", async () =>
                                         {
-                                            await Utils.Client(async (conn, trans) =>
-                                            {
-                                                await conn.ExecuteAsync(@"
-                                                update rekening_air_angsuran_detail a
-                                                join (
-                                                SELECT
-                                                a.idpdam,
-                                                a.idangsuran,
-                                                b.idperiode,
-                                                a.idpelangganair
-                                                FROM rekening_air_angsuran a
-                                                JOIN master_periode b ON b.idpdam = a.idpdam AND b.kodeperiode = SUBSTRING_INDEX(SUBSTRING_INDEX(a.noangsuran, '.', -2), '.', 1) AND b.flaghapus = 0
-                                                WHERE a.idpdam = @idpdam
-                                                ) b on b.idpdam = a.idpdam and b.idperiode = a.idperiode and b.idpelangganair = a.idpelangganair
-                                                set a.idangsuran = b.idangsuran
-                                                where a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
-                                            });
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_detail",
+                                                queryPath: @"Queries\angsuran_air\bayar_rekening_air_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                });
                                         }, usingStopwatch: true);
 
-                                        ctx.Status("proses update jumlah termin angsuran");
-                                        await Utils.TrackProgress("update jumlah termin angsuran", async () =>
+                                        await Utils.TrackProgress($"angsuran air|rekening_air_angsuran", async () =>
                                         {
+                                            var lastIdAngsuran = 0;
+                                            var jnsNonair = 0;
                                             await Utils.Client(async (conn, trans) =>
                                             {
-                                                await conn.ExecuteAsync(@"
-                                                UPDATE rekening_air_angsuran a
-                                                JOIN (
-                                                SELECT
-                                                idpdam,
-                                                idangsuran,
-                                                COUNT(*) AS jumlahtermin
-                                                FROM rekening_air_angsuran_detail
-                                                WHERE idpdam = @idpdam AND termin <> 0
-                                                GROUP BY idpdam, idangsuran
-                                                ) b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran
-                                                SET a.jumlahtermin = b.jumlahtermin
-                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                                lastIdAngsuran = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idangsuran),0) FROM rekening_air_angsuran", transaction: trans);
+                                                jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
                                             });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_angsuran",
+                                                queryPath: @"Queries\angsuran_air\rekening_air_angsuran.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                    { "@jnsnonair", jnsNonair },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                });
                                         }, usingStopwatch: true);
 
-                                        ctx.Status("proses update jumlah uang muka angsuran");
-                                        await Utils.TrackProgress("update jumlah uang muka angsuran", async () =>
+                                        await Utils.TrackProgress($"angsuran air|rekening_air_angsuran_detail", async () =>
                                         {
+                                            var lastIdAngsuranDetail = 0;
                                             await Utils.Client(async (conn, trans) =>
                                             {
-                                                await conn.ExecuteAsync(@"
-                                                UPDATE rekening_air_angsuran a
-                                                JOIN (
-                                                SELECT
-                                                idpdam,
-                                                idangsuran,
-                                                total AS jumlahuangmuka
-                                                FROM rekening_air_angsuran_detail
-                                                WHERE idpdam = @idpdam AND termin = 0
-                                                ) b ON b.idpdam = a.idpdam AND b.idangsuran = a.idangsuran
-                                                SET a.jumlahuangmuka = b.jumlahuangmuka
-                                                WHERE a.idpdam = @idpdam", new { idpdam = settings.IdPdam }, trans);
+                                                lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_air_angsuran_detail", transaction: trans);
                                             });
+
+                                            await Utils.BulkCopy(
+                                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                tConnectionStr: AppSettings.ConnectionString,
+                                                tableName: "rekening_air_angsuran_detail",
+                                                queryPath: @"Queries\angsuran_air\rekening_air_angsuran_detail.sql",
+                                                parameters: new()
+                                                {
+                                                    { "@idpdam", settings.IdPdam },
+                                                });
                                         }, usingStopwatch: true);
                                     });
 
-                                    await Utils.TrackProgress("nonair angsuran", async () =>
+                                    await Utils.TrackProgress("angsuran nonair", async () =>
                                     {
                                         var limit = 200_000;
                                         var offset = 0;
@@ -2960,7 +2643,6 @@ namespace Migrasi.Commands
                                             });
                                         }, usingStopwatch: true);
                                     });
-                                    #endregion
 
                                     await Utils.TrackProgress("pengaduan pelanggan air", async () =>
                                     {

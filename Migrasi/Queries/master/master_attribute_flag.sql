@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS _flag;
+﻿DROP TABLE IF EXISTS __tmp_flag;
 
-CREATE TABLE _flag (
+CREATE TABLE __tmp_flag (
  idpdam SMALLINT (6) NOT NULL,
  idflag INT (11) NOT NULL,
  namaflag VARCHAR (50),
@@ -9,7 +9,7 @@ CREATE TABLE _flag (
  PRIMARY KEY (idpdam, idflag)
 ) ENGINE = INNODB;
 
-INSERT INTO _flag(idpdam,idflag,namaflag) VALUES
+INSERT INTO __tmp_flag(idpdam,idflag,namaflag) VALUES
 (@idpdam,1,'Normal'),
 (@idpdam,2,'Terpusat/Tanpa Denda'),
 (@idpdam,3,'Air Tidak Mengalir'),
@@ -23,7 +23,7 @@ SELECT
  flaghapus,
  waktuupdate
 FROM
- _flag
+ __tmp_flag
  WHERE idpdam=@idpdam;
  
-DROP TABLE _flag;
+DROP TABLE __tmp_flag;

@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS _kwh;
+﻿DROP TABLE IF EXISTS __tmp_kwh;
 
-CREATE TABLE _kwh (
+CREATE TABLE __tmp_kwh (
  idpdam SMALLINT (6) NOT NULL,
  idkwh INT (11) NOT NULL,
  kodekwh VARCHAR (8),
@@ -10,7 +10,7 @@ CREATE TABLE _kwh (
  PRIMARY KEY (idpdam, idkwh)
 ) ENGINE = INNODB;
 
-INSERT INTO _kwh(idpdam,idkwh,kodekwh,namakwh) VALUES
+INSERT INTO __tmp_kwh(idpdam,idkwh,kodekwh,namakwh) VALUES
 (@idpdam,1,'01','450 VA'),
 (@idpdam,2,'02','900 VA'),
 (@idpdam,3,'03','1.300 VA'),
@@ -28,7 +28,7 @@ SELECT
  flaghapus,
  waktuupdate
 FROM
- _kwh
+ __tmp_kwh
  WHERE idpdam=@idpdam;
  
-DROP TABLE _kwh;
+DROP TABLE __tmp_kwh;

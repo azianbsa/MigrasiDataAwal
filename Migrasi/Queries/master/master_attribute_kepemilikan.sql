@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS _kepemilikan;
+﻿DROP TABLE IF EXISTS __tmp_kepemilikan;
 
-CREATE TABLE _kepemilikan (
+CREATE TABLE __tmp_kepemilikan (
  idpdam SMALLINT (6) NOT NULL,
  idkepemilikan INT (11) NOT NULL,
  kodekepemilikan VARCHAR (8),
@@ -10,7 +10,7 @@ CREATE TABLE _kepemilikan (
  PRIMARY KEY (idpdam, idkepemilikan)
 ) ENGINE = INNODB;
 
-INSERT INTO _kepemilikan(idpdam,idkepemilikan,kodekepemilikan,namakepemilikan) VALUES
+INSERT INTO __tmp_kepemilikan(idpdam,idkepemilikan,kodekepemilikan,namakepemilikan) VALUES
 (@idpdam,-1,'-','-'),
 (@idpdam,1,'1','Pribadi'),
 (@idpdam,2,'2','Sewa/Kontrak'),
@@ -27,7 +27,7 @@ SELECT
  flaghapus,
  waktuupdate
 FROM
- _kepemilikan
+ __tmp_kepemilikan
  WHERE idpdam=@idpdam;
  
-DROP TABLE _kepemilikan;
+DROP TABLE __tmp_kepemilikan;

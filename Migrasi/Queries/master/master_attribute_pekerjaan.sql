@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS _pekerjaan;
+﻿DROP TABLE IF EXISTS __tmp_pekerjaan;
 
-CREATE TABLE _pekerjaan (
+CREATE TABLE __tmp_pekerjaan (
  idpdam SMALLINT (6) NOT NULL,
  idpekerjaan INT (11) NOT NULL,
  namapekerjaan VARCHAR (50),
@@ -9,7 +9,7 @@ CREATE TABLE _pekerjaan (
  PRIMARY KEY (idpdam, idpekerjaan)
 ) ENGINE = INNODB;
 
-INSERT INTO _pekerjaan(idpdam,idpekerjaan,namapekerjaan) VALUES
+INSERT INTO __tmp_pekerjaan(idpdam,idpekerjaan,namapekerjaan) VALUES
 (@idpdam,-1,'-'),
 (@idpdam,0,'Lainnya'),
 (@idpdam,1,'Swasta'),
@@ -29,7 +29,7 @@ SELECT
  flaghapus,
  waktuupdate
 FROM
- _pekerjaan
+ __tmp_pekerjaan
  WHERE idpdam=@idpdam;
  
-DROP TABLE _pekerjaan;
+DROP TABLE __tmp_pekerjaan;

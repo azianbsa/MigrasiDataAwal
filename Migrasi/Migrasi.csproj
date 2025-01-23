@@ -28,6 +28,12 @@
     <None Update="database.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\angsuran_air\bayar_rekening_air.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\angsuran_air\bayar_rekening_air_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\balik_nama\balik_nama.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -37,223 +43,220 @@
     <None Update="Queries\bayar_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\app_setting_feature.sql">
+    <None Update="Queries\master\app_setting_feature.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\app_setting_main_feature.sql">
+    <None Update="Queries\master\app_setting_main_feature.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\app_setting_module.sql">
+    <None Update="Queries\master\app_setting_module.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\app_setting_pdam_feature.sql">
+    <None Update="Queries\master\app_setting_pdam_feature.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\app_setting_pdam_module.sql">
+    <None Update="Queries\master\app_setting_pdam_module.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\dashboard_master_access.sql">
+    <None Update="Queries\master\dashboard_master_access.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\dashboard_user.sql">
+    <None Update="Queries\master\dashboard_user.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\dashboard_user_access.sql">
+    <None Update="Queries\master\dashboard_user_access.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_label_report.sql">
+    <None Update="Queries\master\report\master_attribute_label_report.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_material.sql">
+    <None Update="Queries\master\paket_material\master_attribute_material.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_material_paket.sql">
+    <None Update="Queries\master\paket_material\master_attribute_material_paket.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_material_paket_detail.sql">
+    <None Update="Queries\master\paket_material\master_attribute_material_paket_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_ongkos.sql">
+    <None Update="Queries\master\paket_ongkos\master_attribute_ongkos.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_ongkos_paket.sql">
+    <None Update="Queries\master\paket_ongkos\master_attribute_ongkos_paket.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_ongkos_paket_detail.sql">
+    <None Update="Queries\master\paket_ongkos\master_attribute_ongkos_paket_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_paket.sql">
+    <None Update="Queries\master\master_attribute_paket.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_pdam_detail.sql">
+    <None Update="Queries\master\master_attribute_pdam_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_sumber_pengaduan.sql">
+    <None Update="Queries\master\master_attribute_sumber_pengaduan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_tipe_pendaftaran_sambungan.sql">
+    <None Update="Queries\master\master_attribute_tipe_pendaftaran_sambungan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_tipe_permohonan_config_list_data.sql">
+    <None Update="Queries\master\master_attribute_tipe_permohonan_config_list_data.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_query_global.sql">
+    <None Update="Queries\master\master_query_global.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_report_maingroup.sql">
+    <None Update="Queries\master\report\master_report_maingroup.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_report_subgroup.sql">
+    <None Update="Queries\master\report\master_report_subgroup.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_user_access.sql">
+    <None Update="Queries\master\master_user_access.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_user_module.sql">
+    <None Update="Queries\master\master_user_module.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_user_module_access.sql">
+    <None Update="Queries\master\master_user_module_access.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_user_role.sql">
+    <None Update="Queries\master\master_user_role.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_user_role_access.sql">
+    <None Update="Queries\master\master_user_role_access.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_api.sql">
+    <None Update="Queries\master\report\report_api.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_filter_custom.sql">
+    <None Update="Queries\master\report\report_filter_custom.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_filter_custom_detail.sql">
+    <None Update="Queries\master\report\report_filter_custom_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_models.sql">
+    <None Update="Queries\master\report\report_models.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_model_params.sql">
+    <None Update="Queries\master\report\report_model_params.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_model_props.sql">
+    <None Update="Queries\master\report\report_model_props.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_model_sorts.sql">
+    <None Update="Queries\master\report\report_model_sorts.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\report_model_sources.sql">
+    <None Update="Queries\master\report\report_model_sources.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\setting_configuration.sql">
+    <None Update="Queries\master\setting_configuration.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\setting_configuration_items.sql">
+    <None Update="Queries\master\setting_configuration_items.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\setting_configuration_sections.sql">
+    <None Update="Queries\master\setting_configuration_sections.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\setting_gcs.sql">
+    <None Update="Queries\master\setting_gcs.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\setting_mobile.sql">
+    <None Update="Queries\master\setting_mobile.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\setting_mobile_items.sql">
+    <None Update="Queries\master\setting_mobile_items.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_area.sql">
+    <None Update="Queries\master\master_attribute_area.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_blok.sql">
+    <None Update="Queries\master\master_attribute_blok.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_cabang.sql">
+    <None Update="Queries\master\master_attribute_cabang.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_dma.sql">
+    <None Update="Queries\master\master_attribute_dma.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_dmz.sql">
+    <None Update="Queries\master\master_attribute_dmz.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_flag.sql">
+    <None Update="Queries\master\master_attribute_flag.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_jenis_bangunan.sql">
+    <None Update="Queries\master\master_attribute_jenis_bangunan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_jenis_nonair.sql">
+    <None Update="Queries\master\jenis_nonair\master_attribute_jenis_nonair.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_jenis_nonair_detail.sql">
+    <None Update="Queries\master\jenis_nonair\master_attribute_jenis_nonair_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_jenis_pipa.sql">
+    <None Update="Queries\master\master_attribute_jenis_pipa.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_kecamatan.sql">
+    <None Update="Queries\master\master_attribute_kecamatan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_kelainan.sql">
+    <None Update="Queries\master\master_attribute_kelainan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_kelurahan.sql">
+    <None Update="Queries\master\master_attribute_kelurahan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_kepemilikan.sql">
+    <None Update="Queries\master\master_attribute_kepemilikan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_kolektif.sql">
+    <None Update="Queries\master\master_attribute_kolektif.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_kondisi_meter.sql">
+    <None Update="Queries\master\master_attribute_kondisi_meter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_kwh.sql">
+    <None Update="Queries\master\master_attribute_kwh.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_label_report.sql">
+    <None Update="Queries\master\master_attribute_loket.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_loket.sql">
+    <None Update="Queries\master\master_attribute_merek_meter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_merek_meter.sql">
+    <None Update="Queries\master\master_attribute_pekerjaan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_pekerjaan.sql">
+    <None Update="Queries\master\master_attribute_peruntukan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_peruntukan.sql">
+    <None Update="Queries\master\master_attribute_petugas_baca.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_petugas_baca.sql">
+    <None Update="Queries\master\master_attribute_rayon.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_rayon.sql">
+    <None Update="Queries\master\master_attribute_status.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_status.sql">
+    <None Update="Queries\master\master_attribute_sumber_air.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_attribute_sumber_air.sql">
+    <None Update="Queries\master\tipe_permohonan\master_attribute_tipe_permohonan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_tipe_permohonan.sql">
+    <None Update="Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_tipe_permohonan_detail.sql">
+    <None Update="Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_tipe_permohonan_detail_ba.sql">
+    <None Update="Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_spk.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Master\master_attribute_tipe_permohonan_detail_spk.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\master_attribute_wilayah.sql">
+    <None Update="Queries\master\master_attribute_wilayah.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\master_pelanggan_air.sql">
@@ -262,40 +265,37 @@
     <None Update="Queries\master_pelanggan_air_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_periode.sql">
+    <None Update="Queries\master\master_periode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_periode_billing.sql">
+    <None Update="Queries\master\master_periode_billing.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_report_maingroup.sql">
+    <None Update="Queries\master\master_tarif_administrasi_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_tarif_administrasi_lain.sql">
+    <None Update="Queries\master\master_tarif_diameter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_tarif_diameter.sql">
+    <None Update="Queries\master\master_tarif_diameter_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_tarif_diameter_detail.sql">
+    <None Update="Queries\master\master_tarif_golongan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_tarif_golongan.sql">
+    <None Update="Queries\master\master_tarif_golongan_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_tarif_golongan_detail.sql">
+    <None Update="Queries\master\master_tarif_pemeliharaan_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_tarif_pemeliharaan_lain.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\master_tarif_retribusi_lain.sql">
+    <None Update="Queries\master\master_tarif_retribusi_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\drd.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\master_user.sql">
+    <None Update="Queries\master\master_user.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\nonair_detail_angsuran_mst.sql">
@@ -319,46 +319,46 @@
     <None Update="Queries\nonair_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_adm_lain.sql">
+    <None Update="Queries\patches\data_cleanup_adm_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_blok.sql">
+    <None Update="Queries\patches\data_cleanup_blok.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_diameter.sql">
+    <None Update="Queries\patches\data_cleanup_diameter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_golongan.sql">
+    <None Update="Queries\patches\data_cleanup_golongan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_kelurahan.sql">
+    <None Update="Queries\patches\data_cleanup_kelurahan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_kolektif.sql">
+    <None Update="Queries\patches\data_cleanup_kolektif.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_kondisi_meter.sql">
+    <None Update="Queries\patches\data_cleanup_kondisi_meter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_merek_meter.sql">
+    <None Update="Queries\patches\data_cleanup_merek_meter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_pem_lain.sql">
+    <None Update="Queries\patches\data_cleanup_pem_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_ret_lain.sql">
+    <None Update="Queries\patches\data_cleanup_ret_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\data_cleanup_sumber_air.sql">
+    <None Update="Queries\patches\data_cleanup_sumber_air.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\setup_new_copy_pdam.sql">
+    <None Update="Queries\patches\setup_new_copy_pdam.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\setup_new_pdam.sql">
+    <None Update="Queries\patches\setup_new_pdam.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\Patches\tambah_field_id_tabel_pelanggan.sql">
+    <None Update="Queries\patches\tambah_field_id_tabel_pelanggan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\bayar.sql">
@@ -373,40 +373,25 @@
     <None Update="Queries\pengaduan\pengaduan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\piutang.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Queries\drd_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\bayar_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\piutang_angsuran\piutang.sql">
+    <None Update="Queries\angsuran_air\piutang_rekening_air.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\piutang_angsuran\piutang_angsuran.sql">
+    <None Update="Queries\angsuran_air\rekening_air_angsuran.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\piutang_angsuran\piutang_angsuran_detail.sql">
+    <None Update="Queries\angsuran_air\rekening_air_angsuran_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\piutang_angsuran\piutang_detail.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\piutang_angsur_lunas_angsuran.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\piutang_angsuran.sql">
+    <None Update="Queries\angsuran_air\piutang_rekening_air_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\bayar_angsuran_detail.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\piutang_angsuran_detail.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\piutang_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

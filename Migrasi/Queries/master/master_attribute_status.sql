@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS _status;
+﻿DROP TABLE IF EXISTS __tmp_status;
 
-CREATE TABLE _status (
+CREATE TABLE __tmp_status (
  idpdam SMALLINT (6) NOT NULL,
  idstatus INT (11) NOT NULL,
  namastatus VARCHAR (50),
@@ -13,7 +13,7 @@ CREATE TABLE _status (
  PRIMARY KEY (idpdam, idstatus)
 ) ENGINE = INNODB;
 
-INSERT INTO _status(idpdam,idstatus,namastatus,rekening_air_include) VALUES
+INSERT INTO __tmp_status(idpdam,idstatus,namastatus,rekening_air_include) VALUES
 (@idpdam,-1,'Calon Pelanggan',0),
 (@idpdam,0,'Non Aktif',0),
 (@idpdam,1,'Aktif',1),
@@ -32,7 +32,7 @@ SELECT
  flaghapus,
  waktuupdate
 FROM
- _status
+ __tmp_status
  WHERE idpdam=@idpdam;
  
-DROP TABLE _status;
+DROP TABLE __tmp_status;

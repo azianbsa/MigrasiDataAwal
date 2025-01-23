@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS _jnsbangunan;
+﻿DROP TABLE IF EXISTS __tmp_jnsbangunan;
 
-CREATE TABLE _jnsbangunan (
+CREATE TABLE __tmp_jnsbangunan (
  idpdam SMALLINT (6) NOT NULL,
  idjenisbangunan INT (11) NOT NULL,
  namajenisbangunan VARCHAR (50),
@@ -9,7 +9,7 @@ CREATE TABLE _jnsbangunan (
  PRIMARY KEY (idpdam, idjenisbangunan)
 ) ENGINE = INNODB;
 
-INSERT INTO _jnsbangunan(idpdam,idjenisbangunan,namajenisbangunan) VALUES
+INSERT INTO __tmp_jnsbangunan(idpdam,idjenisbangunan,namajenisbangunan) VALUES
 (@idpdam,-1,'-'),
 (@idpdam,1,'BERTINGKAT'),
 (@idpdam,2,'TIDAK BERTINGKAT'),
@@ -22,7 +22,7 @@ SELECT
  flaghapus,
  waktuupdate
 FROM
- _jnsbangunan
+ __tmp_jnsbangunan
  WHERE idpdam=@idpdam;
  
-DROP TABLE _jnsbangunan;
+DROP TABLE __tmp_jnsbangunan;

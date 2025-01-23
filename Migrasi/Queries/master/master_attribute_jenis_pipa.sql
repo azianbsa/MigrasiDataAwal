@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS _jnspipa;
+﻿DROP TABLE IF EXISTS __tmp_jnspipa;
 
-CREATE TABLE _jnspipa (
+CREATE TABLE __tmp_jnspipa (
  idpdam SMALLINT (6) NOT NULL,
  idjenispipa INT (11) NOT NULL,
  kodejenispipa VARCHAR (8),
@@ -10,7 +10,7 @@ CREATE TABLE _jnspipa (
  PRIMARY KEY (idpdam, idjenispipa)
 ) ENGINE = INNODB;
 
-INSERT INTO _jnspipa(idpdam,idjenispipa,kodejenispipa,namajenispipa) VALUES
+INSERT INTO __tmp_jnspipa(idpdam,idjenispipa,kodejenispipa,namajenispipa) VALUES
 (@idpdam,1,'01','Pipa PVC'),
 (@idpdam,2,'02','Pipa HDPE'),
 (@idpdam,3,'03','Pipa GI'),
@@ -24,7 +24,7 @@ SELECT
  flaghapus,
  waktuupdate
 FROM
- _jnspipa
+ __tmp_jnspipa
  WHERE idpdam=@idpdam;
  
-DROP TABLE _jnspipa;
+DROP TABLE __tmp_jnspipa;
