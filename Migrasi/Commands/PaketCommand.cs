@@ -2384,6 +2384,10 @@ namespace Migrasi.Commands
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam },
+                                                },
+                                                placeholders: new()
+                                                {
+                                                    { "[bsbs]", AppSettings.DBNameBilling },
                                                 });
                                         }, usingStopwatch: true);
                                     });
