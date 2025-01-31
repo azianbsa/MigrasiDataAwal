@@ -1,9 +1,9 @@
 ﻿SELECT
 @idpdam AS idpdam,
-bn.id AS idpermohonan,
+rg.id AS idpermohonan,
 ba.nomorba AS nomorba,
 ba.tanggalba AS tanggalba,
-bn.iduser AS iduser,
+rg.iduser AS iduser,
 NULL AS persilnamapaket,
 0 AS persilflagdialihkankevendor,
 0 AS persilflagbiayadibebankankepdam,
@@ -19,6 +19,6 @@ NULL AS idalasanbatal,
 1 AS flag_dari_verifikasi,
 NULL AS statusberitaacara,
 NOW() AS waktuupdate
-FROM ba_balik_nama ba
-JOIN __temp_permohonan_balik_nama bn ON bn.nomor = ba.nomorpermohonan
+FROM ba_rubah_gol ba
+JOIN __temp_permohonan_rubah_gol rg ON rg.nomor = ba.nomorpermohonan
 WHERE ba.flaghapus = 0

@@ -1993,7 +1993,6 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    #region piutang, bayar & nonair non angsuran
                                     await Utils.TrackProgress("piutang", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
@@ -2235,7 +2234,6 @@ namespace Migrasi.Commands
                                             }, usingStopwatch: true);
                                         }
                                     });
-                                    #endregion
 
                                     await Utils.TrackProgress("angsuran air", async () =>
                                     {
@@ -2657,6 +2655,11 @@ namespace Migrasi.Commands
                                     {
                                         await BalikNama(settings);
                                     });
+
+                                    await Utils.TrackProgress("rubah golongan", async () =>
+                                    {
+                                        await RubahGolongan(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2684,6 +2687,73 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+
+        private async Task RubahGolongan(Settings settings)
+        {
+            var lastId = 0;
+            var rubahGol = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                rubahGol = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_GOL'", transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\rubah_gol\rubah_gol.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", rubahGol },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync($@"
+                DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
+                CREATE TEMPORARY TABLE __tmp_userloket AS
+                SELECT
+                @iduser := @iduser + 1 AS iduser,
+                nama
+                FROM userloket
+                ,(SELECT @iduser := 0) AS iduser
+                ORDER BY nama;
+
+                CREATE TABLE __temp_permohonan_rubah_gol AS
+                SELECT
+                @id := @id+1 AS id,
+                rg.nomor,
+                usr.iduser,
+                FROM permohonan_rubah_gol rg
+                JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = rg.nosamb
+                LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
+                ,(SELECT @id := @lastid) AS id
+                WHERE rg.flaghapus = 0", new { lastid = lastId }, trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\rubah_gol\ba_rubah_gol.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_permohonan_rubah_gol", transaction: trans);
+            });
         }
 
         private async Task BalikNama(Settings settings)
@@ -2715,12 +2785,23 @@ namespace Migrasi.Commands
             await Utils.ClientLoket(async (conn, trans) =>
             {
                 await conn.ExecuteAsync($@"
-                CREATE TABLE __temp_ba_balik_nama AS
+                DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
+                CREATE TEMPORARY TABLE __tmp_userloket AS
+                SELECT
+                @iduser := @iduser + 1 AS iduser,
+                nama
+                FROM userloket
+                ,(SELECT @iduser := 0) AS iduser
+                ORDER BY nama;
+
+                CREATE TABLE __temp_permohonan_balik_nama AS
                 SELECT
                 @id := @id+1 AS id,
-                bn.nomor
+                bn.nomor,
+                usr.iduser, 
                 FROM permohonan_balik_nama bn
                 JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = bn.nosamb
+                LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)
                 ,(SELECT @id := @lastid) AS id
                 WHERE bn.flaghapus = 0", new { lastid = lastId }, trans);
             });
@@ -2737,7 +2818,7 @@ namespace Migrasi.Commands
 
             await Utils.ClientLoket(async (conn, trans) =>
             {
-                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_ba_balik_nama", transaction: trans);
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_permohonan_balik_nama", transaction: trans);
             });
         }
 
