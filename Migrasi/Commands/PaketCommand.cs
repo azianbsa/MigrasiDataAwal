@@ -2660,6 +2660,11 @@ namespace Migrasi.Commands
                                     {
                                         await RubahGolongan(settings);
                                     });
+
+                                    await Utils.TrackProgress("rubah rayon", async () =>
+                                    {
+                                        await RubahRayon(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2689,6 +2694,54 @@ namespace Migrasi.Commands
             return 0;
         }
 
+        private async Task RubahRayon(Settings settings)
+        {
+            var lastId = 0;
+            var rubahRayon = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                rubahRayon = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_RAYON'", transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\rubah_rayon\rubah_rayon.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", rubahRayon },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk_pasang",
+                queryPath: @"Queries\rubah_rayon\spkp_rubah_rayon.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\rubah_rayon\ba_rubah_rayon.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
+        }
 
         private async Task RubahGolongan(Settings settings)
         {
