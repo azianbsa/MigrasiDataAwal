@@ -2785,7 +2785,7 @@ namespace Migrasi.Commands
                 SELECT
                 @id := @id+1 AS id,
                 rg.nomor,
-                usr.iduser,
+                usr.iduser
                 FROM permohonan_rubah_gol rg
                 JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = rg.nosamb
                 LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
@@ -2851,7 +2851,7 @@ namespace Migrasi.Commands
                 SELECT
                 @id := @id+1 AS id,
                 bn.nomor,
-                usr.iduser, 
+                usr.iduser 
                 FROM permohonan_balik_nama bn
                 JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = bn.nosamb
                 LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)
