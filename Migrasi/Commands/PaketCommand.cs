@@ -2,8 +2,7 @@
 using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using System.Collections.Generic;
-using System.Diagnostics;
+using Sprache;
 
 namespace Migrasi.Commands
 {
@@ -662,9 +661,7 @@ namespace Migrasi.Commands
                                         ctx.Status("update latlong pelanggan air");
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var month = (periodeHMin4 + 3).ToString().Substring(4, 2);
-                                            var year = (periodeHMin4 + 3).ToString().Substring(2, 2);
-                                            var pel = await conn.QueryAsync($"SELECT idpelanggan,latitude,longitude FROM hasilbaca{month}{year}", transaction: trans);
+                                            var pel = await conn.QueryAsync($"SELECT idpelanggan,latitude,longitude FROM hasilbaca{DateTime.ParseExact(periodeHMin4.ToString(), "yyyyMM", null).AddMonths(3).ToString("MMyy")}", transaction: trans);
                                             if (pel.Any())
                                             {
                                                 await Utils.Client(async (conn, trans) =>
@@ -675,15 +672,18 @@ namespace Migrasi.Commands
                                         });
                                     });
 
-                                    for (int i = periodeHMin4; i < periodeHMin4 + 4; i++)
+                                    var dt = DateTime.ParseExact(periodeHMin4.ToString(), "yyyyMM", null);
+                                    for (int i = 0; i < 4; i++)
                                     {
-                                        await Utils.TrackProgress($"cleanup data drd{i}", async () =>
+                                        var periode = dt.AddMonths(i).ToString("yyyyMM");
+
+                                        await Utils.TrackProgress($"cleanup data drd{periode}", async () =>
                                         {
                                             ctx.Status("cek golongan");
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
-                                                query = query.Replace("[table]", $"drd{i}");
+                                                query = query.Replace("[table]", $"drd{periode}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
 
@@ -691,7 +691,7 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
-                                                query = query.Replace("[table]", $"drd{i}");
+                                                query = query.Replace("[table]", $"drd{periode}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
 
@@ -699,7 +699,7 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
-                                                query = query.Replace("[table]", $"drd{i}");
+                                                query = query.Replace("[table]", $"drd{periode}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
 
@@ -707,7 +707,7 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
-                                                query = query.Replace("[table]", $"drd{i}");
+                                                query = query.Replace("[table]", $"drd{periode}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
 
@@ -715,7 +715,7 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
-                                                query = query.Replace("[table]", $"drd{i}");
+                                                query = query.Replace("[table]", $"drd{periode}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
 
@@ -723,7 +723,7 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
-                                                query = query.Replace("[table]", $"drd{i}");
+                                                query = query.Replace("[table]", $"drd{periode}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
 
@@ -731,13 +731,13 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
-                                                query = query.Replace("[table]", $"drd{i}");
+                                                query = query.Replace("[table]", $"drd{periode}");
                                                 await conn.ExecuteAsync(query, transaction: trans);
                                             });
                                         });
 
-                                        ctx.Status($"proses drd{i}");
-                                        await Utils.TrackProgress($"data drd{i}", async () =>
+                                        ctx.Status($"proses drd{periode}");
+                                        await Utils.TrackProgress($"data drd{periode}", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -750,7 +750,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[tahunbulan]", i.ToString() }
+                                                    { "[tahunbulan]", periode }
                                                 });
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBilling,
@@ -763,7 +763,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[tahunbulan]", i.ToString() }
+                                                    { "[tahunbulan]", periode }
                                                 });
                                         });
                                     }
@@ -2665,6 +2665,11 @@ namespace Migrasi.Commands
                                     {
                                         await RubahRayon(settings);
                                     });
+
+                                    await Utils.TrackProgress("sambung kembali", async () =>
+                                    {
+                                        await SambungKembali(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2692,6 +2697,98 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task SambungKembali(Settings settings)
+        {
+            var lastId = 0;
+            var sambKembali = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                sambKembali = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNG_KEMBALI'", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_sambung_kembali;
+                    CREATE TABLE __tmp_sambung_kembali AS
+                    SELECT
+                    @id := @id+1 AS idpermohonan,
+                    per.nomor
+                    FROM permohonan_sambung_kembali per
+                    JOIN bpbatam_bsbs.pelanggan pel ON pel.nosamb = per.nosamb
+                    ,(SELECT @id := @lastid) AS id
+                    WHERE per.flaghapus = 0;",
+                    param: new { lastid = lastId },
+                    transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\sambung_kembali\sambung_kembali.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", sambKembali },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk",
+                queryPath: @"Queries\sambung_kembali\spk_sambung_kembali.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_rab",
+                queryPath: @"Queries\sambung_kembali\rab_sambung_kembali.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@tipepermohonan", sambKembali },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk_pasang",
+                queryPath: @"Queries\sambung_kembali\spkp_sambung_kembali.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\sambung_kembali\ba_sambung_kembali.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"DROP TABLE IF EXISTS __tmp_sambung_kembali",
+                    transaction: trans);
+            });
         }
 
         private async Task RubahRayon(Settings settings)
