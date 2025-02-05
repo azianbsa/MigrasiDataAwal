@@ -2675,6 +2675,11 @@ namespace Migrasi.Commands
                                     {
                                         await BukaSegel(settings);
                                     });
+
+                                    await Utils.TrackProgress("sambung baru", async () =>
+                                    {
+                                        await SambungBaru(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2702,6 +2707,89 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task SambungBaru(Settings settings)
+        {
+            var lastId = 0;
+            var sambBaru = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                sambBaru = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNGAN_BARU_AIR'", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_sambung_baru;
+                    CREATE TABLE __tmp_sambung_baru AS
+                    SELECT
+                    @id := @id+1 AS idpermohonan,
+                    p.nomorreg
+                    FROM `pendaftaran` p
+                    ,(SELECT @id := @lastid) AS id
+                    WHERE p.flaghapus = 0",
+                    param: new { lastid = lastId },
+                    transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan",
+                queryPath: @"Queries\sambung_baru\sambung_baru.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", sambBaru },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_spk",
+                queryPath: @"Queries\sambung_baru\spk_sambung_baru.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_rab",
+                queryPath: @"Queries\sambung_baru\rab_sambung_baru.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_spk_pasang",
+                queryPath: @"Queries\sambung_baru\spkp_sambung_baru.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_ba",
+                queryPath: @"Queries\sambung_baru\ba_sambung_baru.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
         }
 
         private async Task BukaSegel(Settings settings)

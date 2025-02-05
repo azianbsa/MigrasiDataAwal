@@ -418,6 +418,21 @@
     <None Update="Queries\rubah_rayon\rubah_rayon.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\sambung_baru\ba_sambung_baru.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\sambung_baru\rab_sambung_baru.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\sambung_baru\sambung_baru.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\sambung_baru\spkp_sambung_baru.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\sambung_baru\spk_sambung_baru.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\sambung_kembali\rab_sambung_kembali.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
