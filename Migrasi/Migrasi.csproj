@@ -43,6 +43,15 @@
     <None Update="Queries\bayar_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\buka_segel\ba_buka_segel.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\buka_segel\buka_segel.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\buka_segel\spkp_buka_segel.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\master\app_setting_feature.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

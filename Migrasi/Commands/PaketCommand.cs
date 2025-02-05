@@ -2670,6 +2670,11 @@ namespace Migrasi.Commands
                                     {
                                         await SambungKembali(settings);
                                     });
+
+                                    await Utils.TrackProgress("buka segel", async () =>
+                                    {
+                                        await BukaSegel(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2697,6 +2702,77 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task BukaSegel(Settings settings)
+        {
+            var lastId = 0;
+            var bukaSegel = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                bukaSegel = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BUKA_SEGEL'", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_buka_segel;
+                    CREATE TABLE __tmp_buka_segel AS
+                    SELECT
+                    @id := @id+1 AS idpermohonan,
+                    per.nomor
+                    FROM `permohonan_bukasegel` per
+                    JOIN bpbatam_bsbs.pelanggan pel ON pel.nosamb = per.nosamb
+                    ,(SELECT @id := @lastid) AS id
+                    WHERE per.flaghapus = 0",
+                    param: new { lastid = lastId },
+                    transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\buka_segel\buka_segel.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", bukaSegel },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk_pasang",
+                queryPath: @"Queries\buka_segel\spkp_buka_segel.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\buka_segel\ba_buka_segel.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"DROP TABLE IF EXISTS __tmp_buka_segel",
+                    transaction: trans);
+            });
         }
 
         private async Task SambungKembali(Settings settings)
