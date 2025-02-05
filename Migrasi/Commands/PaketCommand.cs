@@ -2790,6 +2790,13 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                 });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"DROP TABLE IF EXISTS __tmp_sambung_baru",
+                    transaction: trans);
+            });
         }
 
         private async Task BukaSegel(Settings settings)
