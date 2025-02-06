@@ -2680,6 +2680,11 @@ namespace Migrasi.Commands
                                     {
                                         await SambungBaru(settings);
                                     });
+
+                                    await Utils.TrackProgress("koreksi rekair", async () =>
+                                    {
+                                        await KoreksiRekair(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2707,6 +2712,78 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task KoreksiRekair(Settings settings)
+        {
+            var lastId = 0;
+            var krekair = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                krekair = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='KREKAIR'", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_koreksi_rek;
+                    CREATE TABLE __tmp_koreksi_rek AS
+                    SELECT 
+                    @id := @id+1 AS idpermohonan,
+                    a.nomor,
+                    CAST(CONCAT(a.status,'[',COUNT(*),']') AS CHAR) AS `status`
+                    FROM (
+                    SELECT
+                    p.`nomor`,
+                    IF(d.`id` IS NULL,
+                     'Menunggu Usulan Koreksi',
+                     '(Selesai) Sudah Verifikasi Pusat') AS `status`
+                    FROM `permohonan_koreksi_rek` p
+                    LEFT JOIN `ba_usulan_koreksi_rekening_periode` d ON d.`nomorpermohonan`=p.`nomor`
+                    WHERE p.`flaghapus`=0 ) a
+                    ,(SELECT @id := @lastid) AS id
+                    GROUP BY a.nomor,a.status",
+                    param: new { lastid = lastId },
+                    transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\koreksi_rekair\koreksi_rekair.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@tipepermohonan", krekair },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_koreksi_rekening",
+                queryPath: @"Queries\koreksi_rekair\koreksi_rekair_periode.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"DROP TABLE IF EXISTS __tmp_koreksi_rek",
+                    transaction: trans);
+            });
         }
 
         private async Task SambungBaru(Settings settings)

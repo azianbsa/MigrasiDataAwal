@@ -52,6 +52,12 @@
     <None Update="Queries\buka_segel\spkp_buka_segel.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\koreksi_rekair\koreksi_rekair_periode.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\koreksi_rekair\koreksi_rekair.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\master\app_setting_feature.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
