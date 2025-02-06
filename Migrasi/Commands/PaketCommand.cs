@@ -2685,6 +2685,11 @@ namespace Migrasi.Commands
                                     {
                                         await KoreksiRekair(settings);
                                     });
+
+                                    await Utils.TrackProgress("rotasimeter", async () =>
+                                    {
+                                        await Rotasimeter(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2712,6 +2717,77 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task Rotasimeter(Settings settings)
+        {
+            var lastId = 0;
+            var rotasimeter = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                rotasimeter = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='GANTI_METER_RUTIN'", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_rotasimeter;
+                    CREATE TABLE __tmp_rotasimeter AS
+                    SELECT
+                    @id := @id+1 AS idpermohonan,
+                    p.nosamb,
+                    p.periode
+                    FROM `rotasimeter` p
+                    ,(SELECT @id := @lastid) AS id",
+                    param: new { lastid = lastId },
+                    transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\rotasimeter\rotasimeter.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", rotasimeter },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk_pasang",
+                queryPath: @"Queries\rotasimeter\spkp_rotasimeter.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\rotasimeter\ba_rotasimeter.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_rotasimeter",
+                    transaction: trans);
+            });
         }
 
         private async Task KoreksiRekair(Settings settings)
@@ -2889,14 +2965,14 @@ namespace Migrasi.Commands
             await Utils.ClientLoket(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
-                    sql: @"
+                    sql: $@"
                     DROP TABLE IF EXISTS __tmp_buka_segel;
                     CREATE TABLE __tmp_buka_segel AS
                     SELECT
                     @id := @id+1 AS idpermohonan,
                     per.nomor
                     FROM `permohonan_bukasegel` per
-                    JOIN bpbatam_bsbs.pelanggan pel ON pel.nosamb = per.nosamb
+                    JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = per.nosamb
                     ,(SELECT @id := @lastid) AS id
                     WHERE per.flaghapus = 0",
                     param: new { lastid = lastId },
@@ -2960,14 +3036,14 @@ namespace Migrasi.Commands
             await Utils.ClientLoket(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
-                    sql: @"
+                    sql: $@"
                     DROP TABLE IF EXISTS __tmp_sambung_kembali;
                     CREATE TABLE __tmp_sambung_kembali AS
                     SELECT
                     @id := @id+1 AS idpermohonan,
                     per.nomor
                     FROM permohonan_sambung_kembali per
-                    JOIN bpbatam_bsbs.pelanggan pel ON pel.nosamb = per.nosamb
+                    JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = per.nosamb
                     ,(SELECT @id := @lastid) AS id
                     WHERE per.flaghapus = 0;",
                     param: new { lastid = lastId },

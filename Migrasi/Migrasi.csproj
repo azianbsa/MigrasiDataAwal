@@ -409,6 +409,15 @@
     <None Update="Queries\bayar_angsuran_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\rotasimeter\ba_rotasimeter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rotasimeter\rotasimeter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rotasimeter\spkp_rotasimeter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\rubah_gol\rubah_gol.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
