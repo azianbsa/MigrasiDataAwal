@@ -2690,6 +2690,11 @@ namespace Migrasi.Commands
                                     {
                                         await Rotasimeter(settings);
                                     });
+
+                                    await Utils.TrackProgress("rotasimeter nonrutin", async () =>
+                                    {
+                                        await RotasimeterNonrutin(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -2717,6 +2722,77 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task RotasimeterNonrutin(Settings settings)
+        {
+            var lastId = 0;
+            var rotasimeter = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                rotasimeter = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='GANTI_METER_NON_RUTIN'", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_rotasimeter;
+                    CREATE TABLE __tmp_rotasimeter AS
+                    SELECT
+                    @id := @id+1 AS idpermohonan,
+                    p.nosamb,
+                    p.periode
+                    FROM `rotasimeter_nonrutin` p
+                    ,(SELECT @id := @lastid) AS id",
+                    param: new { lastid = lastId },
+                    transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\rotasimeter_nonrutin\rotasimeter_nonrutin.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@tipepermohonan", rotasimeter },
+                },
+                placeholders: new()
+                {
+                    { "[bsbs]", AppSettings.DBNameBilling },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk_pasang",
+                queryPath: @"Queries\rotasimeter_nonrutin\spkp_rotasimeter_nonrutin.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\rotasimeter_nonrutin\ba_rotasimeter_nonrutin.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_rotasimeter",
+                    transaction: trans);
+            });
         }
 
         private async Task Rotasimeter(Settings settings)
