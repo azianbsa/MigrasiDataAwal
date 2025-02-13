@@ -3453,6 +3453,7 @@ namespace Migrasi.Commands
                     ,(SELECT @iduser := 0) AS iduser
                     ORDER BY nama;
 
+                    DROP TABLE IF EXISTS __tmp_permohonan_rubah_gol;
                     CREATE TABLE __tmp_permohonan_rubah_gol AS
                     SELECT
                     @id := @id+1 AS id,
