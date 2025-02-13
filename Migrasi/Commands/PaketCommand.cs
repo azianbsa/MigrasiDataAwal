@@ -3299,11 +3299,11 @@ namespace Migrasi.Commands
         private async Task RubahRayon(Settings settings)
         {
             var lastId = 0;
-            var rubahRayon = 0;
+            dynamic? rubahRayon = null;
             await Utils.Client(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-                rubahRayon = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_RAYON'", transaction: trans);
+                rubahRayon = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_RAYON'", transaction: trans);
             });
 
             await Utils.BulkCopy(
@@ -3315,11 +3315,40 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                    { "@tipepermohonan", rubahRayon },
+                    { "@tipepermohonan", rubahRayon.idtipepermohonan },
                 },
                 placeholders: new()
                 {
                     { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"CREATE TABLE __tmp_permohonan_rubah_rayon AS
+                    SELECT
+                    @id := @id+1 AS idpermohonan,
+                    per.nomor
+                    FROM permohonan_rubah_rayon per
+                    JOIN pelanggan pel ON pel.nosamb = per.nosamb
+                    ,(SELECT @id := @lastid) AS id
+                    WHERE per.flaghapus = 0;",
+                    param: new
+                    {
+                        lastid = lastId
+                    },
+                    transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_rab",
+                queryPath: @"Queries\rubah_rayon\rab_rubah_rayon.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@jenisnonair", rubahRayon.idjenisnonair },
                 });
 
             await Utils.BulkCopy(
@@ -3330,7 +3359,6 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
                 });
 
             await Utils.BulkCopy(
@@ -3341,8 +3369,14 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
                 });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"DROP TABLE IF EXISTS __tmp_permohonan_rubah_rayon;",
+                    transaction: trans);
+            });
         }
 
         private async Task RubahGolongan(Settings settings)
@@ -3373,26 +3407,32 @@ namespace Migrasi.Commands
 
             await Utils.ClientLoket(async (conn, trans) =>
             {
-                await conn.ExecuteAsync($@"
-                DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-                CREATE TEMPORARY TABLE __tmp_userloket AS
-                SELECT
-                @iduser := @iduser + 1 AS iduser,
-                nama
-                FROM userloket
-                ,(SELECT @iduser := 0) AS iduser
-                ORDER BY nama;
+                await conn.ExecuteAsync(
+                    sql: $@"
+                    DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
+                    CREATE TEMPORARY TABLE __tmp_userloket AS
+                    SELECT
+                    @iduser := @iduser + 1 AS iduser,
+                    nama
+                    FROM userloket
+                    ,(SELECT @iduser := 0) AS iduser
+                    ORDER BY nama;
 
-                CREATE TABLE __tmp_permohonan_rubah_gol AS
-                SELECT
-                @id := @id+1 AS id,
-                rg.nomor,
-                usr.iduser
-                FROM permohonan_rubah_gol rg
-                JOIN pelanggan pel ON pel.nosamb = rg.nosamb
-                LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
-                ,(SELECT @id := @lastid) AS id
-                WHERE rg.flaghapus = 0", new { lastid = lastId }, trans);
+                    CREATE TABLE __tmp_permohonan_rubah_gol AS
+                    SELECT
+                    @id := @id+1 AS id,
+                    rg.nomor,
+                    usr.iduser
+                    FROM permohonan_rubah_gol rg
+                    JOIN pelanggan pel ON pel.nosamb = rg.nosamb
+                    LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
+                    ,(SELECT @id := @lastid) AS id
+                    WHERE rg.flaghapus = 0",
+                    param: new
+                    {
+                        lastid = lastId
+                    }
+                    , trans);
             });
 
             await Utils.BulkCopy(

@@ -1,10 +1,5 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket (
-    iduser INT,
-    nama VARCHAR(30),
-    INDEX idx_tmp_userloket_nama (nama)
-);
-INSERT INTO __tmp_userloket
+CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
 @iduser := @iduser + 1 AS iduser,
 nama
@@ -14,7 +9,7 @@ ORDER BY nama;
 
 SELECT
 @idpdam AS idpdam,
-@id := @id+1 AS idpermohonan,
+p.idpermohonan AS idpermohonan,
 per.nomor_spk AS nomorspk,
 per.tanggal_spk AS tanggalspk,
 NULL AS `nomorsppb`,
@@ -25,8 +20,8 @@ NULL AS fotobukti2,
 NULL AS fotobukti3,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-NOW() AS waktuupdate
+per.`tanggal_spk` AS waktuupdate
 FROM permohonan_rubah_rayon per
+JOIN __tmp_permohonan_rubah_rayon p ON p.nomor=per.nomor
 LEFT JOIN __tmp_userloket usr ON usr.nama = per.user_spk
-,(SELECT @id := @lastid) AS id
-WHERE per.flaghapus = 0
+WHERE per.flaghapus = 0 AND per.`flag_spk`=1 AND per.`nomor_spk` IS NOT NULL

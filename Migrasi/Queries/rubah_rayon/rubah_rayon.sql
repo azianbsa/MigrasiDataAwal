@@ -1,10 +1,5 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket (
-    iduser INT,
-    nama VARCHAR(30),
-    INDEX idx_tmp_userloket_nama (nama)
-);
-INSERT INTO __tmp_userloket
+CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
 @iduser := @iduser + 1 AS iduser,
 nama
@@ -44,7 +39,7 @@ IF(per.flag_ba=0,
 0 AS flaghapus,
 per.tanggal waktuupdate
 FROM permohonan_rubah_rayon per
-JOIN [bsbs].pelanggan pel ON pel.nosamb = per.nosamb
+JOIN pelanggan pel ON pel.nosamb = per.nosamb
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = per.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = per.kodekelurahan
 LEFT JOIN [bsbs].golongan gol ON gol.kodegol = per.kodegol AND gol.aktif = 1
