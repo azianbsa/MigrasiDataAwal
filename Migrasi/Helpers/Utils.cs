@@ -173,7 +173,7 @@ namespace Migrasi.Helpers
 
         public static async Task ClientBilling(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
-            using var conn = new MySqlConnection(AppSettings.ConnectionStringBilling);
+            using var conn = new MySqlConnection(AppSettings.ConnectionStringBsbs);
             await conn.OpenAsync();
             var trans = await conn.BeginTransactionAsync();
 

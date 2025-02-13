@@ -6,45 +6,45 @@ namespace Migrasi
     internal static class AppSettings
     {
         public static Environment Environment { get; set; }
-        public static string DBHost { get; set; }
-        public static uint DBPort { get; set; }
-        public static string DBUser { get; set; }
-        public static string DBPassword { get; set; }
-        public static string DBName { get; set; }
+        public static string Host { get; set; }
+        public static uint Port { get; set; }
+        public static string User { get; set; }
+        public static string Password { get; set; }
+        public static string Database { get; set; }
 
-        public static string DBHostStaging { get; set; }
-        public static uint DBPortStaging { get; set; }
-        public static string DBUserStaging { get; set; }
-        public static string DBPasswordStaging { get; set; }
-        public static string DBNameStaging { get; set; }
+        public static string HostStaging { get; set; }
+        public static uint PortStaging { get; set; }
+        public static string UserStaging { get; set; }
+        public static string PasswordStaging { get; set; }
+        public static string DatabaseStaging { get; set; }
 
-        public static string DBHostBilling { get; set; }
-        public static uint DBPortBilling { get; set; }
-        public static string DBUserBilling { get; set; }
-        public static string DBPasswordBilling { get; set; }
-        public static string DBNameBilling { get; set; }
+        public static string HostBsbs { get; set; }
+        public static uint PortBsbs { get; set; }
+        public static string UserBsbs { get; set; }
+        public static string PasswordBsbs { get; set; }
+        public static string DatabaseBsbs { get; set; }
 
-        public static string DBHostBacameter { get; set; }
-        public static uint DBPortBacameter { get; set; }
-        public static string DBUserBacameter { get; set; }
-        public static string DBPasswordBacameter { get; set; }
-        public static string DBNameBacameter { get; set; }
+        public static string HostBacameter { get; set; }
+        public static uint PortBacameter { get; set; }
+        public static string UserBacameter { get; set; }
+        public static string PasswordBacameter { get; set; }
+        public static string DatabaseBacameter { get; set; }
 
-        public static string DBHostLoket { get; set; }
-        public static uint DBPortLoket { get; set; }
-        public static string DBUserLoket { get; set; }
-        public static string DBPasswordLoket { get; set; }
-        public static string DBNameLoket { get; set; }
+        public static string HostLoket { get; set; }
+        public static uint PortLoket { get; set; }
+        public static string UserLoket { get; set; }
+        public static string PasswordLoket { get; set; }
+        public static string DatabaseLoket { get; set; }
 
         public static int CommandTimeout { get; set; } = 3600;
 
         public static string ConnectionString => new MySqlConnectionStringBuilder
         {
-            Server = DBHost,
-            Port = DBPort,
-            UserID = DBUser,
-            Password = DBPassword,
-            Database = DBName,
+            Server = Host,
+            Port = Port,
+            UserID = User,
+            Password = Password,
+            Database = Database,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
             AllowZeroDateTime = true,
@@ -55,23 +55,23 @@ namespace Migrasi
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
         {
-            Server = DBHostStaging,
-            Port = DBPortStaging,
-            UserID = DBUserStaging,
-            Password = DBPasswordStaging,
-            Database = DBNameStaging,
+            Server = HostStaging,
+            Port = PortStaging,
+            UserID = UserStaging,
+            Password = PasswordStaging,
+            Database = DatabaseStaging,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
             AllowZeroDateTime = true,
         }.ConnectionString;
 
-        public static string ConnectionStringBilling => new MySqlConnectionStringBuilder
+        public static string ConnectionStringBsbs => new MySqlConnectionStringBuilder
         {
-            Server = DBHostBilling,
-            Port = DBPortBilling,
-            UserID = DBUserBilling,
-            Password = DBPasswordBilling,
-            Database = DBNameBilling,
+            Server = HostBsbs,
+            Port = PortBsbs,
+            UserID = UserBsbs,
+            Password = PasswordBsbs,
+            Database = DatabaseBsbs,
             AllowUserVariables = true,
             DefaultCommandTimeout = (uint)CommandTimeout,
             ConnectionTimeout = (uint)CommandTimeout,
@@ -80,21 +80,21 @@ namespace Migrasi
 
         public static string ConnectionStringBacameter => new MySqlConnectionStringBuilder
         {
-            Server = DBHostBacameter,
-            Port = DBPortBacameter,
-            UserID = DBUserBacameter,
-            Password = DBPasswordBacameter,
-            Database = DBNameBacameter,
+            Server = HostBacameter,
+            Port = PortBacameter,
+            UserID = UserBacameter,
+            Password = PasswordBacameter,
+            Database = DatabaseBacameter,
             AllowUserVariables = true,
         }.ConnectionString;
 
         public static string ConnectionStringLoket => new MySqlConnectionStringBuilder
         {
-            Server = DBHostLoket,
-            Port = DBPortLoket,
-            UserID = DBUserLoket,
-            Password = DBPasswordLoket,
-            Database = DBNameLoket,
+            Server = HostLoket,
+            Port = PortLoket,
+            UserID = UserLoket,
+            Password = PasswordLoket,
+            Database = DatabaseLoket,
             AllowUserVariables = true,
             DefaultCommandTimeout = (uint)CommandTimeout,
             ConnectionTimeout = (uint)CommandTimeout,

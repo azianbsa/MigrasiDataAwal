@@ -44,8 +44,8 @@ namespace Migrasi.Commands
                             .AddRow("Pdam", $"{settings.IdPdam} {namaPdam}")
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
                             .AddRow("Periode H-4", periodeHMin4.ToString()!)
-                            .AddRow("DB Bacameter V4", AppSettings.DBNameBacameter)
-                            .AddRow("DB Billing V4", AppSettings.DBNameBilling)
+                            .AddRow("DB Bacameter V4", AppSettings.DatabaseBacameter)
+                            .AddRow("DB Billing V4", AppSettings.DatabaseBsbs)
                             .AddRow("Environment", AppSettings.Environment.ToString()));
 
                         if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
@@ -64,7 +64,7 @@ namespace Migrasi.Commands
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
-                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                                new { schema = AppSettings.DatabaseBsbs }, trans);
                                             if (cek is null)
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\tambah_field_id_tabel_pelanggan.sql");
@@ -154,7 +154,7 @@ namespace Migrasi.Commands
                                     {
                                         ctx.Status("proses flag");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             queryPath: @"Queries\master\master_attribute_flag.sql",
                                             tableName: "master_attribute_flag",
@@ -165,7 +165,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses status");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_status",
                                             queryPath: @"Queries\master\master_attribute_status.sql",
@@ -176,7 +176,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses jenis bangunan");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_jenis_bangunan",
                                             queryPath: @"Queries\master\master_attribute_jenis_bangunan.sql",
@@ -187,7 +187,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses kepemilikan");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kepemilikan",
                                             queryPath: @"Queries\master\master_attribute_kepemilikan.sql",
@@ -198,7 +198,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses pekerjaan");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_pekerjaan",
                                             queryPath: @"Queries\master\master_attribute_pekerjaan.sql",
@@ -209,7 +209,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses peruntukan");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_peruntukan",
                                             queryPath: @"Queries\master\master_attribute_peruntukan.sql",
@@ -220,7 +220,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses jenis pipa");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_jenis_pipa",
                                             queryPath: @"Queries\master\master_attribute_jenis_pipa.sql",
@@ -231,7 +231,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses kwh");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kwh",
                                             queryPath: @"Queries\master\master_attribute_kwh.sql",
@@ -242,7 +242,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses golongan");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_golongan",
                                             queryPath: @"Queries\master\master_tarif_golongan.sql",
@@ -251,7 +251,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_golongan_detail",
                                             queryPath: @"Queries\master\master_tarif_golongan_detail.sql",
@@ -262,7 +262,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses diameter");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_diameter",
                                             queryPath: @"Queries\master\master_tarif_diameter.sql",
@@ -271,7 +271,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_diameter_detail",
                                             queryPath: @"Queries\master\master_tarif_diameter_detail.sql",
@@ -282,7 +282,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses wilayah");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_wilayah",
                                             queryPath: @"Queries\master\master_attribute_wilayah.sql",
@@ -293,7 +293,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses area");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_area",
                                             queryPath: @"Queries\master\master_attribute_area.sql",
@@ -304,7 +304,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses rayon");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_rayon",
                                             queryPath: @"Queries\master\master_attribute_rayon.sql",
@@ -315,7 +315,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses blok");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_blok",
                                             queryPath: @"Queries\master\master_attribute_blok.sql",
@@ -326,7 +326,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses cabang");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_cabang",
                                             queryPath: @"Queries\master\master_attribute_cabang.sql",
@@ -337,7 +337,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses kecamatan");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kecamatan",
                                             queryPath: @"Queries\master\master_attribute_kecamatan.sql",
@@ -348,7 +348,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses kelurahan");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kelurahan",
                                             queryPath: @"Queries\master\master_attribute_kelurahan.sql",
@@ -359,7 +359,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses dma");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_dma",
                                             queryPath: @"Queries\master\master_attribute_dma.sql",
@@ -370,7 +370,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses dmz");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_dmz",
                                             queryPath: @"Queries\master\master_attribute_dmz.sql",
@@ -381,7 +381,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses administrasi lain");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_administrasi_lain",
                                             queryPath: @"Queries\master\master_tarif_administrasi_lain.sql",
@@ -392,7 +392,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses pemeliharaan lain");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_pemeliharaan_lain",
                                             queryPath: @"Queries\master\master_tarif_pemeliharaan_lain.sql",
@@ -403,7 +403,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses retribusi lain");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_retribusi_lain",
                                             queryPath: @"Queries\master\master_tarif_retribusi_lain.sql",
@@ -414,7 +414,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses kolektif");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kolektif",
                                             queryPath: @"Queries\master\master_attribute_kolektif.sql",
@@ -425,7 +425,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses sumber air");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_sumber_air",
                                             queryPath: @"Queries\master\master_attribute_sumber_air.sql",
@@ -436,7 +436,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses merek meter");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_merek_meter",
                                             queryPath: @"Queries\master\master_attribute_merek_meter.sql",
@@ -447,7 +447,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses kondisi meter");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kondisi_meter",
                                             queryPath: @"Queries\master\master_attribute_kondisi_meter.sql",
@@ -465,7 +465,7 @@ namespace Migrasi.Commands
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='kelainan'",
-                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                                new { schema = AppSettings.DatabaseBsbs }, trans);
                                             if (cek.Any())
                                             {
                                                 if (!cek.Where(s => s.column_name == "idkelainan").Any())
@@ -521,7 +521,7 @@ namespace Migrasi.Commands
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pembacameter'",
-                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                                new { schema = AppSettings.DatabaseBsbs }, trans);
                                             if (cek.Any())
                                             {
                                                 if (!cek.Where(s => s.column_name == "idpetugas").Any())
@@ -554,7 +554,7 @@ namespace Migrasi.Commands
                                             }
                                         });
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_petugas_baca",
                                             queryPath: @"Queries\master\master_attribute_petugas_baca.sql",
@@ -565,7 +565,7 @@ namespace Migrasi.Commands
 
                                         ctx.Status("proses periode");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_periode",
                                             queryPath: @"Queries\master\master_periode.sql",
@@ -574,7 +574,7 @@ namespace Migrasi.Commands
                                                 { "@idpdam", settings.IdPdam }
                                             });
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_periode_billing",
                                             queryPath: @"Queries\master\master_periode_billing.sql",
@@ -640,7 +640,7 @@ namespace Migrasi.Commands
                                     {
                                         ctx.Status("proses pelanggan air");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_pelanggan_air",
                                             queryPath: @"Queries\master_pelanggan_air.sql",
@@ -650,7 +650,7 @@ namespace Migrasi.Commands
                                             });
                                         ctx.Status("proses pelanggan air detail");
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBilling,
+                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_pelanggan_air_detail",
                                             queryPath: @"Queries\master_pelanggan_air_detail.sql",
@@ -740,7 +740,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress($"data drd{periode}", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "rekening_air",
                                                 queryPath: @"Queries\drd.sql",
@@ -753,7 +753,7 @@ namespace Migrasi.Commands
                                                     { "[tahunbulan]", periode }
                                                 });
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "rekening_air_detail",
                                                 queryPath: @"Queries\drd_detail.sql",
@@ -793,9 +793,9 @@ namespace Migrasi.Commands
                             .AddColumn(new TableColumn("Value"))
                             .AddRow("Pdam", $"{settings.IdPdam} {namaPdam}")
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
-                            .AddRow("DB Bacameter V4", AppSettings.DBNameBacameter)
-                            .AddRow("DB Billing V4", AppSettings.DBNameBilling)
-                            .AddRow("DB Loket V4", AppSettings.DBNameLoket)
+                            .AddRow("DB Bacameter V4", AppSettings.DatabaseBacameter)
+                            .AddRow("DB Billing V4", AppSettings.DatabaseBsbs)
+                            .AddRow("DB Loket V4", AppSettings.DatabaseLoket)
                             .AddRow("Environment", AppSettings.Environment.ToString()));
 
                         if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
@@ -822,7 +822,7 @@ namespace Migrasi.Commands
                                         await Utils.ClientBilling(async (conn, trans) =>
                                         {
                                             var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
-                                                new { schema = AppSettings.DBNameBilling }, trans);
+                                                new { schema = AppSettings.DatabaseBsbs }, trans);
                                             if (cek is null)
                                             {
                                                 var query = await File.ReadAllTextAsync(@"Queries\patches\tambah_field_id_tabel_pelanggan.sql");
@@ -914,7 +914,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("flag|master_attribute_flag", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 queryPath: @"Queries\master\master_attribute_flag.sql",
                                                 tableName: "master_attribute_flag",
@@ -928,7 +928,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("status|master_attribute_status", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_status",
                                                 queryPath: @"Queries\master\master_attribute_status.sql",
@@ -942,7 +942,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("jenis bangunan|master_attribute_jenis_bangunan", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_jenis_bangunan",
                                                 queryPath: @"Queries\master\master_attribute_jenis_bangunan.sql",
@@ -956,7 +956,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("kepemilikan|master_attribute_kepemilikan", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kepemilikan",
                                                 queryPath: @"Queries\master\master_attribute_kepemilikan.sql",
@@ -970,7 +970,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("pekerjaan|master_attribute_pekerjaan", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_pekerjaan",
                                                 queryPath: @"Queries\master\master_attribute_pekerjaan.sql",
@@ -984,7 +984,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("peruntukan|master_attribute_peruntukan", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_peruntukan",
                                                 queryPath: @"Queries\master\master_attribute_peruntukan.sql",
@@ -998,7 +998,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("jenis pipa|master_attribute_jenis_pipa", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_jenis_pipa",
                                                 queryPath: @"Queries\master\master_attribute_jenis_pipa.sql",
@@ -1012,7 +1012,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("kwh|master_attribute_kwh", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kwh",
                                                 queryPath: @"Queries\master\master_attribute_kwh.sql",
@@ -1026,7 +1026,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("golongan|master_tarif_golongan", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_golongan",
                                                 queryPath: @"Queries\master\master_tarif_golongan.sql",
@@ -1040,7 +1040,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("golongan|master_tarif_golongan_detail", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_golongan_detail",
                                                 queryPath: @"Queries\master\master_tarif_golongan_detail.sql",
@@ -1054,7 +1054,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("diameter|master_tarif_diameter", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_diameter",
                                                 queryPath: @"Queries\master\master_tarif_diameter.sql",
@@ -1068,7 +1068,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("diameter|master_tarif_diameter_detail", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_diameter_detail",
                                                 queryPath: @"Queries\master\master_tarif_diameter_detail.sql",
@@ -1082,7 +1082,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("wilayah|master_attribute_wilayah", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_wilayah",
                                                 queryPath: @"Queries\master\master_attribute_wilayah.sql",
@@ -1096,7 +1096,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("area|master_attribute_area", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_area",
                                                 queryPath: @"Queries\master\master_attribute_area.sql",
@@ -1110,7 +1110,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("rayon|master_attribute_rayon", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_rayon",
                                                 queryPath: @"Queries\master\master_attribute_rayon.sql",
@@ -1124,7 +1124,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("blok|master_attribute_blok", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_blok",
                                                 queryPath: @"Queries\master\master_attribute_blok.sql",
@@ -1138,7 +1138,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("cabang|master_attribute_cabang", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_cabang",
                                                 queryPath: @"Queries\master\master_attribute_cabang.sql",
@@ -1152,7 +1152,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("kecamatan|master_attribute_kecamatan", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kecamatan",
                                                 queryPath: @"Queries\master\master_attribute_kecamatan.sql",
@@ -1166,7 +1166,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("kelurahan|master_attribute_kelurahan", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kelurahan",
                                                 queryPath: @"Queries\master\master_attribute_kelurahan.sql",
@@ -1180,7 +1180,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("dma|master_attribute_dma", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_dma",
                                                 queryPath: @"Queries\master\master_attribute_dma.sql",
@@ -1194,7 +1194,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("dmz|master_attribute_dmz", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_dmz",
                                                 queryPath: @"Queries\master\master_attribute_dmz.sql",
@@ -1208,7 +1208,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("administrasi lain|master_tarif_administrasi_lain", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_administrasi_lain",
                                                 queryPath: @"Queries\master\master_tarif_administrasi_lain.sql",
@@ -1222,7 +1222,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("pemeliharaan lain|master_tarif_pemeliharaan_lain", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_pemeliharaan_lain",
                                                 queryPath: @"Queries\master\master_tarif_pemeliharaan_lain.sql",
@@ -1236,7 +1236,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("retribusi lain|master_tarif_retribusi_lain", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_tarif_retribusi_lain",
                                                 queryPath: @"Queries\master\master_tarif_retribusi_lain.sql",
@@ -1257,7 +1257,7 @@ namespace Migrasi.Commands
                                             });
 
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kolektif",
                                                 queryPath: @"Queries\master\master_attribute_kolektif.sql",
@@ -1271,7 +1271,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("sumber air|master_attribute_sumber_air", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_sumber_air",
                                                 queryPath: @"Queries\master\master_attribute_sumber_air.sql",
@@ -1285,7 +1285,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("merek meter|master_attribute_merek_meter", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_merek_meter",
                                                 queryPath: @"Queries\master\master_attribute_merek_meter.sql",
@@ -1306,7 +1306,7 @@ namespace Migrasi.Commands
                                             });
 
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kondisi_meter",
                                                 queryPath: @"Queries\master\master_attribute_kondisi_meter.sql",
@@ -1328,7 +1328,7 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='kelainan'",
-                                                    new { schema = AppSettings.DBNameBilling }, trans);
+                                                    new { schema = AppSettings.DatabaseBsbs }, trans);
                                                 if (cek.Any())
                                                 {
                                                     if (!cek.Where(s => s.column_name == "idkelainan").Any())
@@ -1368,7 +1368,7 @@ namespace Migrasi.Commands
                                             });
 
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_kelainan",
                                                 queryPath: @"Queries\master\master_attribute_kelainan.sql",
@@ -1390,7 +1390,7 @@ namespace Migrasi.Commands
                                             await Utils.ClientBilling(async (conn, trans) =>
                                             {
                                                 var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pembacameter'",
-                                                    new { schema = AppSettings.DBNameBilling }, trans);
+                                                    new { schema = AppSettings.DatabaseBsbs }, trans);
                                                 if (cek.Any())
                                                 {
                                                     if (!cek.Where(s => s.column_name == "idpetugas").Any())
@@ -1425,7 +1425,7 @@ namespace Migrasi.Commands
                                             });
 
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_attribute_petugas_baca",
                                                 queryPath: @"Queries\master\master_attribute_petugas_baca.sql",
@@ -1439,7 +1439,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("periode|master_periode", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_periode",
                                                 queryPath: @"Queries\master\master_periode.sql",
@@ -1453,7 +1453,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("periode|master_periode_billing", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_periode_billing",
                                                 queryPath: @"Queries\master\master_periode_billing.sql",
@@ -1793,7 +1793,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[bsbs]", AppSettings.DBNameBilling }
+                                                    { "[bsbs]", AppSettings.DatabaseBsbs }
                                                 });
                                         });
                                     });
@@ -1945,7 +1945,7 @@ namespace Migrasi.Commands
                                         await Utils.TrackProgress("pelanggan air|master_pelanggan_air", async () =>
                                         {
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_pelanggan_air",
                                                 queryPath: @"Queries\master_pelanggan_air.sql",
@@ -1966,7 +1966,7 @@ namespace Migrasi.Commands
                                             });
 
                                             await Utils.BulkCopy(
-                                                sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "master_pelanggan_air_detail",
                                                 queryPath: @"Queries\master_pelanggan_air_detail.sql",
@@ -2013,7 +2013,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air",
                                                     queryPath: @"Queries\piutang.sql",
@@ -2034,7 +2034,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"piutang-{periode}|rekening_air_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_air_detail",
                                                     queryPath: @"Queries\piutang_detail.sql",
@@ -2054,89 +2054,194 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("bayar", async () =>
                                     {
-                                        IEnumerable<string?> bayarTahun = [];
-                                        await Utils.ClientBilling(async (conn, trans) =>
+                                        IEnumerable<int>? listPeriode = [];
+                                        await Utils.ClientLoket(async (conn, trans) =>
                                         {
-                                            bayarTahun = await conn.QueryAsync<string?>(@"
-                                            SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                            new { table_schema = AppSettings.DBNameBilling }, trans);
+                                            listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar GROUP BY periode", transaction: trans);
+                                            await conn.ExecuteAsync(
+                                                sql: $@"
+                                                DROP TABLE IF EXISTS __tmp_periode;
+                                                CREATE TABLE __tmp_periode AS
+                                                SELECT
+                                                @idperiode := @idperiode+1 AS idperiode,
+                                                periode
+                                                FROM {AppSettings.DatabaseBsbs}.periode
+                                                ,(SELECT @idperiode := 0) AS idperiode
+                                                ORDER BY periode",
+                                                transaction: trans);
+                                        });
+
+                                        foreach (var periode in listPeriode)
+                                        {
+                                            ctx.Status($"proses bayar-{periode}|rekening_air");
+                                            await Utils.TrackProgress($"bayar-{periode}|rekening_air", async () =>
+                                            {
+                                                var lastId = 0;
+                                                await Utils.Client(async (conn, trans) =>
+                                                {
+                                                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                                                });
+
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air",
+                                                    queryPath: @"Queries\bayar\bayar.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastId },
+                                                        { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", $"bayar" },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses bayar-{periode}|rekening_air_detail");
+                                            await Utils.TrackProgress($"bayar-{periode}|rekening_air_detail", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_detail",
+                                                    queryPath: @"Queries\bayar\bayar_detail.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", $"bayar" },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                                                    });
+                                            }, usingStopwatch: true);
+
+                                            ctx.Status($"proses bayar-{periode}|rekening_air_transaksi");
+                                            await Utils.TrackProgress($"bayar-{periode}|rekening_air_transaksi", async () =>
+                                            {
+                                                await Utils.BulkCopy(
+                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                    tConnectionStr: AppSettings.ConnectionString,
+                                                    tableName: "rekening_air_transaksi",
+                                                    queryPath: @"Queries\bayar\bayar_transaksi.sql",
+                                                    parameters: new()
+                                                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                    },
+                                                    placeholders: new()
+                                                    {
+                                                        { "[table]", $"bayar" },
+                                                    });
+                                            }, usingStopwatch: true);
+                                        }
+                                    });
+
+                                    await Utils.TrackProgress("bayar tahun", async () =>
+                                    {
+                                        IEnumerable<string?> bayarTahun = [];
+                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        {
+                                            bayarTahun = await conn.QueryAsync<string?>(
+                                                sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
+                                                param: new { table_schema = AppSettings.DatabaseLoket },
+                                                transaction: trans);
                                         });
 
                                         foreach (var tahun in bayarTahun)
                                         {
-                                            IEnumerable<int>? listPeriode = [];
-                                            await Utils.ClientBilling(async (conn, trans) =>
+                                            await Utils.TrackProgress($"bayar{tahun}", async () =>
                                             {
-                                                listPeriode = await conn.QueryAsync<int>($@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
-                                            });
-
-                                            foreach (var periode in listPeriode)
-                                            {
-                                                ctx.Status($"proses bayar{tahun}-{periode}|rekening_air");
-                                                await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air", async () =>
+                                                IEnumerable<int>? listPeriode = [];
+                                                await Utils.ClientLoket(async (conn, trans) =>
                                                 {
-                                                    var lastId = 0;
-                                                    await Utils.Client(async (conn, trans) =>
+                                                    listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
+                                                    await conn.ExecuteAsync(
+                                                        sql: $@"
+                                                        DROP TABLE IF EXISTS __tmp_periode;
+                                                        CREATE TABLE __tmp_periode AS
+                                                        SELECT
+                                                        @idperiode := @idperiode+1 AS idperiode,
+                                                        periode
+                                                        FROM {AppSettings.DatabaseBsbs}.periode
+                                                        ,(SELECT @idperiode := 0) AS idperiode
+                                                        ORDER BY periode",
+                                                        transaction:trans);
+                                                });
+
+                                                foreach (var periode in listPeriode)
+                                                {
+                                                    ctx.Status($"proses bayar{tahun}-{periode}|rekening_air");
+                                                    await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air", async () =>
                                                     {
-                                                        lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                                    });
-
-                                                    await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                        tConnectionStr: AppSettings.ConnectionString,
-                                                        tableName: "rekening_air",
-                                                        queryPath: @"Queries\bayar.sql",
-                                                        parameters: new()
+                                                        var lastId = 0;
+                                                        await Utils.Client(async (conn, trans) =>
                                                         {
-                                                            { "@idpdam", settings.IdPdam },
-                                                            { "@lastid", lastId },
-                                                            { "@periode", periode },
-                                                        },
-                                                        placeholders: new()
-                                                        {
-                                                            { "[table]", $"bayar{tahun}" },
+                                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                                                         });
-                                                }, usingStopwatch: true);
 
-                                                ctx.Status($"proses bayar{tahun}-{periode}|rekening_air_detail");
-                                                await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_detail", async () =>
-                                                {
-                                                    await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                        tConnectionStr: AppSettings.ConnectionString,
-                                                        tableName: "rekening_air_detail",
-                                                        queryPath: @"Queries\bayar_detail.sql",
-                                                        parameters: new()
-                                                        {
-                                                            { "@idpdam", settings.IdPdam },
-                                                            { "@periode", periode },
-                                                        },
-                                                        placeholders: new()
-                                                        {
-                                                            { "[table]", $"bayar{tahun}" },
-                                                        });
-                                                }, usingStopwatch: true);
+                                                        await Utils.BulkCopy(
+                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                            tConnectionStr: AppSettings.ConnectionString,
+                                                            tableName: "rekening_air",
+                                                            queryPath: @"Queries\bayar\bayar.sql",
+                                                            parameters: new()
+                                                            {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@lastid", lastId },
+                                                                { "@periode", periode },
+                                                            },
+                                                            placeholders: new()
+                                                            {
+                                                                { "[table]", $"bayar{tahun}" },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                                            });
+                                                    }, usingStopwatch: true);
 
-                                                ctx.Status($"proses bayar{tahun}-{periode}|rekening_air_transaksi");
-                                                await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_transaksi", async () =>
-                                                {
-                                                    await Utils.BulkCopy(
-                                                        sConnectionStr: AppSettings.ConnectionStringBilling,
-                                                        tConnectionStr: AppSettings.ConnectionString,
-                                                        tableName: "rekening_air_transaksi",
-                                                        queryPath: @"Queries\bayar_transaksi.sql",
-                                                        parameters: new()
-                                                        {
-                                                            { "@idpdam", settings.IdPdam },
-                                                            { "@periode", periode },
-                                                        },
-                                                        placeholders: new()
-                                                        {
-                                                            { "[table]", $"bayar{tahun}" },
-                                                            { "[loket]", AppSettings.DBNameLoket },
-                                                        });
-                                                }, usingStopwatch: true);
-                                            }
+                                                    ctx.Status($"proses bayar{tahun}-{periode}|rekening_air_detail");
+                                                    await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_detail", async () =>
+                                                    {
+                                                        await Utils.BulkCopy(
+                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                            tConnectionStr: AppSettings.ConnectionString,
+                                                            tableName: "rekening_air_detail",
+                                                            queryPath: @"Queries\bayar\bayar_detail.sql",
+                                                            parameters: new()
+                                                            {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@periode", periode },
+                                                            },
+                                                            placeholders: new()
+                                                            {
+                                                                { "[table]", $"bayar{tahun}" },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                                            });
+                                                    }, usingStopwatch: true);
+
+                                                    ctx.Status($"proses bayar{tahun}-{periode}|rekening_air_transaksi");
+                                                    await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_transaksi", async () =>
+                                                    {
+                                                        await Utils.BulkCopy(
+                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                                            tConnectionStr: AppSettings.ConnectionString,
+                                                            tableName: "rekening_air_transaksi",
+                                                            queryPath: @"Queries\bayar\bayar_transaksi.sql",
+                                                            parameters: new()
+                                                            {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@periode", periode },
+                                                            },
+                                                            placeholders: new()
+                                                            {
+                                                                { "[table]", $"bayar{tahun}" },
+                                                            });
+                                                    }, usingStopwatch: true);
+                                                }
+                                            });
                                         }
                                     });
 
@@ -2184,7 +2289,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair",
                                                     queryPath: @"Queries\nonair.sql",
@@ -2195,7 +2300,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[loket]", AppSettings.DBNameLoket },
+                                                        { "[loket]", AppSettings.DatabaseLoket },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2203,7 +2308,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_detail",
                                                     queryPath: @"Queries\nonair_detail.sql",
@@ -2218,7 +2323,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_transaksi", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_transaksi",
                                                     queryPath: @"Queries\nonair_transaksi.sql",
@@ -2229,7 +2334,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[loket]", AppSettings.DBNameLoket },
+                                                        { "[loket]", AppSettings.DatabaseLoket },
                                                     });
                                             }, usingStopwatch: true);
                                         }
@@ -2278,7 +2383,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
                                         }, usingStopwatch: true);
 
@@ -2295,7 +2400,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
                                         }, usingStopwatch: true);
 
@@ -2319,7 +2424,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
                                         }, usingStopwatch: true);
 
@@ -2336,7 +2441,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
                                         }, usingStopwatch: true);
 
@@ -2362,7 +2467,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
                                         }, usingStopwatch: true);
 
@@ -2385,7 +2490,7 @@ namespace Migrasi.Commands
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[bsbs]", AppSettings.DBNameBilling },
+                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
                                         }, usingStopwatch: true);
                                     });
@@ -2413,7 +2518,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair",
                                                     queryPath: @"Queries\nonair_angsuran_mst.sql",
@@ -2423,7 +2528,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[loket]", AppSettings.DBNameLoket },
+                                                        { "[loket]", AppSettings.DatabaseLoket },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2431,7 +2536,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_detail", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_detail",
                                                     queryPath: @"Queries\nonair_detail_angsuran_mst.sql",
@@ -2445,7 +2550,7 @@ namespace Migrasi.Commands
                                             await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_angsuran", async () =>
                                             {
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_angsuran",
                                                     queryPath: @"Queries\nonair_angsuran.sql",
@@ -2455,7 +2560,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[loket]", AppSettings.DBNameLoket },
+                                                        { "[loket]", AppSettings.DatabaseLoket },
                                                     });
                                             }, usingStopwatch: true);
 
@@ -2487,7 +2592,7 @@ namespace Migrasi.Commands
                                                 });
 
                                                 await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBilling,
+                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                     tConnectionStr: AppSettings.ConnectionString,
                                                     tableName: "rekening_nonair_angsuran_detail",
                                                     queryPath: @"Queries\nonair_angsuran_detail.sql",
@@ -2499,7 +2604,7 @@ namespace Migrasi.Commands
                                                     },
                                                     placeholders: new()
                                                     {
-                                                        { "[loket]", AppSettings.DBNameLoket },
+                                                        { "[loket]", AppSettings.DatabaseLoket },
                                                     });
                                             }, usingStopwatch: true);
                                         }
@@ -2763,7 +2868,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2834,7 +2939,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2913,7 +3018,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2927,7 +3032,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -2977,7 +3082,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3048,7 +3153,7 @@ namespace Migrasi.Commands
                     @id := @id+1 AS idpermohonan,
                     per.nomor
                     FROM `permohonan_bukasegel` per
-                    JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = per.nosamb
+                    JOIN {AppSettings.DatabaseBsbs}.pelanggan pel ON pel.nosamb = per.nosamb
                     ,(SELECT @id := @lastid) AS id
                     WHERE per.flaghapus = 0",
                     param: new { lastid = lastId },
@@ -3068,7 +3173,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3119,7 +3224,7 @@ namespace Migrasi.Commands
                     @id := @id+1 AS idpermohonan,
                     per.nomor
                     FROM permohonan_sambung_kembali per
-                    JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = per.nosamb
+                    JOIN {AppSettings.DatabaseBsbs}.pelanggan pel ON pel.nosamb = per.nosamb
                     ,(SELECT @id := @lastid) AS id
                     WHERE per.flaghapus = 0;",
                     param: new { lastid = lastId },
@@ -3139,7 +3244,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3214,7 +3319,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3263,7 +3368,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3278,17 +3383,27 @@ namespace Migrasi.Commands
                 ,(SELECT @iduser := 0) AS iduser
                 ORDER BY nama;
 
-                CREATE TABLE __temp_permohonan_rubah_gol AS
+                CREATE TABLE __tmp_permohonan_rubah_gol AS
                 SELECT
                 @id := @id+1 AS id,
                 rg.nomor,
                 usr.iduser
                 FROM permohonan_rubah_gol rg
-                JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = rg.nosamb
+                JOIN pelanggan pel ON pel.nosamb = rg.nosamb
                 LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
                 ,(SELECT @id := @lastid) AS id
                 WHERE rg.flaghapus = 0", new { lastid = lastId }, trans);
             });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk",
+                queryPath: @"Queries\rubah_gol\spk_rubah_gol.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
 
             await Utils.BulkCopy(
                 sConnectionStr: AppSettings.ConnectionStringLoket,
@@ -3302,7 +3417,7 @@ namespace Migrasi.Commands
 
             await Utils.ClientLoket(async (conn, trans) =>
             {
-                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_permohonan_rubah_gol", transaction: trans);
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_permohonan_rubah_gol", transaction: trans);
             });
         }
 
@@ -3329,7 +3444,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3350,7 +3465,7 @@ namespace Migrasi.Commands
                 bn.nomor,
                 usr.iduser 
                 FROM permohonan_balik_nama bn
-                JOIN {AppSettings.DBNameBilling}.pelanggan pel ON pel.nosamb = bn.nosamb
+                JOIN {AppSettings.DatabaseBsbs}.pelanggan pel ON pel.nosamb = bn.nosamb
                 LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)
                 ,(SELECT @id := @lastid) AS id
                 WHERE bn.flaghapus = 0", new { lastid = lastId }, trans);
@@ -3415,7 +3530,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DBNameBilling },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(

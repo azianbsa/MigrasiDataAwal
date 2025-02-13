@@ -1,10 +1,5 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket (
-    iduser INT,
-    nama VARCHAR(30),
-    INDEX idx_tmp_userloket_nama (nama)
-);
-INSERT INTO __tmp_userloket
+CREATE TEMPORARY TABLE __tmp_userloket AS 
 SELECT
 @iduser := @iduser + 1 AS iduser,
 nama
@@ -13,7 +8,7 @@ FROM userloket
 ORDER BY nama;
 
 SELECT
-@idpdam as idpdam,
+@idpdam AS idpdam,
 @id := @id+1 AS idpermohonan,
 @tipepermohonan AS idtipepermohonan,
 NULL AS idsumberpengaduan,
@@ -36,17 +31,19 @@ NULL AS fotobukti3,
 IF(ba.nomorba IS NULL,0,1) AS flagverifikasi,
 ba.tanggalba AS waktuverifikasi,
 0 AS flagusulan,
-IF(ba.nomorba IS NULL,
- 'Menunggu Verifikasi',
- 'Selesai') AS statuspermohonan,
+IF(rg.flag_ba_pengecekan=1,
+ 'Selesai',
+ IF(rg.flag_spk_pengecekan=1,
+  'Menunggu Berita Acara',
+  'Menunggu SPK Survey')) AS statuspermohonan,
 0 AS flaghapus,
 rg.tanggal waktuupdate
 FROM permohonan_rubah_gol rg
-JOIN [bsbs].pelanggan pel ON pel.nosamb = rg.nosamb
+JOIN pelanggan pel ON pel.nosamb = rg.nosamb
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = rg.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = rg.kodekelurahan
 LEFT JOIN [bsbs].golongan gol ON gol.kodegol = rg.kodegol AND gol.aktif = 1
-LEFT JOIN ba_balik_nama ba ON ba.nomorpermohonan = rg.nomor AND ba.flaghapus=0
+LEFT JOIN ba_rubah_gol ba ON ba.nomorpermohonan = rg.nomor AND ba.flaghapus=0
 LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
 ,(SELECT @id := @lastid) AS id
 WHERE rg.flaghapus = 0

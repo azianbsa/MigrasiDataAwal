@@ -40,7 +40,7 @@
     <None Update="Queries\balik_nama\ba_balik_nama.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\bayar_transaksi.sql">
+    <None Update="Queries\bayar\bayar_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\buka_segel\ba_buka_segel.sql">
@@ -376,7 +376,7 @@
     <None Update="Queries\patches\tambah_field_id_tabel_pelanggan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\bayar.sql">
+    <None Update="Queries\bayar\bayar.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\pengaduan\ba_pengaduan.sql">
@@ -391,7 +391,7 @@
     <None Update="Queries\drd_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\bayar_detail.sql">
+    <None Update="Queries\bayar\bayar_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\angsuran_air\piutang_rekening_air.sql">
@@ -431,6 +431,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rubah_gol\ba_rubah_gol.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rubah_gol\spk_rubah_gol.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rubah_rayon\spkp_rubah_rayon.sql">

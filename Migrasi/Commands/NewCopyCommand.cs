@@ -50,7 +50,7 @@ namespace Migrasi.Commands
                             await Utils.Client(async (conn, trans) =>
                             {
                                 var partisiTable = await conn.QueryAsync<string>("SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
-                                    new { schema = AppSettings.DBName }, trans);
+                                    new { schema = AppSettings.Database }, trans);
                                 if (partisiTable.Any())
                                 {
                                     foreach (var table in partisiTable)
@@ -58,7 +58,7 @@ namespace Migrasi.Commands
                                         var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' AND table_name=@table AND partition_name=@partisi",
                                             new
                                             {
-                                                schema = AppSettings.DBName,
+                                                schema = AppSettings.Database,
                                                 table,
                                                 partisi = $"pdam{settings.IdPdam}"
                                             }, transaction: trans);
@@ -76,7 +76,7 @@ namespace Migrasi.Commands
                         {
                             await Utils.Client(async (conn, trans) =>
                             {
-                                var query = await File.ReadAllTextAsync(@"Queries\Patches\setup_new_copy_pdam.sql");
+                                var query = await File.ReadAllTextAsync(@"Queries\patches\setup_new_copy_pdam.sql");
                                 await conn.ExecuteAsync(query,
                                     new
                                     {

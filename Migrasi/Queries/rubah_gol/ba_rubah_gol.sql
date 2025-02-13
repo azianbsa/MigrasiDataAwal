@@ -20,5 +20,5 @@ NULL AS idalasanbatal,
 NULL AS statusberitaacara,
 NOW() AS waktuupdate
 FROM ba_rubah_gol ba
-JOIN __temp_permohonan_rubah_gol rg ON rg.nomor = ba.nomorpermohonan
+JOIN __tmp_permohonan_rubah_gol rg ON rg.nomor = ba.nomorpermohonan
 WHERE ba.flaghapus = 0

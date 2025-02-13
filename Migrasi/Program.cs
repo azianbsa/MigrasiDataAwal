@@ -28,35 +28,35 @@ namespace Migrasi
                 _ => "_DEV"
             };
 
-            AppSettings.DBHost = Env.GetString($"DB_HOST{dbSuffix}");
-            AppSettings.DBPort = (uint)Env.GetInt($"DB_PORT{dbSuffix}");
-            AppSettings.DBUser = Env.GetString($"DB_USER{dbSuffix}");
-            AppSettings.DBPassword = Env.GetString($"DB_PASSWORD{dbSuffix}");
-            AppSettings.DBName = Env.GetString($"DB_NAME{dbSuffix}");
+            AppSettings.Host = Env.GetString($"DB_HOST{dbSuffix}");
+            AppSettings.Port = (uint)Env.GetInt($"DB_PORT{dbSuffix}");
+            AppSettings.User = Env.GetString($"DB_USER{dbSuffix}");
+            AppSettings.Password = Env.GetString($"DB_PASSWORD{dbSuffix}");
+            AppSettings.Database = Env.GetString($"DB_NAME{dbSuffix}");
 
-            AppSettings.DBHostStaging = Env.GetString($"DB_HOST_STG");
-            AppSettings.DBPortStaging = (uint)Env.GetInt($"DB_PORT_STG");
-            AppSettings.DBUserStaging = Env.GetString($"DB_USER_STG");
-            AppSettings.DBPasswordStaging = Env.GetString($"DB_PASSWORD_STG");
-            AppSettings.DBNameStaging = Env.GetString($"DB_NAME_STG");
+            AppSettings.HostStaging = Env.GetString($"DB_HOST_STG");
+            AppSettings.PortStaging = (uint)Env.GetInt($"DB_PORT_STG");
+            AppSettings.UserStaging = Env.GetString($"DB_USER_STG");
+            AppSettings.PasswordStaging = Env.GetString($"DB_PASSWORD_STG");
+            AppSettings.DatabaseStaging = Env.GetString($"DB_NAME_STG");
 
-            AppSettings.DBHostBilling = Env.GetString($"DB_HOST_BILLING");
-            AppSettings.DBPortBilling = (uint)Env.GetInt($"DB_PORT_BILLING");
-            AppSettings.DBUserBilling = Env.GetString($"DB_USER_BILLING");
-            AppSettings.DBPasswordBilling = Env.GetString($"DB_PASSWORD_BILLING");
-            AppSettings.DBNameBilling = Env.GetString($"DB_NAME_BILLING");
+            AppSettings.HostBsbs = Env.GetString($"DB_HOST_BILLING");
+            AppSettings.PortBsbs = (uint)Env.GetInt($"DB_PORT_BILLING");
+            AppSettings.UserBsbs = Env.GetString($"DB_USER_BILLING");
+            AppSettings.PasswordBsbs = Env.GetString($"DB_PASSWORD_BILLING");
+            AppSettings.DatabaseBsbs = Env.GetString($"DB_NAME_BILLING");
 
-            AppSettings.DBHostBacameter = Env.GetString($"DB_HOST_BACAMETER");
-            AppSettings.DBPortBacameter = (uint)Env.GetInt($"DB_PORT_BACAMETER");
-            AppSettings.DBUserBacameter = Env.GetString($"DB_USER_BACAMETER");
-            AppSettings.DBPasswordBacameter = Env.GetString($"DB_PASSWORD_BACAMETER");
-            AppSettings.DBNameBacameter = Env.GetString($"DB_NAME_BACAMETER");
+            AppSettings.HostBacameter = Env.GetString($"DB_HOST_BACAMETER");
+            AppSettings.PortBacameter = (uint)Env.GetInt($"DB_PORT_BACAMETER");
+            AppSettings.UserBacameter = Env.GetString($"DB_USER_BACAMETER");
+            AppSettings.PasswordBacameter = Env.GetString($"DB_PASSWORD_BACAMETER");
+            AppSettings.DatabaseBacameter = Env.GetString($"DB_NAME_BACAMETER");
 
-            AppSettings.DBHostLoket = Env.GetString($"DB_HOST_LOKET");
-            AppSettings.DBPortLoket = (uint)Env.GetInt($"DB_PORT_LOKET");
-            AppSettings.DBUserLoket = Env.GetString($"DB_USER_LOKET");
-            AppSettings.DBPasswordLoket = Env.GetString($"DB_PASSWORD_LOKET");
-            AppSettings.DBNameLoket = Env.GetString($"DB_NAME_LOKET");
+            AppSettings.HostLoket = Env.GetString($"DB_HOST_LOKET");
+            AppSettings.PortLoket = (uint)Env.GetInt($"DB_PORT_LOKET");
+            AppSettings.UserLoket = Env.GetString($"DB_USER_LOKET");
+            AppSettings.PasswordLoket = Env.GetString($"DB_PASSWORD_LOKET");
+            AppSettings.DatabaseLoket = Env.GetString($"DB_NAME_LOKET");
 
             #endregion
 
