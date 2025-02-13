@@ -3049,10 +3049,12 @@ namespace Migrasi.Commands
         private async Task SambungBaru(Settings settings)
         {
             var lastId = 0;
+            var rabDetail = 0;
             var sambBaru = 0;
             await Utils.Client(async (conn, trans) =>
             {
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_non_pelanggan", transaction: trans);
+                rabDetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_non_pelanggan_rab_detail", transaction: trans);
                 sambBaru = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNGAN_BARU_AIR'", transaction: trans);
             });
 
@@ -3068,7 +3070,10 @@ namespace Migrasi.Commands
                     FROM `pendaftaran` p
                     ,(SELECT @id := @lastid) AS id
                     WHERE p.flaghapus = 0",
-                    param: new { lastid = lastId },
+                    param: new
+                    {
+                        lastid = lastId
+                    },
                     transaction: trans);
             });
 
@@ -3106,6 +3111,17 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_rab_detail",
+                queryPath: @"Queries\sambung_baru\rabdetail_sambung_baru.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", rabDetail },
                 });
 
             await Utils.BulkCopy(

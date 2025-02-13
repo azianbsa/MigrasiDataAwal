@@ -17,7 +17,7 @@ NULL AS fotobukti3,
 NULL AS idalasanbatal,
 1 AS flag_dari_verifikasi,
 ba.`keteranganmeter` AS statusberitaacara,
-COALESCE(ba.`tanggalba`,ba.`tglpasang`,ba.`validdate`) AS waktuupdate
+ba.`tanggalba` AS waktuupdate
 FROM `rab` ba
 JOIN __tmp_sambung_baru p ON p.nomorreg=ba.nomorreg
-WHERE ba.flaghapus = 0 AND ba.`nomorba` IS NOT NULL
+WHERE ba.flaghapus = 0 AND ba.`nomorba` IS NOT NULL and ba.`tanggalba` is not null

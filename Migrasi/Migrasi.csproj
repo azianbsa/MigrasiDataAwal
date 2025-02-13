@@ -451,6 +451,9 @@
     <None Update="Queries\sambung_baru\ba_sambung_baru.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\sambung_baru\rabdetail_sambung_baru.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\sambung_baru\rab_sambung_baru.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

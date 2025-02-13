@@ -41,9 +41,9 @@ rab.`grandtotal` AS `rekaptotal`,
 0 AS `flagrablainnya`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
-COALESCE(rab.`tglrab`,NOW()) AS `waktuupdate`
+rab.`tglrab` AS `waktuupdate`
 FROM
 `rab` rab
 JOIN __tmp_sambung_baru p ON p.`nomorreg`=rab.`nomorreg`
 LEFT JOIN __tmp_userbshl usr ON usr.nama=rab.`user`
-WHERE rab.`flaghapus`=0 AND rab.`norab` IS NOT NULL
+WHERE rab.`flaghapus`=0 AND rab.`norab` IS NOT NULL and rab.`tglrab` is not null
