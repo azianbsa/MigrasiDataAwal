@@ -10,7 +10,7 @@ ORDER BY nama;
 SELECT
 @idpdam AS `idpdam`,
 per.`idpermohonan` AS `idpermohonan`,
-@tipepermohonan AS `idjenisnonair`,
+@jenisnonair AS `idjenisnonair`,
 na.`id` AS `idnonair`,
 rab.`norab` AS `nomorrab`,
 rab.`tglrab` AS `tanggalrab`,
@@ -47,4 +47,4 @@ FROM
 JOIN __tmp_sambung_kembali per ON per.`nomor`=rab.`nomorpermohonan`
 LEFT JOIN nonair na ON na.`urutan`=rab.`norab`
 LEFT JOIN __tmp_userbshl usr ON usr.nama=rab.`user`
-WHERE rab.`flaghapus`=0
+WHERE rab.`flaghapus`=0 and rab.tglrab is not null

@@ -10,10 +10,10 @@ ORDER BY nama;
 SELECT
 @idpdam AS `idpdam`,
 per.`idpermohonan` AS `idpermohonan`,
-`nomorspkopname` AS `nomorspk`,
-`tglspko` AS `tanggalspk`,
+spk.`nomorspkopname` AS `nomorspk`,
+spk.`tglspko` AS `tanggalspk`,
 usr.iduser AS `iduser`,
-IF(`disetujui`=1,1,2) AS `flagsurvey`,
+IF(spk.`disetujui`=1,1,2) AS `flagsurvey`,
 NULL AS `fotobukti1`,
 NULL AS `fotobukti2`,
 NULL AS `fotobukti3`,
@@ -24,4 +24,4 @@ FROM
 `spk_opname_sambung_kembali` spk
 JOIN __tmp_sambung_kembali per ON per.nomor = spk.nomorpermohonan
 LEFT JOIN __tmp_userbshl usr ON usr.nama = spk.user
-WHERE spk.flaghapus=0
+WHERE spk.flaghapus=0 and spk.tglspko is not null

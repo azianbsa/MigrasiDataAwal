@@ -34,7 +34,7 @@ IF(ba.tanggalba IS NULL,
 0 AS flaghapus,
 COALESCE(ba.tanggalba,rab.`tglpasang`,rab.`tglrab`,spk.tglspko,NOW()) waktuupdate
 FROM permohonan_sambung_kembali per
-JOIN [bsbs].pelanggan pel ON pel.nosamb = per.nosamb
+JOIN pelanggan pel ON pel.nosamb = per.nosamb
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = per.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = per.kodekelurahan
 LEFT JOIN [bsbs].golongan gol ON gol.kodegol = per.kodegol AND gol.aktif = 1

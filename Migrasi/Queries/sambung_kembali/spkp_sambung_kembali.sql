@@ -25,4 +25,4 @@ FROM
 `rab_sambung_kembali` spkp
 JOIN __tmp_sambung_kembali per ON per.`nomor`=spkp.`nomorpermohonan`
 LEFT JOIN __tmp_userbshl usr ON usr.nama=spkp.`user`
-WHERE spkp.`nomorspkp` IS NOT NULL AND `spkp`.`flaghapus`=0
+WHERE spkp.`nomorspkp` IS NOT NULL AND `spkp`.`flaghapus`=0 and spkp.`tglpasang` is not null

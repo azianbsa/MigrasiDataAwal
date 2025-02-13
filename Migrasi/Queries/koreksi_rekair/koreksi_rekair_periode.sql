@@ -88,7 +88,7 @@ d.`tanggalba` AS `waktuupdate`
 FROM
 `ba_usulan_koreksi_rekening_periode` d
 JOIN __tmp_koreksi_rek p ON p.`nomor`=d.`nomorpermohonan`
-JOIN [bsbs].pelanggan pl ON pl.nosamb = d.nosamb
+JOIN pelanggan pl ON pl.nosamb = d.nosamb
 JOIN __tmp_periode pr ON pr.periode=d.`periode`
 LEFT JOIN [bsbs].rayon r ON r.koderayon = d.koderayon
 LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan = pl.kodekelurahan

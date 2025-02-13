@@ -26,7 +26,7 @@ d.status AS statuspermohonan,
 0 AS flaghapus,
 p.tanggal AS waktuupdate
 FROM `permohonan_koreksi_rek` p
-JOIN [bsbs].pelanggan pel ON pel.nosamb = p.nosamb
+JOIN pelanggan pel ON pel.nosamb = p.nosamb
 LEFT JOIN __tmp_koreksi_rek d ON d.`nomor`=p.`nomor`
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = p.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = p.kodekelurahan

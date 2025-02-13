@@ -3002,7 +3002,10 @@ namespace Migrasi.Commands
                     WHERE p.`flaghapus`=0 ) a
                     ,(SELECT @id := @lastid) AS id
                     GROUP BY a.nomor,a.status",
-                    param: new { lastid = lastId },
+                    param: new
+                    {
+                        lastid = lastId
+                    },
                     transaction: trans);
             });
 
@@ -3207,11 +3210,13 @@ namespace Migrasi.Commands
         private async Task SambungKembali(Settings settings)
         {
             var lastId = 0;
-            var sambKembali = 0;
+            var rabdetail = 0;
+            dynamic? sambKembali = null;
             await Utils.Client(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-                sambKembali = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNG_KEMBALI'", transaction: trans);
+                rabdetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_pelanggan_air_rab_detail", transaction: trans);
+                sambKembali = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNG_KEMBALI'", transaction: trans);
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3224,10 +3229,13 @@ namespace Migrasi.Commands
                     @id := @id+1 AS idpermohonan,
                     per.nomor
                     FROM permohonan_sambung_kembali per
-                    JOIN {AppSettings.DatabaseBsbs}.pelanggan pel ON pel.nosamb = per.nosamb
+                    JOIN pelanggan pel ON pel.nosamb = per.nosamb
                     ,(SELECT @id := @lastid) AS id
                     WHERE per.flaghapus = 0;",
-                    param: new { lastid = lastId },
+                    param: new
+                    {
+                        lastid = lastId
+                    },
                     transaction: trans);
             });
 
@@ -3240,7 +3248,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                    { "@tipepermohonan", sambKembali },
+                    { "@tipepermohonan", sambKembali.idpermohonan },
                 },
                 placeholders: new()
                 {
@@ -3265,7 +3273,18 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@tipepermohonan", sambKembali },
+                    { "@jenisnonair", sambKembali.idjenisnonair },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_rab_detail",
+                queryPath: @"Queries\sambung_kembali\rabdetail_sambung_kembali.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", rabdetail },
                 });
 
             await Utils.BulkCopy(
