@@ -21,4 +21,4 @@ ba.`memo` AS statusberitaacara,
 ba.`tanggalba` AS waktuupdate
 FROM `ba_sambungkembali` ba
 JOIN __tmp_sambung_kembali per ON per.nomor=ba.nomorpermohonan
-WHERE ba.flaghapus = 0
+WHERE ba.flaghapus = 0 and ba.`tanggalba` is not null
