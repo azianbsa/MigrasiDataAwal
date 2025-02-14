@@ -2832,11 +2832,37 @@ namespace Migrasi.Commands
         private async Task RotasimeterNonrutin(Settings settings)
         {
             var lastId = 0;
-            var rotasimeter = 0;
+            var rabdetail = 0;
+            dynamic? rotasimeter = null;
             await Utils.Client(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-                rotasimeter = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='GANTI_METER_NON_RUTIN'", transaction: trans);
+                rabdetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_pelanggan_air_rab_detail", transaction: trans);
+                rotasimeter = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='GANTI_METER_NON_RUTIN'", transaction: trans);
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM permohonan_pelanggan_air_spk WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_rab WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_rab_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = rotasimeter?.idtipepermohonan
+                    },
+                    transaction: trans);
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -2864,11 +2890,43 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                    { "@tipepermohonan", rotasimeter },
+                    { "@tipepermohonan", rotasimeter.idtipepermohonan },
                 },
                 placeholders: new()
                 {
                     { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk",
+                queryPath: @"Queries\rotasimeter_nonrutin\spk_rotasimeter_nonrutin.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_rab",
+                queryPath: @"Queries\rotasimeter_nonrutin\rab_rotasimeter_nonrutin.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@jenisnonair", rotasimeter.idjenisnonair },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_rab_detail",
+                queryPath: @"Queries\rotasimeter_nonrutin\rabdetail_rotasimeter_nonrutin.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", rabdetail },
                 });
 
             await Utils.BulkCopy(

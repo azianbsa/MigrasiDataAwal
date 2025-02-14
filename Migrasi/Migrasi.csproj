@@ -418,6 +418,12 @@
     <None Update="Queries\rotasimeter_nonrutin\ba_rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\rotasimeter_nonrutin\rabdetail_rotasimeter_nonrutin.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rotasimeter_nonrutin\rab_rotasimeter_nonrutin.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\rotasimeter_nonrutin\rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -431,6 +437,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rotasimeter\spkp_rotasimeter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rotasimeter_nonrutin\spk_rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rubah_gol\rubah_gol.sql">
