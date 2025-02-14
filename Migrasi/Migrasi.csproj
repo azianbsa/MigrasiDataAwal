@@ -415,6 +415,9 @@
     <None Update="Queries\bayar_angsuran_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\rotasimeter\spk_rotasimeter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\rotasimeter_nonrutin\ba_rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
