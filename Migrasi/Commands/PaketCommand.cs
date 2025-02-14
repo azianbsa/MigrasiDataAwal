@@ -2170,7 +2170,7 @@ namespace Migrasi.Commands
                                                         FROM {AppSettings.DatabaseBsbs}.periode
                                                         ,(SELECT @idperiode := 0) AS idperiode
                                                         ORDER BY periode",
-                                                        transaction:trans);
+                                                        transaction: trans);
                                                 });
 
                                                 foreach (var periode in listPeriode)
@@ -3056,6 +3056,30 @@ namespace Migrasi.Commands
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_non_pelanggan", transaction: trans);
                 rabDetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_non_pelanggan_rab_detail", transaction: trans);
                 sambBaru = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNGAN_BARU_AIR'", transaction: trans);
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM `permohonan_non_pelanggan_spk` WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_non_pelanggan_rab WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_non_pelanggan_rab_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_non_pelanggan_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_non_pelanggan_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = sambBaru
+                    },
+                    transaction: trans);
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3233,6 +3257,30 @@ namespace Migrasi.Commands
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 rabdetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_pelanggan_air_rab_detail", transaction: trans);
                 sambKembali = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNG_KEMBALI'", transaction: trans);
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM `permohonan_pelanggan_air_spk` WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_rab WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_rab_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = sambKembali?.idtipepermohonan
+                    },
+                    transaction: trans);
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3264,7 +3312,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                    { "@tipepermohonan", sambKembali.idpermohonan },
+                    { "@tipepermohonan", sambKembali.idtipepermohonan },
                 },
                 placeholders: new()
                 {
@@ -3339,6 +3387,45 @@ namespace Migrasi.Commands
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 rubahRayon = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_RAYON'", transaction: trans);
+                
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM permohonan_pelanggan_air_rab WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idpermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idpermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idpermohonan);
+
+                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = rubahRayon?.idtipepermohonan
+                    },
+                    transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DROP TABLE IF EXISTS __tmp_permohonan_rubah_rayon;
+                    CREATE TABLE __tmp_permohonan_rubah_rayon AS
+                    SELECT
+                    @id := @id+1 AS idpermohonan,
+                    per.nomor
+                    FROM permohonan_rubah_rayon per
+                    JOIN pelanggan pel ON pel.nosamb = per.nosamb
+                    ,(SELECT @id := @lastid) AS id
+                    WHERE per.flaghapus = 0",
+                    param: new
+                    {
+                        lastid = lastId,
+                    },
+                    transaction: trans);
             });
 
             await Utils.BulkCopy(
@@ -3356,24 +3443,6 @@ namespace Migrasi.Commands
                 {
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
-
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                await conn.ExecuteAsync(
-                    sql: @"CREATE TABLE __tmp_permohonan_rubah_rayon AS
-                    SELECT
-                    @id := @id+1 AS idpermohonan,
-                    per.nomor
-                    FROM permohonan_rubah_rayon per
-                    JOIN pelanggan pel ON pel.nosamb = per.nosamb
-                    ,(SELECT @id := @lastid) AS id
-                    WHERE per.flaghapus = 0;",
-                    param: new
-                    {
-                        lastid = lastId
-                    },
-                    transaction: trans);
-            });
 
             await Utils.BulkCopy(
                 sConnectionStr: AppSettings.ConnectionStringLoket,
