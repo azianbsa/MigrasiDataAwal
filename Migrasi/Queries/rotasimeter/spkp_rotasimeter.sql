@@ -11,7 +11,7 @@ SELECT
 @idpdam AS `idpdam`,
 ro.`idpermohonan` AS `idpermohonan`,
 p.`no_spk` AS `nomorspk`,
-p.`tglpasang` AS `tanggalspk`,
+IF(p.`tglpasang`='0000-00-00',p.`jadwal`,p.`tglpasang`) AS `tanggalspk`,
 NULL AS `nomorsppb`,
 NULL AS `tanggalsppb`,
 u.iduser AS `iduser`,
@@ -20,7 +20,7 @@ NULL AS `fotobukti2`,
 NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
-p.`tglpasang` AS `waktuupdate`
+IF(p.`tglpasang`='0000-00-00',p.`jadwal`,p.`tglpasang`) AS `waktuupdate`
 FROM
 `rotasimeter` p
 JOIN __tmp_rotasimeter ro ON ro.`nosamb`=p.`nosamb` AND ro.`periode`=p.`periode`
