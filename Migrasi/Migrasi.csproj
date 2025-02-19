@@ -40,6 +40,12 @@
     <None Update="Queries\angsuran_air\bayar_rekening_air_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\angsuran_nonair\nonair.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\angsuran_nonair\nonair_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\balik_nama\balik_nama.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -319,19 +325,13 @@
     <None Update="Queries\master\master_user.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\nonair_detail_angsuran_mst.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\nonair_angsuran_mst.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Queries\nonair.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\nonair_angsuran.sql">
+    <None Update="Queries\angsuran_nonair\nonair_angsuran.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\nonair_angsuran_detail.sql">
+    <None Update="Queries\angsuran_nonair\nonair_angsuran_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\nonair_detail.sql">

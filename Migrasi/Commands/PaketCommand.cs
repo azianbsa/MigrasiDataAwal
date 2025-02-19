@@ -2497,117 +2497,100 @@ namespace Migrasi.Commands
 
                                     await Utils.TrackProgress("angsuran nonair", async () =>
                                     {
-                                        var limit = 200_000;
-                                        var offset = 0;
-                                        while (true)
+                                        IEnumerable<dynamic>? jenis = [];
+                                        await Utils.Client(async (conn, trans) =>
                                         {
-                                            var cek = 0;
-                                            await Utils.ClientBilling(async (conn, trans) =>
-                                            {
-                                                cek = await conn.QueryFirstOrDefaultAsync<int>(@"
-                                                SELECT COUNT(*) FROM nonair WHERE flagangsur=1 AND flaghapus=1 AND termin=0 AND ketjenis NOT LIKE 'Uang_Muka%' LIMIT @limit OFFSET @offset",
-                                                new { limit = limit, offset = offset }, trans);
-                                            });
-
-                                            if (cek == 0)
-                                            {
-                                                break;
-                                            }
-
-                                            ctx.Status($"proses nonair angsuran-(limit {limit} offset {offset})|rekening_nonair");
-                                            await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_nonair",
-                                                    queryPath: @"Queries\nonair_angsuran_mst.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[loket]", AppSettings.DatabaseLoket },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            ctx.Status($"proses nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_detail");
-                                            await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_detail", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_nonair_detail",
-                                                    queryPath: @"Queries\nonair_detail_angsuran_mst.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            ctx.Status($"proses nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_angsuran");
-                                            await Utils.TrackProgress($"nonair angsuran-(limit {limit} offset {offset})|rekening_nonair_angsuran", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_nonair_angsuran",
-                                                    queryPath: @"Queries\nonair_angsuran.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[loket]", AppSettings.DatabaseLoket },
-                                                    });
-                                            }, usingStopwatch: true);
-
-                                            offset += limit;
-                                        }
-
-                                        IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientBilling(async (conn, trans) =>
-                                        {
-                                            listPeriode = await conn.QueryAsync<int>($@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode", transaction: trans);
+                                            jenis = await conn.QueryAsync(
+                                                sql: @"SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0",
+                                                param: new
+                                                {
+                                                    idpdam = settings.IdPdam
+                                                },
+                                                transaction: trans);
                                         });
 
-                                        foreach (var periode in listPeriode)
+                                        await Utils.ClientLoket(async (conn, trans) =>
                                         {
-                                            ctx.Status($"proses nonair angsuran-{periode}|rekening_nonair_angsuran_detail");
-                                            await Utils.TrackProgress($"nonair angsuran-{periode}|rekening_nonair_angsuran_detail", async () =>
+                                            await conn.ExecuteAsync(
+                                                sql: @"
+                                                DROP TABLE IF EXISTS __tmp_nonair;
+                                                CREATE TABLE __tmp_nonair AS
+                                                SELECT a.id AS idangsuran,a.jumlahtermin,a.noangsuran AS noangsuran1,b.*
+                                                FROM `daftarangsuran` a
+                                                LEFT JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
+                                                WHERE a.`keperluan`<>'JNS-36'",
+                                                transaction: trans);
+                                            
+                                            if (jenis != null)
                                             {
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync(@"
-                                                    ALTER TABLE rekening_nonair_angsuran_detail
-                                                     CHANGE nomortransaksi nomortransaksi VARCHAR (100) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
-                                                });
+                                                await conn.ExecuteAsync(
+                                                    sql: @"
+                                                    DROP TABLE IF EXISTS __tmp_jenisnonair;
 
-                                                var lastIdAngsuranDetail = 0;
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    lastIdAngsuranDetail = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(id),0) FROM rekening_nonair_angsuran_detail", transaction: trans);
-                                                });
+                                                    CREATE TABLE __tmp_jenisnonair (
+                                                    idjenisnonair INT,
+                                                    kodejenisnonair VARCHAR(50))",
+                                                    transaction: trans);
 
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringBsbs,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_nonair_angsuran_detail",
-                                                    queryPath: @"Queries\nonair_angsuran_detail.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastIdAngsuranDetail },
-                                                        { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[loket]", AppSettings.DatabaseLoket },
-                                                    });
-                                            }, usingStopwatch: true);
-                                        }
+                                                await conn.ExecuteAsync(
+                                                    sql: @"
+                                                    INSERT INTO __tmp_jenisnonair
+                                                    VALUES (@idjenisnonair,@kodejenisnonair)", param: jenis, transaction: trans);
+                                            }
+                                        });
+
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_nonair",
+                                            queryPath: @"Queries\angsuran_nonair\nonair.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                            });
+
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_nonair_detail",
+                                            queryPath: @"Queries\angsuran_nonair\nonair_detail.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                            });
+
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_nonair_angsuran",
+                                            queryPath: @"Queries\angsuran_nonair\nonair_angsuran.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                            });
+
+                                        await Utils.BulkCopy(
+                                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                                            tConnectionStr: AppSettings.ConnectionString,
+                                            tableName: "rekening_nonair_angsuran_detail",
+                                            queryPath: @"Queries\angsuran_nonair\nonair_angsuran_detail.sql",
+                                            parameters: new()
+                                            {
+                                                { "@idpdam", settings.IdPdam },
+                                            });
+
+                                        await Utils.ClientLoket(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync(
+                                                sql: @"
+                                                DROP TABLE IF EXISTS __tmp_nonair;
+                                                DROP TABLE IF EXISTS __tmp_jenisnonair;",
+                                                transaction: trans);
+                                        });
                                     });
 
                                     await Utils.TrackProgress("patch angsuran nonair", async () =>
