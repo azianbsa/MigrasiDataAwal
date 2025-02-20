@@ -23,7 +23,5 @@ IFNULL(rek.prog3, 0) AS prog3,
 IFNULL(rek.prog4, 0) AS prog4,
 IFNULL(rek.prog5, 0) AS prog5
 FROM piutang rek
-JOIN __tmp_angsuranair ang ON ang.kode = rek.kode
 JOIN pelanggan pel ON pel.nosamb = rek.nosamb
 JOIN __tmp_periode per ON per.periode = rek.periode
-WHERE ang.flaglunas = 0

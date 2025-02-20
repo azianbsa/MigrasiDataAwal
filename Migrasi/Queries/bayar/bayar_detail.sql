@@ -1,4 +1,14 @@
-﻿SELECT
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
+CREATE TEMPORARY TABLE __tmp_periode AS
+SELECT
+@id:=@id+1 AS idperiode,
+periode
+FROM
+[bsbs].periode
+,(SELECT @id:=0) AS id
+ORDER BY periode;
+
+SELECT
 @idpdam,
 pel.id AS idpelangganair,
 per.idperiode AS idperiode,

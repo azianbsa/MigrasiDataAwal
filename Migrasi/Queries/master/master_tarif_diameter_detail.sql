@@ -1,13 +1,13 @@
 ﻿SELECT
- @idpdam,
- id AS iddiameter,
- administrasi,
- pemeliharaan,
- pelayanan,
- retribusi,
- dendapakai0,
- airlimbah,
- NOW() AS waktuupdate
+@idpdam,
+@id:=@id+1 AS iddiameter,
+administrasi,
+pemeliharaan,
+0 AS pelayanan,
+retribusi,
+0 AS dendapakai0,
+0 AS airlimbah,
+NOW() AS waktuupdate
 FROM
- diameter
- WHERE aktif=1
+diameter,
+(SELECT @id:=0) AS id;

@@ -1,22 +1,41 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_loket;
 CREATE TEMPORARY TABLE __tmp_loket AS
 SELECT
-@id := @id + 1 AS idloket,
-kodeloket
-FROM
-loket,
-(SELECT @id := 0) AS id
+@idloket := @idloket + 1 AS idloket,
+kodeloket,
+loket
+FROM loket
+,(SELECT @idloket := 0) AS idloket
 ORDER BY kodeloket;
 
 DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
 CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
+@idpdam,
 @id := @id + 1 AS iduser,
-ul.nama
+a.nama,
+a.namauser
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
 FROM
-userloket ul
-,(SELECT @id := 0) AS id
-ORDER BY nama;
+golongan,
+(SELECT @id:=0) AS id;
 
 SELECT
 d.id,
@@ -30,7 +49,7 @@ d.`periode` AS kodeperiode,
 d.`termin` AS termin,
 d.`flaglunas` AS statustransaksi,
 d.`noangsuran` AS nomortransaksi,
-d.`waktubayar` AS waktutransaksi,
+IF(d.`waktubayar`='0000-00-00 00:00:00',NULL,d.`waktubayar`) AS waktutransaksi,
 YEAR(d.waktubayar) AS tahuntransaksi,
 us.iduser AS iduser,
 lo.idloket AS idloket,
@@ -56,6 +75,6 @@ FROM __tmp_nonair na
 JOIN detailangsuran d ON d.`noangsuran`=na.`noangsuran1`
 LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
 LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon = na.koderayon
-LEFT JOIN [bsbs].golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
+LEFT JOIN __tmp_golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
 LEFT JOIN __tmp_userloket us ON us.nama = na.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket = na.loketbayar

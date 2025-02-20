@@ -1,39 +1,34 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
-CREATE TEMPORARY TABLE __tmp_periode (
-idperiode INT,
-periode VARCHAR(10),
-INDEX idx_tmp_periode_periode (periode)
-);
-INSERT INTO __tmp_periode
+CREATE TEMPORARY TABLE __tmp_periode AS
 SELECT
-@idperiode:=@idperiode+1 AS idperiode,
+@id:=@id+1 AS idperiode,
 periode
-FROM [bsbs].periode
-,(SELECT @idperiode:=0) AS idperiode
+FROM
+[bsbs].periode
+,(SELECT @id:=0) AS id
 ORDER BY periode;
 
 DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket (
-    iduser INT,
-    nama VARCHAR(30),
-    INDEX idx_tmp_userloket_nama (nama)
-);
-INSERT INTO __tmp_userloket
+CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
-@iduser := @iduser + 1 AS iduser,
-nama
-FROM userloket
-,(SELECT @iduser := 0) AS iduser
-ORDER BY nama;
+@idpdam,
+@id := @id + 1 AS iduser,
+a.nama,
+a.namauser
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser;
 
 DROP TEMPORARY TABLE IF EXISTS __tmp_loket;
-CREATE TEMPORARY TABLE __tmp_loket (
-    idloket INT,
-    kodeloket VARCHAR(50),
-    loket VARCHAR(50),
-    INDEX idx_tmp_loket_loket (loket)
-);
-INSERT INTO __tmp_loket
+CREATE TEMPORARY TABLE __tmp_loket AS
 SELECT
 @idloket := @idloket + 1 AS idloket,
 kodeloket,
@@ -41,6 +36,26 @@ loket
 FROM loket
 ,(SELECT @idloket := 0) AS idloket
 ORDER BY kodeloket;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_diameter;
+CREATE TEMPORARY TABLE __tmp_diameter AS
+SELECT
+@id:=@id+1 AS id,
+kodediameter,
+aktif
+FROM
+diameter,
+(SELECT @id:=0) AS id;
 
 SELECT
 ang.id AS id,
@@ -82,11 +97,11 @@ NOW() AS waktuupdate
 FROM
 detailangsuran ang
 JOIN __tmp_angsuranair aa on aa.kode = concat(ang.periode,'.',ang.dibebankankepada)
-JOIN [bsbs].pelanggan pel ON pel.nosamb = ang.dibebankankepada
+JOIN pelanggan pel ON pel.nosamb = ang.dibebankankepada
 JOIN __tmp_periode per ON per.periode = ang.periode
 LEFT JOIN __tmp_userloket usr ON usr.nama = ang.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket = ang.loketbayar
-LEFT JOIN [bsbs].golongan gol ON gol.kodegol = pel.kodegol AND gol.aktif = 1
-LEFT JOIN [bsbs].diameter dia ON dia.kodediameter = pel.kodediameter AND dia.aktif = 1
+LEFT JOIN __tmp_golongan gol ON gol.kodegol = pel.kodegol AND gol.aktif = 1
+LEFT JOIN __tmp_diameter dia ON dia.kodediameter = pel.kodediameter AND dia.aktif = 1
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = pel.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan

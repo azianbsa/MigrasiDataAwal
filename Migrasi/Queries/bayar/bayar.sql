@@ -1,4 +1,43 @@
-﻿SELECT
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
+CREATE TEMPORARY TABLE __tmp_periode AS
+SELECT
+@id:=@id+1 AS idperiode,
+periode
+FROM
+[bsbs].periode
+,(SELECT @id:=0) AS id
+ORDER BY periode;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_diameter;
+CREATE TEMPORARY TABLE __tmp_diameter AS
+SELECT
+@id:=@id+1 AS id,
+kodediameter,
+aktif
+FROM
+diameter,
+(SELECT @id:=0) AS id;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_kolektif;
+CREATE TEMPORARY TABLE __tmp_kolektif AS
+SELECT
+@id:=@id+1 AS id,
+kodekolektif
+FROM
+kolektif,
+(SELECT @id:=0) AS id;
+
+SELECT
 @idpdam,
 @id:=@id+1 AS idrekeningair,
 pel.id AS idpelangganair,
@@ -101,16 +140,16 @@ FROM
 [table] rek
 JOIN pelanggan pel ON pel.nosamb = rek.nosamb
 JOIN __tmp_periode per ON per.periode = rek.periode
-LEFT JOIN [bsbs].golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
-LEFT JOIN [bsbs].diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
+LEFT JOIN __tmp_golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
+LEFT JOIN __tmp_diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = rek.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan
-LEFT JOIN [bsbs].kolektif kol ON kol.kodekolektif = rek.kodekolektif
+LEFT JOIN __tmp_kolektif kol ON kol.kodekolektif = rek.kodekolektif
 LEFT JOIN [bsbs].byadministrasi_lain adm ON adm.kode = rek.kodeadministrasilain
 LEFT JOIN [bsbs].bypemeliharaan_lain pem ON pem.kode = rek.kodepemeliharaanlain
 LEFT JOIN [bsbs].byretribusi_lain ret ON ret.kode = rek.koderetribusilain
-LEFT JOIN [bsbs].pembacameter pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
-LEFT JOIN [bsbs].kelainan kln ON kln.kelainan = rek.kelainan
+LEFT JOIN [bacameter].petugasbaca pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
+LEFT JOIN [bacameter].kelainan kln ON kln.kelainan = rek.kelainan
 ,(SELECT @id := @lastid) AS id
 WHERE rek.periode = @periode
 AND rek.flaglunas = 1

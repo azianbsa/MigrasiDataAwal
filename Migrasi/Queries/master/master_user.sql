@@ -1,25 +1,24 @@
 ﻿SELECT
- @idpdam,
- @id := @id + 1 AS iduser,
- ul.nama,
- ul.namauser,
- ul.passworduser,
- ul.flagaktif AS aktif,
- NULL AS noidentitas,
- -1 AS idrole,
- lo.idloket,
- 0 AS flagbatasiwilayahpelayanan,
- 0 AS flaghapus,
- NOW() AS waktuupdate
-FROM
- userloket ul
- LEFT JOIN (
- SELECT
- @idloket := @idloket + 1 AS idloket,
- kodeloket
- FROM loket
- ,(SELECT @idloket := 0) AS idloket
- ORDER BY kodeloket
- ) lo ON lo.kodeloket = ul.kodeloket
- ,(SELECT @id := 0) AS id
- ORDER BY nama;
+@idpdam,
+@id := @id + 1 AS iduser,
+a.nama,
+a.namauser,
+a.passworduser,
+a.aktif AS aktif,
+NULL AS noidentitas,
+-1 AS idrole,
+-1 AS idloket,
+0 AS flagbatasiwilayahpelayanan,
+0 AS flaghapus,
+NOW() AS waktuupdate
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM [loket].`userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM [loket].`userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser

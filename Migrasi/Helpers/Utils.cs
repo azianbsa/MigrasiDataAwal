@@ -171,7 +171,7 @@ namespace Migrasi.Helpers
             }
         }
 
-        public static async Task ClientBilling(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        public static async Task ClientBsbs(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.ConnectionStringBsbs);
             await conn.OpenAsync();

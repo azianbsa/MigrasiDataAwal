@@ -1,16 +1,21 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket (
-    iduser INT,
-    nama VARCHAR(30),
-    INDEX idx_tmp_userloket_nama (nama)
-);
-INSERT INTO __tmp_userloket
+CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
-@iduser := @iduser + 1 AS iduser,
-nama
-FROM userloket
-,(SELECT @iduser := 0) AS iduser
-ORDER BY nama;
+@idpdam,
+@id := @id + 1 AS iduser,
+a.nama,
+a.namauser
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser;
 
 SELECT
 @idpdam,
@@ -39,7 +44,7 @@ ang.waktulunas AS waktulunas,
 0 AS flaghapus,
 IFNULL(ang.waktulunas,ang.waktudaftar) AS waktuupdate
 FROM daftarangsuran ang
-JOIN [bsbs].pelanggan pel ON pel.nosamb = ang.dibebankankepada
+JOIN pelanggan pel ON pel.nosamb = ang.dibebankankepada
 LEFT JOIN __tmp_userloket usr ON usr.nama = ang.userdaftar
 LEFT JOIN ba_angsuran ba ON ba.noangsuran=ang.noangsuran and ba.flaghapus=0
 WHERE ang.keperluan='JNS-36'

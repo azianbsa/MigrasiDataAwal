@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="bin\database.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.0" />
@@ -325,7 +319,7 @@
     <None Update="Queries\master\master_user.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\nonair.sql">
+    <None Update="Queries\nonair\nonair.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\angsuran_nonair\nonair_angsuran.sql">
@@ -334,10 +328,10 @@
     <None Update="Queries\angsuran_nonair\nonair_angsuran_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\nonair_detail.sql">
+    <None Update="Queries\nonair\nonair_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\nonair_transaksi.sql">
+    <None Update="Queries\nonair\nonair_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\patches\data_cleanup_adm_lain.sql">
@@ -412,7 +406,10 @@
     <None Update="Queries\angsuran_air\piutang_rekening_air_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\bayar_angsuran_detail.sql">
+    <None Update="Queries\piutang\piutang.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\piutang\piutang_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rotasimeter\spk_rotasimeter.sql">
@@ -502,10 +499,6 @@
     <None Update="Queries\sambung_kembali\sambung_kembali.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="bin\Debug\net8.0\" />
   </ItemGroup>
 
 </Project>

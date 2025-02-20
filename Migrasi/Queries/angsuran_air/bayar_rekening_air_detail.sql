@@ -1,15 +1,11 @@
-﻿DROP TEMPORARY TABLE IF EXISTS temp_dataawal_periode;
-CREATE TEMPORARY TABLE temp_dataawal_periode (
-idperiode INT,
-periode VARCHAR(10),
-INDEX idx_temp_dataawal_periode_periode (periode)
-);
-INSERT INTO temp_dataawal_periode
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
+CREATE TEMPORARY TABLE __tmp_periode AS
 SELECT
-@idperiode := @idperiode+1 AS idperiode,
+@id:=@id+1 AS idperiode,
 periode
-FROM [bsbs].periode
-,(SELECT @idperiode := 0) AS idperiode
+FROM
+[bsbs].periode
+,(SELECT @id:=0) AS id
 ORDER BY periode;
 
 SELECT
@@ -28,6 +24,6 @@ IFNULL(rek.prog4, 0) AS prog4,
 IFNULL(rek.prog5, 0) AS prog5
 FROM piutang_angsurlunas rek
 JOIN __tmp_angsuranair ang ON ang.kode = rek.kode
-JOIN [bsbs].pelanggan pel ON pel.nosamb = rek.nosamb
-JOIN temp_dataawal_periode per ON per.periode = rek.periode
+JOIN pelanggan pel ON pel.nosamb = rek.nosamb
+JOIN __tmp_periode per ON per.periode = rek.periode
 WHERE ang.flaglunas = 1

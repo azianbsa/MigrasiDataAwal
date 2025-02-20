@@ -122,7 +122,7 @@ NULL AS longitudebulanlalu,
 NULL AS kelainanbulanlalu,
 NULL AS kelainan2bulanlalu,
 rek.flagangsur AS flagangsur,
-ang.idangsuran AS idangsuran,
+NULL AS idangsuran,
 NULL AS idmodule,
 0 AS flagkoreksibilling,
 rek.tglmulaidenda AS tglmulaidenda1,
@@ -137,7 +137,6 @@ NULL AS waktudrdsusulan,
 NOW() AS waktuupdate,
 0 AS flaghapus
 FROM piutang rek
-JOIN __tmp_angsuranair ang ON ang.kode = rek.kode
 JOIN pelanggan pel ON pel.nosamb = rek.nosamb
 JOIN __tmp_periode per ON per.periode = rek.periode
 LEFT JOIN __tmp_golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
@@ -151,4 +150,3 @@ LEFT JOIN [bsbs].byretribusi_lain ret ON ret.kode = rek.koderetribusilain
 LEFT JOIN [bacameter].`petugasbaca` pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
 LEFT JOIN [bacameter].kelainan kln ON kln.kelainan = rek.kelainan
 ,(SELECT @id := @lastid) AS id
-WHERE ang.flaglunas = 0
