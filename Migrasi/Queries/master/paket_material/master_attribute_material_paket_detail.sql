@@ -1,31 +1,33 @@
-﻿DROP TEMPORARY TABLE IF EXISTS temp_dataawal_barang;
-CREATE TEMPORARY TABLE temp_dataawal_barang AS
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_barang;
+CREATE TEMPORARY TABLE __tmp_barang AS
 SELECT
- @id := @id+1 AS idmaterial,
- kodebarang AS kodematerial
+@idpdam,
+@id := @id+1 AS idmaterial,
+kodebarang AS kodematerial
 FROM
- barang,
- (SELECT @id := 0) AS id
- ORDER BY kodebarang;
+barang,
+(SELECT @id := 0) AS id;
 
-DROP TEMPORARY TABLE IF EXISTS temp_dataawal_paketmaterial;
-CREATE TEMPORARY TABLE temp_dataawal_paketmaterial AS
+DROP TEMPORARY TABLE IF EXISTS __tmp_paketmaterial;
+CREATE TEMPORARY TABLE __tmp_paketmaterial AS
 SELECT
- @id := @id+1 AS idpaketmaterial,
- namapaket AS namapaketmaterial
+@idpdam,
+@id := @id+1 AS idpaketmaterial,
+@id AS kodepaketmaterial,
+namapaket AS namapaketmaterial
 FROM
- paketmaterial
- ,(SELECT @id := 0) AS id
- GROUP BY namapaket;
+paketmaterial
+,(SELECT @id := 0) AS id
+GROUP BY namapaket;
 
 SELECT
- @idpdam,
- p.idpaketmaterial AS idpaketmaterial,
- idmaterial,
- pd.qty AS qty,
- 0 AS ppn,
- NOW() AS waktuupdate
+@idpdam,
+p.idpaketmaterial AS idpaketmaterial,
+idmaterial,
+pd.qty AS qty,
+0 AS ppn,
+NOW() AS waktuupdate
 FROM
- paketmaterial pd
- JOIN temp_dataawal_paketmaterial p ON p.namapaketmaterial = pd.namapaket
- JOIN temp_dataawal_barang b ON b.kodematerial = pd.kodebarang
+paketmaterial pd
+JOIN __tmp_paketmaterial p ON p.namapaketmaterial = pd.namapaket
+JOIN __tmp_barang b ON b.kodematerial = pd.kodebarang
