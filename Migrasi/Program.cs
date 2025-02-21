@@ -67,7 +67,7 @@ namespace Migrasi
                 config.PropagateExceptions();
                 config.AddCommand<NewCommand>("new")
                     .WithDescription("Setup new pdam untuk paket basic");
-                config.AddCommand<NewCopyCommand>("newcopy")
+                config.AddCommand<NewBacameterCommand>("new-bacameter")
                     .WithDescription("Setup new pdam untuk paket bacameter only");
                 config.AddCommand<PaketCommand>("paket")
                     .WithDescription("Migrasi data paket bacameter only, basic");

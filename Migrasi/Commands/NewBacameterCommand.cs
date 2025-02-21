@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace Migrasi.Commands
 {
-    public class NewCopyCommand : AsyncCommand<NewCopyCommand.Settings>
+    public class NewBacameterCommand : AsyncCommand<NewBacameterCommand.Settings>
     {
         public class Settings : CommandSettings
         {

@@ -40,6 +40,114 @@
     <None Update="Queries\angsuran_nonair\nonair_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\bacameter\drd.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\drd_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_area.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_blok.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_cabang.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_dma.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_dmz.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_flag.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_jenis_bangunan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_jenis_pipa.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_kecamatan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_kelainan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_kelurahan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_kepemilikan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_kolektif.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_kondisi_meter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_kwh.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_merek_meter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_pekerjaan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_peruntukan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_petugas_baca.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_rayon.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_status.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_sumber_air.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_attribute_wilayah.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_pelanggan_air.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_pelanggan_air_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_periode.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_periode_billing.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_tarif_administrasi_lain.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_tarif_diameter.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_tarif_diameter_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_tarif_golongan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_tarif_golongan_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_tarif_pemeliharaan_lain.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\master_tarif_retribusi_lain.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\balik_nama\balik_nama.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -313,9 +421,6 @@
     <None Update="Queries\master\master_tarif_retribusi_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\drd.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Queries\master\master_user.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -386,9 +491,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\pengaduan\pengaduan.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\drd_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\bayar\bayar_detail.sql">

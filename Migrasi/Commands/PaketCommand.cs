@@ -43,9 +43,11 @@ namespace Migrasi.Commands
                             .AddColumn(new TableColumn("Value"))
                             .AddRow("Pdam", $"{settings.IdPdam} {namaPdam}")
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
-                            .AddRow("Periode H-4", periodeHMin4.ToString()!)
-                            .AddRow("DB Bacameter V4", AppSettings.DatabaseBacameter)
-                            .AddRow("DB Billing V4", AppSettings.DatabaseBsbs)
+                            .AddRow("Periode", $"{DateTime.ParseExact(periodeHMin4.ToString(), "yyyyMM", null).AddMonths(0).ToString("yyyyMM")} - {DateTime.ParseExact(periodeHMin4.ToString(), "yyyyMM", null).AddMonths(3).ToString("yyyyMM")}")
+                            .AddRow("DB Source", $"{AppSettings.DatabaseBacameter},{AppSettings.DatabaseBsbs}")
+                            .AddRow("Host Target", AppSettings.Host)
+                            .AddRow("Port Target", AppSettings.Port.ToString())
+                            .AddRow("DB Target", AppSettings.Database)
                             .AddRow("Environment", AppSettings.Environment.ToString()));
 
                         if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
@@ -58,9 +60,8 @@ namespace Migrasi.Commands
                             await AnsiConsole.Status()
                                 .StartAsync("Sedang diproses...", async ctx =>
                                 {
-                                    await Utils.TrackProgress("cleanup data pelanggan", async () =>
+                                    await Utils.TrackProgress("tambah idpelanggan", async () =>
                                     {
-                                        ctx.Status("Tambah primary key id pelanggan");
                                         await Utils.ClientBsbs(async (conn, trans) =>
                                         {
                                             var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
@@ -72,436 +73,421 @@ namespace Migrasi.Commands
                                             }
                                         });
 
-                                        ctx.Status("cek golongan");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
-                                            query = query.Replace("[table]", "pelanggan");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek golongan");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
+                                        //    query = query.Replace("[table]", "pelanggan");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek diameter");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
-                                            query = query.Replace("[table]", "pelanggan");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek diameter");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
+                                        //    query = query.Replace("[table]", "pelanggan");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek merek meter");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_merek_meter.sql");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek merek meter");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_merek_meter.sql");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek kelurahan");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
-                                            query = query.Replace("[table]", "pelanggan");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek kelurahan");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
+                                        //    query = query.Replace("[table]", "pelanggan");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek kolektif");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
-                                            query = query.Replace("[table]", "pelanggan");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek kolektif");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
+                                        //    query = query.Replace("[table]", "pelanggan");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek sumber air");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_sumber_air.sql");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek sumber air");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_sumber_air.sql");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek kondisi meter");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kondisi_meter.sql");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek kondisi meter");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kondisi_meter.sql");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek administrasi lain");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
-                                            query = query.Replace("[table]", "pelanggan");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek administrasi lain");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
+                                        //    query = query.Replace("[table]", "pelanggan");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek pemeliharaan lain");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
-                                            query = query.Replace("[table]", "pelanggan");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek pemeliharaan lain");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
+                                        //    query = query.Replace("[table]", "pelanggan");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
 
-                                        ctx.Status("cek retribusi lain");
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
-                                            query = query.Replace("[table]", "pelanggan");
-                                            await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
-                                        });
+                                        //ctx.Status("cek retribusi lain");
+                                        //await Utils.ClientBsbs(async (conn, trans) =>
+                                        //{
+                                        //    var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
+                                        //    query = query.Replace("[table]", "pelanggan");
+                                        //    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                        //});
                                     });
-
-                                    await Utils.TrackProgress("data master", async () =>
+                                    await Utils.TrackProgress("master_attribute_flag", async () =>
                                     {
-                                        ctx.Status("proses flag");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
-                                            queryPath: @"Queries\master\master_attribute_flag.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_flag.sql",
                                             tableName: "master_attribute_flag",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses status");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_status", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_status",
-                                            queryPath: @"Queries\master\master_attribute_status.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_status.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses jenis bangunan");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_jenis_bangunan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_jenis_bangunan",
-                                            queryPath: @"Queries\master\master_attribute_jenis_bangunan.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_jenis_bangunan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses kepemilikan");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_kepemilikan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kepemilikan",
-                                            queryPath: @"Queries\master\master_attribute_kepemilikan.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_kepemilikan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses pekerjaan");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_pekerjaan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_pekerjaan",
-                                            queryPath: @"Queries\master\master_attribute_pekerjaan.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_pekerjaan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses peruntukan");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_peruntukan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_peruntukan",
-                                            queryPath: @"Queries\master\master_attribute_peruntukan.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_peruntukan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses jenis pipa");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_jenis_pipa", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_jenis_pipa",
-                                            queryPath: @"Queries\master\master_attribute_jenis_pipa.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_jenis_pipa.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses kwh");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_kwh", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kwh",
-                                            queryPath: @"Queries\master\master_attribute_kwh.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_kwh.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses golongan");
+                                    });
+                                    await Utils.TrackProgress("master_tarif_golongan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_golongan",
-                                            queryPath: @"Queries\master\master_tarif_golongan.sql",
+                                            queryPath: @"Queries\bacameter\master_tarif_golongan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                    });
+                                    await Utils.TrackProgress("master_tarif_golongan_detail", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_golongan_detail",
-                                            queryPath: @"Queries\master\master_tarif_golongan_detail.sql",
+                                            queryPath: @"Queries\bacameter\master_tarif_golongan_detail.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses diameter");
+                                    });
+                                    await Utils.TrackProgress("master_tarif_diameter", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_diameter",
-                                            queryPath: @"Queries\master\master_tarif_diameter.sql",
+                                            queryPath: @"Queries\bacameter\master_tarif_diameter.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                    });
+                                    await Utils.TrackProgress("master_tarif_diameter_detail", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_diameter_detail",
-                                            queryPath: @"Queries\master\master_tarif_diameter_detail.sql",
+                                            queryPath: @"Queries\bacameter\master_tarif_diameter_detail.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses wilayah");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_wilayah", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_wilayah",
-                                            queryPath: @"Queries\master\master_attribute_wilayah.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_wilayah.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses area");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_area", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_area",
-                                            queryPath: @"Queries\master\master_attribute_area.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_area.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses rayon");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_rayon", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_rayon",
-                                            queryPath: @"Queries\master\master_attribute_rayon.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_rayon.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses blok");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_blok", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_blok",
-                                            queryPath: @"Queries\master\master_attribute_blok.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_blok.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses cabang");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_cabang", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_cabang",
-                                            queryPath: @"Queries\master\master_attribute_cabang.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_cabang.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses kecamatan");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_kecamatan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kecamatan",
-                                            queryPath: @"Queries\master\master_attribute_kecamatan.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_kecamatan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses kelurahan");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_kelurahan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kelurahan",
-                                            queryPath: @"Queries\master\master_attribute_kelurahan.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_kelurahan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses dma");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_dma", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_dma",
-                                            queryPath: @"Queries\master\master_attribute_dma.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_dma.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses dmz");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_dmz", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_dmz",
-                                            queryPath: @"Queries\master\master_attribute_dmz.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_dmz.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses administrasi lain");
+                                    });
+                                    await Utils.TrackProgress("master_tarif_administrasi_lain", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_administrasi_lain",
-                                            queryPath: @"Queries\master\master_tarif_administrasi_lain.sql",
+                                            queryPath: @"Queries\bacameter\master_tarif_administrasi_lain.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses pemeliharaan lain");
+                                    });
+                                    await Utils.TrackProgress("master_tarif_pemeliharaan_lain", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_pemeliharaan_lain",
-                                            queryPath: @"Queries\master\master_tarif_pemeliharaan_lain.sql",
+                                            queryPath: @"Queries\bacameter\master_tarif_pemeliharaan_lain.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses retribusi lain");
+                                    });
+                                    await Utils.TrackProgress("master_tarif_retribusi_lain", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_tarif_retribusi_lain",
-                                            queryPath: @"Queries\master\master_tarif_retribusi_lain.sql",
+                                            queryPath: @"Queries\bacameter\master_tarif_retribusi_lain.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses kolektif");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_kolektif", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kolektif",
-                                            queryPath: @"Queries\master\master_attribute_kolektif.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_kolektif.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses sumber air");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_sumber_air", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_sumber_air",
-                                            queryPath: @"Queries\master\master_attribute_sumber_air.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_sumber_air.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses merek meter");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_merek_meter", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_merek_meter",
-                                            queryPath: @"Queries\master\master_attribute_merek_meter.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_merek_meter.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses kondisi meter");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_kondisi_meter", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kondisi_meter",
-                                            queryPath: @"Queries\master\master_attribute_kondisi_meter.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_kondisi_meter.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses kelainan");
-                                        await Utils.Client(async (conn, trans) =>
-                                        {
-                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_kelainan WHERE idpdam={settings.IdPdam}",
-                                                 transaction: trans);
-                                        });
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='kelainan'",
-                                                new { schema = AppSettings.DatabaseBsbs }, trans);
-                                            if (cek.Any())
-                                            {
-                                                if (!cek.Where(s => s.column_name == "idkelainan").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan CHANGE COLUMN id idkelainan INT(11)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "kodekelainan").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN kodekelainan VARCHAR(10)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "idx").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN idx int(11)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "aktif").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE kelainan ADD COLUMN aktif varchar(1)", transaction: trans);
-                                                }
-                                            }
-                                        });
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var kelainan = await conn.QueryAsync(@"SELECT idkelainan,kodekelainan,kelainan,idx,aktif FROM kelainan", transaction: trans);
-                                            if (kelainan.Any())
-                                            {
-                                                await Utils.ClientBsbs(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync("DELETE FROM kelainan", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO kelainan (idkelainan,kodekelainan,kelainan,idx,aktif) VALUES (@idkelainan,@kodekelainan,@kelainan,@idx,@aktif)",
-                                                        kelainan, trans);
-                                                });
-                                            }
-                                        });
+                                    });
+                                    await Utils.TrackProgress("master_attribute_kelainan", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBacameter,
                                             tConnectionStr: AppSettings.ConnectionString,
@@ -511,50 +497,11 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses petugas baca");
-                                        await Utils.Client(async (conn, trans) =>
-                                        {
-                                            await conn.ExecuteAsync($"DELETE FROM master_attribute_petugas_baca WHERE idpdam={settings.IdPdam}",
-                                                 transaction: trans);
-                                        });
-                                        await Utils.ClientBsbs(async (conn, trans) =>
-                                        {
-                                            var cek = await conn.QueryAsync("SELECT column_name FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pembacameter'",
-                                                new { schema = AppSettings.DatabaseBsbs }, trans);
-                                            if (cek.Any())
-                                            {
-                                                if (!cek.Where(s => s.column_name == "idpetugas").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN idpetugas int(11)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "kodepetugas").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN kodepetugas varchar(5)", transaction: trans);
-                                                }
-
-                                                if (!cek.Where(s => s.column_name == "aktif").Any())
-                                                {
-                                                    await conn.ExecuteAsync("ALTER TABLE pembacameter ADD COLUMN aktif varchar(1)", transaction: trans);
-                                                }
-                                            }
-                                        });
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var petugas = await conn.QueryAsync(@"SELECT idpetugas,kodepetugas,nama,aktif FROM petugasbaca", transaction: trans);
-                                            if (petugas.Any())
-                                            {
-                                                await Utils.ClientBsbs(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync("DELETE FROM pembacameter", transaction: trans);
-                                                    await conn.ExecuteAsync("REPLACE INTO pembacameter (idpetugas,kodepetugas,nama,aktif) VALUES (@idpetugas,@kodepetugas,@nama,@aktif)",
-                                                        petugas, trans);
-                                                });
-                                            }
-                                        });
+                                    });
+                                    await Utils.TrackProgress("master_attribute_petugas_baca", async () =>
+                                    {
                                         await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringBsbs,
+                                            sConnectionStr: AppSettings.ConnectionStringBacameter,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_petugas_baca",
                                             queryPath: @"Queries\master\master_attribute_petugas_baca.sql",
@@ -562,46 +509,63 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses periode");
+                                    });
+                                    await Utils.TrackProgress("master_periode", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_periode",
-                                            queryPath: @"Queries\master\master_periode.sql",
+                                            queryPath: @"Queries\bacameter\master_periode.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                    });
+                                    await Utils.TrackProgress("master_periode_billing", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_periode_billing",
-                                            queryPath: @"Queries\master\master_periode_billing.sql",
+                                            queryPath: @"Queries\bacameter\master_periode_billing.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-
-                                        ctx.Status("proses jadwal baca");
+                                    });
+                                    await Utils.TrackProgress("master_attribute_jadwal_baca", async () =>
+                                    {
                                         await Utils.ClientBacameter(async (conn, trans) =>
                                         {
-                                            var jadwalbaca = await conn.QueryAsync(@"SELECT
-                                            b.nama AS petugasbaca,
-                                            c.koderayon
-                                            FROM
-                                            jadwalbaca a
-                                            JOIN petugasbaca b ON a.idpetugas=b.idpetugas
-                                            JOIN rayon c ON a.idrayon=c.idrayon", transaction: trans);
+                                            var jadwalbaca = await conn.QueryAsync(
+                                                sql: @"SELECT
+                                                b.nama AS petugasbaca,
+                                                c.koderayon
+                                                FROM
+                                                jadwalbaca a
+                                                JOIN petugasbaca b ON a.idpetugas=b.idpetugas
+                                                JOIN rayon c ON a.idrayon=c.idrayon",
+                                                transaction: trans);
                                             if (jadwalbaca.Any())
                                             {
                                                 await Utils.Client(async (conn, trans) =>
                                                 {
                                                     List<dynamic> data = [];
-                                                    var listPetugas = await conn.QueryAsync(@"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
-                                                        new { idpdam = settings.IdPdam }, trans);
-                                                    var listRayon = await conn.QueryAsync(@"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
-                                                        new { idpdam = settings.IdPdam }, trans);
+                                                    var listPetugas = await conn.QueryAsync(
+                                                        sql: @"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
+                                                        param: new
+                                                        {
+                                                            idpdam = settings.IdPdam
+                                                        },
+                                                        transaction: trans);
+                                                    var listRayon = await conn.QueryAsync(
+                                                        sql: @"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
+                                                        param: new
+                                                        {
+                                                            idpdam = settings.IdPdam
+                                                        },
+                                                        transaction: trans);
 
                                                     int id = 1;
                                                     foreach (var item in jadwalbaca)
@@ -628,48 +592,44 @@ namespace Migrasi.Commands
 
                                                     if (data.Count != 0)
                                                     {
-                                                        await conn.ExecuteAsync(@"REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
-                                                    VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)", data, trans);
+                                                        await conn.ExecuteAsync(
+                                                            sql: @"
+                                                            REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
+                                                            VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)",
+                                                            param: data,
+                                                            transaction: trans);
                                                     }
                                                 });
                                             }
                                         });
                                     });
-
-                                    await Utils.TrackProgress("pelanggan air", async () =>
+                                    await Utils.TrackProgress("master_pelanggan_air", async () =>
                                     {
-                                        ctx.Status("proses pelanggan air");
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_pelanggan_air",
-                                            queryPath: @"Queries\master_pelanggan_air.sql",
+                                            queryPath: @"Queries\bacameter\master_pelanggan_air.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
+                                            },
+                                            placeholders: new()
+                                            {
+                                                { "[bacameter]", AppSettings.DatabaseBacameter }
                                             });
-                                        ctx.Status("proses pelanggan air detail");
+                                    });
+                                    await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
+                                    {
                                         await Utils.BulkCopy(
                                             sConnectionStr: AppSettings.ConnectionStringBsbs,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_pelanggan_air_detail",
-                                            queryPath: @"Queries\master_pelanggan_air_detail.sql",
+                                            queryPath: @"Queries\bacameter\master_pelanggan_air_detail.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
-                                        ctx.Status("update latlong pelanggan air");
-                                        await Utils.ClientBacameter(async (conn, trans) =>
-                                        {
-                                            var pel = await conn.QueryAsync($"SELECT idpelanggan,latitude,longitude FROM hasilbaca{DateTime.ParseExact(periodeHMin4.ToString(), "yyyyMM", null).AddMonths(3).ToString("MMyy")}", transaction: trans);
-                                            if (pel.Any())
-                                            {
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    await conn.ExecuteAsync($"UPDATE master_pelanggan_air SET latitude=@latitude,longitude=@longitude WHERE idpdam={settings.IdPdam} AND nosamb=@idpelanggan", pel, trans);
-                                                });
-                                            }
-                                        });
                                     });
 
                                     var dt = DateTime.ParseExact(periodeHMin4.ToString(), "yyyyMM", null);
@@ -677,86 +637,87 @@ namespace Migrasi.Commands
                                     {
                                         var periode = dt.AddMonths(i).ToString("yyyyMM");
 
-                                        await Utils.TrackProgress($"cleanup data drd{periode}", async () =>
-                                        {
-                                            ctx.Status("cek golongan");
-                                            await Utils.ClientBsbs(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
-                                                query = query.Replace("[table]", $"drd{periode}");
-                                                await conn.ExecuteAsync(query, transaction: trans);
-                                            });
+                                        //await Utils.TrackProgress($"cleanup data drd{periode}", async () =>
+                                        //{
+                                        //    ctx.Status("cek golongan");
+                                        //    await Utils.ClientBsbs(async (conn, trans) =>
+                                        //    {
+                                        //        var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_golongan.sql");
+                                        //        query = query.Replace("[table]", $"drd{periode}");
+                                        //        await conn.ExecuteAsync(query, transaction: trans);
+                                        //    });
 
-                                            ctx.Status("cek diameter");
-                                            await Utils.ClientBsbs(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
-                                                query = query.Replace("[table]", $"drd{periode}");
-                                                await conn.ExecuteAsync(query, transaction: trans);
-                                            });
+                                        //    ctx.Status("cek diameter");
+                                        //    await Utils.ClientBsbs(async (conn, trans) =>
+                                        //    {
+                                        //        var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_diameter.sql");
+                                        //        query = query.Replace("[table]", $"drd{periode}");
+                                        //        await conn.ExecuteAsync(query, transaction: trans);
+                                        //    });
 
-                                            ctx.Status("cek kelurahan");
-                                            await Utils.ClientBsbs(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
-                                                query = query.Replace("[table]", $"drd{periode}");
-                                                await conn.ExecuteAsync(query, transaction: trans);
-                                            });
+                                        //    ctx.Status("cek kelurahan");
+                                        //    await Utils.ClientBsbs(async (conn, trans) =>
+                                        //    {
+                                        //        var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kelurahan.sql");
+                                        //        query = query.Replace("[table]", $"drd{periode}");
+                                        //        await conn.ExecuteAsync(query, transaction: trans);
+                                        //    });
 
-                                            ctx.Status("cek kolektif");
-                                            await Utils.ClientBsbs(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
-                                                query = query.Replace("[table]", $"drd{periode}");
-                                                await conn.ExecuteAsync(query, transaction: trans);
-                                            });
+                                        //    ctx.Status("cek kolektif");
+                                        //    await Utils.ClientBsbs(async (conn, trans) =>
+                                        //    {
+                                        //        var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_kolektif.sql");
+                                        //        query = query.Replace("[table]", $"drd{periode}");
+                                        //        await conn.ExecuteAsync(query, transaction: trans);
+                                        //    });
 
-                                            ctx.Status("cek administrasi lain");
-                                            await Utils.ClientBsbs(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
-                                                query = query.Replace("[table]", $"drd{periode}");
-                                                await conn.ExecuteAsync(query, transaction: trans);
-                                            });
+                                        //    ctx.Status("cek administrasi lain");
+                                        //    await Utils.ClientBsbs(async (conn, trans) =>
+                                        //    {
+                                        //        var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_adm_lain.sql");
+                                        //        query = query.Replace("[table]", $"drd{periode}");
+                                        //        await conn.ExecuteAsync(query, transaction: trans);
+                                        //    });
 
-                                            ctx.Status("cek pemeliharaan lain");
-                                            await Utils.ClientBsbs(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
-                                                query = query.Replace("[table]", $"drd{periode}");
-                                                await conn.ExecuteAsync(query, transaction: trans);
-                                            });
+                                        //    ctx.Status("cek pemeliharaan lain");
+                                        //    await Utils.ClientBsbs(async (conn, trans) =>
+                                        //    {
+                                        //        var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_pem_lain.sql");
+                                        //        query = query.Replace("[table]", $"drd{periode}");
+                                        //        await conn.ExecuteAsync(query, transaction: trans);
+                                        //    });
 
-                                            ctx.Status("cek retribusi lain");
-                                            await Utils.ClientBsbs(async (conn, trans) =>
-                                            {
-                                                var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
-                                                query = query.Replace("[table]", $"drd{periode}");
-                                                await conn.ExecuteAsync(query, transaction: trans);
-                                            });
-                                        });
+                                        //    ctx.Status("cek retribusi lain");
+                                        //    await Utils.ClientBsbs(async (conn, trans) =>
+                                        //    {
+                                        //        var query = await File.ReadAllTextAsync(@"Queries\patches\data_cleanup_ret_lain.sql");
+                                        //        query = query.Replace("[table]", $"drd{periode}");
+                                        //        await conn.ExecuteAsync(query, transaction: trans);
+                                        //    });
+                                        //});
 
-                                        ctx.Status($"proses drd{periode}");
-                                        await Utils.TrackProgress($"data drd{periode}", async () =>
+                                        await Utils.TrackProgress($"drd{periode}", async () =>
                                         {
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "rekening_air",
-                                                queryPath: @"Queries\drd.sql",
+                                                queryPath: @"Queries\bacameter\drd.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
                                                 },
                                                 placeholders: new()
                                                 {
-                                                    { "[tahunbulan]", periode }
+                                                    { "[tahunbulan]", periode },
+                                                    { "[bacameter]", AppSettings.DatabaseBacameter },
                                                 });
+
                                             await Utils.BulkCopy(
                                                 sConnectionStr: AppSettings.ConnectionStringBsbs,
                                                 tConnectionStr: AppSettings.ConnectionString,
                                                 tableName: "rekening_air_detail",
-                                                queryPath: @"Queries\drd_detail.sql",
+                                                queryPath: @"Queries\bacameter\drd_detail.sql",
                                                 parameters: new()
                                                 {
                                                     { "@idpdam", settings.IdPdam }
