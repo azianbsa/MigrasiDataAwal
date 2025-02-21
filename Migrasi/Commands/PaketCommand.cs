@@ -1641,7 +1641,7 @@ namespace Migrasi.Commands
 
         private async Task Report(Settings settings)
         {
-            await Utils.TrackProgress("label report|master_attribute_label_report", async () =>
+            await Utils.TrackProgress("master_attribute_label_report", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1654,7 +1654,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("report main group|master_report_maingroup", async () =>
+            await Utils.TrackProgress("master_report_maingroup", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1667,7 +1667,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("report sub group|master_report_subgroup", async () =>
+            await Utils.TrackProgress("master_report_subgroup", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1676,7 +1676,7 @@ namespace Migrasi.Commands
                     queryPath: @"Queries\master\report\master_report_subgroup.sql");
             });
 
-            await Utils.TrackProgress("report api|report_api", async () =>
+            await Utils.TrackProgress("report_api", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1685,7 +1685,7 @@ namespace Migrasi.Commands
                     queryPath: @"Queries\master\report\report_api.sql");
             });
 
-            await Utils.TrackProgress("report model|report_models", async () =>
+            await Utils.TrackProgress("report_models", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1698,7 +1698,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("report model source|report_model_sources", async () =>
+            await Utils.TrackProgress("report_model_sources", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1711,7 +1711,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("report model sort|report_model_sorts", async () =>
+            await Utils.TrackProgress("report_model_sorts", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1724,7 +1724,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("report model prop|report_model_props", async () =>
+            await Utils.TrackProgress("report_model_props", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1737,7 +1737,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("report model param|report_model_params", async () =>
+            await Utils.TrackProgress("report_model_params", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1750,7 +1750,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("report filter custom|report_filter_custom", async () =>
+            await Utils.TrackProgress("report_filter_custom", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1759,7 +1759,7 @@ namespace Migrasi.Commands
                     queryPath: @"Queries\master\report\report_filter_custom.sql");
             });
 
-            await Utils.TrackProgress("report filter custom detail|report_filter_custom_detail", async () =>
+            await Utils.TrackProgress("report_filter_custom_detail", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringStaging,
@@ -1771,7 +1771,7 @@ namespace Migrasi.Commands
 
         private async Task PaketRab(Settings settings)
         {
-            await Utils.TrackProgress("paket rab|master_attribute_paket", async () =>
+            await Utils.TrackProgress("master_attribute_paket", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringLoket,
@@ -1781,17 +1781,13 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
-                    },
-                    placeholders: new()
-                    {
-                        { "[bsbs]", AppSettings.DatabaseBsbs }
                     });
             });
         }
 
         private async Task PaketOngkos(Settings settings)
         {
-            await Utils.TrackProgress("paket ongkos|master_attribute_ongkos", async () =>
+            await Utils.TrackProgress("master_attribute_ongkos", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringLoket,
@@ -1804,7 +1800,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("paket ongkos|master_attribute_ongkos_paket", async () =>
+            await Utils.TrackProgress("master_attribute_ongkos_paket", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringLoket,
@@ -1817,7 +1813,7 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("paket ongkos|master_attribute_ongkos_paket_detail", async () =>
+            await Utils.TrackProgress("master_attribute_ongkos_paket_detail", async () =>
             {
                 await Utils.BulkCopy(
                     sConnectionStr: AppSettings.ConnectionStringLoket,
