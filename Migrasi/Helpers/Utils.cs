@@ -276,11 +276,11 @@ namespace Migrasi.Helpers
                 if (sw != null)
                 {
                     sw.Stop();
-                    AnsiConsole.MarkupLine($"[grey]LOG:[/] {process}[bold green] finish (elapsed {sw.Elapsed})[/]");
+                    AnsiConsole.MarkupLine($"[grey]LOG:[/] {DateTime.Now} {process}[bold green] finish (elapsed {sw.Elapsed})[/]");
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine($"[grey]LOG:[/] {process}[bold green] finish[/]");
+                    AnsiConsole.MarkupLine($"[grey]LOG:[/] {DateTime.Now} {process}[bold green] finish[/]");
                 }
             }
         }
