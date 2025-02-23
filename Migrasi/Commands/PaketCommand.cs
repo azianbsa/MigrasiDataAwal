@@ -2594,6 +2594,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2605,6 +2610,11 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@jenisnonair", rotasimeter.idjenisnonair },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2626,6 +2636,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2636,6 +2651,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -2715,6 +2735,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2725,6 +2750,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2735,6 +2765,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -2754,6 +2789,18 @@ namespace Migrasi.Commands
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 krekair = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='KREKAIR'", transaction: trans);
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM `permohonan_pelanggan_air_koreksi_rekening` WHERE idpdam=@idpdam AND `idpermohonan` 
+                    IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = krekair
+                    },
+                    transaction: trans);
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -2900,6 +2947,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2910,6 +2962,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2931,6 +2988,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -2959,6 +3021,21 @@ namespace Migrasi.Commands
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 bukaSegel = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BUKA_SEGEL'", transaction: trans);
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = bukaSegel
+                    },
+                    transaction: trans);
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -2971,7 +3048,7 @@ namespace Migrasi.Commands
                     @id := @id+1 AS idpermohonan,
                     per.nomor
                     FROM `permohonan_bukasegel` per
-                    JOIN {AppSettings.DatabaseBsbs}.pelanggan pel ON pel.nosamb = per.nosamb
+                    JOIN pelanggan pel ON pel.nosamb = per.nosamb
                     ,(SELECT @id := @lastid) AS id
                     WHERE per.flaghapus = 0",
                     param: new { lastid = lastId },
@@ -3002,6 +3079,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3102,6 +3184,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3113,6 +3200,11 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@jenisnonair", sambKembali.idjenisnonair },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3134,6 +3226,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3166,13 +3263,13 @@ namespace Migrasi.Commands
                 await conn.ExecuteAsync(
                     sql: @"
                     DELETE FROM permohonan_pelanggan_air_rab WHERE idpdam=@idpdam AND `idpermohonan`
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idpermohonan);
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
                     DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idpermohonan);
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
                     DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idpermohonan);
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
                     DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
                     param: new
@@ -3216,6 +3313,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
@@ -3228,6 +3326,11 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@jenisnonair", rubahRayon.idjenisnonair },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3238,6 +3341,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3248,6 +3356,11 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3266,6 +3379,21 @@ namespace Migrasi.Commands
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 rubahGol = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_GOL'", transaction: trans);
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM permohonan_pelanggan_air_spk WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = rubahGol
+                    },
+                    transaction: trans);
             });
 
             await Utils.BulkCopy(
@@ -3281,6 +3409,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
@@ -3291,11 +3420,21 @@ namespace Migrasi.Commands
                     DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
                     CREATE TEMPORARY TABLE __tmp_userloket AS
                     SELECT
-                    @iduser := @iduser + 1 AS iduser,
-                    nama
-                    FROM userloket
-                    ,(SELECT @iduser := 0) AS iduser
-                    ORDER BY nama;
+                    @idpdam,
+                    @id := @id + 1 AS iduser,
+                    a.nama,
+                    a.namauser
+                    FROM (
+                    SELECT nama,namauser,`passworduser`,alamat,aktif FROM {AppSettings.DatabaseBacameter}.`userakses`
+                    UNION
+                    SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM {AppSettings.DatabaseBsbs}.`userakses`
+                    UNION
+                    SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+                    UNION
+                    SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+                    ) a,
+                    (SELECT @id := 0) AS id
+                    GROUP BY a.namauser;
 
                     DROP TABLE IF EXISTS __tmp_permohonan_rubah_gol;
                     CREATE TABLE __tmp_permohonan_rubah_gol AS
@@ -3349,6 +3488,19 @@ namespace Migrasi.Commands
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 idBalikNama = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BALIK_NAMA'", transaction: trans);
+                
+                await conn.ExecuteAsync(
+                    sql: @"
+                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipepermohonan = idBalikNama
+                    },
+                    transaction: trans);
             });
 
             await Utils.BulkCopy(
@@ -3364,6 +3516,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
@@ -3373,19 +3526,29 @@ namespace Migrasi.Commands
                 DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
                 CREATE TEMPORARY TABLE __tmp_userloket AS
                 SELECT
-                @iduser := @iduser + 1 AS iduser,
-                nama
-                FROM userloket
-                ,(SELECT @iduser := 0) AS iduser
-                ORDER BY nama;
+                @idpdam,
+                @id := @id + 1 AS iduser,
+                a.nama,
+                a.namauser
+                FROM (
+                SELECT nama,namauser,`passworduser`,alamat,aktif FROM {AppSettings.DatabaseBacameter}.`userakses`
+                UNION
+                SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM {AppSettings.DatabaseBsbs}.`userakses`
+                UNION
+                SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+                UNION
+                SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+                ) a,
+                (SELECT @id := 0) AS id
+                GROUP BY a.namauser;
 
-                CREATE TABLE __temp_permohonan_balik_nama AS
+                CREATE TABLE __tmp_permohonan_balik_nama AS
                 SELECT
                 @id := @id+1 AS id,
                 bn.nomor,
                 usr.iduser 
                 FROM permohonan_balik_nama bn
-                JOIN {AppSettings.DatabaseBsbs}.pelanggan pel ON pel.nosamb = bn.nosamb
+                JOIN pelanggan pel ON pel.nosamb = bn.nosamb
                 LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)
                 ,(SELECT @id := @lastid) AS id
                 WHERE bn.flaghapus = 0", new { lastid = lastId }, trans);
@@ -3403,7 +3566,7 @@ namespace Migrasi.Commands
 
             await Utils.ClientLoket(async (conn, trans) =>
             {
-                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_permohonan_balik_nama", transaction: trans);
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_permohonan_balik_nama", transaction: trans);
             });
         }
 
@@ -3418,6 +3581,25 @@ namespace Migrasi.Commands
                 FROM master_attribute_tipe_permohonan a
                 JOIN master_attribute_jenis_nonair b ON b.idpdam = a.idpdam AND b.idjenisnonair = a.idjenisnonair
                 WHERE a.idpdam = @idpdam AND a.flaghapus = 0 AND a.kategori = 'Pengaduan'", new { idpdam = settings.IdPdam }, trans);
+
+                if (tipe != null)
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                        DELETE FROM permohonan_pelanggan_air_spk WHERE idpdam=@idpdam AND `idpermohonan`
+                         IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                        DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                         IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                        DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan;",
+                        param: new
+                        {
+                            idpdam = settings.IdPdam,
+                            tipepermohonan = tipe.Select(s => s.idtipepermohonan).ToList()
+                        },
+                        transaction: trans);
+                }
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3425,16 +3607,16 @@ namespace Migrasi.Commands
                 if (tipe != null)
                 {
                     await conn.ExecuteAsync(@"
-                    DROP TABLE IF EXISTS __temp_tipe_permohonan;
+                    DROP TABLE IF EXISTS __tmp_tipepermohonan;
 
-                    CREATE TABLE __temp_tipe_permohonan (
+                    CREATE TABLE __tmp_tipepermohonan (
                     idtipepermohonan INT,
                     idjenisnonair INT,
                     kodejenisnonair VARCHAR(50)
                     )", transaction: trans);
 
                     await conn.ExecuteAsync(@"
-                    INSERT INTO __temp_tipe_permohonan
+                    INSERT INTO __tmp_tipepermohonan
                     VALUES (@idtipepermohonan,@idjenisnonair,@kodejenisnonair)", tipe, trans);
                 }
             });
@@ -3450,6 +3632,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
@@ -3475,7 +3658,7 @@ namespace Migrasi.Commands
 
             await Utils.ClientLoket(async (conn, trans) =>
             {
-                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __temp_tipe_permohonan", transaction: trans);
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_tipepermohonan", transaction: trans);
             });
         }
     }

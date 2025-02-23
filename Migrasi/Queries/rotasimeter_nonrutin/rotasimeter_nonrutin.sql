@@ -1,4 +1,14 @@
-﻿SELECT
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
+
+SELECT
 @idpdam AS idpdam,
 @id := @id+1 AS idpermohonan,
 @tipepermohonan AS idtipepermohonan,
@@ -33,8 +43,8 @@ COALESCE(
  IF(p.tgl_spk<>'0000-00-00' AND p.flag_spk=1,p.tgl_spk,NULL),
  STR_TO_DATE(CONCAT(p.periode,'01'),'%Y%m%d')) waktuupdate
 FROM `rotasimeter_nonrutin` p
-JOIN [bsbs].pelanggan pl ON pl.nosamb = p.nosamb
+JOIN pelanggan pl ON pl.nosamb = p.nosamb
 LEFT JOIN [bsbs].rayon r ON r.koderayon = p.koderayon
 LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan = p.kodekelurahan
-LEFT JOIN [bsbs].golongan g ON g.kodegol = p.kodegol AND g.aktif = 1
+LEFT JOIN __tmp_golongan g ON g.kodegol = p.kodegol AND g.aktif = 1
 ,(SELECT @id := @lastid) AS id

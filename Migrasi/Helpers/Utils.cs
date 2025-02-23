@@ -11,13 +11,13 @@ namespace Migrasi.Helpers
     {
         public static void WriteLogMessage(string message, bool skip = false)
         {
-            AnsiConsole.MarkupLine($"[grey]LOG:[/] {message}[grey]...[/]" + (skip ? "skip" : ""));
+            AnsiConsole.MarkupLine($"[grey]LOG: {DateTime.Now} [/] {message}[grey]...[/]" + (skip ? "skip" : ""));
         }
 
         public static void WriteErrMessage(Exception exception, string process, string message)
         {
-            AnsiConsole.MarkupLine($"[red]ERR:[/] process: {process}");
-            AnsiConsole.MarkupLine($"[red]ERR:[/] message: {message}");
+            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now} [/] process: {process}");
+            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now} [/] message: {message}");
             AnsiConsole.WriteException(exception, ExceptionFormats.ShortenEverything);
         }
 
@@ -261,7 +261,7 @@ namespace Migrasi.Helpers
                     sw = Stopwatch.StartNew();
                 }
 
-                WriteLogMessage($"proses {process}");
+                WriteLogMessage($"{process}");
                 await fn();
                 await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 1 });
             }

@@ -20,5 +20,5 @@ NULL AS idalasanbatal,
 NULL AS statusberitaacara,
 NOW() AS waktuupdate
 FROM ba_balik_nama ba
-JOIN __temp_permohonan_balik_nama bn ON bn.nomor = ba.nomorpermohonan
+JOIN __tmp_permohonan_balik_nama bn ON bn.nomor = ba.nomorpermohonan
 WHERE ba.flaghapus = 0

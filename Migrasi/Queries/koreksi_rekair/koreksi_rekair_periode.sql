@@ -7,6 +7,16 @@ FROM [bsbs].periode
 ,(SELECT @idperiode := 0) AS idperiode
 ORDER BY periode;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
+
 SELECT
 d.`id` AS `id`,
 @idpdam AS `idpdam`,
@@ -92,4 +102,4 @@ JOIN pelanggan pl ON pl.nosamb = d.nosamb
 JOIN __tmp_periode pr ON pr.periode=d.`periode`
 LEFT JOIN [bsbs].rayon r ON r.koderayon = d.koderayon
 LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan = pl.kodekelurahan
-LEFT JOIN [bsbs].golongan g ON g.kodegol = d.kodegol AND g.aktif = 1
+LEFT JOIN __tmp_golongan g ON g.kodegol = d.kodegol AND g.aktif = 1

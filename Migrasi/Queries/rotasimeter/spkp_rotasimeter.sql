@@ -1,11 +1,21 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userbshl;
-CREATE TEMPORARY TABLE __tmp_userbshl AS
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
+CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
-@iduser := @iduser + 1 AS iduser,
-nama
-FROM `userbshl`
-,(SELECT @iduser := 0) AS iduser
-ORDER BY nama;
+@idpdam,
+@id := @id + 1 AS iduser,
+a.nama,
+a.namauser
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser;
 
 SELECT
 @idpdam AS `idpdam`,
@@ -24,5 +34,5 @@ IF(p.`tglpasang`='0000-00-00',p.`jadwal`,p.`tglpasang`) AS `waktuupdate`
 FROM
 `rotasimeter` p
 JOIN __tmp_rotasimeter ro ON ro.`nosamb`=p.`nosamb` AND ro.`periode`=p.`periode`
-LEFT JOIN __tmp_userbshl u ON u.nama=p.`user_spk`
+LEFT JOIN __tmp_userloket u ON u.nama=p.`user_spk`
 WHERE p.`tgl_spk` IS NOT NULL AND p.`flag_spk`=1 AND p.tglpasang IS NOT NULL

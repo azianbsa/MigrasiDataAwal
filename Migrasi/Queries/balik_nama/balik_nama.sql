@@ -1,16 +1,31 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket (
-    iduser INT,
-    nama VARCHAR(30),
-    INDEX idx_tmp_userloket_nama (nama)
-);
-INSERT INTO __tmp_userloket
+CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
-@iduser := @iduser + 1 AS iduser,
-nama
-FROM userloket
-,(SELECT @iduser := 0) AS iduser
-ORDER BY nama;
+@idpdam,
+@id := @id + 1 AS iduser,
+a.nama,
+a.namauser
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
 
 SELECT
 @idpdam as idpdam,
@@ -42,10 +57,10 @@ IF(ba.nomorba IS NULL,
 0 AS flaghapus,
 bn.tanggal waktuupdate
 FROM permohonan_balik_nama bn
-JOIN [bsbs].pelanggan pel ON pel.nosamb = bn.nosamb
+JOIN pelanggan pel ON pel.nosamb = bn.nosamb
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = bn.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = bn.kodekelurahan
-LEFT JOIN [bsbs].golongan gol ON gol.kodegol = bn.kodegol AND gol.aktif = 1
+LEFT JOIN __tmp_golongan gol ON gol.kodegol = bn.kodegol AND gol.aktif = 1
 LEFT JOIN nonair na ON na.urutan = bn.urutannonair
 LEFT JOIN ba_balik_nama ba ON ba.nomorpermohonan = bn.nomor AND ba.flaghapus=0
 LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)

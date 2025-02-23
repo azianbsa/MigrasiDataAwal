@@ -1,11 +1,31 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
 CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
-@iduser := @iduser + 1 AS iduser,
-nama
-FROM userloket
-,(SELECT @iduser := 0) AS iduser
-ORDER BY nama;
+@idpdam,
+@id := @id + 1 AS iduser,
+a.nama,
+a.namauser
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
 
 SELECT
 @idpdam as idpdam,
@@ -42,7 +62,7 @@ FROM permohonan_rubah_rayon per
 JOIN pelanggan pel ON pel.nosamb = per.nosamb
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = per.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = per.kodekelurahan
-LEFT JOIN [bsbs].golongan gol ON gol.kodegol = per.kodegol AND gol.aktif = 1
+LEFT JOIN __tmp_golongan gol ON gol.kodegol = per.kodegol AND gol.aktif = 1
 LEFT JOIN __tmp_userloket usr ON usr.nama = per.user_input
 ,(SELECT @id := @lastid) AS id
 WHERE per.flaghapus = 0

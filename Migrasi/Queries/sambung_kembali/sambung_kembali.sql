@@ -1,4 +1,14 @@
-﻿SELECT
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
+
+SELECT
 @idpdam AS idpdam,
 @id := @id+1 AS idpermohonan,
 @tipepermohonan AS idtipepermohonan,
@@ -37,7 +47,7 @@ FROM permohonan_sambung_kembali per
 JOIN pelanggan pel ON pel.nosamb = per.nosamb
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = per.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = per.kodekelurahan
-LEFT JOIN [bsbs].golongan gol ON gol.kodegol = per.kodegol AND gol.aktif = 1
+LEFT JOIN __tmp_golongan gol ON gol.kodegol = per.kodegol AND gol.aktif = 1
 LEFT JOIN `spk_opname_sambung_kembali` spk ON spk.`nomorpermohonan`=per.`nomor`
 LEFT JOIN `rab_sambung_kembali` rab ON rab.`nomorpermohonan`=per.`nomor`
 LEFT JOIN `ba_sambungkembali` ba ON ba.`nomorpermohonan`=per.`nomor`

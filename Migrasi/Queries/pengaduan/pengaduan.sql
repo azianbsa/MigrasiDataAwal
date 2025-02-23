@@ -1,10 +1,39 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __temp_sumber_pengaduan;
-CREATE TEMPORARY TABLE __temp_sumber_pengaduan AS
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_sumberpengaduan;
+CREATE TEMPORARY TABLE __tmp_sumberpengaduan AS
 SELECT
 @id := @id+1 AS id,
 sumberpengaduan
 FROM sumberpengaduan
 ,(SELECT @id := 0) AS id;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
+CREATE TEMPORARY TABLE __tmp_userloket AS
+SELECT
+@idpdam,
+@id := @id + 1 AS iduser,
+a.nama,
+a.namauser
+FROM (
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+UNION
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+) a,
+(SELECT @id := 0) AS id
+GROUP BY a.namauser;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+@id:=@id+1 AS id,
+kodegol,
+aktif
+FROM
+golongan,
+(SELECT @id:=0) AS id;
 
 SELECT
 @idpdam,
@@ -38,12 +67,12 @@ IF(ba.nomorba IS NOT NULL,
 0 AS flaghapus,
 pgd.tglditerima waktuupdate
 FROM pengaduan pgd
-JOIN [bsbs].pelanggan pel ON pel.nosamb = pgd.nosamb
+JOIN pelanggan pel ON pel.nosamb = pgd.nosamb
 JOIN spk_pengaduan ba ON ba.nomorpengaduan = pgd.nomor
-LEFT JOIN userloket usr ON usr.nama = pgd.user
-LEFT JOIN __temp_sumber_pengaduan spg ON spg.sumberpengaduan = pgd.sumberpengaduan
-LEFT JOIN __temp_tipe_permohonan tpr ON tpr.kodejenisnonair = pgd.kategori
+LEFT JOIN __tmp_userloket usr ON usr.nama = pgd.user
+LEFT JOIN __tmp_sumberpengaduan spg ON spg.sumberpengaduan = pgd.sumberpengaduan
+LEFT JOIN __tmp_tipepermohonan tpr ON tpr.kodejenisnonair = pgd.kategori
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon = pgd.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pgd.kodekelurahan
-LEFT JOIN [bsbs].golongan gol ON gol.kodegol = pgd.kodegol AND gol.aktif = 1
+LEFT JOIN __tmp_golongan gol ON gol.kodegol = pgd.kodegol AND gol.aktif = 1
 WHERE pgd.flaghapus = 0
