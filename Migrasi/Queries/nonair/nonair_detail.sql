@@ -1,7 +1,7 @@
 ﻿SELECT
 @idpdam,
 p.id AS idnonair,
-'Biaya' AS parameter,
+p.postbiaya AS parameter,
 p.postbiaya AS postbiaya,
 p.value AS `value`,
 NOW() AS waktuupdate
