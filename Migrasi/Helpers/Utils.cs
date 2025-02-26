@@ -243,7 +243,7 @@ namespace Migrasi.Helpers
         public static async Task TrackProgress(string process, Func<Task> fn)
         {
             using SqliteConnection conn = await SqliteConnectionFactory();
-            var cek = await conn.QueryFirstOrDefaultAsync("SELECT nama,flagproses FROM proses_manager WHERE nama=@nama", new { nama = process });
+            var cek = await conn.QueryFirstOrDefaultAsync("SELECT nama,flagproses FROM proses_manager WHERE trim(nama)=@nama", new { nama = process });
             if (cek != null)
             {
                 if (cek.flagproses == 1)
