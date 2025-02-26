@@ -778,7 +778,7 @@ namespace Migrasi.Commands
                             });
 
                             await AnsiConsole.Status()
-                                .StartAsync("Sedang diproses...", async ctx =>
+                                .StartAsync("Processing...", async _ =>
                                 {
                                     await MasterData(settings);
                                     await JenisNonair(settings);
