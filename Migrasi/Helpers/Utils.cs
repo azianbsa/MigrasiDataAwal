@@ -11,13 +11,13 @@ namespace Migrasi.Helpers
     {
         public static void WriteLogMessage(string message, bool skip = false)
         {
-            AnsiConsole.MarkupLine($"[grey]LOG: {DateTime.Now} [/] {message}[grey]...[/]" + (skip ? "skip" : ""));
+            AnsiConsole.MarkupLine($"[grey]LOG: {DateTime.Now}[/] {message}[grey]...[/]" + (skip ? "skip" : ""));
         }
 
         public static void WriteErrMessage(Exception exception, string process, string message)
         {
-            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now} [/] process: {process}");
-            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now} [/] message: {message}");
+            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now}[/] process: {process}");
+            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now}[/] message: {message}");
             AnsiConsole.WriteException(exception, ExceptionFormats.ShortenEverything);
         }
 
@@ -240,7 +240,7 @@ namespace Migrasi.Helpers
             }
         }
 
-        public static async Task TrackProgress(string process, Func<Task> fn, bool usingStopwatch = false)
+        public static async Task TrackProgress(string process, Func<Task> fn)
         {
             using SqliteConnection conn = await SqliteConnectionFactory();
             var cek = await conn.QueryFirstOrDefaultAsync("SELECT nama,flagproses FROM proses_manager WHERE nama=@nama", new { nama = process });
@@ -253,14 +253,9 @@ namespace Migrasi.Helpers
                 };
             }
 
-            Stopwatch? sw = null;
+            var sw = Stopwatch.StartNew();
             try
             {
-                if (usingStopwatch)
-                {
-                    sw = Stopwatch.StartNew();
-                }
-
                 WriteLogMessage($"{process}");
                 await fn();
                 await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 1 });
@@ -273,15 +268,8 @@ namespace Migrasi.Helpers
             }
             finally
             {
-                if (sw != null)
-                {
-                    sw.Stop();
-                    AnsiConsole.MarkupLine($"[grey]LOG:[/] {DateTime.Now} {process}[bold green] finish (elapsed {sw.Elapsed})[/]");
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine($"[grey]LOG:[/] {DateTime.Now} {process}[bold green] finish[/]");
-                }
+                sw.Stop();
+                AnsiConsole.MarkupLine($"[grey]LOG: {DateTime.Now}[/] {process}[bold green] finish (elapsed {sw.Elapsed})[/]");
             }
         }
 

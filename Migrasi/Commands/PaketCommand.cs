@@ -787,7 +787,6 @@ namespace Migrasi.Commands
                                     await PaketOngkos(settings);
                                     await PaketRab(settings);
                                     await Report(settings);
-
                                     await Utils.TrackProgress("master_pelanggan_air", async () =>
                                     {
                                         await Utils.BulkCopy(
@@ -805,7 +804,6 @@ namespace Migrasi.Commands
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
                                             });
                                     });
-
                                     await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
                                     {
                                         await Utils.Client(async (conn, trans) =>
@@ -829,7 +827,6 @@ namespace Migrasi.Commands
                                                     { "[bsbs]", AppSettings.DatabaseBsbs }
                                             });
                                     });
-
                                     await Utils.TrackProgress("piutang", async () =>
                                     {
                                         var lastId = 0;
@@ -868,7 +865,6 @@ namespace Migrasi.Commands
                                                 { "[bsbs]", AppSettings.DatabaseBsbs },
                                             });
                                     });
-
                                     await Utils.TrackProgress("bayar tahun", async () =>
                                     {
                                         IEnumerable<string?> bayarTahun = [];
@@ -917,7 +913,7 @@ namespace Migrasi.Commands
                                                                 { "[bacameter]", AppSettings.DatabaseBacameter },
                                                                 { "[bsbs]", AppSettings.DatabaseBsbs },
                                                             });
-                                                    }, usingStopwatch: true);
+                                                    });
 
                                                     await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_detail", async () =>
                                                     {
@@ -936,7 +932,7 @@ namespace Migrasi.Commands
                                                                 { "[table]", $"bayar{tahun}" },
                                                                 { "[bsbs]", AppSettings.DatabaseBsbs },
                                                             });
-                                                    }, usingStopwatch: true);
+                                                    });
 
                                                     await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_transaksi", async () =>
                                                     {
@@ -956,12 +952,11 @@ namespace Migrasi.Commands
                                                                 { "[bacameter]", AppSettings.DatabaseBacameter },
                                                                 { "[bsbs]", AppSettings.DatabaseBsbs },
                                                             });
-                                                    }, usingStopwatch: true);
+                                                    });
                                                 }
                                             });
                                         }
                                     });
-
                                     await Utils.TrackProgress("bayar", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
@@ -997,7 +992,7 @@ namespace Migrasi.Commands
                                                         { "[bacameter]", AppSettings.DatabaseBacameter },
                                                         { "[bsbs]", AppSettings.DatabaseBsbs },
                                                     });
-                                            }, usingStopwatch: true);
+                                            });
 
                                             await Utils.TrackProgress($"bayar-{periode}|rekening_air_detail", async () =>
                                             {
@@ -1016,7 +1011,7 @@ namespace Migrasi.Commands
                                                         { "[table]", "bayar" },
                                                         { "[bsbs]", AppSettings.DatabaseBsbs },
                                                     });
-                                            }, usingStopwatch: true);
+                                            });
 
                                             await Utils.TrackProgress($"bayar-{periode}|rekening_air_transaksi", async () =>
                                             {
@@ -1036,10 +1031,9 @@ namespace Migrasi.Commands
                                                         { "[bacameter]", AppSettings.DatabaseBacameter },
                                                         { "[bsbs]", AppSettings.DatabaseBsbs },
                                                     });
-                                            }, usingStopwatch: true);
+                                            });
                                         }
                                     });
-
                                     await Utils.TrackProgress("nonair tahun", async () =>
                                     {
                                         IEnumerable<string?> nonairTahun = [];
@@ -1127,7 +1121,7 @@ namespace Migrasi.Commands
                                                                 { "[table]", $"nonair{tahun}" },
                                                                 { "[bsbs]", AppSettings.DatabaseBsbs },
                                                             });
-                                                    }, usingStopwatch: true);
+                                                    });
 
                                                     await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair_detail", async () =>
                                                     {
@@ -1145,7 +1139,7 @@ namespace Migrasi.Commands
                                                             {
                                                                 { "[table]", $"nonair{tahun}" },
                                                             });
-                                                    }, usingStopwatch: true);
+                                                    });
 
                                                     await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair_transaksi", async () =>
                                                     {
@@ -1165,7 +1159,7 @@ namespace Migrasi.Commands
                                                                 { "[bacameter]", AppSettings.DatabaseBacameter },
                                                                 { "[bsbs]", AppSettings.DatabaseBsbs },
                                                             });
-                                                    }, usingStopwatch: true);
+                                                    });
                                                 }
                                             });
                                         }
@@ -1175,7 +1169,6 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
                                         });
                                     });
-
                                     await Utils.TrackProgress("nonair", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
@@ -1247,7 +1240,7 @@ namespace Migrasi.Commands
                                                         { "[table]", "nonair" },
                                                         { "[bsbs]", AppSettings.DatabaseBsbs },
                                                     });
-                                            }, usingStopwatch: true);
+                                            });
 
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_detail", async () =>
                                             {
@@ -1265,7 +1258,7 @@ namespace Migrasi.Commands
                                                     {
                                                         { "[table]", "nonair" },
                                                     });
-                                            }, usingStopwatch: true);
+                                            });
 
                                             await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_transaksi", async () =>
                                             {
@@ -1285,7 +1278,7 @@ namespace Migrasi.Commands
                                                         { "[bacameter]", AppSettings.DatabaseBacameter },
                                                         { "[bsbs]", AppSettings.DatabaseBsbs },
                                                     });
-                                            }, usingStopwatch: true);
+                                            });
                                         }
 
                                         await Utils.ClientLoket(async (conn, trans) =>
@@ -1293,7 +1286,6 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
                                         });
                                     });
-
                                     await Utils.TrackProgress("angsuran air", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
@@ -1340,7 +1332,7 @@ namespace Migrasi.Commands
                                                     { "[bacameter]", AppSettings.DatabaseBacameter },
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
-                                        }, usingStopwatch: true);
+                                        });
 
                                         await Utils.TrackProgress($"angsuran air piutang|rekening_air_detail", async () =>
                                         {
@@ -1357,7 +1349,7 @@ namespace Migrasi.Commands
                                                 {
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
-                                        }, usingStopwatch: true);
+                                        });
 
                                         await Utils.TrackProgress($"angsuran air bayar|rekening_air", async () =>
                                         {
@@ -1382,7 +1374,7 @@ namespace Migrasi.Commands
                                                     { "[bacameter]", AppSettings.DatabaseBacameter },
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
-                                        }, usingStopwatch: true);
+                                        });
 
                                         await Utils.TrackProgress($"angsuran air bayar|rekening_air_detail", async () =>
                                         {
@@ -1399,7 +1391,7 @@ namespace Migrasi.Commands
                                                 {
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
-                                        }, usingStopwatch: true);
+                                        });
 
                                         await Utils.TrackProgress($"angsuran air|rekening_air_angsuran", async () =>
                                         {
@@ -1426,7 +1418,7 @@ namespace Migrasi.Commands
                                                     { "[bacameter]", AppSettings.DatabaseBacameter },
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
-                                        }, usingStopwatch: true);
+                                        });
 
                                         await Utils.TrackProgress($"angsuran air|rekening_air_angsuran_detail", async () =>
                                         {
@@ -1450,9 +1442,8 @@ namespace Migrasi.Commands
                                                     { "[bacameter]", AppSettings.DatabaseBacameter },
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
                                                 });
-                                        }, usingStopwatch: true);
+                                        });
                                     });
-
                                     await Utils.TrackProgress("angsuran nonair", async () =>
                                     {
                                         IEnumerable<dynamic>? jenis = [];
@@ -1560,55 +1551,49 @@ namespace Migrasi.Commands
                                                 transaction: trans);
                                         });
                                     });
-
                                     await Utils.TrackProgress("pengaduan pelanggan air", async () =>
                                     {
                                         await Pengaduan(settings);
                                     });
-
                                     await Utils.TrackProgress("balik nama", async () =>
                                     {
                                         await BalikNama(settings);
                                     });
-
                                     await Utils.TrackProgress("rubah golongan", async () =>
                                     {
                                         await RubahGolongan(settings);
                                     });
-
                                     await Utils.TrackProgress("rubah rayon", async () =>
                                     {
                                         await RubahRayon(settings);
                                     });
-
                                     await Utils.TrackProgress("sambung kembali", async () =>
                                     {
                                         await SambungKembali(settings);
                                     });
-
                                     await Utils.TrackProgress("buka segel", async () =>
                                     {
                                         await BukaSegel(settings);
                                     });
-
                                     await Utils.TrackProgress("sambung baru", async () =>
                                     {
                                         await SambungBaru(settings);
                                     });
-
                                     await Utils.TrackProgress("koreksi rekair", async () =>
                                     {
                                         await KoreksiRekair(settings);
                                     });
-
                                     await Utils.TrackProgress("rotasimeter", async () =>
                                     {
                                         await Rotasimeter(settings);
                                     });
-
                                     await Utils.TrackProgress("rotasimeter nonrutin", async () =>
                                     {
                                         await RotasimeterNonrutin(settings);
+                                    });
+                                    await Utils.TrackProgress("koreksi data", async () =>
+                                    {
+                                        await KoreksiData(settings);
                                     });
                                 });
 
@@ -1637,6 +1622,60 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task KoreksiData(Settings settings)
+        {
+            var lastId = 0;
+            var lastIdDetail = 0;
+
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(
+                    sql: @"SELECT IFNULL(MAX(idkoreksi),0) FROM `master_pelanggan_air_riwayat_koreksi` WHERE idpdam=@idpdam",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam
+                    },
+                    transaction: trans);
+                lastIdDetail = await conn.QueryFirstOrDefaultAsync<int>(
+                    sql: @"SELECT IFNULL(MAX(id),0) FROM `master_pelanggan_air_riwayat_koreksi_detail`",
+                    transaction: trans);
+            });
+
+            await Utils.TrackProgress("master_pelanggan_air_riwayat_koreksi", async () =>
+            {
+                await Utils.BulkCopy(
+                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                    tConnectionStr: AppSettings.ConnectionString,
+                    tableName: "master_pelanggan_air_riwayat_koreksi",
+                    queryPath: @"Queries\koreksi_data\koreksi_data.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                        { "@lastid", lastId },
+                    },
+                    placeholders: new()
+                    {
+                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                    });
+            });
+
+            await Utils.TrackProgress("master_pelanggan_air_riwayat_koreksi_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                    tConnectionStr: AppSettings.ConnectionString,
+                    tableName: "master_pelanggan_air_riwayat_koreksi_detail",
+                    queryPath: @"Queries\koreksi_data\koreksi_data_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                        { "@lastid", lastId },
+                        { "@lastiddetail", lastIdDetail },
+                    });
+            });
         }
 
         private async Task Report(Settings settings)
