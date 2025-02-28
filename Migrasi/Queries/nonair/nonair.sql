@@ -41,4 +41,4 @@ LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
 LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair = na.jenis
 LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon = na.koderayon
 LEFT JOIN __tmp_golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
-WHERE na.periode = @periode OR na.periode IS NULL OR na.periode = ''
+WHERE jenis<>'JNS-16' AND na.periode = @periode OR na.periode IS NULL OR na.periode = ''

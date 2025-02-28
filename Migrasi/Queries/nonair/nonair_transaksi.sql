@@ -44,4 +44,4 @@ FROM
 [table] na
 LEFT JOIN __tmp_userloket us ON us.nama=na.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket=na.loketbayar
-WHERE flagangsur=0 and flaglunas=1 AND flagbatal=0 AND (na.periode = @periode OR na.periode IS NULL OR na.periode = '')
+WHERE jenis<>'JNS-16' AND flagangsur=0 AND flaglunas=1 AND flagbatal=0 AND (na.periode = @periode OR na.periode IS NULL OR na.periode = '')

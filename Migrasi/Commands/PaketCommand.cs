@@ -1286,6 +1286,10 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
                                         });
                                     });
+                                    await Utils.TrackProgress("nonair meterai", async () =>
+                                    {
+                                        await NonairMeterai(settings);
+                                    });
                                     await Utils.TrackProgress("angsuran air", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
@@ -1622,6 +1626,20 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task NonairMeterai(Settings settings)
+        {
+            await Utils.Client(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: await File.ReadAllTextAsync(@"Queries\nonair\nonair_meterai.sql"),
+                    param: new
+                    {
+                        idpdam = settings.IdPdam
+                    },
+                    transaction: trans);
+            });
         }
 
         private async Task KoreksiData(Settings settings)
