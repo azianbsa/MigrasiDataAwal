@@ -2419,7 +2419,7 @@ namespace Migrasi.Commands
                 {
                     var jadwalbaca = await conn.QueryAsync(@"
                                                 SELECT
-                                                b.nama AS petugasbaca,
+                                                b.kodepetugas,
                                                 c.koderayon
                                                 FROM
                                                 jadwalbaca a
@@ -2430,7 +2430,7 @@ namespace Migrasi.Commands
                         await Utils.Client(async (conn, trans) =>
                         {
                             List<dynamic> data = [];
-                            var listPetugas = await conn.QueryAsync(@"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
+                            var listPetugas = await conn.QueryAsync(@"SELECT idpetugasbaca,kodepetugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
                                 new { idpdam = settings.IdPdam }, trans);
                             var listRayon = await conn.QueryAsync(@"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
                                 new { idpdam = settings.IdPdam }, trans);
@@ -2444,7 +2444,7 @@ namespace Migrasi.Commands
                                     idjadwalbaca = id++,
                                     idpetugasbaca =
                                         listPetugas
-                                            .Where(s => s.petugasbaca.ToLower() == item.petugasbaca.ToLower())
+                                            .Where(s => s.kodepetugasbaca.ToLower() == item.kodepetugas.ToLower())
                                             .Select(s => s.idpetugasbaca).FirstOrDefault(),
                                     idrayon =
                                         listRayon
@@ -2460,9 +2460,17 @@ namespace Migrasi.Commands
 
                             if (data.Count != 0)
                             {
-                                await conn.ExecuteAsync(@"
-                                                            REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
-                                                            VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)", data, trans);
+                                await conn.ExecuteAsync(
+                                   sql: @"
+                                    DELETE FROM master_attribute_jadwal_baca WHERE idpdam=@idpdam",
+                                   param: new { idpdam = settings.IdPdam },
+                                   transaction: trans);
+                                await conn.ExecuteAsync(
+                                    sql: @"
+                                    INSERT INTO master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
+                                    VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)",
+                                    param: data,
+                                    transaction: trans);
                             }
                         });
                     }
