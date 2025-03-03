@@ -37,12 +37,12 @@ usr.iduser AS iduser,
 ang.tglmulaitagih AS tglmulaitagihpertama,
 ba.nomorba AS noberitaacara,
 ba.tanggalba AS tglberitaacara,
-1 AS flagpublish,
-ang.waktudaftar AS waktupublish,
+ang.flagupload AS flagpublish,
+ang.waktuupload AS waktupublish,
 ang.flaglunas AS flaglunas,
 ang.waktulunas AS waktulunas,
 0 AS flaghapus,
-IFNULL(ang.waktulunas,ang.waktudaftar) AS waktuupdate
+COALESCE(ang.waktulunas,ang.waktuupload,ang.waktudaftar) AS waktuupdate
 FROM daftarangsuran ang
 JOIN pelanggan pel ON pel.nosamb = ang.dibebankankepada
 LEFT JOIN __tmp_userloket usr ON usr.nama = ang.userdaftar
