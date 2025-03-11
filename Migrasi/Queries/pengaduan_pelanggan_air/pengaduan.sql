@@ -77,14 +77,14 @@ IF(ba.nomorba IS NOT NULL,
   'Menunggu SPK Pemasangan')) AS statuspermohonan,
 0 AS flaghapus,
 p.tglditerima AS waktuupdate
-FROM pengaduan p
-join __tmp_pengaduan pp on pp.nomor=p.nomor
+FROM
+__tmp_pengaduan pp
+JOIN pengaduan p ON p.nomor=pp.nomor
 JOIN pelanggan pel ON pel.nosamb=p.nosamb
-JOIN spk_pengaduan ba ON ba.nomorpengaduan=p.nomor
+LEFT JOIN spk_pengaduan ba ON ba.nomorpengaduan=p.nomor
 LEFT JOIN __tmp_userloket usr ON usr.nama=p.user
 LEFT JOIN __tmp_sumberpengaduan s ON s.sumberpengaduan=p.sumberpengaduan
 LEFT JOIN __tmp_tipepermohonan t ON t.kodejenisnonair=p.kategori
 LEFT JOIN [bsbs].rayon r ON r.koderayon=p.koderayon
 LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=p.kodekelurahan
 LEFT JOIN __tmp_golongan g ON g.kodegol=p.kodegol AND g.aktif=1
-WHERE p.flaghapus=0 AND p.flagpel=1

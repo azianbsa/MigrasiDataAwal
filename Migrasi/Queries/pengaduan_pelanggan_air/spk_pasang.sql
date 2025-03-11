@@ -43,7 +43,7 @@ NULL AS `fotobukti3`,
 NULL AS `idalasanbatal`,
 COALESCE(p.tanggalspk,NOW()) AS `waktuupdate`
 FROM
-spk_pengaduan p
-JOIN __tmp_pengaduan pp ON pp.nomor=p.nomorpengaduan
+__tmp_pengaduan pp 
+JOIN spk_pengaduan p ON p.nomorpengaduan=pp.nomor
 LEFT JOIN __tmp_userloket u ON u.nama=p.user_spk
 WHERE p.flaghapus=0 AND p.nomorspk IS NOT NULL AND p.tanggalspk IS NOT NULL
