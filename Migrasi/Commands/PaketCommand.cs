@@ -1580,7 +1580,7 @@ namespace Migrasi.Commands
                                     });
                                     await Utils.TrackProgress("rubah golongan", async () =>
                                     {
-                                        await RubahGolongan(settings);
+                                        await RubahTarif(settings);
                                     });
                                     await Utils.TrackProgress("rubah rayon", async () =>
                                     {
@@ -3489,14 +3489,14 @@ namespace Migrasi.Commands
             });
         }
 
-        private async Task RubahGolongan(Settings settings)
+        private async Task RubahTarif(Settings settings)
         {
             var lastId = 0;
-            var rubahGol = 0;
+            var rubahTarif = 0;
             await Utils.Client(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-                rubahGol = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_GOL'", transaction: trans);
+                rubahTarif = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_TARIF'", transaction: trans);
                 await conn.ExecuteAsync(
                     sql: @"
                     DELETE FROM permohonan_pelanggan_air_spk WHERE idpdam=@idpdam AND `idpermohonan`
@@ -3509,7 +3509,7 @@ namespace Migrasi.Commands
                     param: new
                     {
                         idpdam = settings.IdPdam,
-                        idtipepermohonan = rubahGol
+                        idtipepermohonan = rubahTarif
                     },
                     transaction: trans);
             });
@@ -3523,7 +3523,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                    { "@tipepermohonan", rubahGol },
+                    { "@tipepermohonan", rubahTarif },
                 },
                 placeholders: new()
                 {
@@ -3604,12 +3604,14 @@ namespace Migrasi.Commands
             var idBalikNama = 0;
             await Utils.Client(async (conn, trans) =>
             {
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 idBalikNama = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BALIK_NAMA'", transaction: trans);
                 
                 await conn.ExecuteAsync(
                     sql: @"
                     DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_detail WHERE idpdam=@idpdam AND `idpermohonan` 
                      IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
                     DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
@@ -3619,6 +3621,8 @@ namespace Migrasi.Commands
                         idtipepermohonan = idBalikNama
                     },
                     transaction: trans);
+                
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
             });
 
             await Utils.BulkCopy(
@@ -3638,54 +3642,68 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                await conn.ExecuteAsync($@"
-                DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-                CREATE TEMPORARY TABLE __tmp_userloket AS
-                SELECT
-                @idpdam,
-                @id := @id + 1 AS iduser,
-                a.nama,
-                a.namauser
-                FROM (
-                SELECT nama,namauser,`passworduser`,alamat,aktif FROM {AppSettings.DatabaseBacameter}.`userakses`
-                UNION
-                SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM {AppSettings.DatabaseBsbs}.`userakses`
-                UNION
-                SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
-                UNION
-                SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
-                ) a,
-                (SELECT @id := 0) AS id
-                GROUP BY a.namauser;
-
-                CREATE TABLE __tmp_permohonan_balik_nama AS
-                SELECT
-                @id := @id+1 AS id,
-                bn.nomor,
-                usr.iduser 
-                FROM permohonan_balik_nama bn
-                JOIN pelanggan pel ON pel.nosamb = bn.nosamb
-                LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)
-                ,(SELECT @id := @lastid) AS id
-                WHERE bn.flaghapus = 0", new { lastid = lastId }, trans);
-            });
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_detail",
+                queryPath: @"Queries\balik_nama\detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
 
             await Utils.BulkCopy(
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\balik_nama\ba_balik_nama.sql",
+                queryPath: @"Queries\balik_nama\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
+            IEnumerable<dynamic>? nonairBaliknama = [];
             await Utils.ClientLoket(async (conn, trans) =>
             {
-                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_permohonan_balik_nama", transaction: trans);
+                nonairBaliknama = await conn.QueryAsync(
+                    sql: @"SELECT `nomor`,`urutannonair` FROM `permohonan_balik_nama` WHERE `flaghapus`=0 AND `biaya`>0",
+                    transaction: trans);
             });
+
+            if (nonairBaliknama.Any())
+            {
+                await Utils.Client(async (conn, trans) =>
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                        DROP TABLE IF EXISTS __tmp_nonair_baliknama;
+                        CREATE TABLE __tmp_nonair_baliknama (
+                        nomor varchar(100),
+                        urutannonair varchar(100)
+                        )",
+                        transaction: trans);
+                    await conn.ExecuteAsync(
+                        sql: @"INSERT INTO __tmp_nonair_baliknama VALUES (@nomor,@urutannonair)",
+                        param: nonairBaliknama,
+                        transaction: trans);
+                    await conn.ExecuteAsync(
+                        sql: await File.ReadAllTextAsync(@"Queries\balik_nama\patches\p1.sql"),
+                        param: new
+                        {
+                            idpdam = settings.IdPdam,
+                            idtipe = idBalikNama,
+                        },
+                        transaction: trans,
+                        commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
+                });
+            }
         }
 
         private async Task PengaduanPelangganAir(Settings settings)
@@ -3695,8 +3713,6 @@ namespace Migrasi.Commands
 
             await Utils.Client(async (conn, trans) =>
             {
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(sql: @"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-
                 tipe = await conn.QueryAsync(
                     sql: @"
                     SELECT
@@ -3728,7 +3744,9 @@ namespace Migrasi.Commands
                         DELETE FROM permohonan_pelanggan_air_ba_detail WHERE idpdam=@idpdam AND `idpermohonan` 
                         IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
 
-                        DELETE FROM `permohonan_pelanggan_air_detail` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan;
+                        DELETE FROM permohonan_pelanggan_air_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                        IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
                         DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan;",
                         param: new
                         {
@@ -3737,6 +3755,8 @@ namespace Migrasi.Commands
                         },
                         transaction: trans);
                 }
+
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(sql: @"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -3873,6 +3893,18 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
                 });
+
+            await Utils.Client(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: await File.ReadAllTextAsync(@"Queries\pengaduan_pelanggan_air\patches\p1.sql"),
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                    },
+                    transaction: trans,
+                    commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
+            });
 
             await Utils.ClientLoket(async (conn, trans) =>
             {

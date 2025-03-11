@@ -148,10 +148,16 @@
     <None Update="Queries\bacameter\master_tarif_retribusi_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\balik_nama\detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\balik_nama\balik_nama.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\balik_nama\ba_balik_nama.sql">
+    <None Update="Queries\balik_nama\ba.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\balik_nama\patches\p1.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\bayar\bayar_transaksi.sql">
@@ -512,6 +518,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\pengaduan_pelanggan_air\detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_pelanggan_air\patches\p1.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\pengaduan_pelanggan_air\spk_pasang.sql">
