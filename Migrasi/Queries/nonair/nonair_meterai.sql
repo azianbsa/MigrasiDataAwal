@@ -1,16 +1,20 @@
-﻿SET @idjns = (SELECT `idjenisnonair` FROM `master_attribute_jenis_nonair` WHERE idpdam=@idpdam AND `kodejenisnonair`='JNS-16' AND `flaghapus`=0);
+﻿DROP TEMPORARY TABLE IF EXISTS __tmp_nonair_hapus;
+CREATE TEMPORARY TABLE __tmp_nonair_hapus AS
+SELECT id FROM [table] WHERE flaghapus=1;
 
-REPLACE INTO `rekening_nonair_detail`
+SELECT a.* FROM (
 SELECT
-a.`idpdam`,
-SUBSTRING_INDEX(GROUP_CONCAT(a.`idnonair` ORDER BY a.`idnonair`),',',1) AS idnonair,
+@idpdam,
+SUBSTRING_INDEX(GROUP_CONCAT(a.`id` ORDER BY id),',',1) AS id,
 'Meterai' AS parameter,
 'meterai' AS postbiaya,
 b.total AS `value`,
 NOW() AS waktuupdate
-FROM rekening_nonair a
+FROM [table] a
 JOIN (
-SELECT `nomornonair`,`total` FROM `rekening_nonair` WHERE idpdam=@idpdam AND `idjenisnonair`=@idjns
-) b ON b.nomornonair=a.`nomornonair`
-WHERE a.idpdam=@idpdam
-GROUP BY a.`nomornonair`
+SELECT nomor,total FROM [table] WHERE flaghapus=0 AND jenis='JNS-16' GROUP BY nomor
+) b ON b.nomor=a.nomor
+GROUP BY a.`nomor`
+) a
+LEFT JOIN __tmp_nonair_hapus b ON b.id=a.id
+WHERE b.id IS NULL

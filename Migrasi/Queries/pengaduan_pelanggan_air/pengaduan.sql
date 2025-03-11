@@ -35,19 +35,30 @@ FROM
 golongan,
 (SELECT @id:=0) AS id;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_pengaduan;
+CREATE TEMPORARY TABLE __tmp_pengaduan AS
+SELECT
+@id:=@id+1 AS id,
+p.nomor,
+p.`kategori`
+FROM pengaduan p
+JOIN `__tmp_tipepermohonan` t ON t.`kodejenisnonair`=p.`kategori`
+,(SELECT @id:=@lastid) AS id
+WHERE `flaghapus`=0 AND `flagpel`=1;
+
 SELECT
 @idpdam,
-pgd.id AS idpermohonan,
-tpr.idtipepermohonan AS idtipepermohonan,
-spg.id AS idsumberpengaduan,
-pgd.nomor AS nomorpermohonan,
-pgd.tglditerima AS waktupermohonan,
-ray.id AS idrayon,
-kel.id AS idkelurahan,
-gol.id AS idgolongan,
+pp.id AS idpermohonan,
+t.idtipepermohonan AS idtipepermohonan,
+s.id AS idsumberpengaduan,
+p.nomor AS nomorpermohonan,
+p.tglditerima AS waktupermohonan,
+r.id AS idrayon,
+k.id AS idkelurahan,
+g.id AS idgolongan,
 NULL AS iddiameter,
 pel.id idpelangganair,
-pgd.uraianlaporan AS keterangan,
+p.uraianlaporan AS keterangan,
 usr.namauser AS iduser,
 NULL AS idnonair,
 NULL AS latitude,
@@ -65,14 +76,15 @@ IF(ba.nomorba IS NOT NULL,
   'Menunggu Berita Acara',
   'Menunggu SPK Pemasangan')) AS statuspermohonan,
 0 AS flaghapus,
-pgd.tglditerima waktuupdate
-FROM pengaduan pgd
-JOIN pelanggan pel ON pel.nosamb = pgd.nosamb
-JOIN spk_pengaduan ba ON ba.nomorpengaduan = pgd.nomor
-LEFT JOIN __tmp_userloket usr ON usr.nama = pgd.user
-LEFT JOIN __tmp_sumberpengaduan spg ON spg.sumberpengaduan = pgd.sumberpengaduan
-LEFT JOIN __tmp_tipepermohonan tpr ON tpr.kodejenisnonair = pgd.kategori
-LEFT JOIN [bsbs].rayon ray ON ray.koderayon = pgd.koderayon
-LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pgd.kodekelurahan
-LEFT JOIN __tmp_golongan gol ON gol.kodegol = pgd.kodegol AND gol.aktif = 1
-WHERE pgd.flaghapus = 0
+p.tglditerima AS waktuupdate
+FROM pengaduan p
+join __tmp_pengaduan pp on pp.nomor=p.nomor
+JOIN pelanggan pel ON pel.nosamb=p.nosamb
+JOIN spk_pengaduan ba ON ba.nomorpengaduan=p.nomor
+LEFT JOIN __tmp_userloket usr ON usr.nama=p.user
+LEFT JOIN __tmp_sumberpengaduan s ON s.sumberpengaduan=p.sumberpengaduan
+LEFT JOIN __tmp_tipepermohonan t ON t.kodejenisnonair=p.kategori
+LEFT JOIN [bsbs].rayon r ON r.koderayon=p.koderayon
+LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=p.kodekelurahan
+LEFT JOIN __tmp_golongan g ON g.kodegol=p.kodegol AND g.aktif=1
+WHERE p.flaghapus=0 AND p.flagpel=1

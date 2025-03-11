@@ -27,21 +27,31 @@ SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `user
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_nonair;
+CREATE TEMPORARY TABLE __tmp_nonair AS
+SELECT
+@id:=@id+1 AS id,
+urutan
+FROM [table]
+,(SELECT @id:=@lastid) AS id
+WHERE flaghapus=0 AND flagangsur=0 AND jenis NOT IN ('JNS-16','JNS-38');
+
 SELECT
 @idpdam,
-id AS idnonair,
-nomor AS nomortransaksi,
+n.id AS idnonair,
+na.urutan AS nomortransaksi,
 1 AS statustransaksi,
-waktubayar AS waktutransaksi,
-YEAR(waktubayar) AS tahuntransaksi,
+na.waktubayar AS waktutransaksi,
+YEAR(na.waktubayar) AS tahuntransaksi,
 us.iduser AS iduser,
 lo.idloket AS idloket,
 NULL AS idkolektiftransaksi,
 NULL AS idalasanbatal,
-keterangan AS keterangan,
-waktuupdate AS waktuupdate
+na.keterangan AS keterangan,
+na.waktuupdate AS waktuupdate
 FROM
-[table] na
+__tmp_nonair n
+JOIN [table] na ON na.urutan=n.urutan
 LEFT JOIN __tmp_userloket us ON us.nama=na.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket=na.loketbayar
-WHERE jenis NOT IN ('JNS-16','JNS-38') AND flagangsur=0 AND flaglunas=1 AND flagbatal=0 AND (na.periode = @periode OR na.periode IS NULL OR na.periode = '')
+WHERE na.flaglunas=1 AND na.flagbatal=0 AND (na.periode=@periode OR na.periode IS NULL OR na.periode='')
