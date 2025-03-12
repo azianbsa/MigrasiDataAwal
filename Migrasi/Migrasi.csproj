@@ -580,13 +580,25 @@
     <None Update="Queries\rotasimeter_nonrutin\spk_rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rubah_gol\rubah_gol.sql">
+    <None Update="Queries\rubah_tarif\detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rubah_gol\ba_rubah_gol.sql">
+    <None Update="Queries\rubah_tarif\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rubah_gol\spk_rubah_gol.sql">
+    <None Update="Queries\rubah_tarif\patches\p1.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rubah_tarif\spk_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rubah_tarif\rubah_tarif.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rubah_tarif\ba.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rubah_tarif\spk.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rubah_rayon\rab_rubah_rayon.sql">

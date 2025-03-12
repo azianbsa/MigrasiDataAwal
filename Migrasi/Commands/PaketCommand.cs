@@ -1578,7 +1578,7 @@ namespace Migrasi.Commands
                                     {
                                         await BalikNama(settings);
                                     });
-                                    await Utils.TrackProgress("rubah golongan", async () =>
+                                    await Utils.TrackProgress("rubah tarif", async () =>
                                     {
                                         await RubahTarif(settings);
                                     });
@@ -3495,14 +3495,22 @@ namespace Migrasi.Commands
             var rubahTarif = 0;
             await Utils.Client(async (conn, trans) =>
             {
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 rubahTarif = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_TARIF'", transaction: trans);
                 await conn.ExecuteAsync(
                     sql: @"
                     DELETE FROM permohonan_pelanggan_air_spk WHERE idpdam=@idpdam AND `idpermohonan`
                      IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
+                    DELETE FROM permohonan_pelanggan_air_spk_detail WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
                     DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_ba_detail WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_pelanggan_air_detail WHERE idpdam=@idpdam AND `idpermohonan`
                      IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
                     DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
@@ -3512,13 +3520,15 @@ namespace Migrasi.Commands
                         idtipepermohonan = rubahTarif
                     },
                     transaction: trans);
+
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
             });
 
             await Utils.BulkCopy(
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air",
-                queryPath: @"Queries\rubah_gol\rubah_gol.sql",
+                queryPath: @"Queries\rubah_tarif\rubah_tarif.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3531,70 +3541,80 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                await conn.ExecuteAsync(
-                    sql: $@"
-                    DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-                    CREATE TEMPORARY TABLE __tmp_userloket AS
-                    SELECT
-                    @idpdam,
-                    @id := @id + 1 AS iduser,
-                    a.nama,
-                    a.namauser
-                    FROM (
-                    SELECT nama,namauser,`passworduser`,alamat,aktif FROM {AppSettings.DatabaseBacameter}.`userakses`
-                    UNION
-                    SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM {AppSettings.DatabaseBsbs}.`userakses`
-                    UNION
-                    SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
-                    UNION
-                    SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
-                    ) a,
-                    (SELECT @id := 0) AS id
-                    GROUP BY a.namauser;
-
-                    DROP TABLE IF EXISTS __tmp_permohonan_rubah_gol;
-                    CREATE TABLE __tmp_permohonan_rubah_gol AS
-                    SELECT
-                    @id := @id+1 AS id,
-                    rg.nomor,
-                    usr.iduser
-                    FROM permohonan_rubah_gol rg
-                    JOIN pelanggan pel ON pel.nosamb = rg.nosamb
-                    LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
-                    ,(SELECT @id := @lastid) AS id
-                    WHERE rg.flaghapus = 0",
-                    param: new
-                    {
-                        lastid = lastId
-                    }
-                    , trans);
-            });
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_detail",
+                queryPath: @"Queries\rubah_tarif\detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
 
             await Utils.BulkCopy(
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_spk",
-                queryPath: @"Queries\rubah_gol\spk_rubah_gol.sql",
+                queryPath: @"Queries\rubah_tarif\spk.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk_detail",
+                queryPath: @"Queries\rubah_tarif\spk_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
                 });
 
             await Utils.BulkCopy(
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\rubah_gol\ba_rubah_gol.sql",
+                queryPath: @"Queries\rubah_tarif\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba_detail",
+                queryPath: @"Queries\rubah_tarif\ba_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
+
+            await Utils.Client(async (conn, trans) =>
             {
-                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_permohonan_rubah_gol", transaction: trans);
+                await conn.ExecuteAsync(
+                    sql: await File.ReadAllTextAsync(@"Queries\rubah_tarif\patches\p1.sql"),
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                        idtipe = rubahTarif,
+                    },
+                    transaction: trans,
+                    commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
             });
         }
 

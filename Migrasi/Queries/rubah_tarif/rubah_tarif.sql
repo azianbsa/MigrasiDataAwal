@@ -27,19 +27,28 @@ FROM
 golongan,
 (SELECT @id:=0) AS id;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_rubah_tarif;
+CREATE TEMPORARY TABLE __tmp_rubah_tarif AS
+SELECT
+@id:=@id+1 AS id,
+nomor
+FROM `permohonan_rubah_gol`
+,(SELECT @id:=@lastid) AS id
+WHERE `flaghapus`=0;
+
 SELECT
 @idpdam AS idpdam,
-@id := @id+1 AS idpermohonan,
+t.id AS idpermohonan,
 @tipepermohonan AS idtipepermohonan,
 NULL AS idsumberpengaduan,
-rg.nomor AS nomorpermohonan,
-rg.tanggal AS waktupermohonan,
+p.nomor AS nomorpermohonan,
+p.tanggal AS waktupermohonan,
 ray.id AS idrayon,
 kel.id AS idkelurahan,
 gol.id AS idgolongan,
 NULL AS iddiameter,
 pel.id idpelangganair,
-rg.keterangan AS keterangan,
+p.keterangan AS keterangan,
 usr.iduser AS iduser,
 NULL AS idnonair,
 NULL AS latitude,
@@ -48,22 +57,20 @@ NULL AS alamatmap,
 NULL AS fotobukti1,
 NULL AS fotobukti2,
 NULL AS fotobukti3,
-IF(ba.nomorba IS NULL,0,1) AS flagverifikasi,
-ba.tanggalba AS waktuverifikasi,
+p.flag_ba_pengecekan AS flagverifikasi,
+p.tglba_pengecekan AS waktuverifikasi,
 0 AS flagusulan,
-IF(rg.flag_ba_pengecekan=1,
+IF(p.flag_ba_pengecekan=1,
  'Selesai',
- IF(rg.flag_spk_pengecekan=1,
-  'Menunggu Berita Acara',
+ IF(p.flag_spk_pengecekan=1,
+  'Menunggu Verifikasi',
   'Menunggu SPK Survey')) AS statuspermohonan,
 0 AS flaghapus,
-rg.tanggal waktuupdate
-FROM permohonan_rubah_gol rg
-JOIN pelanggan pel ON pel.nosamb = rg.nosamb
-LEFT JOIN [bsbs].rayon ray ON ray.koderayon = rg.koderayon
-LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = rg.kodekelurahan
-LEFT JOIN __tmp_golongan gol ON gol.kodegol = rg.kodegol AND gol.aktif = 1
-LEFT JOIN ba_rubah_gol ba ON ba.nomorpermohonan = rg.nomor AND ba.flaghapus=0
-LEFT JOIN __tmp_userloket usr ON usr.nama = SUBSTRING_INDEX(rg.urutannonair,'.RUBAH_GOL.',1)
-,(SELECT @id := @lastid) AS id
-WHERE rg.flaghapus = 0
+p.tanggal waktuupdate
+FROM __tmp_rubah_tarif t
+JOIN permohonan_rubah_gol p ON p.nomor=t.nomor
+JOIN pelanggan pel ON pel.nosamb=p.nosamb
+LEFT JOIN [bsbs].rayon ray ON ray.koderayon=p.koderayon
+LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan=p.kodekelurahan
+LEFT JOIN __tmp_golongan gol ON gol.kodegol=p.kodegol AND gol.aktif=1
+LEFT JOIN __tmp_userloket usr ON usr.nama=SUBSTRING_INDEX(p.urutannonair,'.RUBAH_GOL.',1)
