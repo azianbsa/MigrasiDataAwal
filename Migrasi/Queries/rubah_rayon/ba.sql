@@ -17,11 +17,20 @@ SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `user
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_rubahrayon;
+CREATE TEMPORARY TABLE __tmp_rubahrayon AS
+SELECT
+@id:=@id+1 AS id,
+nomor
+FROM `permohonan_rubah_rayon`
+,(SELECT @id:=@lastid) AS id
+WHERE flaghapus=0;
+
 SELECT
 @idpdam AS idpdam,
-p.idpermohonan AS idpermohonan,
-per.nomor_ba AS nomorba,
-per.tanggal_ba AS tanggalba,
+p.id AS idpermohonan,
+pp.nomor_ba AS nomorba,
+pp.tanggal_ba AS tanggalba,
 usr.iduser AS iduser,
 NULL AS persilnamapaket,
 0 AS persilflagdialihkankevendor,
@@ -35,10 +44,10 @@ NULL AS fotobukti3,
 NULL AS kategoriputus,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-IF(per.`tanggal_verifikasi` IS NOT NULL,1,0) AS flag_dari_verifikasi,
-NULL AS statusberitaacara,
-per.`tanggal_ba` AS waktuupdate
-FROM permohonan_rubah_rayon per
-JOIN __tmp_permohonan_rubah_rayon p ON p.nomor=per.nomor
-LEFT JOIN __tmp_userloket usr ON usr.nama = per.user_ba
-WHERE per.flaghapus = 0 AND per.`flag_ba`=1 AND per.`nomor_ba` IS NOT NULL
+NULL AS flag_dari_verifikasi,
+'Berhasil Dikerjakan' AS statusberitaacara,
+pp.`tanggal_ba` AS waktuupdate
+FROM __tmp_rubahrayon p
+JOIN permohonan_rubah_rayon pp ON pp.nomor=p.nomor
+LEFT JOIN __tmp_userloket usr ON usr.nama=pp.user_ba
+WHERE pp.`flag_ba`=1

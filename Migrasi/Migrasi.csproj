@@ -580,6 +580,12 @@
     <None Update="Queries\rotasimeter_nonrutin\spk_rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\rubah_rayon\detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\rubah_rayon\ba_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\rubah_tarif\detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -601,13 +607,10 @@
     <None Update="Queries\rubah_tarif\spk.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rubah_rayon\rab_rubah_rayon.sql">
+    <None Update="Queries\rubah_rayon\spk_pasang.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rubah_rayon\spkp_rubah_rayon.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\rubah_rayon\ba_rubah_rayon.sql">
+    <None Update="Queries\rubah_rayon\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rubah_rayon\rubah_rayon.sql">
