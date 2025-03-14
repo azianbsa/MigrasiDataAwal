@@ -17,11 +17,20 @@ SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `user
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_sambung_kembali;
+CREATE TEMPORARY TABLE __tmp_sambung_kembali AS
+SELECT
+@id := @id+1 AS ID,
+p.nomor
+FROM permohonan_sambung_kembali P
+,(SELECT @id := @lastid) AS id
+WHERE p.flaghapus=0;
+
 SELECT
 @idpdam AS `idpdam`,
-per.`idpermohonan` AS `idpermohonan`,
+p.`id` AS `idpermohonan`,
 @jenisnonair AS `idjenisnonair`,
-na.`id` AS `idnonair`,
+NULL AS `idnonair`,
 rab.`norab` AS `nomorrab`,
 rab.`tglrab` AS `tanggalrab`,
 '-' AS `nomorbppi`,
@@ -52,9 +61,7 @@ rab.`grandtotal` AS `rekaptotal`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
 rab.`tglrab` AS `waktuupdate`
-FROM
-`rab_sambung_kembali` rab
-JOIN __tmp_sambung_kembali per ON per.`nomor`=rab.`nomorpermohonan`
-LEFT JOIN nonair na ON na.`urutan`=rab.`norab`
+FROM __tmp_sambung_kembali p
+JOIN `rab_sambung_kembali` rab ON rab.nomorpermohonan=p.nomor
 LEFT JOIN __tmp_userloket usr ON usr.nama=rab.`user`
-WHERE rab.`flaghapus`=0 and rab.tglrab is not null
+WHERE rab.`flaghapus`=0 AND rab.tglrab IS NOT NULL
