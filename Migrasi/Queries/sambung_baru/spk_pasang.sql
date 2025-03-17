@@ -1,4 +1,13 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
+﻿DROP TABLE IF EXISTS __tmp_pendaftaran;
+CREATE TABLE __tmp_pendaftaran AS
+SELECT
+@id:=@id+1 AS id,
+nomorreg
+FROM `pendaftaran`
+,(SELECT @id:=@lastid) AS id
+WHERE `flaghapus`=0;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
 CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
 @idpdam,
@@ -19,19 +28,19 @@ GROUP BY a.namauser;
 
 SELECT
 @idpdam AS `idpdam`,
-per.`idpermohonan` AS `idpermohonan`,
-spk.`nomorspkopname` AS `nomorspk`,
-spk.`tglspko` AS `tanggalspk`,
+p.`id` AS `idpermohonan`,
+spkp.`nomorspkp` AS `nomorspk`,
+spkp.`tanggalspkp` AS `tanggalspk`,
+spkp.`nomorsppb` AS `nomorsppb`,
+spkp.`tanggalspkp` AS `tanggalsppb`,
 usr.iduser AS `iduser`,
-IF(spk.`disetujui`=1,1,2) AS `flagsurvey`,
 NULL AS `fotobukti1`,
 NULL AS `fotobukti2`,
 NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
-coalesce(spk.`tglselesaiopname`,now()) AS `waktuupdate`
-FROM
-`spk_opname_sambung_baru` spk
-JOIN __tmp_sambung_baru per ON per.nomorreg = spk.`nomorreg`
-LEFT JOIN __tmp_userloket usr ON usr.nama = spk.user
-WHERE spk.flaghapus=0 AND spk.`nomorspkopname` IS NOT NULL
+COALESCE(spkp.`tanggalspkp`,spkp.`tglpasang`) AS `waktuupdate`
+FROM __tmp_pendaftaran p
+JOIN `rab` spkp ON `spkp`.`nomorreg`=p.`nomorreg`
+LEFT JOIN __tmp_userloket usr ON usr.nama=spkp.`user`
+WHERE `spkp`.`flaghapus`=0 AND spkp.`nomorspkp` IS NOT NULL

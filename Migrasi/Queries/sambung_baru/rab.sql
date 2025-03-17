@@ -1,4 +1,13 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
+﻿DROP TABLE IF EXISTS __tmp_pendaftaran;
+CREATE TABLE __tmp_pendaftaran AS
+SELECT
+@id:=@id+1 AS id,
+nomorreg
+FROM `pendaftaran`
+,(SELECT @id:=@lastid) AS id
+WHERE `flaghapus`=0;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
 CREATE TEMPORARY TABLE __tmp_userloket AS
 SELECT
 @idpdam,
@@ -19,7 +28,7 @@ GROUP BY a.namauser;
 
 SELECT
 @idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
+p.`id` AS `idpermohonan`,
 -1 AS `idjenisnonair`,
 NULL AS `idnonair`,
 rab.`norab` AS `nomorrab`,
@@ -53,7 +62,7 @@ rab.`grandtotal` AS `rekaptotal`,
 NULL AS `idalasanbatal`,
 rab.`tglrab` AS `waktuupdate`
 FROM
-`rab` rab
-JOIN __tmp_sambung_baru p ON p.`nomorreg`=rab.`nomorreg`
+__tmp_pendaftaran p
+JOIN `rab` rab ON rab.`nomorreg`=p.`nomorreg`
 LEFT JOIN __tmp_userloket usr ON usr.nama=rab.`user`
-WHERE rab.`flaghapus`=0 AND rab.`norab` IS NOT NULL and rab.`tglrab` is not null
+WHERE rab.`flaghapus`=0 AND rab.`tglrab` IS NOT NULL

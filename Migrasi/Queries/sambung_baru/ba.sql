@@ -1,6 +1,15 @@
-﻿SELECT
+﻿DROP TABLE IF EXISTS __tmp_pendaftaran;
+CREATE TABLE __tmp_pendaftaran AS
+SELECT
+@id:=@id+1 AS id,
+nomorreg
+FROM `pendaftaran`
+,(SELECT @id:=@lastid) AS id
+WHERE `flaghapus`=0;
+
+SELECT
 @idpdam AS idpdam,
-p.`idpermohonan` AS idpermohonan,
+p.`id` AS idpermohonan,
 ba.`nomorba` AS nomorba,
 COALESCE(ba.`tanggalba`,ba.`tglpasang`) AS tanggalba,
 NULL AS iduser,
@@ -15,9 +24,9 @@ NULL AS fotobukti2,
 NULL AS fotobukti3,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-1 AS flag_dari_verifikasi,
+NULL AS flag_dari_verifikasi,
 ba.`keteranganmeter` AS statusberitaacara,
 ba.`tanggalba` AS waktuupdate
-FROM `rab` ba
-JOIN __tmp_sambung_baru p ON p.nomorreg=ba.nomorreg
-WHERE ba.flaghapus = 0 AND ba.`nomorba` IS NOT NULL and ba.`tanggalba` is not null
+FROM __tmp_pendaftaran p
+JOIN `rab` ba ON ba.`nomorreg`=p.`nomorreg`
+WHERE ba.flaghapus=0 AND ba.`nomorba` IS NOT NULL AND ba.`tanggalba` IS NOT NULL

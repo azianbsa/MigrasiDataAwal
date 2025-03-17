@@ -2993,12 +2993,13 @@ namespace Migrasi.Commands
             var sambBaru = 0;
             await Utils.Client(async (conn, trans) =>
             {
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_non_pelanggan", transaction: trans);
-                rabDetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_non_pelanggan_rab_detail", transaction: trans);
                 sambBaru = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNGAN_BARU_AIR'", transaction: trans);
                 await conn.ExecuteAsync(
                     sql: @"
                     DELETE FROM `permohonan_non_pelanggan_spk` WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM `permohonan_non_pelanggan_spk_detail` WHERE idpdam=@idpdam AND `idpermohonan` 
                      IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
                     DELETE FROM permohonan_non_pelanggan_rab WHERE idpdam=@idpdam AND `idpermohonan` 
@@ -3010,7 +3011,16 @@ namespace Migrasi.Commands
                     DELETE FROM permohonan_non_pelanggan_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
                      IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
+                    DELETE FROM permohonan_non_pelanggan_spk_pasang_detail WHERE idpdam=@idpdam AND `idpermohonan`
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
                     DELETE FROM permohonan_non_pelanggan_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_non_pelanggan_ba_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                     IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
+
+                    DELETE FROM permohonan_non_pelanggan_detail WHERE idpdam=@idpdam AND `idpermohonan` 
                      IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
 
                     DELETE FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
@@ -3020,25 +3030,8 @@ namespace Migrasi.Commands
                         idtipepermohonan = sambBaru
                     },
                     transaction: trans);
-            });
-
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                await conn.ExecuteAsync(
-                    sql: @"
-                    DROP TABLE IF EXISTS __tmp_sambung_baru;
-                    CREATE TABLE __tmp_sambung_baru AS
-                    SELECT
-                    @id := @id+1 AS idpermohonan,
-                    p.nomorreg
-                    FROM `pendaftaran` p
-                    ,(SELECT @id := @lastid) AS id
-                    WHERE p.flaghapus = 0",
-                    param: new
-                    {
-                        lastid = lastId
-                    },
-                    transaction: trans);
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_non_pelanggan", transaction: trans);
+                rabDetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_non_pelanggan_rab_detail", transaction: trans);
             });
 
             await Utils.BulkCopy(
@@ -3054,6 +3047,23 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_detail",
+                queryPath: @"Queries\sambung_baru\detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
@@ -3061,10 +3071,27 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_non_pelanggan_spk",
-                queryPath: @"Queries\sambung_baru\spk_sambung_baru.sql",
+                queryPath: @"Queries\sambung_baru\spk.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_spk_detail",
+                queryPath: @"Queries\sambung_baru\spk_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
@@ -3076,10 +3103,11 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_non_pelanggan_rab",
-                queryPath: @"Queries\sambung_baru\rab_sambung_baru.sql",
+                queryPath: @"Queries\sambung_baru\rab.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
@@ -3091,21 +3119,27 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_non_pelanggan_rab_detail",
-                queryPath: @"Queries\sambung_baru\rabdetail_sambung_baru.sql",
+                queryPath: @"Queries\sambung_baru\rab_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", rabDetail },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_non_pelanggan_spk_pasang",
-                queryPath: @"Queries\sambung_baru\spkp_sambung_baru.sql",
+                queryPath: @"Queries\sambung_baru\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
@@ -3117,18 +3151,33 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_non_pelanggan_ba",
-                queryPath: @"Queries\sambung_baru\ba_sambung_baru.sql",
+                queryPath: @"Queries\sambung_baru\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                await conn.ExecuteAsync(
-                    sql: @"DROP TABLE IF EXISTS __tmp_sambung_baru",
-                    transaction: trans);
-            });
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_ba_detail",
+                queryPath: @"Queries\sambung_baru\ba_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
         }
 
         private async Task BukaSegel(Settings settings)

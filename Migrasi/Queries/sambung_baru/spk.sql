@@ -17,22 +17,30 @@ SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `user
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
 
+DROP TABLE IF EXISTS __tmp_pendaftaran;
+CREATE TABLE __tmp_pendaftaran AS
+SELECT
+@id:=@id+1 AS id,
+nomorreg
+FROM `pendaftaran`
+,(SELECT @id:=@lastid) AS id
+WHERE `flaghapus`=0;
+
 SELECT
 @idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-spkp.`nomorspkp` AS `nomorspk`,
-spkp.`tanggalspkp` AS `tanggalspk`,
-spkp.`nomorsppb` AS `nomorsppb`,
-spkp.`tanggalspkp` AS `tanggalsppb`,
+p.`id` AS `idpermohonan`,
+spk.`nomorspkopname` AS `nomorspk`,
+spk.`tglspko` AS `tanggalspk`,
 usr.iduser AS `iduser`,
+IF(spk.`disetujui`=1,1,2) AS `flagsurvey`,
 NULL AS `fotobukti1`,
 NULL AS `fotobukti2`,
 NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
-COALESCE(spkp.`tanggalspkp`,spkp.`tglpasang`) AS `waktuupdate`
+COALESCE(spk.`tglspko`,NOW()) AS `waktuupdate`
 FROM
-`rab` spkp
-JOIN __tmp_sambung_baru p ON p.`nomorreg`=spkp.`nomorreg`
-LEFT JOIN __tmp_userloket usr ON usr.nama=spkp.`user`
-WHERE spkp.`nomorspkp` IS NOT NULL AND `spkp`.`flaghapus`=0
+__tmp_pendaftaran p
+JOIN `spk_opname_sambung_baru` spk ON spk.`nomorreg`=p.`nomorreg`
+LEFT JOIN __tmp_userloket usr ON usr.nama=spk.user
+WHERE spk.flaghapus=0 AND spk.`tglspko` IS NOT NULL
