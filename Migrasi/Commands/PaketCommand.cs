@@ -1570,9 +1570,9 @@ namespace Migrasi.Commands
                                                 transaction: trans);
                                         });
                                     });
-                                    await Utils.TrackProgress("pengaduan pelanggan air", async () =>
+                                    await Utils.TrackProgress("pengaduan pelanggan", async () =>
                                     {
-                                        await PengaduanPelangganAir(settings);
+                                        await PengaduanPelanggan(settings);
                                     });
                                     await Utils.TrackProgress("balik nama", async () =>
                                     {
@@ -3819,7 +3819,7 @@ namespace Migrasi.Commands
             }
         }
 
-        private async Task PengaduanPelangganAir(Settings settings)
+        private async Task PengaduanPelanggan(Settings settings)
         {
             var lastId = 0;
             IEnumerable<dynamic>? tipe = [];
@@ -3897,7 +3897,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air",
-                queryPath: @"Queries\pengaduan_pelanggan_air\pengaduan.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\pengaduan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3913,7 +3913,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\pengaduan_pelanggan_air\detail.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3924,7 +3924,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\pengaduan_pelanggan_air\detail2.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\detail2.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3935,7 +3935,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\pengaduan_pelanggan_air\spk_pasang.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3951,7 +3951,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\pengaduan_pelanggan_air\ba.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3967,7 +3967,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan_air\ba_detail.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3978,7 +3978,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan_air\ba_detail2.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\ba_detail2.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3989,7 +3989,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan_air\ba_detail3.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\ba_detail3.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -4000,7 +4000,7 @@ namespace Migrasi.Commands
                 sConnectionStr: AppSettings.ConnectionStringLoket,
                 tConnectionStr: AppSettings.ConnectionString,
                 tableName: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan_air\ba_detail4.sql",
+                queryPath: @"Queries\pengaduan_pelanggan\ba_detail4.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -4010,7 +4010,7 @@ namespace Migrasi.Commands
             await Utils.Client(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
-                    sql: await File.ReadAllTextAsync(@"Queries\pengaduan_pelanggan_air\patches\p1.sql"),
+                    sql: await File.ReadAllTextAsync(@"Queries\pengaduan_pelanggan\patches\p1.sql"),
                     param: new
                     {
                         idpdam = settings.IdPdam,

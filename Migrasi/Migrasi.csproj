@@ -505,34 +505,34 @@
     <None Update="Queries\bayar\bayar.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\ba.sql">
+    <None Update="Queries\pengaduan_pelanggan\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\ba_detail4.sql">
+    <None Update="Queries\pengaduan_pelanggan\ba_detail4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\ba_detail3.sql">
+    <None Update="Queries\pengaduan_pelanggan\ba_detail3.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\ba_detail2.sql">
+    <None Update="Queries\pengaduan_pelanggan\ba_detail2.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\ba_detail.sql">
+    <None Update="Queries\pengaduan_pelanggan\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\detail2.sql">
+    <None Update="Queries\pengaduan_pelanggan\detail2.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\detail.sql">
+    <None Update="Queries\pengaduan_pelanggan\detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\patches\p1.sql">
+    <None Update="Queries\pengaduan_pelanggan\patches\p1.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\spk_pasang.sql">
+    <None Update="Queries\pengaduan_pelanggan\spk_pasang.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\pengaduan_pelanggan_air\pengaduan.sql">
+    <None Update="Queries\pengaduan_pelanggan\pengaduan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\bayar\bayar_detail.sql">
