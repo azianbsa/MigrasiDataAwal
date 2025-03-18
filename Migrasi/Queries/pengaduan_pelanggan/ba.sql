@@ -46,7 +46,7 @@ NULL AS fotobukti3,
 NULL AS kategoriputus,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-1 AS flag_dari_verifikasi,
+0 AS flag_dari_verifikasi,
 CASE
 WHEN b.status='Dapat Di Kerjakan' THEN 'Berhasil Dikerjakan' 
 WHEN b.status='Tidak Dapat Dikerjakan' THEN 'Tidak Berhasil Dikerjakan'
