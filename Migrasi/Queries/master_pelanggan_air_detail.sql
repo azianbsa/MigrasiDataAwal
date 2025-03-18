@@ -27,58 +27,72 @@ FROM
 kondisimeter
 ,(SELECT @id:=0) AS id;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_kepemilikanbangunan;
+CREATE TEMPORARY TABLE __tmp_kepemilikanbangunan AS
+SELECT
+@id:=@id+1 AS id,
+`kepemilikanbangunan`
+FROM
+`kepemilikan`,
+(SELECT @id:=0) AS id;
+
 SELECT
 @idpdam,
-pel.id AS idpelangganair,
-IFNULL(sua.id, -1) AS idsumberair,
+p.id AS idpelangganair,
+s.id AS idsumberair,
 -1 AS iddma,
 -1 AS iddmz,
-IFNULL(blo.id, -1) AS idblok,
-IFNULL(mer.id, -1) AS idmerekmeter,
-IFNULL(kon.id, 1) AS idkondisimeter,
-IFNULL(adm.id, -1) AS idadministrasilain,
-IFNULL(pem.id, -1) AS idpemeliharaanlain,
-IFNULL(ret.id, -1) AS idretribusilain,
+b.id AS idblok,
+m.id AS idmerekmeter,
+k.id AS idkondisimeter,
+adm.id AS idadministrasilain,
+pem.id AS idpemeliharaanlain,
+ret.id AS idretribusilain,
 -1 AS idpekerjaan,
 -1 AS idjenisbangunan,
 -1 AS idperuntukan,
--1 AS idkepemilikan,
-pel.nosegelmeter AS nosegel,
-pel.nohp,
-pel.notelp,
-IF(pel.noktp='' OR pel.noktp IS NULL, '000', pel.noktp) AS noktp,
-'000' AS nokk,
-pel.email,
-IF(pel.serimeter='' OR pel.serimeter IS NULL, '000', pel.serimeter) AS noserimeter,
-pel.tglmeter,
+kb.id AS idkepemilikan,
+p.nosegelmeter AS nosegel,
+p.nohp,
+p.notelp,
+p.noktp AS noktp,
+'' AS nokk,
+p.email,
+p.serimeter AS noserimeter,
+p.tglmeter,
 '' AS pekerjaan,
-IF(pel.penghuni='' OR pel.penghuni IS NULL, 0, pel.penghuni) AS penghuni,
-IF(pel.namapemilik='' OR pel.namapemilik IS NULL, pel.nama, pel.namapemilik) AS namapemilik,
-pel.alamat AS alamatpemilik,
-'000' AS kodepost,
+IF(p.penghuni='' OR p.penghuni IS NULL, 0, p.penghuni) AS penghuni,
+IF(p.namapemilik='' OR p.namapemilik IS NULL, p.nama, p.namapemilik) AS namapemilik,
+p.alamat AS alamatpemilik,
+'' AS kodepost,
 0 AS dayalistrik,
 0 AS luastanah,
-IF(pel.luasrumah='' OR pel.luasrumah IS NULL, 0, pel.luasrumah) AS luasrumah,
-IF(pel.urutanbaca='' OR pel.urutanbaca IS NULL, 0, pel.urutanbaca) AS urutanbaca,
-IF(pel.stan_awal_pasang='' OR pel.stan_awal_pasang IS NULL, 0, pel.stan_awal_pasang) AS stanawalpasang,
-LEFT(pel.nopendaftaran, 30) AS nopendaftaran,
-pel.tgldaftar,
+IF(p.luasrumah='' OR p.luasrumah IS NULL, 0, p.luasrumah) AS luasrumah,
+IF(p.urutanbaca='' OR p.urutanbaca IS NULL, 0, p.urutanbaca) AS urutanbaca,
+IF(p.stan_awal_pasang='' OR p.stan_awal_pasang IS NULL, 0, p.stan_awal_pasang) AS stanawalpasang,
+LEFT(p.nopendaftaran, 30) AS nopendaftaran,
+p.tgldaftar,
 NULL AS tglpenentuanbaca,
-LEFT(pel.norab, 30) AS norab,
+LEFT(p.norab, 30) AS norab,
 '' AS nobapemasangan,
-pel.tgldaftar AS tglpasang,
-pel.tglputus AS tglputus,
+p.tgldaftar AS tglpasang,
+p.tglputus AS tglputus,
 NULL AS noserimeterlama,
-NULL AS kategoriputus,
+CASE WHEN p.kategori_putus=1 THEN 'Tunggakan'
+ WHEN p.kategori_putus=2 THEN 'Tunggakan'
+ WHEN p.kategori_putus=3 THEN 'Tunggakan'
+ WHEN p.kategori_putus=4 THEN 'Permohonan'
+ ELSE NULL END AS kategoriputus,
 NULL AS idtipependaftaransambungan,
-pel.keterangan,
-NOW() AS waktuupdate
+p.keterangan,
+p.waktuupdate AS waktuupdate
 FROM
-pelanggan pel
-LEFT JOIN __tmp_sumberair sua ON sua.kodesumberair = pel.kodesumberair
-LEFT JOIN [bsbs].blok blo ON blo.kodeblok = pel.kodeblok
-LEFT JOIN __tmp_merkmeter mer ON mer.merk = pel.merkmeter
-LEFT JOIN __tmp_kondisimeter kon ON kon.kodekondisi = pel.kodekondisimeter
-LEFT JOIN [bsbs].byadministrasi_lain adm ON adm.kode = pel.kodeadministrasilain
-LEFT JOIN [bsbs].bypemeliharaan_lain pem ON pem.kode = pel.kodepemeliharaanlain
-LEFT JOIN [bsbs].byretribusi_lain ret ON ret.kode = pel.koderetribusilain;
+pelanggan p
+LEFT JOIN __tmp_sumberair s ON s.kodesumberair=p.kodesumberair
+LEFT JOIN __tmp_merkmeter m ON m.merk=p.merkmeter
+LEFT JOIN __tmp_kondisimeter k ON k.kodekondisi=p.kodekondisimeter
+LEFT JOIN __tmp_kepemilikanbangunan kb ON kb.kepemilikanbangunan=p.kepemilikanbangunan
+LEFT JOIN [bsbs].blok b ON b.kodeblok=p.kodeblok
+LEFT JOIN [bsbs].byadministrasi_lain adm ON adm.kode=p.kodeadministrasilain
+LEFT JOIN [bsbs].bypemeliharaan_lain pem ON pem.kode=p.kodepemeliharaanlain
+LEFT JOIN [bsbs].byretribusi_lain ret ON ret.kode=p.koderetribusilain

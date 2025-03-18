@@ -38,24 +38,24 @@ kolektif,
 
 SELECT
 @idpdam,
-pel.id AS idpelangganair,
-pel.nosamb,
-pel.norekening,
-pel.nama,
-pel.alamat,
-pel.rt,
-pel.rw,
-IFNULL(gol.id, -1) AS idgolongan,
-IFNULL(dia.id, -1) AS iddiameter,
+p.id AS idpelangganair,
+p.nosamb,
+p.norekening,
+p.nama,
+p.alamat,
+p.rt,
+p.rw,
+g.id AS idgolongan,
+d.id AS iddiameter,
 -1 AS idjenispipa,
-IFNULL(mer.id, -1) AS idkwh,
-IFNULL(ray.id, -1) AS idrayon,
-IFNULL(kel.id, -1) AS idkelurahan,
-IFNULL(kol.id, -1) AS idkolektif,
-pel.status AS idstatus,
-pel.flag AS idflag,
-p.`latitude` AS latitude,
-p.`longitude` AS longitude,
+m.id AS idkwh,
+r.id AS idrayon,
+k.id AS idkelurahan,
+kl.id AS idkolektif,
+p.status AS idstatus,
+p.flag AS idflag,
+bp.`latitude` AS latitude,
+bp.`longitude` AS longitude,
 NULL AS alamatmap,
 NULL AS fotorumah1,
 NULL AS fotorumah2,
@@ -65,14 +65,14 @@ NULL AS fotodenah1,
 NULL AS fotodenah2,
 999 AS akurasi,
 NULL AS nosamblama,
-flaghapus AS flaghapus,
-COALESCE(pel.`tanggal_hapus`,NOW()) AS waktuupdate
+p.flaghapus AS flaghapus,
+p.waktuupdate AS waktuupdate
 FROM
-pelanggan pel
-LEFT JOIN [bacameter].`pelanggan` p ON p.`idpelanggan`=pel.nosamb
-LEFT JOIN __tmp_golongan gol ON gol.kodegol = pel.kodegol AND gol.aktif = 1
-LEFT JOIN __tmp_diameter dia ON dia.kodediameter = pel.kodediameter AND dia.aktif = 1
-LEFT JOIN __tmp_merkmeter mer ON mer.merk = pel.merkmeter
-LEFT JOIN [bsbs].rayon ray ON ray.koderayon = pel.koderayon
-LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan = pel.kodekelurahan
-LEFT JOIN __tmp_kolektif kol ON kol.kodekolektif = pel.kodekolektif;
+pelanggan p
+LEFT JOIN [bacameter].`pelanggan` bp ON bp.`idpelanggan`=p.nosamb
+LEFT JOIN [bsbs].rayon r ON r.koderayon=p.koderayon
+LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=p.kodekelurahan
+LEFT JOIN __tmp_golongan g ON g.kodegol=p.kodegol AND g.aktif=1
+LEFT JOIN __tmp_diameter d ON d.kodediameter=p.kodediameter AND d.aktif=1
+LEFT JOIN __tmp_merkmeter m ON m.merk=p.merkmeter
+LEFT JOIN __tmp_kolektif kl ON kl.kodekolektif=p.kodekolektif;
