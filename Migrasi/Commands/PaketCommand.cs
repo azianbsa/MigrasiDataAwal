@@ -1574,6 +1574,10 @@ namespace Migrasi.Commands
                                     {
                                         await PengaduanPelanggan(settings);
                                     });
+                                    await Utils.TrackProgress("pengaduan non pelanggan", async () =>
+                                    {
+                                        await PengaduanNonPelanggan(settings);
+                                    });
                                     await Utils.TrackProgress("balik nama", async () =>
                                     {
                                         await BalikNama(settings);
@@ -4018,6 +4022,167 @@ namespace Migrasi.Commands
                     transaction: trans,
                     commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
             });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_tipepermohonan", transaction: trans);
+            });
+        }
+
+        private async Task PengaduanNonPelanggan(Settings settings)
+        {
+            var lastId = 0;
+            IEnumerable<dynamic>? tipe = [];
+
+            await Utils.Client(async (conn, trans) =>
+            {
+                tipe = await conn.QueryAsync(
+                    sql: @"
+                    SELECT
+                    a.idtipepermohonan,
+                    a.idjenisnonair,
+                    b.kodejenisnonair
+                    FROM master_attribute_tipe_permohonan a
+                    JOIN master_attribute_jenis_nonair b ON b.idpdam=a.idpdam AND b.idjenisnonair=a.idjenisnonair
+                    WHERE a.idpdam=@idpdam AND a.kategori='Pengaduan'",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam
+                    },
+                    transaction: trans);
+
+                if (tipe != null)
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                        DELETE FROM permohonan_non_pelanggan_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
+                        IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                        DELETE FROM permohonan_non_pelanggan_spk_pasang_detail WHERE idpdam=@idpdam AND `idpermohonan`
+                        IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                        DELETE FROM permohonan_non_pelanggan_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                        IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                        DELETE FROM permohonan_non_pelanggan_ba_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                        IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                        DELETE FROM permohonan_non_pelanggan_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                        IN (SELECT `idpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                        DELETE FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan;",
+                        param: new
+                        {
+                            idpdam = settings.IdPdam,
+                            tipepermohonan = tipe.Select(s => s.idtipepermohonan).ToList()
+                        },
+                        transaction: trans);
+                }
+
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(sql: @"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_non_pelanggan", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                if (tipe != null)
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                        DROP TABLE IF EXISTS __tmp_tipepermohonan;
+
+                        CREATE TABLE __tmp_tipepermohonan (
+                        idtipepermohonan INT,
+                        idjenisnonair INT,
+                        kodejenisnonair VARCHAR(50))",
+                        transaction: trans);
+
+                    await conn.ExecuteAsync(
+                        sql: @"INSERT INTO __tmp_tipepermohonan VALUES (@idtipepermohonan,@idjenisnonair,@kodejenisnonair)",
+                        param: tipe,
+                        transaction: trans);
+                }
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan",
+                queryPath: @"Queries\pengaduan_non_pelanggan\pengaduan.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_detail",
+                queryPath: @"Queries\pengaduan_non_pelanggan\detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_spk_pasang",
+                queryPath: @"Queries\pengaduan_non_pelanggan\spk_pasang.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_ba",
+                queryPath: @"Queries\pengaduan_non_pelanggan\ba.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_ba_detail",
+                queryPath: @"Queries\pengaduan_non_pelanggan\ba_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_non_pelanggan_ba_detail",
+                queryPath: @"Queries\pengaduan_non_pelanggan\ba_detail2.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                });
 
             await Utils.ClientLoket(async (conn, trans) =>
             {

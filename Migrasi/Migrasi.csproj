@@ -505,6 +505,24 @@
     <None Update="Queries\bayar\bayar.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\pengaduan_non_pelanggan\ba.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_non_pelanggan\ba_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_non_pelanggan\ba_detail2.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_non_pelanggan\detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_non_pelanggan\pengaduan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\pengaduan_non_pelanggan\spk_pasang.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\pengaduan_pelanggan\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

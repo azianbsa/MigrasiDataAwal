@@ -45,7 +45,7 @@ d.`waktuupload` AS waktupublish,
 d.`flaglunas` AS flaglunas,
 d.`waktulunas` AS waktulunas,
 0 AS flaghapus,
-COALESCE(d.waktubayar,d.waktuupload,d.`waktudaftar`,NOW()) AS waktuupdate
+COALESCE(d.waktulunas,d.waktuupload,d.`waktudaftar`,NOW()) AS waktuupdate
 FROM __tmp_nonair na
 JOIN `daftarangsuran` d ON d.`id`=na.`idangsuran`
 LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
