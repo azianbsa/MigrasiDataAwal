@@ -17,12 +17,30 @@ FROM
 golongan,
 (SELECT @id:=0) AS id;
 
+DROP TABLE IF EXISTS __tmp_koreksi_rek;
+CREATE TABLE __tmp_koreksi_rek AS
+SELECT 
+@id := @id+1 AS id,
+a.nomor,
+CAST(CONCAT(a.status,'[',COUNT(*),']') AS CHAR) AS `status`
+FROM (
+SELECT
+p.`nomor`,
+IF(d.`id` IS NULL,
+ 'Menunggu Usulan Koreksi',
+ '(Selesai) Sudah Verifikasi Pusat') AS `status`
+FROM `permohonan_koreksi_rek` p
+LEFT JOIN `ba_usulan_koreksi_rekening_periode` d ON d.`nomorpermohonan`=p.`nomor`
+WHERE p.`flaghapus`=0 ) a
+,(SELECT @id := @lastid) AS id
+GROUP BY a.nomor,a.status;
+
 SELECT
 d.`id` AS `id`,
 @idpdam AS `idpdam`,
 pl.`id` AS `idpelangganair`,
 pr.idperiode AS `idperiode`,
-p.`idpermohonan` AS `idpermohonan`,
+p.`id` AS `idpermohonan`,
 d.`tanggalba` AS `waktuusulan`,
 1 AS `statusverifikasilapangan`,
 d.`tanggalba` AS `waktustatusverifikasilapangan`,
@@ -95,11 +113,10 @@ d.`rekair_baru` AS `total_baru`,
 '(Selesai) Sudah Verifikasi Pusat' AS `statuspermohonan`,
 0 AS `flaghapus`,
 d.`tanggalba` AS `waktuupdate`
-FROM
-`ba_usulan_koreksi_rekening_periode` d
-JOIN __tmp_koreksi_rek p ON p.`nomor`=d.`nomorpermohonan`
-JOIN pelanggan pl ON pl.nosamb = d.nosamb
+FROM __tmp_koreksi_rek p
+JOIN `ba_usulan_koreksi_rekening_periode` d ON d.nomorpermohonan=p.nomor
+JOIN pelanggan pl ON pl.nosamb=d.nosamb
 JOIN __tmp_periode pr ON pr.periode=d.`periode`
-LEFT JOIN [bsbs].rayon r ON r.koderayon = d.koderayon
-LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan = pl.kodekelurahan
-LEFT JOIN __tmp_golongan g ON g.kodegol = d.kodegol AND g.aktif = 1
+LEFT JOIN __tmp_golongan g ON g.kodegol=d.kodegol AND g.aktif=1
+LEFT JOIN [bsbs].rayon r ON r.koderayon=d.koderayon
+LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=pl.kodekelurahan

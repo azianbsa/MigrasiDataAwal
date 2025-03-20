@@ -50,7 +50,7 @@ namespace Migrasi
             AllowZeroDateTime = true,
             DefaultCommandTimeout = (uint)CommandTimeout,
             ConnectionTimeout = (uint)CommandTimeout,
-            Pooling = false,
+            //Pooling = false,
         }.ConnectionString;
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
@@ -75,7 +75,7 @@ namespace Migrasi
             AllowUserVariables = true,
             DefaultCommandTimeout = (uint)CommandTimeout,
             ConnectionTimeout = (uint)CommandTimeout,
-            Pooling = false,
+            //Pooling = false,
         }.ConnectionString;
 
         public static string ConnectionStringBacameter => new MySqlConnectionStringBuilder
@@ -98,7 +98,7 @@ namespace Migrasi
             AllowUserVariables = true,
             DefaultCommandTimeout = (uint)CommandTimeout,
             ConnectionTimeout = (uint)CommandTimeout,
-            Pooling = false,
+            //Pooling = false,
         }.ConnectionString;
     }
 }

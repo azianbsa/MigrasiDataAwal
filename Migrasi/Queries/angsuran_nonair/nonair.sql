@@ -8,6 +8,17 @@ FROM
 golongan,
 (SELECT @id:=0) AS id;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_nonair;
+CREATE TEMPORARY TABLE __tmp_nonair AS
+SELECT 
+a.id AS idangsuran,
+a.jumlahtermin,
+a.noangsuran AS noangsuran1,
+b.*
+FROM `daftarangsuran` a
+LEFT JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
+WHERE a.`keperluan`<>'JNS-36';
+
 SELECT
 @idpdam,
 na.id AS idnonair,
@@ -36,7 +47,7 @@ NULL AS idpermohonansambunganbaru,
 0 AS flaghapus,
 NOW() AS waktuupdate
 FROM `__tmp_nonair` na
-LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
-LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair = na.jenis
-LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon = na.koderayon
-LEFT JOIN __tmp_golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
+LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada
+LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair=na.jenis
+LEFT JOIN __tmp_golongan gol ON gol.kodegol=na.kodegol AND gol.aktif=1
+LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon=na.koderayon

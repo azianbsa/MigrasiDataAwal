@@ -37,6 +37,17 @@ FROM
 golongan,
 (SELECT @id:=0) AS id;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_nonair;
+CREATE TEMPORARY TABLE __tmp_nonair AS
+SELECT 
+a.id AS idangsuran,
+a.jumlahtermin,
+a.noangsuran AS noangsuran1,
+b.*
+FROM `daftarangsuran` a
+LEFT JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
+WHERE a.`keperluan`<>'JNS-36';
+
 SELECT
 d.id,
 @idpdam,
@@ -73,8 +84,8 @@ IFNULL(d.jumlah,0) AS total,
 IFNULL(d.`waktuupload`,NOW()) AS waktuupdate
 FROM __tmp_nonair na
 JOIN detailangsuran d ON d.`noangsuran`=na.`noangsuran1`
-LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
-LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon = na.koderayon
-LEFT JOIN __tmp_golongan gol ON gol.kodegol = na.kodegol AND gol.aktif = 1
-LEFT JOIN __tmp_userloket us ON us.nama = na.kasir
-LEFT JOIN __tmp_loket lo ON lo.kodeloket = na.loketbayar
+LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada
+LEFT JOIN __tmp_golongan gol ON gol.kodegol=na.kodegol AND gol.aktif=1
+LEFT JOIN __tmp_userloket us ON us.nama=na.kasir
+LEFT JOIN __tmp_loket lo ON lo.kodeloket=na.loketbayar
+LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon=na.koderayon

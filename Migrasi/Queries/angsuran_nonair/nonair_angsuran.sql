@@ -17,6 +17,17 @@ SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `user
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_nonair;
+CREATE TEMPORARY TABLE __tmp_nonair AS
+SELECT 
+a.id AS idangsuran,
+a.jumlahtermin,
+a.noangsuran AS noangsuran1,
+b.*
+FROM `daftarangsuran` a
+LEFT JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
+WHERE a.`keperluan`<>'JNS-36';
+
 SELECT
 @idpdam,
 na.`idangsuran` AS idangsuran,
@@ -48,6 +59,6 @@ d.`waktulunas` AS waktulunas,
 COALESCE(d.waktulunas,d.waktuupload,d.`waktudaftar`,NOW()) AS waktuupdate
 FROM __tmp_nonair na
 JOIN `daftarangsuran` d ON d.`id`=na.`idangsuran`
-LEFT JOIN pelanggan pel ON pel.nosamb = na.dibebankankepada
-LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair = na.jenis
-LEFT JOIN __tmp_userloket us ON us.nama = d.`userdaftar`
+LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada
+LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair=na.jenis
+LEFT JOIN __tmp_userloket us ON us.nama=d.`userdaftar`

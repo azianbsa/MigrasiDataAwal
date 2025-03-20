@@ -42,7 +42,7 @@ SELECT
 pel.id AS idpelangganair,
 per.idperiode AS idperiode,
 rek.nolpp AS nomortransaksi,
-IF(rek.flagbatal=0,1,0) AS statustransaksi,
+0 AS statustransaksi,
 rek.tglbayar AS waktutransaksi,
 YEAR(rek.tglbayar) AS tahuntransaksi,
 usr.iduser AS iduser,
@@ -50,13 +50,11 @@ lo.idloket AS idloket,
 NULL AS idkolektiftransaksi,
 6 AS idalasanbatal,
 NULL AS keterangan,
-NOW() AS waktuupdate
+rek.tglbatal AS waktuupdate
 FROM
-[table] rek
+piutang rek
 JOIN pelanggan pel ON pel.nosamb=rek.nosamb
 JOIN __tmp_periode per ON per.periode=rek.periode
 LEFT JOIN __tmp_userloket usr ON usr.nama=rek.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket=rek.loketbayar
-WHERE rek.periode=@periode
-AND rek.tglbayar IS NOT NULL
-AND rek.flagangsur=0
+WHERE rek.flagbatal=1 AND rek.flagangsur=0

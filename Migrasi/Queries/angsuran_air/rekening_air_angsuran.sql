@@ -19,32 +19,32 @@ GROUP BY a.namauser;
 
 SELECT
 @idpdam,
-ang.id AS idangsuran,
-ang.noangsuran AS noangsuran,
+a.id AS idangsuran,
+a.noangsuran AS noangsuran,
 @jnsnonair AS idjenisnonair,
-pel.id AS idpelangganair,
-ang.nama AS nama,
-ang.alamat AS alamat,
-ang.notelp AS notelp,
-ang.nohp AS nohp,
-ang.waktudaftar AS waktudaftar,
-ang.jumlahtermin AS jumlahtermin,
-ang.jumlahangsuranpokok AS jumlahangsuranpokok,
-ang.jumlahangsuranbunga AS jumlahangsuranbunga,
-ang.jumlahuangmuka AS jumlahuangmuka,
-ang.jumlah as total,
+p.id AS idpelangganair,
+a.nama AS nama,
+a.alamat AS alamat,
+a.notelp AS notelp,
+a.nohp AS nohp,
+a.waktudaftar AS waktudaftar,
+a.jumlahtermin AS jumlahtermin,
+a.jumlahangsuranpokok AS jumlahangsuranpokok,
+a.jumlahangsuranbunga AS jumlahangsuranbunga,
+a.jumlahuangmuka AS jumlahuangmuka,
+a.jumlah as total,
 usr.iduser AS iduser,
-ang.tglmulaitagih AS tglmulaitagihpertama,
+a.tglmulaitagih AS tglmulaitagihpertama,
 ba.nomorba AS noberitaacara,
 ba.tanggalba AS tglberitaacara,
-ang.flagupload AS flagpublish,
-ang.waktuupload AS waktupublish,
-ang.flaglunas AS flaglunas,
-ang.waktulunas AS waktulunas,
+a.flagupload AS flagpublish,
+a.waktuupload AS waktupublish,
+a.flaglunas AS flaglunas,
+a.waktulunas AS waktulunas,
 0 AS flaghapus,
-COALESCE(ang.waktulunas,ang.waktuupload,ang.waktudaftar) AS waktuupdate
-FROM daftarangsuran ang
-JOIN pelanggan pel ON pel.nosamb = ang.dibebankankepada
-LEFT JOIN __tmp_userloket usr ON usr.nama = ang.userdaftar
-LEFT JOIN ba_angsuran ba ON ba.noangsuran=ang.noangsuran and ba.flaghapus=0
-WHERE ang.keperluan='JNS-36'
+COALESCE(a.waktulunas,a.waktuupload,a.waktudaftar) AS waktuupdate
+FROM daftarangsuran a
+JOIN pelanggan p ON p.nosamb=a.dibebankankepada
+LEFT JOIN __tmp_userloket usr ON usr.nama=a.userdaftar
+LEFT JOIN ba_angsuran ba ON ba.noangsuran=a.noangsuran AND ba.flaghapus=0
+WHERE a.keperluan='JNS-36'

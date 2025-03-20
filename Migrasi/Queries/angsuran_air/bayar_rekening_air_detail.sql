@@ -8,6 +8,18 @@ FROM
 ,(SELECT @id:=0) AS id
 ORDER BY periode;
 
+DROP TEMPORARY TABLE IF EXISTS __tmp_angsuranair;
+CREATE TEMPORARY TABLE __tmp_angsuranair AS
+SELECT
+b.id,
+b.noangsuran,
+CONCAT(a.periode,'.',a.nomor) AS kode,
+b.flaglunas
+FROM detailangsuran a
+JOIN daftarangsuran b ON b.noangsuran=a.noangsuran
+WHERE b.keperluan='JNS-36'
+GROUP BY a.periode,a.nomor;
+
 SELECT
 @idpdam,
 pel.id AS idpelangganair,
@@ -23,7 +35,7 @@ IFNULL(rek.prog3, 0) AS prog3,
 IFNULL(rek.prog4, 0) AS prog4,
 IFNULL(rek.prog5, 0) AS prog5
 FROM piutang_angsurlunas rek
-JOIN __tmp_angsuranair ang ON ang.kode = rek.kode
-JOIN pelanggan pel ON pel.nosamb = rek.nosamb
-JOIN __tmp_periode per ON per.periode = rek.periode
-WHERE ang.flaglunas = 1
+JOIN pelanggan pel ON pel.nosamb=rek.nosamb
+JOIN __tmp_angsuranair ang ON ang.kode=rek.kode
+JOIN __tmp_periode per ON per.periode=rek.periode
+WHERE ang.flaglunas=1
