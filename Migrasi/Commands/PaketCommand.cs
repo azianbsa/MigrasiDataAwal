@@ -1883,6 +1883,14 @@ namespace Migrasi.Commands
 
         private async Task PaketRab(Settings settings)
         {
+            await Utils.Client(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    truncate table master_attribute_paket;",
+                    transaction: trans);
+            });
+
             await Utils.TrackProgress("master_attribute_paket", async () =>
             {
                 await Utils.BulkCopy(
@@ -1899,6 +1907,16 @@ namespace Migrasi.Commands
 
         private async Task PaketOngkos(Settings settings)
         {
+            await Utils.Client(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    truncate table master_attribute_ongkos;
+                    truncate table master_attribute_ongkos_paket;
+                    truncate table master_attribute_ongkos_paket_detail;",
+                    transaction: trans);
+            });
+
             await Utils.TrackProgress("master_attribute_ongkos", async () =>
             {
                 await Utils.BulkCopy(
@@ -1941,6 +1959,16 @@ namespace Migrasi.Commands
 
         private async Task PaketMaterial(Settings settings)
         {
+            await Utils.Client(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(
+                    sql: @"
+                    truncate table master_attribute_material;
+                    truncate table master_attribute_material_paket;
+                    truncate table master_attribute_material_paket_detail;",
+                    transaction: trans);
+            });
+
             await Utils.TrackProgress("master_attribute_material", async () =>
             {
                 await Utils.BulkCopy(
