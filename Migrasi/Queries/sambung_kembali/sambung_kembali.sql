@@ -60,8 +60,7 @@ JOIN pelanggan pel ON pel.nosamb=pp.nosamb
 LEFT JOIN [bsbs].rayon r ON r.koderayon=pp.koderayon
 LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=pp.kodekelurahan
 LEFT JOIN __tmp_golongan g ON g.kodegol=pp.kodegol AND g.aktif=1
-LEFT JOIN `spk_opname_sambung_kembali` spk ON spk.`nomorpermohonan`=pp.`nomor`
-LEFT JOIN `rab_sambung_kembali` rab ON rab.`nomorpermohonan`=pp.`nomor`
-LEFT JOIN `ba_sambungkembali` ba ON ba.`nomorpermohonan`=pp.`nomor`
+LEFT JOIN `spk_opname_sambung_kembali` spk ON spk.`nomorpermohonan`=pp.`nomor` AND spk.`flaghapus`=0
+LEFT JOIN `rab_sambung_kembali` rab ON rab.`nomorpermohonan`=pp.`nomor` AND rab.`flaghapus`=0
+LEFT JOIN `ba_sambungkembali` ba ON ba.`nomorpermohonan`=pp.`nomor` AND ba.`flaghapus`=0
 LEFT JOIN verifikasi v ON v.nomorba=ba.nomorba
-WHERE spk.`flaghapus`=0 AND rab.`flaghapus`=0 AND ba.`flaghapus`=0;
