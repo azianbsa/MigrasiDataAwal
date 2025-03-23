@@ -71,6 +71,5 @@ JOIN pelanggan pel ON pel.nosamb=bn.nosamb
 LEFT JOIN [bsbs].rayon ray ON ray.koderayon=bn.koderayon
 LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan=bn.kodekelurahan
 LEFT JOIN __tmp_golongan gol ON gol.kodegol=bn.kodegol AND gol.aktif=1
-LEFT JOIN ba_balik_nama ba ON ba.nomorpermohonan=bn.nomor
+LEFT JOIN ba_balik_nama ba ON ba.nomorpermohonan=bn.nomor AND ba.flaghapus=0
 LEFT JOIN __tmp_userloket usr ON usr.nama=SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)
-WHERE ba.flaghapus=0

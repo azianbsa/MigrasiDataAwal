@@ -60,8 +60,7 @@ LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=pp.kodekelurahan
 LEFT JOIN __tmp_golongan g ON g.kodegol=pp.kodegol AND g.aktif=1
 LEFT JOIN nonair n ON n.urutan=pp.urutannonair
 LEFT JOIN `nonair2022` nn ON nn.`urutan`=pp.`urutannonair`
-LEFT JOIN `spk_bukasegel` spk ON spk.nomorpermohonan=pp.nomor
-LEFT JOIN `ba_bukasegel` ba ON ba.nomorpermohonan=pp.nomor
+LEFT JOIN `spk_bukasegel` spk ON spk.nomorpermohonan=pp.nomor AND spk.flaghapus=0
+LEFT JOIN `ba_bukasegel` ba ON ba.nomorpermohonan=pp.nomor AND ba.flaghapus=0
 LEFT JOIN `verifikasi` v ON v.`nomorba`=ba.`nomorba`
 ,(SELECT @id:=@lastid) AS id
-WHERE spk.flaghapus=0 AND ba.flaghapus=0

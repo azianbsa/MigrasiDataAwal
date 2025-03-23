@@ -2,7 +2,7 @@
   "profiles": {
     "Migrasi": {
       "commandName": "Project",
-      "commandLineArgs": "paket"
+      "commandLineArgs": "paket -i 3 -n basic"
     }
   }
 }
