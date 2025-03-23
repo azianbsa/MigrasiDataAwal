@@ -28,6 +28,21 @@
     <None Update="database.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\air_tangki_pelanggan\ba.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\air_tangki_pelanggan\ba_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\air_tangki_pelanggan\detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\air_tangki_pelanggan\pengaduan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\air_tangki_pelanggan\spk_pasang.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\angsuran_air\bayar_rekening_air.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
