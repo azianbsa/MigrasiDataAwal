@@ -17,9 +17,18 @@ SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `user
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
 
+DROP TABLE IF EXISTS __tmp_rotasimeter;
+CREATE TABLE __tmp_rotasimeter AS
+SELECT
+@id := @id+1 AS id,
+p.nosamb,
+p.periode
+FROM `rotasimeter` p
+,(SELECT @id := @lastid) AS id;
+
 SELECT
 @idpdam AS idpdam,
-r.`idpermohonan` AS idpermohonan,
+pp.`id` AS idpermohonan,
 p.`no_ba` AS nomorba,
 p.`tgl_ba` AS tanggalba,
 u.iduser AS iduser,
@@ -35,10 +44,10 @@ NULL AS fotobukti3,
 NULL AS kategoriputus,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-1 AS flag_dari_verifikasi,
+NULL AS flag_dari_verifikasi,
 'Berhasil Dikerjakan' AS statusberitaacara,
 p.`tgl_ba` AS waktuupdate
-FROM `rotasimeter` p
-JOIN __tmp_rotasimeter r ON r.`nosamb`=p.`nosamb` AND r.`periode`=p.`periode`
+FROM __tmp_rotasimeter pp
+JOIN `rotasimeter` p ON p.`nosamb`=pp.`nosamb` AND p.`periode`=pp.`periode`
 LEFT JOIN __tmp_userloket u ON u.nama=p.`user_ba`
-WHERE p.`tgl_ba` IS NOT NULL AND p.`flag_ba`=1
+WHERE p.`flag_ba`=1

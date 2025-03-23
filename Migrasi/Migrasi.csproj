@@ -181,6 +181,9 @@
     <None Update="Queries\bayar\bayar_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\rotasimeter\ba_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\tutup_total\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -622,9 +625,6 @@
     <None Update="Queries\piutang\piutang_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rotasimeter\spk_rotasimeter.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Queries\rotasimeter_nonrutin\ba_rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -640,13 +640,13 @@
     <None Update="Queries\rotasimeter_nonrutin\spkp_rotasimeter_nonrutin.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rotasimeter\ba_rotasimeter.sql">
+    <None Update="Queries\rotasimeter\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rotasimeter\rotasimeter.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rotasimeter\spkp_rotasimeter.sql">
+    <None Update="Queries\rotasimeter\spk_pasang.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\rotasimeter_nonrutin\spk_rotasimeter_nonrutin.sql">

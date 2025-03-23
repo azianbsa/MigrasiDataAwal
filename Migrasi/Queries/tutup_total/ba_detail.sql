@@ -38,7 +38,7 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
-LEFT JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor`
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -52,7 +52,7 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
-LEFT JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor`
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -66,6 +66,7 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -79,7 +80,7 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
-LEFT JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor`
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 LEFT JOIN __tmp_merkmeter m ON m.merk=b.`merkmeter`
 UNION ALL
 SELECT
@@ -94,7 +95,7 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
-LEFT JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor`
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -108,6 +109,7 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -121,6 +123,7 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -134,5 +137,5 @@ NULL AS `valuedate`,
 NULL AS `valuebool`,
 NOW() AS `waktuupdate`
 FROM __tmp_tutup_total p
-LEFT JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor`
+JOIN `ba_pemutusan_sementara` b ON b.`nomorpermohonan`=p.`nomor` AND b.flaghapus=0
 LEFT JOIN __tmp_warnasegel w ON w.warna=b.`warnasegel`

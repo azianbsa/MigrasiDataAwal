@@ -17,11 +17,20 @@ SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `user
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
 
+DROP TABLE IF EXISTS __tmp_rotasimeter;
+CREATE TABLE __tmp_rotasimeter AS
+SELECT
+@id := @id+1 AS id,
+p.nosamb,
+p.periode
+FROM `rotasimeter` p
+,(SELECT @id := @lastid) AS id;
+
 SELECT
 @idpdam AS `idpdam`,
-ro.`idpermohonan` AS `idpermohonan`,
+pp.`id` AS `idpermohonan`,
 p.`no_spk` AS `nomorspk`,
-IF(p.`tglpasang`='0000-00-00',p.`jadwal`,p.`tglpasang`) AS `tanggalspk`,
+p.`tgl_spk` AS `tanggalspk`,
 NULL AS `nomorsppb`,
 NULL AS `tanggalsppb`,
 u.iduser AS `iduser`,
@@ -30,9 +39,8 @@ NULL AS `fotobukti2`,
 NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
-IF(p.`tglpasang`='0000-00-00',p.`jadwal`,p.`tglpasang`) AS `waktuupdate`
-FROM
-`rotasimeter` p
-JOIN __tmp_rotasimeter ro ON ro.`nosamb`=p.`nosamb` AND ro.`periode`=p.`periode`
+p.`tgl_spk` AS `waktuupdate`
+FROM __tmp_rotasimeter pp
+JOIN `rotasimeter` p ON p.`nosamb`=pp.`nosamb` AND p.`periode`=pp.`periode`
 LEFT JOIN __tmp_userloket u ON u.nama=p.`user_spk`
-WHERE p.`tgl_spk` IS NOT NULL AND p.`flag_spk`=1 AND p.tglpasang IS NOT NULL
+WHERE p.`flag_spk`=1
