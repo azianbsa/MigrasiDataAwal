@@ -3055,7 +3055,7 @@ namespace Migrasi.Commands
             var rotasimeter = 0;
             await Utils.Client(async (conn, trans) =>
             {
-                rotasimeter = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='GANTI_METER_RUTIN'", transaction: trans);
+                rotasimeter = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='GANTI_METER_RUTIN' AND flaghapus=0", transaction: trans);
                 await conn.ExecuteAsync(
                     sql: @"
                     DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
@@ -3878,6 +3878,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
@@ -3904,6 +3905,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
@@ -4163,7 +4165,7 @@ namespace Migrasi.Commands
                     b.kodejenisnonair
                     FROM master_attribute_tipe_permohonan a
                     JOIN master_attribute_jenis_nonair b ON b.idpdam=a.idpdam AND b.idjenisnonair=a.idjenisnonair
-                    WHERE a.idpdam=@idpdam AND a.kategori='Pengaduan'",
+                    WHERE a.idpdam=@idpdam AND a.flaghapus=0 AND a.kategori='Pengaduan'",
                     param: new
                     {
                         idpdam = settings.IdPdam
@@ -4369,7 +4371,7 @@ namespace Migrasi.Commands
                     b.kodejenisnonair
                     FROM master_attribute_tipe_permohonan a
                     JOIN master_attribute_jenis_nonair b ON b.idpdam=a.idpdam AND b.idjenisnonair=a.idjenisnonair
-                    WHERE a.idpdam=@idpdam AND a.kategori='Pengaduan'",
+                    WHERE a.idpdam=@idpdam AND a.flaghapus=0 AND a.kategori='Pengaduan'",
                     param: new
                     {
                         idpdam = settings.IdPdam
