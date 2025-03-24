@@ -3,6 +3,7 @@ using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sprache;
+using System.Diagnostics;
 
 namespace Migrasi.Commands
 {
@@ -1392,6 +1393,10 @@ namespace Migrasi.Commands
                                     {
                                         await TutupTotal(settings);
                                     });
+                                    await Utils.TrackProgress("rab lainnya pelanggan", async () =>
+                                    {
+                                        await RabLainnyaPelanggan(settings);
+                                    });
                                 });
 
                             AnsiConsole.MarkupLine("");
@@ -1419,6 +1424,200 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private async Task RabLainnyaPelanggan(Settings settings)
+        {
+            var idPermohonan = 0;
+            IEnumerable<dynamic>? tipe = [];
+            IEnumerable<dynamic>? baDetail = [];
+
+            await Utils.Client(async (conn, trans) =>
+            {
+                tipe = await conn.QueryAsync(
+                    sql: @"
+                    SELECT
+                    a.idtipepermohonan,
+                    a.idjenisnonair,
+                    b.kodejenisnonair
+                    FROM master_attribute_tipe_permohonan a
+                    JOIN master_attribute_jenis_nonair b ON b.idpdam=a.idpdam AND b.idjenisnonair=a.idjenisnonair
+                    WHERE a.idpdam=@idpdam AND a.flaghapus=0",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam
+                    },
+                    transaction: trans);
+                baDetail = await conn.QueryAsync(
+                    sql: @"
+                    SELECT
+                    `idtipepermohonan`,
+                    `parameter`,
+                    `tipedata`
+                    FROM `master_attribute_tipe_permohonan_detail_ba` WHERE idpdam=@idpdam",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam
+                    },
+                    transaction: trans);
+
+                //if (tipe != null)
+                //{
+                //    await conn.ExecuteAsync(
+                //        sql: @"
+                //        DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
+                //        IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                //        DELETE FROM permohonan_pelanggan_air_spk_pasang_detail WHERE idpdam=@idpdam AND `idpermohonan`
+                //        IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                //        DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
+                //        IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                //        DELETE FROM permohonan_pelanggan_air_ba_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                //        IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                //        DELETE FROM permohonan_pelanggan_air_detail WHERE idpdam=@idpdam AND `idpermohonan` 
+                //        IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan);
+
+                //        DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan` in @tipepermohonan;",
+                //        param: new
+                //        {
+                //            idpdam = settings.IdPdam,
+                //            tipepermohonan = tipe.Select(s => s.idtipepermohonan).ToList()
+                //        },
+                //        transaction: trans);
+                //}
+
+                idPermohonan = await conn.QueryFirstOrDefaultAsync<int>(sql: @"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                if (tipe != null)
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                        DROP TABLE IF EXISTS __tmp_tipepermohonan;
+
+                        CREATE TABLE __tmp_tipepermohonan (
+                        idtipepermohonan INT,
+                        idjenisnonair INT,
+                        kodejenisnonair VARCHAR(50))",
+                        transaction: trans);
+
+                    await conn.ExecuteAsync(
+                        sql: @"INSERT INTO __tmp_tipepermohonan VALUES (@idtipepermohonan,@idjenisnonair,@kodejenisnonair)",
+                        param: tipe,
+                        transaction: trans);
+                }
+
+                if (baDetail != null)
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                        DROP TABLE IF EXISTS __tmp_badetail;
+
+                        CREATE TABLE __tmp_badetail (
+                        idtipepermohonan INT,
+                        parameter VARCHAR(50),
+                        tipedata VARCHAR(50))",
+                        transaction: trans);
+
+                    await conn.ExecuteAsync(
+                        sql: @"INSERT INTO __tmp_badetail VALUES (@idtipepermohonan,@parameter,@tipedata)",
+                        param: tipe,
+                        transaction: trans);
+                }
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air",
+                queryPath: @"Queries\rab_lainnya_pelanggan\rab_lainnya.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@idpermohonan", idPermohonan },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_rab",
+                queryPath: @"Queries\rab_lainnya_pelanggan\rab.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@idpermohonan", idPermohonan },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            //await Utils.BulkCopy(
+            //    sConnectionStr: AppSettings.ConnectionStringLoket,
+            //    tConnectionStr: AppSettings.ConnectionString,
+            //    tableName: "permohonan_pelanggan_air_rab_detail",
+            //    queryPath: @"Queries\sambung_kembali\rab_detail.sql",
+            //    parameters: new()
+            //    {
+            //        { "@idpdam", settings.IdPdam },
+            //        { "@lastid", lastId },
+            //        { "@lastidrabdetail", rabdetail },
+            //    });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_spk_pasang",
+                queryPath: @"Queries\rab_lainnya_pelanggan\spk_pasang.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@idpermohonan", idPermohonan },
+                },
+                placeholders: new()
+                {
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba",
+                queryPath: @"Queries\rab_lainnya_pelanggan\ba.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@idpermohonan", idPermohonan },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "permohonan_pelanggan_air_ba_detail",
+                queryPath: @"Queries\sambung_kembali\ba_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@idpermohonan", idPermohonan },
+                });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
+                await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_badetail", transaction: trans);
+            });
         }
 
         private async Task TagihanManual(Settings settings)

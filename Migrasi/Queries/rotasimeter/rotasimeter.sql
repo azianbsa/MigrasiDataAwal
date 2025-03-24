@@ -8,18 +8,9 @@ FROM
 golongan,
 (SELECT @id:=0) AS id;
 
-DROP TABLE IF EXISTS __tmp_rotasimeter;
-CREATE TABLE __tmp_rotasimeter AS
-SELECT
-@id := @id+1 AS id,
-p.nosamb,
-p.periode
-FROM `rotasimeter` p
-,(SELECT @id := @lastid) AS id;
-
 SELECT
 @idpdam AS idpdam,
-pp.id AS idpermohonan,
+@id:=@id+1 AS idpermohonan,
 @tipepermohonan AS idtipepermohonan,
 NULL AS idsumberpengaduan,
 CAST(CONCAT(p.nosamb,'.',p.periode) AS CHAR) AS nomorpermohonan,
@@ -54,10 +45,10 @@ COALESCE(
  p.`tgl_ba`,
  p.`tgl_spk`,
  STR_TO_DATE(CONCAT(p.periode,'01'),'%Y%m%d')) waktuupdate
-FROM __tmp_rotasimeter pp
-JOIN `rotasimeter` p ON p.nosamb=pp.nosamb AND p.periode=pp.periode
+FROM `rotasimeter` p
 JOIN pelanggan pl ON pl.nosamb=p.nosamb
 LEFT JOIN [bsbs].rayon r ON r.koderayon=p.koderayon
 LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=p.kodekelurahan
 LEFT JOIN __tmp_golongan g ON g.kodegol=p.kodegol AND g.aktif=1
 LEFT JOIN `verifikasi` v ON v.`nomorba`=p.`no_ba`
+,(SELECT @id := @lastid) AS id
