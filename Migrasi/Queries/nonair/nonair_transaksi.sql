@@ -34,7 +34,7 @@ SELECT
 urutan
 FROM [table]
 ,(SELECT @id:=@lastid) AS id
-WHERE flaghapus=0 AND flagangsur=0 AND jenis NOT IN ('JNS-16','JNS-38');
+WHERE flaghapus=0 AND flagangsur=0 AND jenis<>'JNS-38';
 
 SELECT
 @idpdam,

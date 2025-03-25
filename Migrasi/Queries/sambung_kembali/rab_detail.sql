@@ -28,7 +28,7 @@ d.`kategori` AS `postbiaya`,
 d.`qty_rkp` AS `qtyrkp`,
 IF(d.`dibebankan_pdam`=1,1,0) AS `flagbiayadibebankankepdam`,
 IF(d.`vendor`=1,1,0) AS `flagdialihkankevendor`,
-d.`paket` AS `flagpaket`,
+IF(d.`paket`='',0,d.`paket`) AS `flagpaket`,
 0 AS `flagdistribusi`,
 0 AS `untuksppbdarispk`,
 r.`tglrab` AS `waktuupdate`

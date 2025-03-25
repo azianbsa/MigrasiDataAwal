@@ -33,7 +33,7 @@ SELECT
 p.`id` AS `idpermohonan`,
 'Diameter Baru' AS `parameter`,
 'int' AS `tipedata`,
-b.`uraianpenyelesaian` AS `valuestring`,
+LEFT(b.`uraianpenyelesaian`,250) AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,

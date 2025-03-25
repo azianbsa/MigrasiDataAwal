@@ -5,7 +5,7 @@ SELECT
 urutan
 FROM nonair
 ,(SELECT @id:=@lastid) AS id
-WHERE flaghapus=0 AND kwitansimanual=1 AND jenis IN (
+WHERE flaghapus=0 AND kwitansimanual=1 AND flagangsur=0 AND jenis IN (
 'JNS-9',
 'JNS-23',
 'JNS-113',

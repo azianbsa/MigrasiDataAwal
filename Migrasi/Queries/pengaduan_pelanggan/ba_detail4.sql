@@ -69,7 +69,7 @@ SELECT
 p.`id` AS `idpermohonan`,
 'Keterangan Lapangan' AS `parameter`,
 'string' AS `tipedata`,
-b.`uraianpenyelesaian` AS `valuestring`,
+LEFT(b.`uraianpenyelesaian`,250) AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,

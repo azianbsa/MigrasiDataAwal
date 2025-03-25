@@ -15,7 +15,7 @@ SELECT
 urutan
 FROM nonair
 ,(SELECT @id:=@lastid) AS id
-WHERE flaghapus=0 AND kwitansimanual=1 AND jenis IN (
+WHERE flaghapus=0 AND kwitansimanual=1 AND flagangsur=0 AND jenis IN (
 'JNS-9',
 'JNS-23',
 'JNS-113',
@@ -57,7 +57,7 @@ na.termin AS termin,
 na.kwitansimanual AS flagmanual,
 NULL AS idpermohonansambunganbaru,
 0 AS flaghapus,
-na.waktuupdate AS waktuupdate
+na.waktuinput AS waktuupdate
 FROM
 __tmp_nonair n
 JOIN nonair na ON na.urutan=n.urutan
