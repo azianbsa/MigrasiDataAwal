@@ -1,9 +1,10 @@
 ﻿DROP TEMPORARY TABLE IF EXISTS temp_permohonan;
 CREATE TEMPORARY TABLE temp_permohonan AS 
 SELECT 
-@idpermohonan := @idpermohonan + 1 AS idpermohonan, 
+@id := @id + 1 AS idpermohonan, 
 norab AS nomorpermohonan
-FROM rab_lainnya 
+FROM rab_lainnya
+,(SELECT @id:=@lastid) AS id
 WHERE rabpengaduan = 0 AND pelanggan="AIR"
 AND jenis != "JNS-34" 
 AND flaghapus = 0;
