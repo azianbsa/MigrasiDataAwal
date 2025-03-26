@@ -1071,6 +1071,26 @@ namespace Migrasi.Commands
                 });
             }
 
+            await Utils.TrackProgress($"nonair-batal|rekening_nonair_transaksi", async () =>
+            {
+                await Utils.BulkCopy(
+                    sConnectionStr: AppSettings.ConnectionStringLoket,
+                    tConnectionStr: AppSettings.ConnectionString,
+                    tableName: "rekening_nonair_transaksi",
+                    queryPath: @"Queries\nonair\nonair_transaksi_batal.sql",
+                    parameters: new()
+                    {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastId },
+                    },
+                    placeholders: new()
+                    {
+                                                        { "[table]", "nonair" },
+                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                    });
+            });
+
             await Utils.ClientLoket(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
@@ -1209,6 +1229,26 @@ namespace Migrasi.Commands
                                 });
                         });
                     }
+
+                    await Utils.TrackProgress($"nonair{tahun}-batal|rekening_nonair_transaksi", async () =>
+                    {
+                        await Utils.BulkCopy(
+                            sConnectionStr: AppSettings.ConnectionStringLoket,
+                            tConnectionStr: AppSettings.ConnectionString,
+                            tableName: "rekening_nonair_transaksi",
+                            queryPath: @"Queries\nonair\nonair_transaksi_batal.sql",
+                            parameters: new()
+                            {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@lastid", lastId },
+                            },
+                            placeholders: new()
+                            {
+                                                                { "[table]", $"nonair{tahun}" },
+                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                            });
+                    });
                 });
             }
 

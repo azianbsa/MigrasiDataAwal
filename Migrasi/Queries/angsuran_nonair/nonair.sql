@@ -45,6 +45,7 @@ na.`jumlahtermin` AS termin,
 0 AS flagmanual,
 NULL AS idpermohonansambunganbaru,
 0 AS flaghapus,
+NULL AS `iduser`,
 NOW() AS waktuupdate
 FROM `__tmp_nonair` na
 LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada

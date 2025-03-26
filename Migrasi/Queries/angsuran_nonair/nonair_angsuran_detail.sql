@@ -81,7 +81,7 @@ IFNULL(d.administrasi,0) AS administrasi,
 IFNULL(d.meterai,0) AS meterai,
 IFNULL(d.lainnya,0) AS lainnya,
 IFNULL(d.jumlah,0) AS total,
-IFNULL(d.`waktuupload`,NOW()) AS waktuupdate
+NOW() AS waktuupdate
 FROM __tmp_nonair na
 JOIN detailangsuran d ON d.`noangsuran`=na.`noangsuran1`
 LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada

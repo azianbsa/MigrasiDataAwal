@@ -41,6 +41,10 @@ na.nama AS nama,
 na.alamat AS alamat,
 na.notelp AS notelp,
 na.nohp AS nohp,
+na.nama AS `namapemohon`,
+na.alamat AS `alamatpemohon`,
+na.notelp AS `notelppemohon`,
+na.nohp AS `nohppemohon`,
 d.waktudaftar AS waktudaftar,
 na.`jumlahtermin` AS jumlahtermin,
 d.`jumlahangsuranpokok` AS jumlahangsuranpokok,
@@ -56,7 +60,7 @@ d.`waktuupload` AS waktupublish,
 d.`flaglunas` AS flaglunas,
 d.`waktulunas` AS waktulunas,
 0 AS flaghapus,
-COALESCE(d.waktulunas,d.waktuupload,d.`waktudaftar`,NOW()) AS waktuupdate
+NOW() AS waktuupdate
 FROM __tmp_nonair na
 JOIN `daftarangsuran` d ON d.`id`=na.`idangsuran`
 LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada
