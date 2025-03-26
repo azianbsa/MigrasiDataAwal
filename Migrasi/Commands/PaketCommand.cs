@@ -1190,10 +1190,6 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
                                         });
                                     });
-                                    //await Utils.TrackProgress("nonair meterai tahun", async () =>
-                                    //{
-                                    //    await NonairMeteraiTahun(settings);
-                                    //});
                                     await Utils.TrackProgress("nonair", async () =>
                                     {
                                         IEnumerable<int>? listPeriode = [];
@@ -1317,10 +1313,6 @@ namespace Migrasi.Commands
                                             await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
                                         });
                                     });
-                                    //await Utils.TrackProgress("nonair meterai", async () =>
-                                    //{
-                                    //    await NonairMeterai(settings);
-                                    //});
                                     await Utils.TrackProgress("angsuran air", async () =>
                                     {
                                         await AngsuranAir(settings);
