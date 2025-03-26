@@ -830,488 +830,23 @@ namespace Migrasi.Commands
                                     });
                                     await Utils.TrackProgress("piutang", async () =>
                                     {
-                                        var lastId = 0;
-                                        await Utils.Client(async (conn, trans) =>
-                                        {
-                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                        });
-
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_air",
-                                            queryPath: @"Queries\piutang\piutang.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam },
-                                                { "@lastid", lastId },
-                                            },
-                                            placeholders: new()
-                                            {
-                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                            });
-
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_air_detail",
-                                            queryPath: @"Queries\piutang\piutang_detail.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam },
-                                            },
-                                            placeholders: new()
-                                            {
-                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                            });
+                                        await Piutang(settings);
                                     });
                                     await Utils.TrackProgress("bayar tahun", async () =>
                                     {
-                                        IEnumerable<string?> bayarTahun = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            bayarTahun = await conn.QueryAsync<string?>(
-                                                sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                                                param: new { table_schema = AppSettings.DatabaseLoket },
-                                                transaction: trans);
-                                        });
-
-                                        foreach (var tahun in bayarTahun)
-                                        {
-                                            await Utils.TrackProgress($"bayar{tahun}", async () =>
-                                            {
-                                                IEnumerable<int>? listPeriode = [];
-                                                await Utils.ClientLoket(async (conn, trans) =>
-                                                {
-                                                    listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
-                                                });
-
-                                                foreach (var periode in listPeriode)
-                                                {
-                                                    await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air", async () =>
-                                                    {
-                                                        var lastId = 0;
-                                                        await Utils.Client(async (conn, trans) =>
-                                                        {
-                                                            lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                                        });
-
-                                                        await Utils.BulkCopy(
-                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                            tConnectionStr: AppSettings.ConnectionString,
-                                                            tableName: "rekening_air",
-                                                            queryPath: @"Queries\bayar\bayar.sql",
-                                                            parameters: new()
-                                                            {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@lastid", lastId },
-                                                                { "@periode", periode },
-                                                            },
-                                                            placeholders: new()
-                                                            {
-                                                                { "[table]", $"bayar{tahun}" },
-                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                            });
-                                                    });
-
-                                                    await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_detail", async () =>
-                                                    {
-                                                        await Utils.BulkCopy(
-                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                            tConnectionStr: AppSettings.ConnectionString,
-                                                            tableName: "rekening_air_detail",
-                                                            queryPath: @"Queries\bayar\bayar_detail.sql",
-                                                            parameters: new()
-                                                            {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                            },
-                                                            placeholders: new()
-                                                            {
-                                                                { "[table]", $"bayar{tahun}" },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                            });
-                                                    });
-
-                                                    await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_transaksi", async () =>
-                                                    {
-                                                        await Utils.BulkCopy(
-                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                            tConnectionStr: AppSettings.ConnectionString,
-                                                            tableName: "rekening_air_transaksi",
-                                                            queryPath: @"Queries\bayar\bayar_transaksi.sql",
-                                                            parameters: new()
-                                                            {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                            },
-                                                            placeholders: new()
-                                                            {
-                                                                { "[table]", $"bayar{tahun}" },
-                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                            });
-                                                    });
-                                                }
-                                            });
-                                        }
+                                        await BayarTahun(settings);
                                     });
                                     await Utils.TrackProgress("bayar", async () =>
                                     {
-                                        IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar GROUP BY periode", transaction: trans);
-                                        });
-
-                                        foreach (var periode in listPeriode)
-                                        {
-                                            await Utils.TrackProgress($"bayar-{periode}|rekening_air", async () =>
-                                            {
-                                                var lastId = 0;
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                                                });
-
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air",
-                                                    queryPath: @"Queries\bayar\bayar.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastId },
-                                                        { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "bayar" },
-                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    });
-                                            });
-
-                                            await Utils.TrackProgress($"bayar-{periode}|rekening_air_detail", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_detail",
-                                                    queryPath: @"Queries\bayar\bayar_detail.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "bayar" },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    });
-                                            });
-
-                                            await Utils.TrackProgress($"bayar-{periode}|rekening_air_transaksi", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_air_transaksi",
-                                                    queryPath: @"Queries\bayar\bayar_transaksi.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "bayar" },
-                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    });
-                                            });
-                                        }
-
-                                        await Utils.BulkCopy(
-                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                            tConnectionStr: AppSettings.ConnectionString,
-                                            tableName: "rekening_air_transaksi",
-                                            queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
-                                            parameters: new()
-                                            {
-                                                { "@idpdam", settings.IdPdam },
-                                            },
-                                            placeholders: new()
-                                            {
-                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                            });
+                                        await Bayar(settings);
                                     });
                                     await Utils.TrackProgress("nonair tahun", async () =>
                                     {
-                                        IEnumerable<string?> nonairTahun = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            nonairTahun = await conn.QueryAsync<string?>(
-                                                sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'nonair[0-9]{4}'",
-                                                param: new
-                                                {
-                                                    table_schema = AppSettings.DatabaseLoket
-                                                },
-                                                transaction: trans);
-                                        });
-
-                                        foreach (var tahun in nonairTahun)
-                                        {
-                                            await Utils.TrackProgress($"nonair{tahun}", async () =>
-                                            {
-                                                IEnumerable<int>? listPeriode = [];
-                                                await Utils.ClientLoket(async (conn, trans) =>
-                                                {
-                                                    listPeriode = await conn.QueryAsync<int>(
-                                                        sql: $@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair{tahun} GROUP BY periode) a GROUP BY a.periode",
-                                                        transaction: trans);
-                                                });
-
-                                                IEnumerable<dynamic>? jenis = [];
-
-                                                var lastId = 0;
-                                                await Utils.Client(async (conn, trans) =>
-                                                {
-                                                    lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idnonair),0) FROM rekening_nonair", transaction: trans);
-                                                    await conn.ExecuteAsync(
-                                                        sql: @"
-                                                        ALTER TABLE rekening_nonair_transaksi
-                                                        CHANGE keterangan keterangan VARCHAR (1000) CHARSET latin1 COLLATE latin1_swedish_ci NULL",
-                                                        transaction: trans);
-
-                                                    jenis = await conn.QueryAsync(
-                                                        sql: @"SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0",
-                                                        param: new
-                                                        {
-                                                            idpdam = settings.IdPdam
-                                                        },
-                                                        transaction: trans);
-                                                });
-
-                                                await Utils.ClientLoket(async (conn, trans) =>
-                                                {
-                                                    if (jenis != null)
-                                                    {
-                                                        await conn.ExecuteAsync(
-                                                            sql: @"
-                                                            DROP TABLE IF EXISTS __tmp_jenisnonair;
-
-                                                            CREATE TABLE __tmp_jenisnonair (
-                                                            idjenisnonair INT,
-                                                            kodejenisnonair VARCHAR(50)
-                                                            )",
-                                                            transaction: trans);
-
-                                                        await conn.ExecuteAsync(
-                                                            sql: @"
-                                                            INSERT INTO __tmp_jenisnonair
-                                                            VALUES (@idjenisnonair,@kodejenisnonair)",
-                                                            param: jenis,
-                                                            transaction: trans);
-                                                    }
-                                                });
-
-                                                foreach (var periode in listPeriode)
-                                                {
-                                                    await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair", async () =>
-                                                    {
-                                                        await Utils.BulkCopy(
-                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                            tConnectionStr: AppSettings.ConnectionString,
-                                                            tableName: "rekening_nonair",
-                                                            queryPath: @"Queries\nonair\nonair.sql",
-                                                            parameters: new()
-                                                            {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                                { "@lastid", lastId },
-                                                            },
-                                                            placeholders: new()
-                                                            {
-                                                                { "[table]", $"nonair{tahun}" },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                            });
-                                                    });
-
-                                                    await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair_detail", async () =>
-                                                    {
-                                                        await Utils.BulkCopy(
-                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                            tConnectionStr: AppSettings.ConnectionString,
-                                                            tableName: "rekening_nonair_detail",
-                                                            queryPath: @"Queries\nonair\nonair_detail.sql",
-                                                            parameters: new()
-                                                            {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                                { "@lastid", lastId },
-                                                            },
-                                                            placeholders: new()
-                                                            {
-                                                                { "[table]", $"nonair{tahun}" },
-                                                            });
-                                                    });
-
-                                                    await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair_transaksi", async () =>
-                                                    {
-                                                        await Utils.BulkCopy(
-                                                            sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                            tConnectionStr: AppSettings.ConnectionString,
-                                                            tableName: "rekening_nonair_transaksi",
-                                                            queryPath: @"Queries\nonair\nonair_transaksi.sql",
-                                                            parameters: new()
-                                                            {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                                { "@lastid", lastId },
-                                                            },
-                                                            placeholders: new()
-                                                            {
-                                                                { "[table]", $"nonair{tahun}" },
-                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                            });
-                                                    });
-                                                }
-                                            });
-                                        }
-
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
-                                        });
+                                        await NonairTahun(settings);
                                     });
                                     await Utils.TrackProgress("nonair", async () =>
                                     {
-                                        IEnumerable<int>? listPeriode = [];
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            listPeriode = await conn.QueryAsync<int>(
-                                                sql: @"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode",
-                                                transaction: trans);
-                                        });
-
-                                        var lastId = 0;
-                                        IEnumerable<dynamic>? jenis = [];
-
-                                        await Utils.Client(async (conn, trans) =>
-                                        {
-                                            lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idnonair),0) FROM rekening_nonair", transaction: trans);
-
-                                            await conn.ExecuteAsync(
-                                                sql: @"
-                                                ALTER TABLE rekening_nonair_transaksi
-                                                CHANGE keterangan keterangan VARCHAR (1000) CHARSET latin1 COLLATE latin1_swedish_ci NULL",
-                                                transaction: trans);
-
-                                            jenis = await conn.QueryAsync(
-                                                sql: @"SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0",
-                                                param: new
-                                                {
-                                                    idpdam = settings.IdPdam
-                                                },
-                                                transaction: trans);
-                                        });
-
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            if (jenis != null)
-                                            {
-                                                await conn.ExecuteAsync(
-                                                    sql: @"
-                                                    DROP TABLE IF EXISTS __tmp_jenisnonair;
-
-                                                    CREATE TABLE __tmp_jenisnonair (
-                                                    idjenisnonair INT,
-                                                    kodejenisnonair VARCHAR(50)
-                                                    )",
-                                                    transaction: trans);
-
-                                                await conn.ExecuteAsync(
-                                                    sql: @"
-                                                    INSERT INTO __tmp_jenisnonair
-                                                    VALUES (@idjenisnonair,@kodejenisnonair)",
-                                                    param: jenis,
-                                                 transaction: trans);
-                                            }
-                                        });
-
-                                        foreach (var periode in listPeriode)
-                                        {
-                                            await Utils.TrackProgress($"nonair-{periode}|rekening_nonair", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_nonair",
-                                                    queryPath: @"Queries\nonair\nonair.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                        { "@lastid", lastId },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "nonair" },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    });
-                                            });
-
-                                            await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_detail", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_nonair_detail",
-                                                    queryPath: @"Queries\nonair\nonair_detail.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                        { "@lastid", lastId },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "nonair" },
-                                                    });
-                                            });
-
-                                            await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_transaksi", async () =>
-                                            {
-                                                await Utils.BulkCopy(
-                                                    sConnectionStr: AppSettings.ConnectionStringLoket,
-                                                    tConnectionStr: AppSettings.ConnectionString,
-                                                    tableName: "rekening_nonair_transaksi",
-                                                    queryPath: @"Queries\nonair\nonair_transaksi.sql",
-                                                    parameters: new()
-                                                    {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                        { "@lastid", lastId },
-                                                    },
-                                                    placeholders: new()
-                                                    {
-                                                        { "[table]", "nonair" },
-                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    });
-                                            });
-                                        }
-
-                                        await Utils.ClientLoket(async (conn, trans) =>
-                                        {
-                                            await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
-                                        });
+                                        await Nonair(settings);
                                     });
                                     await Utils.TrackProgress("angsuran air", async () =>
                                     {
@@ -1418,6 +953,510 @@ namespace Migrasi.Commands
             return 0;
         }
 
+        private async Task Nonair(Settings settings)
+        {
+            IEnumerable<int>? listPeriode = [];
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                listPeriode = await conn.QueryAsync<int>(
+                    sql: @"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode",
+                    transaction: trans);
+            });
+
+            var lastId = 0;
+            IEnumerable<dynamic>? jenis = [];
+
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idnonair),0) FROM rekening_nonair", transaction: trans);
+
+                await conn.ExecuteAsync(
+                    sql: @"
+                                                ALTER TABLE rekening_nonair_transaksi
+                                                CHANGE keterangan keterangan VARCHAR (1000) CHARSET latin1 COLLATE latin1_swedish_ci NULL",
+                    transaction: trans);
+
+                jenis = await conn.QueryAsync(
+                    sql: @"SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam
+                    },
+                    transaction: trans);
+            });
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                if (jenis != null)
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                                                    DROP TABLE IF EXISTS __tmp_jenisnonair;
+
+                                                    CREATE TABLE __tmp_jenisnonair (
+                                                    idjenisnonair INT,
+                                                    kodejenisnonair VARCHAR(50)
+                                                    )",
+                        transaction: trans);
+
+                    await conn.ExecuteAsync(
+                        sql: @"
+                                                    INSERT INTO __tmp_jenisnonair
+                                                    VALUES (@idjenisnonair,@kodejenisnonair)",
+                        param: jenis,
+                     transaction: trans);
+                }
+            });
+
+            foreach (var periode in listPeriode)
+            {
+                await Utils.TrackProgress($"nonair-{periode}|rekening_nonair", async () =>
+                {
+                    await Utils.BulkCopy(
+                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                        tConnectionStr: AppSettings.ConnectionString,
+                        tableName: "rekening_nonair",
+                        queryPath: @"Queries\nonair\nonair.sql",
+                        parameters: new()
+                        {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                        { "@lastid", lastId },
+                        },
+                        placeholders: new()
+                        {
+                                                        { "[table]", "nonair" },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                        });
+                });
+
+                await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_detail", async () =>
+                {
+                    await Utils.BulkCopy(
+                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                        tConnectionStr: AppSettings.ConnectionString,
+                        tableName: "rekening_nonair_detail",
+                        queryPath: @"Queries\nonair\nonair_detail.sql",
+                        parameters: new()
+                        {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                        { "@lastid", lastId },
+                        },
+                        placeholders: new()
+                        {
+                                                        { "[table]", "nonair" },
+                        });
+                });
+
+                await Utils.TrackProgress($"nonair-{periode}|rekening_nonair_transaksi", async () =>
+                {
+                    await Utils.BulkCopy(
+                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                        tConnectionStr: AppSettings.ConnectionString,
+                        tableName: "rekening_nonair_transaksi",
+                        queryPath: @"Queries\nonair\nonair_transaksi.sql",
+                        parameters: new()
+                        {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                                                        { "@lastid", lastId },
+                        },
+                        placeholders: new()
+                        {
+                                                        { "[table]", "nonair" },
+                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                        });
+                });
+            }
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
+            });
+        }
+
+        private async Task NonairTahun(Settings settings)
+        {
+            IEnumerable<string?> nonairTahun = [];
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                nonairTahun = await conn.QueryAsync<string?>(
+                    sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'nonair[0-9]{4}'",
+                    param: new
+                    {
+                        table_schema = AppSettings.DatabaseLoket
+                    },
+                    transaction: trans);
+            });
+
+            foreach (var tahun in nonairTahun)
+            {
+                await Utils.TrackProgress($"nonair{tahun}", async () =>
+                {
+                    IEnumerable<int>? listPeriode = [];
+                    await Utils.ClientLoket(async (conn, trans) =>
+                    {
+                        listPeriode = await conn.QueryAsync<int>(
+                            sql: $@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair{tahun} GROUP BY periode) a GROUP BY a.periode",
+                            transaction: trans);
+                    });
+
+                    IEnumerable<dynamic>? jenis = [];
+
+                    var lastId = 0;
+                    await Utils.Client(async (conn, trans) =>
+                    {
+                        lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idnonair),0) FROM rekening_nonair", transaction: trans);
+                        await conn.ExecuteAsync(
+                            sql: @"
+                                                        ALTER TABLE rekening_nonair_transaksi
+                                                        CHANGE keterangan keterangan VARCHAR (1000) CHARSET latin1 COLLATE latin1_swedish_ci NULL",
+                            transaction: trans);
+
+                        jenis = await conn.QueryAsync(
+                            sql: @"SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0",
+                            param: new
+                            {
+                                idpdam = settings.IdPdam
+                            },
+                            transaction: trans);
+                    });
+
+                    await Utils.ClientLoket(async (conn, trans) =>
+                    {
+                        if (jenis != null)
+                        {
+                            await conn.ExecuteAsync(
+                                sql: @"
+                                                            DROP TABLE IF EXISTS __tmp_jenisnonair;
+
+                                                            CREATE TABLE __tmp_jenisnonair (
+                                                            idjenisnonair INT,
+                                                            kodejenisnonair VARCHAR(50)
+                                                            )",
+                                transaction: trans);
+
+                            await conn.ExecuteAsync(
+                                sql: @"
+                                                            INSERT INTO __tmp_jenisnonair
+                                                            VALUES (@idjenisnonair,@kodejenisnonair)",
+                                param: jenis,
+                                transaction: trans);
+                        }
+                    });
+
+                    foreach (var periode in listPeriode)
+                    {
+                        await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair", async () =>
+                        {
+                            await Utils.BulkCopy(
+                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                tConnectionStr: AppSettings.ConnectionString,
+                                tableName: "rekening_nonair",
+                                queryPath: @"Queries\nonair\nonair.sql",
+                                parameters: new()
+                                {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@periode", periode },
+                                                                { "@lastid", lastId },
+                                },
+                                placeholders: new()
+                                {
+                                                                { "[table]", $"nonair{tahun}" },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                });
+                        });
+
+                        await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair_detail", async () =>
+                        {
+                            await Utils.BulkCopy(
+                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                tConnectionStr: AppSettings.ConnectionString,
+                                tableName: "rekening_nonair_detail",
+                                queryPath: @"Queries\nonair\nonair_detail.sql",
+                                parameters: new()
+                                {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@periode", periode },
+                                                                { "@lastid", lastId },
+                                },
+                                placeholders: new()
+                                {
+                                                                { "[table]", $"nonair{tahun}" },
+                                });
+                        });
+
+                        await Utils.TrackProgress($"nonair{tahun}-{periode}|rekening_nonair_transaksi", async () =>
+                        {
+                            await Utils.BulkCopy(
+                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                tConnectionStr: AppSettings.ConnectionString,
+                                tableName: "rekening_nonair_transaksi",
+                                queryPath: @"Queries\nonair\nonair_transaksi.sql",
+                                parameters: new()
+                                {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@periode", periode },
+                                                                { "@lastid", lastId },
+                                },
+                                placeholders: new()
+                                {
+                                                                { "[table]", $"nonair{tahun}" },
+                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                });
+                        });
+                    }
+                });
+            }
+
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
+            });
+        }
+
+        private async Task Piutang(Settings settings)
+        {
+            var lastId = 0;
+            await Utils.Client(async (conn, trans) =>
+            {
+                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+            });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "rekening_air",
+                queryPath: @"Queries\piutang\piutang.sql",
+                parameters: new()
+                {
+                                                { "@idpdam", settings.IdPdam },
+                                                { "@lastid", lastId },
+                },
+                placeholders: new()
+                {
+                                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "rekening_air_detail",
+                queryPath: @"Queries\piutang\piutang_detail.sql",
+                parameters: new()
+                {
+                                                { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+        }
+
+        private async Task BayarTahun(Settings settings)
+        {
+            IEnumerable<string?> bayarTahun = [];
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                bayarTahun = await conn.QueryAsync<string?>(
+                    sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
+                    param: new { table_schema = AppSettings.DatabaseLoket },
+                    transaction: trans);
+            });
+
+            foreach (var tahun in bayarTahun)
+            {
+                await Utils.TrackProgress($"bayar{tahun}", async () =>
+                {
+                    IEnumerable<int>? listPeriode = [];
+                    await Utils.ClientLoket(async (conn, trans) =>
+                    {
+                        listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
+                    });
+
+                    foreach (var periode in listPeriode)
+                    {
+                        await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air", async () =>
+                        {
+                            var lastId = 0;
+                            await Utils.Client(async (conn, trans) =>
+                            {
+                                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                            });
+
+                            await Utils.BulkCopy(
+                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                tConnectionStr: AppSettings.ConnectionString,
+                                tableName: "rekening_air",
+                                queryPath: @"Queries\bayar\bayar.sql",
+                                parameters: new()
+                                {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@lastid", lastId },
+                                                                { "@periode", periode },
+                                },
+                                placeholders: new()
+                                {
+                                                                { "[table]", $"bayar{tahun}" },
+                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                });
+                        });
+
+                        await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_detail", async () =>
+                        {
+                            await Utils.BulkCopy(
+                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                tConnectionStr: AppSettings.ConnectionString,
+                                tableName: "rekening_air_detail",
+                                queryPath: @"Queries\bayar\bayar_detail.sql",
+                                parameters: new()
+                                {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@periode", periode },
+                                },
+                                placeholders: new()
+                                {
+                                                                { "[table]", $"bayar{tahun}" },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                });
+                        });
+
+                        await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_transaksi", async () =>
+                        {
+                            await Utils.BulkCopy(
+                                sConnectionStr: AppSettings.ConnectionStringLoket,
+                                tConnectionStr: AppSettings.ConnectionString,
+                                tableName: "rekening_air_transaksi",
+                                queryPath: @"Queries\bayar\bayar_transaksi.sql",
+                                parameters: new()
+                                {
+                                                                { "@idpdam", settings.IdPdam },
+                                                                { "@periode", periode },
+                                },
+                                placeholders: new()
+                                {
+                                                                { "[table]", $"bayar{tahun}" },
+                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                });
+                        });
+                    }
+                });
+            }
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "rekening_air_transaksi",
+                queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
+                parameters: new()
+                {
+                                                { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+        }
+
+        private async Task Bayar(Settings settings)
+        {
+            IEnumerable<int>? listPeriode = [];
+            await Utils.ClientLoket(async (conn, trans) =>
+            {
+                listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar GROUP BY periode", transaction: trans);
+            });
+
+            foreach (var periode in listPeriode)
+            {
+                await Utils.TrackProgress($"bayar-{periode}|rekening_air", async () =>
+                {
+                    var lastId = 0;
+                    await Utils.Client(async (conn, trans) =>
+                    {
+                        lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                    });
+
+                    await Utils.BulkCopy(
+                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                        tConnectionStr: AppSettings.ConnectionString,
+                        tableName: "rekening_air",
+                        queryPath: @"Queries\bayar\bayar.sql",
+                        parameters: new()
+                        {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@lastid", lastId },
+                                                        { "@periode", periode },
+                        },
+                        placeholders: new()
+                        {
+                                                        { "[table]", "bayar" },
+                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                        });
+                });
+
+                await Utils.TrackProgress($"bayar-{periode}|rekening_air_detail", async () =>
+                {
+                    await Utils.BulkCopy(
+                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                        tConnectionStr: AppSettings.ConnectionString,
+                        tableName: "rekening_air_detail",
+                        queryPath: @"Queries\bayar\bayar_detail.sql",
+                        parameters: new()
+                        {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                        },
+                        placeholders: new()
+                        {
+                                                        { "[table]", "bayar" },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                        });
+                });
+
+                await Utils.TrackProgress($"bayar-{periode}|rekening_air_transaksi", async () =>
+                {
+                    await Utils.BulkCopy(
+                        sConnectionStr: AppSettings.ConnectionStringLoket,
+                        tConnectionStr: AppSettings.ConnectionString,
+                        tableName: "rekening_air_transaksi",
+                        queryPath: @"Queries\bayar\bayar_transaksi.sql",
+                        parameters: new()
+                        {
+                                                        { "@idpdam", settings.IdPdam },
+                                                        { "@periode", periode },
+                        },
+                        placeholders: new()
+                        {
+                                                        { "[table]", "bayar" },
+                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                        });
+                });
+            }
+
+            await Utils.BulkCopy(
+                sConnectionStr: AppSettings.ConnectionStringLoket,
+                tConnectionStr: AppSettings.ConnectionString,
+                tableName: "rekening_air_transaksi",
+                queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
+                parameters: new()
+                {
+                                                { "@idpdam", settings.IdPdam },
+                },
+                placeholders: new()
+                {
+                                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                });
+        }
         private async Task RabLainnyaPelanggan(Settings settings)
         {
             var lastId = 0;

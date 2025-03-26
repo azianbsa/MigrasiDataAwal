@@ -43,6 +43,7 @@ na.termin AS termin,
 0 AS flagmanual,
 NULL AS idpermohonansambunganbaru,
 0 AS flaghapus,
+NULL AS `iduser`,
 na.waktuupdate AS waktuupdate
 FROM
 __tmp_nonair n
