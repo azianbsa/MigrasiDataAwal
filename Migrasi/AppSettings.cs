@@ -6,6 +6,13 @@ namespace Migrasi
     internal static class AppSettings
     {
         public static Environment Environment { get; set; }
+
+        public static string HostConfig { get; set; }
+        public static uint PortConfig { get; set; }
+        public static string UserConfig { get; set; }
+        public static string PasswordConfig { get; set; }
+        public static string DatabaseConfig { get; set; }
+
         public static string Host { get; set; }
         public static uint Port { get; set; }
         public static string User { get; set; }
@@ -38,6 +45,18 @@ namespace Migrasi
 
         public static int CommandTimeout { get; set; } = 3600;
 
+        public static string ConfigConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = HostConfig,
+            Port = PortConfig,
+            UserID = UserConfig,
+            Password = PasswordConfig,
+            Database = DatabaseConfig,
+            AllowUserVariables = true,
+            DefaultCommandTimeout = (uint)CommandTimeout,
+            ConnectionTimeout = (uint)CommandTimeout,
+        }.ConnectionString;
+
         public static string ConnectionString => new MySqlConnectionStringBuilder
         {
             Server = Host,
@@ -50,7 +69,6 @@ namespace Migrasi
             AllowZeroDateTime = true,
             DefaultCommandTimeout = (uint)CommandTimeout,
             ConnectionTimeout = (uint)CommandTimeout,
-            //Pooling = false,
         }.ConnectionString;
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder

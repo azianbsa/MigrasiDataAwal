@@ -163,6 +163,12 @@
     <None Update="Queries\bacameter\master_tarif_retribusi_lain.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\bacameter\setup_config.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\bacameter\setup_pdam.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\balik_nama\detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -554,9 +560,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\patches\data_cleanup_sumber_air.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\patches\setup_new_copy_pdam.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\patches\setup_new_pdam.sql">

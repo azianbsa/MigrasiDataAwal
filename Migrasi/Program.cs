@@ -28,6 +28,12 @@ namespace Migrasi
                 _ => "_DEV"
             };
 
+            AppSettings.HostConfig = Env.GetString($"DB_HOST_CONF_{dbSuffix}");
+            AppSettings.PortConfig = (uint)Env.GetInt($"DB_PORT_CONF_{dbSuffix}");
+            AppSettings.UserConfig = Env.GetString($"DB_USER_CONF_{dbSuffix}");
+            AppSettings.PasswordConfig = Env.GetString($"DB_PASSWORD_CONF_{dbSuffix}");
+            AppSettings.DatabaseConfig = Env.GetString($"DB_NAME_CONF_{dbSuffix}");
+
             AppSettings.Host = Env.GetString($"DB_HOST{dbSuffix}");
             AppSettings.Port = (uint)Env.GetInt($"DB_PORT{dbSuffix}");
             AppSettings.User = Env.GetString($"DB_USER{dbSuffix}");

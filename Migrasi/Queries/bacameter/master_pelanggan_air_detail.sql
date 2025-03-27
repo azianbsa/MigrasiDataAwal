@@ -71,6 +71,7 @@ pel.tglputus AS tglputus,
 NULL AS noserimeterlama,
 NULL AS kategoriputus,
 NULL AS idtipependaftaransambungan,
+NULL AS `idkategorikawasan`,
 pel.keterangan,
 NOW() AS waktuupdate
 FROM
