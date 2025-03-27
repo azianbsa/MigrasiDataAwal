@@ -54,4 +54,4 @@ __tmp_nonair n
 JOIN [table] na ON na.urutan=n.urutan
 LEFT JOIN __tmp_userloket us ON us.nama=na.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket=na.loketbayar
-WHERE na.flagbatal=0
+WHERE na.flagbatal=1

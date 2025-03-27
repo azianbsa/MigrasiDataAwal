@@ -46,7 +46,8 @@ na.`jumlahtermin` AS termin,
 NULL AS idpermohonansambunganbaru,
 0 AS flaghapus,
 NULL AS `iduser`,
-NOW() AS waktuupdate
+NOW() AS waktuupdate,
+na.waktuinput AS `created_at`
 FROM `__tmp_nonair` na
 LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada
 LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair=na.jenis

@@ -44,7 +44,8 @@ na.termin AS termin,
 NULL AS idpermohonansambunganbaru,
 0 AS flaghapus,
 NULL AS `iduser`,
-na.waktuupdate AS waktuupdate
+na.waktuupdate AS waktuupdate,
+na.waktuinput AS `created_at`
 FROM
 __tmp_nonair n
 JOIN [table] na ON na.urutan=n.urutan
