@@ -16,8 +16,8 @@ a.jumlahtermin,
 a.noangsuran AS noangsuran1,
 b.*
 FROM `daftarangsuran` a
-LEFT JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
-WHERE a.`keperluan`<>'JNS-36';
+JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
+WHERE a.`keperluan`<>'JNS-36' AND b.jenis<>'JNS-38';
 
 SELECT
 @idpdam,
@@ -27,11 +27,11 @@ pel.id AS idpelangganair,
 NULL AS idpelangganlimbah,
 NULL AS idpelangganlltt,
 IF(na.periode='',NULL,na.periode) AS kodeperiode,
-na.nomor AS nomornonair,
+na.urutan AS nomornonair,
 na.keterangan AS keterangan,
 na.total AS total,
 na.tglmulaitagih AS tanggalmulaitagih,
-NULL AS tanggalkadaluarsa,
+na.validdate AS tanggalkadaluarsa,
 na.nama AS nama,
 na.alamat AS alamat,
 ryn.id AS idrayon,
@@ -42,12 +42,12 @@ NULL AS idtariflltt,
 na.flagangsur AS flagangsur,
 na.`idangsuran` AS idangsuran,
 na.`jumlahtermin` AS termin,
-0 AS flagmanual,
+na.kwitansimanual AS flagmanual,
 NULL AS idpermohonansambunganbaru,
-0 AS flaghapus,
+na.flaghapus AS flaghapus,
 NULL AS `iduser`,
-NOW() AS waktuupdate,
-na.waktuinput AS `created_at`
+COALESCE(na.waktuupdate,NOW()) AS waktuupdate,
+COALESCE(na.waktuinput,na.waktuupdate) AS `created_at`
 FROM `__tmp_nonair` na
 LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada
 LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair=na.jenis

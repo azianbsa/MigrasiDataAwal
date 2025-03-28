@@ -15,7 +15,7 @@ SELECT
 urutan
 FROM [table]
 ,(SELECT @id:=@lastid) AS id
-WHERE flaghapus=0 AND flagangsur=0 AND jenis<>'JNS-38';
+WHERE flagangsur=0 AND jenis<>'JNS-38';
 
 SELECT
 @idpdam,
@@ -40,12 +40,12 @@ NULL AS idtariflltt,
 na.flagangsur AS flagangsur,
 NULL AS idangsuran,
 na.termin AS termin,
-0 AS flagmanual,
+na.kwitansimanual AS flagmanual,
 NULL AS idpermohonansambunganbaru,
-0 AS flaghapus,
+na.flaghapus AS flaghapus,
 NULL AS `iduser`,
-na.waktuupdate AS waktuupdate,
-na.waktuinput AS `created_at`
+COALESCE(na.waktuupdate,NOW()) AS waktuupdate,
+COALESCE(na.waktuinput,na.waktuupdate) AS `created_at`
 FROM
 __tmp_nonair n
 JOIN [table] na ON na.urutan=n.urutan

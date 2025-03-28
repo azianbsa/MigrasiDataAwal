@@ -856,10 +856,6 @@ namespace Migrasi.Commands
                                     {
                                         await AngsuranNonair(settings);
                                     });
-                                    await Utils.TrackProgress("tagihan manual", async () =>
-                                    {
-                                        await TagihanManual(settings);
-                                    });
                                     await Utils.TrackProgress("pengaduan pelanggan", async () =>
                                     {
                                         await PengaduanPelanggan(settings);
@@ -1694,100 +1690,6 @@ namespace Migrasi.Commands
             {
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_badetail", transaction: trans);
-            });
-        }
-
-        private async Task TagihanManual(Settings settings)
-        {
-            var lastId = 0;
-            IEnumerable<dynamic>? jenis = [];
-
-            await Utils.Client(async (conn, trans) =>
-            {
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idnonair),0) FROM rekening_nonair", transaction: trans);
-                jenis = await conn.QueryAsync(
-                    sql: @"SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0",
-                    param: new
-                    {
-                        idpdam = settings.IdPdam
-                    },
-                    transaction: trans);
-            });
-
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                if (jenis != null)
-                {
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        DROP TABLE IF EXISTS __tmp_jenisnonair;
-
-                        CREATE TABLE __tmp_jenisnonair (
-                        idjenisnonair INT,
-                        kodejenisnonair VARCHAR(50)
-                        )",
-                        transaction: trans);
-
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        INSERT INTO __tmp_jenisnonair
-                        VALUES (@idjenisnonair,@kodejenisnonair)",
-                        param: jenis,
-                     transaction: trans);
-                }
-            });
-
-            await Utils.BulkCopy(
-                sConnectionStr: AppSettings.ConnectionStringLoket,
-                tConnectionStr: AppSettings.ConnectionString,
-                tableName: "rekening_nonair",
-                queryPath: @"Queries\tagihan_manual\nonair.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[table]", "nonair" },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                });
-
-            await Utils.BulkCopy(
-                sConnectionStr: AppSettings.ConnectionStringLoket,
-                tConnectionStr: AppSettings.ConnectionString,
-                tableName: "rekening_nonair_detail",
-                queryPath: @"Queries\tagihan_manual\nonair_detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[table]", "nonair" },
-                });
-
-            await Utils.BulkCopy(
-                sConnectionStr: AppSettings.ConnectionStringLoket,
-                tConnectionStr: AppSettings.ConnectionString,
-                tableName: "rekening_nonair_transaksi",
-                queryPath: @"Queries\tagihan_manual\nonair_transaksi.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[table]", "nonair" },
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                });
-
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
             });
         }
 

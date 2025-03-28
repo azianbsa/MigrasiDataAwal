@@ -6,8 +6,8 @@ a.jumlahtermin,
 a.noangsuran AS noangsuran1,
 b.*
 FROM `daftarangsuran` a
-LEFT JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
-WHERE a.`keperluan`<>'JNS-36';
+JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
+WHERE a.`keperluan`<>'JNS-36' AND b.jenis<>'JNS-38';
 
 SELECT
 @idpdam,
