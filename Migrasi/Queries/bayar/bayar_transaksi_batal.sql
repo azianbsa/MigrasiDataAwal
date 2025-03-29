@@ -57,4 +57,6 @@ JOIN pelanggan pel ON pel.nosamb=rek.nosamb
 JOIN __tmp_periode per ON per.periode=rek.periode
 LEFT JOIN __tmp_userloket usr ON usr.nama=rek.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket=rek.loketbayar
-WHERE rek.flagangsur=0 AND rek.flagbatal=1
+WHERE rek.flagangsur=0
+AND rek.flagbatal=1
+AND DATE(rek.tglbatal)<=@cutoff

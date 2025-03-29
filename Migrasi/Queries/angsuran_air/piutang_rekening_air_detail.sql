@@ -13,12 +13,13 @@ CREATE TEMPORARY TABLE __tmp_angsuranair AS
 SELECT
 b.id,
 b.noangsuran,
-CONCAT(a.periode,'.',a.nomor) AS kode,
+CONCAT(a.periode,'.',a.dibebankankepada) AS kode,
 b.flaglunas
 FROM detailangsuran a
 JOIN daftarangsuran b ON b.noangsuran=a.noangsuran
 WHERE b.keperluan='JNS-36'
-GROUP BY a.periode,a.nomor;
+AND DATE(b.waktuupload)<=@cutoff
+GROUP BY a.periode,a.dibebankankepada;
 
 SELECT
 @idpdam,

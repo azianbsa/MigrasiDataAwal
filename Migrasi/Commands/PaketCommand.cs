@@ -16,6 +16,9 @@ namespace Migrasi.Commands
 
             [CommandOption("-n|--nama-paket")]
             public Paket? NamaPaket { get; set; }
+
+            [CommandOption("-c|--cutoff")]
+            public string Cutoff { get; set; } = DateTime.Now.AddDays(-1).Date.ToString(format: "yyyy-MM-dd");
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -755,12 +758,11 @@ namespace Migrasi.Commands
                             .AddColumn(new TableColumn("Value"))
                             .AddRow("Pdam", $"{settings.IdPdam} {namaPdam}")
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
-                            .AddRow("DB Bacameter V4", AppSettings.DatabaseBacameter)
-                            .AddRow("DB Billing V4", AppSettings.DatabaseBsbs)
-                            .AddRow("DB Loket V4", AppSettings.DatabaseLoket)
-                            .AddRow("Host Target", AppSettings.Host)
-                            .AddRow("Port Target", AppSettings.Port.ToString())
-                            .AddRow("DB Target", AppSettings.Database)
+                            .AddRow("Cutoff (piutang,bayar,nonair,angsuran air,angsuran nonair)", settings.Cutoff)
+                            .AddRow("Bacameter V4", AppSettings.ConnectionStringBacameter)
+                            .AddRow("Billing V4", AppSettings.ConnectionStringBsbs)
+                            .AddRow("Loket V4", AppSettings.ConnectionStringLoket)
+                            .AddRow("Target", AppSettings.ConnectionString)
                             .AddRow("Environment", AppSettings.Environment.ToString()));
 
                         if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
@@ -955,7 +957,20 @@ namespace Migrasi.Commands
             await Utils.ClientLoket(async (conn, trans) =>
             {
                 listPeriode = await conn.QueryAsync<int>(
-                    sql: @"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair GROUP BY periode) a GROUP BY a.periode",
+                    sql: @"
+                    SELECT
+                    a.periode
+                    FROM (
+                    SELECT
+                    CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode
+                    FROM nonair
+                    WHERE DATE(COALESCE(`waktuinput`,`waktuupdate`))<=@cutoff
+                    GROUP BY periode
+                    ) a GROUP BY a.periode",
+                    param: new
+                    {
+                        cutoff = settings.Cutoff
+                    },
                     transaction: trans);
             });
 
@@ -1015,14 +1030,15 @@ namespace Migrasi.Commands
                         queryPath: @"Queries\nonair\nonair.sql",
                         parameters: new()
                         {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                        { "@lastid", lastId },
+                            { "@idpdam", settings.IdPdam },
+                            { "@periode", periode },
+                            { "@lastid", lastId },
+                            { "@cutoff", settings.Cutoff },
                         },
                         placeholders: new()
                         {
-                                                        { "[table]", "nonair" },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                            { "[table]", "nonair" },
+                            { "[bsbs]", AppSettings.DatabaseBsbs },
                         });
                 });
 
@@ -1035,13 +1051,14 @@ namespace Migrasi.Commands
                         queryPath: @"Queries\nonair\nonair_detail.sql",
                         parameters: new()
                         {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                        { "@lastid", lastId },
+                            { "@idpdam", settings.IdPdam },
+                            { "@periode", periode },
+                            { "@lastid", lastId },
+                            { "@cutoff", settings.Cutoff },
                         },
                         placeholders: new()
                         {
-                                                        { "[table]", "nonair" },
+                            { "[table]", "nonair" },
                         });
                 });
 
@@ -1054,15 +1071,16 @@ namespace Migrasi.Commands
                         queryPath: @"Queries\nonair\nonair_transaksi.sql",
                         parameters: new()
                         {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
-                                                        { "@lastid", lastId },
+                            { "@idpdam", settings.IdPdam },
+                            { "@periode", periode },
+                            { "@lastid", lastId },
+                            { "@cutoff", settings.Cutoff },
                         },
                         placeholders: new()
                         {
-                                                        { "[table]", "nonair" },
-                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                            { "[table]", "nonair" },
+                            { "[bacameter]", AppSettings.DatabaseBacameter },
+                            { "[bsbs]", AppSettings.DatabaseBsbs },
                         });
                 });
             }
@@ -1076,15 +1094,27 @@ namespace Migrasi.Commands
                     queryPath: @"Queries\nonair\nonair_transaksi_batal.sql",
                     parameters: new()
                     {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastId },
+                        { "@idpdam", settings.IdPdam },
+                        { "@lastid", lastId },
+                        { "@cutoff", settings.Cutoff },
                     },
                     placeholders: new()
                     {
-                                                        { "[table]", "nonair" },
-                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                        { "[table]", "nonair" },
+                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                        { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
+            });
+
+            await Utils.TrackProgress($"nonair-patch", async () =>
+            {
+                await Utils.Client(async (conn, trans) =>
+                {
+                    await conn.ExecuteAsync(
+                        sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
+                        transaction: trans,
+                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                });
             });
 
             await Utils.ClientLoket(async (conn, trans) =>
@@ -1092,7 +1122,6 @@ namespace Migrasi.Commands
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
             });
         }
-
         private async Task NonairTahun(Settings settings)
         {
             IEnumerable<string?> nonairTahun = [];
@@ -1115,7 +1144,20 @@ namespace Migrasi.Commands
                     await Utils.ClientLoket(async (conn, trans) =>
                     {
                         listPeriode = await conn.QueryAsync<int>(
-                            sql: $@"SELECT a.periode FROM (SELECT CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode FROM nonair{tahun} GROUP BY periode) a GROUP BY a.periode",
+                            sql: $@"
+                            SELECT
+                            a.periode
+                            FROM (
+                            SELECT
+                            CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode
+                            FROM nonair{tahun}
+                            WHERE DATE(COALESCE(`waktuinput`,`waktuupdate`))<=@cutoff
+                            GROUP BY periode
+                            ) a GROUP BY a.periode",
+                            param: new
+                            {
+                                cutoff = settings.Cutoff
+                            },
                             transaction: trans);
                     });
 
@@ -1174,14 +1216,15 @@ namespace Migrasi.Commands
                                 queryPath: @"Queries\nonair\nonair.sql",
                                 parameters: new()
                                 {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                                { "@lastid", lastId },
+                                    { "@idpdam", settings.IdPdam },
+                                    { "@periode", periode },
+                                    { "@lastid", lastId },
+                                    { "@cutoff", settings.Cutoff },
                                 },
                                 placeholders: new()
                                 {
-                                                                { "[table]", $"nonair{tahun}" },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                    { "[table]", $"nonair{tahun}" },
+                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
 
@@ -1194,13 +1237,14 @@ namespace Migrasi.Commands
                                 queryPath: @"Queries\nonair\nonair_detail.sql",
                                 parameters: new()
                                 {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                                { "@lastid", lastId },
+                                    { "@idpdam", settings.IdPdam },
+                                    { "@periode", periode },
+                                    { "@lastid", lastId },
+                                    { "@cutoff", settings.Cutoff },
                                 },
                                 placeholders: new()
                                 {
-                                                                { "[table]", $"nonair{tahun}" },
+                                    { "[table]", $"nonair{tahun}" },
                                 });
                         });
 
@@ -1213,15 +1257,16 @@ namespace Migrasi.Commands
                                 queryPath: @"Queries\nonair\nonair_transaksi.sql",
                                 parameters: new()
                                 {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
-                                                                { "@lastid", lastId },
+                                    { "@idpdam", settings.IdPdam },
+                                    { "@periode", periode },
+                                    { "@lastid", lastId },
+                                    { "@cutoff", settings.Cutoff },
                                 },
                                 placeholders: new()
                                 {
-                                                                { "[table]", $"nonair{tahun}" },
-                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                    { "[table]", $"nonair{tahun}" },
+                                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
                     }
@@ -1235,25 +1280,36 @@ namespace Migrasi.Commands
                             queryPath: @"Queries\nonair\nonair_transaksi_batal.sql",
                             parameters: new()
                             {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@lastid", lastId },
+                                { "@idpdam", settings.IdPdam },
+                                { "@lastid", lastId },
+                                { "@cutoff", settings.Cutoff },
                             },
                             placeholders: new()
                             {
-                                                                { "[table]", $"nonair{tahun}" },
-                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                { "[table]", $"nonair{tahun}" },
+                                { "[bacameter]", AppSettings.DatabaseBacameter },
+                                { "[bsbs]", AppSettings.DatabaseBsbs },
                             });
                     });
                 });
             }
+
+            await Utils.TrackProgress($"nonair tahun-patch", async () =>
+            {
+                await Utils.Client(async (conn, trans) =>
+                {
+                    await conn.ExecuteAsync(
+                        sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
+                        transaction: trans,
+                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                });
+            });
 
             await Utils.ClientLoket(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
             });
         }
-
         private async Task Piutang(Settings settings)
         {
             var lastId = 0;
@@ -1269,13 +1325,14 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\piutang\piutang.sql",
                 parameters: new()
                 {
-                                                { "@idpdam", settings.IdPdam },
-                                                { "@lastid", lastId },
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastId },
+                    { "@cutoff", settings.Cutoff },
                 },
                 placeholders: new()
                 {
-                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -1285,14 +1342,14 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\piutang\piutang_detail.sql",
                 parameters: new()
                 {
-                                                { "@idpdam", settings.IdPdam },
+                    { "@idpdam", settings.IdPdam },
+                    { "@cutoff", settings.Cutoff },
                 },
                 placeholders: new()
                 {
-                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
-
         private async Task BayarTahun(Settings settings)
         {
             IEnumerable<string?> bayarTahun = [];
@@ -1311,7 +1368,17 @@ namespace Migrasi.Commands
                     IEnumerable<int>? listPeriode = [];
                     await Utils.ClientLoket(async (conn, trans) =>
                     {
-                        listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar{tahun} GROUP BY periode", transaction: trans);
+                        listPeriode = await conn.QueryAsync<int>(
+                            sql: $@"
+                            SELECT periode
+                            FROM bayar{tahun}
+                            WHERE DATE(`tglbayar`)<=@cutoff
+                            GROUP BY periode",
+                            param: new
+                            {
+                                cutoff = settings.Cutoff,
+                            },
+                            transaction: trans);
                     });
 
                     foreach (var periode in listPeriode)
@@ -1331,15 +1398,16 @@ namespace Migrasi.Commands
                                 queryPath: @"Queries\bayar\bayar.sql",
                                 parameters: new()
                                 {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@lastid", lastId },
-                                                                { "@periode", periode },
+                                    { "@idpdam", settings.IdPdam },
+                                    { "@lastid", lastId },
+                                    { "@periode", periode },
+                                    { "@cutoff", settings.Cutoff },
                                 },
                                 placeholders: new()
                                 {
-                                                                { "[table]", $"bayar{tahun}" },
-                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                    { "[table]", $"bayar{tahun}" },
+                                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
 
@@ -1352,13 +1420,14 @@ namespace Migrasi.Commands
                                 queryPath: @"Queries\bayar\bayar_detail.sql",
                                 parameters: new()
                                 {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
+                                    { "@idpdam", settings.IdPdam },
+                                    { "@periode", periode },
+                                    { "@cutoff", settings.Cutoff },
                                 },
                                 placeholders: new()
                                 {
-                                                                { "[table]", $"bayar{tahun}" },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                    { "[table]", $"bayar{tahun}" },
+                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
 
@@ -1371,14 +1440,15 @@ namespace Migrasi.Commands
                                 queryPath: @"Queries\bayar\bayar_transaksi.sql",
                                 parameters: new()
                                 {
-                                                                { "@idpdam", settings.IdPdam },
-                                                                { "@periode", periode },
+                                    { "@idpdam", settings.IdPdam },
+                                    { "@periode", periode },
+                                    { "@cutoff", settings.Cutoff },
                                 },
                                 placeholders: new()
                                 {
-                                                                { "[table]", $"bayar{tahun}" },
-                                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                                    { "[table]", $"bayar{tahun}" },
+                                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
                     }
@@ -1392,21 +1462,31 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
                 parameters: new()
                 {
-                                                { "@idpdam", settings.IdPdam },
+                    { "@idpdam", settings.IdPdam },
+                    { "@cutoff", settings.Cutoff },
                 },
                 placeholders: new()
                 {
-                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
-
         private async Task Bayar(Settings settings)
         {
             IEnumerable<int>? listPeriode = [];
             await Utils.ClientLoket(async (conn, trans) =>
             {
-                listPeriode = await conn.QueryAsync<int>(sql: $@"SELECT periode FROM bayar GROUP BY periode", transaction: trans);
+                listPeriode = await conn.QueryAsync<int>(
+                    sql: @"
+                    SELECT periode
+                    FROM bayar
+                    WHERE DATE(`tglbayar`)<=@cutoff
+                    GROUP BY periode",
+                    param: new
+                    {
+                        cutoff = settings.Cutoff,
+                    },
+                    transaction: trans);
             });
 
             foreach (var periode in listPeriode)
@@ -1426,15 +1506,16 @@ namespace Migrasi.Commands
                         queryPath: @"Queries\bayar\bayar.sql",
                         parameters: new()
                         {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@lastid", lastId },
-                                                        { "@periode", periode },
+                            { "@idpdam", settings.IdPdam },
+                            { "@lastid", lastId },
+                            { "@periode", periode },
+                            { "@cutoff", settings.Cutoff },
                         },
                         placeholders: new()
                         {
-                                                        { "[table]", "bayar" },
-                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                            { "[table]", "bayar" },
+                            { "[bacameter]", AppSettings.DatabaseBacameter },
+                            { "[bsbs]", AppSettings.DatabaseBsbs },
                         });
                 });
 
@@ -1447,13 +1528,14 @@ namespace Migrasi.Commands
                         queryPath: @"Queries\bayar\bayar_detail.sql",
                         parameters: new()
                         {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
+                            { "@idpdam", settings.IdPdam },
+                            { "@periode", periode },
+                            { "@cutoff", settings.Cutoff },
                         },
                         placeholders: new()
                         {
-                                                        { "[table]", "bayar" },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                            { "[table]", "bayar" },
+                            { "[bsbs]", AppSettings.DatabaseBsbs },
                         });
                 });
 
@@ -1466,14 +1548,15 @@ namespace Migrasi.Commands
                         queryPath: @"Queries\bayar\bayar_transaksi.sql",
                         parameters: new()
                         {
-                                                        { "@idpdam", settings.IdPdam },
-                                                        { "@periode", periode },
+                            { "@idpdam", settings.IdPdam },
+                            { "@periode", periode },
+                            { "@cutoff", settings.Cutoff },
                         },
                         placeholders: new()
                         {
-                                                        { "[table]", "bayar" },
-                                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                            { "[table]", "bayar" },
+                            { "[bacameter]", AppSettings.DatabaseBacameter },
+                            { "[bsbs]", AppSettings.DatabaseBsbs },
                         });
                 });
             }
@@ -1485,12 +1568,13 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
                 parameters: new()
                 {
-                                                { "@idpdam", settings.IdPdam },
+                    { "@idpdam", settings.IdPdam },
+                    { "@cutoff", settings.Cutoff },
                 },
                 placeholders: new()
                 {
-                                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[bacameter]", AppSettings.DatabaseBacameter },
+                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
         private async Task RabLainnyaPelanggan(Settings settings)
@@ -1692,7 +1776,6 @@ namespace Migrasi.Commands
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_badetail", transaction: trans);
             });
         }
-
         private async Task AirTangkiPelanggan(Settings settings)
         {
             var lastId = 0;
@@ -1803,7 +1886,6 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
-
         private async Task AirTangkiNonPelanggan(Settings settings)
         {
             var lastId = 0;
@@ -1914,7 +1996,6 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
-
         private async Task AngsuranNonair(Settings settings)
         {
             IEnumerable<dynamic>? jenis = [];
@@ -1964,6 +2045,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@cutoff", settings.Cutoff },
                 },
                 placeholders: new()
                 {
@@ -1978,6 +2060,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@cutoff", settings.Cutoff },
                 });
 
             await Utils.BulkCopy(
@@ -1988,6 +2071,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@cutoff", settings.Cutoff },
                 },
                 placeholders: new()
                 {
@@ -2003,12 +2087,24 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
+                    { "@cutoff", settings.Cutoff },
                 },
                 placeholders: new()
                 {
                     { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
+
+            await Utils.TrackProgress($"angsuran nonair-patch", async () =>
+            {
+                await Utils.Client(async (conn, trans) =>
+                {
+                    await conn.ExecuteAsync(
+                        sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
+                        transaction: trans,
+                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                });
+            });
 
             await Utils.ClientLoket(async (conn, trans) =>
             {
@@ -2018,7 +2114,6 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
         }
-
         private async Task AngsuranAir(Settings settings)
         {
             await Utils.TrackProgress($"angsuran air piutang|rekening_air", async () =>
@@ -2030,7 +2125,7 @@ namespace Migrasi.Commands
                         sql: @"
                         TRUNCATE TABLE `rekening_air_angsuran`;
                         TRUNCATE TABLE `rekening_air_angsuran_detail`;",
-                    transaction: trans);
+                        transaction: trans);
 
                     lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                 });
@@ -2044,6 +2139,7 @@ namespace Migrasi.Commands
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@lastid", lastId },
+                        { "@cutoff", settings.Cutoff },
                     },
                     placeholders: new()
                     {
@@ -2062,6 +2158,7 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
+                        { "@cutoff", settings.Cutoff },
                     },
                     placeholders: new()
                     {
@@ -2086,6 +2183,7 @@ namespace Migrasi.Commands
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@lastid", lastId },
+                        { "@cutoff", settings.Cutoff },
                     },
                     placeholders: new()
                     {
@@ -2104,6 +2202,7 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
+                        { "@cutoff", settings.Cutoff },
                     },
                     placeholders: new()
                     {
@@ -2128,6 +2227,7 @@ namespace Migrasi.Commands
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@jnsnonair", jnsNonair },
+                        { "@cutoff", settings.Cutoff },
                     },
                     placeholders: new()
                     {
@@ -2146,6 +2246,7 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
+                        { "@cutoff", settings.Cutoff },
                     },
                     placeholders: new()
                     {
@@ -2154,59 +2255,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
-        private async Task NonairMeteraiTahun(Settings settings)
-        {
-            IEnumerable<string?> nonairTahun = [];
-            await Utils.ClientLoket(async (conn, trans) =>
-            {
-                nonairTahun = await conn.QueryAsync<string?>(
-                    sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'nonair[0-9]{4}'",
-                    param: new
-                    {
-                        table_schema = AppSettings.DatabaseLoket
-                    },
-                    transaction: trans);
-            });
-
-            foreach (var tahun in nonairTahun)
-            {
-                await Utils.TrackProgress($"nonair{tahun}", async () =>
-                {
-                    await Utils.BulkCopy(
-                        sConnectionStr: AppSettings.ConnectionStringLoket,
-                        tConnectionStr: AppSettings.ConnectionString,
-                        tableName: "rekening_nonair_detail",
-                        queryPath: @"Queries\nonair\nonair_meterai.sql",
-                        parameters: new()
-                        {
-                            { "@idpdam", settings.IdPdam },
-                        },
-                        placeholders: new()
-                        {
-                            { "[table]", $"nonair{tahun}" },
-                        });
-                });
-            }
-        }
-
-        private async Task NonairMeterai(Settings settings)
-        {
-            await Utils.BulkCopy(
-                sConnectionStr: AppSettings.ConnectionStringLoket,
-                tConnectionStr: AppSettings.ConnectionString,
-                tableName: "rekening_nonair_detail",
-                queryPath: @"Queries\nonair\nonair_meterai.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[table]", "nonair" },
-                });
-        }
-
         private async Task KoreksiData(Settings settings)
         {
             var lastId = 0;
@@ -2260,7 +2308,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
         private async Task Report(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_label_report", async () =>
@@ -2390,7 +2437,6 @@ namespace Migrasi.Commands
                     queryPath: @"Queries\master\report\report_filter_custom_detail.sql");
             });
         }
-
         private async Task PaketRab(Settings settings)
         {
             await Utils.Client(async (conn, trans) =>
@@ -2414,7 +2460,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
         private async Task PaketOngkos(Settings settings)
         {
             await Utils.Client(async (conn, trans) =>
@@ -2466,7 +2511,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
         private async Task PaketMaterial(Settings settings)
         {
             await Utils.Client(async (conn, trans) =>
@@ -2518,7 +2562,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
         private async Task TipePermohonan(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_tipe_permohonan", async () =>
@@ -2573,7 +2616,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
         private async Task MasterData(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_flag", async () =>
@@ -3146,7 +3188,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
         private async Task JenisNonair(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_jenis_nonair", async () =>
@@ -3175,7 +3216,6 @@ namespace Migrasi.Commands
                     });
             });
         }
-
         private async Task RotasimeterNonrutin(Settings settings)
         {
             var lastId = 0;
@@ -3324,7 +3364,6 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
         }
-
         private async Task Rotasimeter(Settings settings)
         {
             var lastId = 0;
@@ -3432,7 +3471,6 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
         }
-
         private async Task KoreksiRekair(Settings settings)
         {
             var lastId = 0;
@@ -3486,7 +3524,6 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
-
         private async Task SambungBaru(Settings settings)
         {
             var lastId = 0;
@@ -3680,7 +3717,6 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
-
         private async Task BukaSegel(Settings settings)
         {
             var lastId = 0;
@@ -3784,7 +3820,6 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
-
         private async Task SambungKembali(Settings settings)
         {
             var lastId = 0;
@@ -3964,7 +3999,6 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
-
         private async Task RubahRayon(Settings settings)
         {
             var lastId = 0;
@@ -4082,7 +4116,6 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
-
         private async Task RubahTarif(Settings settings)
         {
             var lastId = 0;
@@ -4213,7 +4246,6 @@ namespace Migrasi.Commands
                     commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
             });
         }
-
         private async Task BalikNama(Settings settings)
         {
             var lastId = 0;
@@ -4321,7 +4353,6 @@ namespace Migrasi.Commands
                 });
             }
         }
-
         private async Task TutupTotal(Settings settings)
         {
             var lastId = 0;
@@ -4425,7 +4456,6 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
-
         private async Task PengaduanPelanggan(Settings settings)
         {
             var lastId = 0;
@@ -4631,7 +4661,6 @@ namespace Migrasi.Commands
                 await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_tipepermohonan", transaction: trans);
             });
         }
-
         private async Task PengaduanNonPelanggan(Settings settings)
         {
             var lastId = 0;

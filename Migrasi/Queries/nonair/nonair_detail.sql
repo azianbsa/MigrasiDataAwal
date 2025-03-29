@@ -5,7 +5,9 @@ SELECT
 urutan
 FROM [table]
 ,(SELECT @id:=@lastid) AS id
-WHERE flagangsur=0 AND jenis<>'JNS-38';
+WHERE flagangsur=0
+AND jenis<>'JNS-38'
+AND DATE(COALESCE(waktuinput,waktuupdate))<=@cutoff;
 
 SELECT
 @idpdam,

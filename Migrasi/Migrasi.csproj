@@ -187,6 +187,9 @@
     <None Update="Queries\bayar\bayar_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\nonair\patch.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\nonair\nonair_transaksi_batal.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

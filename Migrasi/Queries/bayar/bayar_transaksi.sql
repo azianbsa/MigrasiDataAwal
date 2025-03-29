@@ -58,5 +58,5 @@ JOIN __tmp_periode per ON per.periode=rek.periode
 LEFT JOIN __tmp_userloket usr ON usr.nama=rek.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket=rek.loketbayar
 WHERE rek.periode=@periode
-AND rek.tglbayar IS NOT NULL
 AND rek.flagangsur=0
+AND DATE(rek.tglbayar)<=@cutoff

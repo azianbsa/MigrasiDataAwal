@@ -52,3 +52,4 @@ JOIN pelanggan p ON p.nosamb=a.dibebankankepada
 LEFT JOIN __tmp_userloket usr ON usr.nama=a.userdaftar
 LEFT JOIN ba_angsuran ba ON ba.noangsuran=a.noangsuran AND ba.flaghapus=0
 WHERE a.keperluan='JNS-36'
+AND DATE(a.waktuupload)<=@cutoff

@@ -17,7 +17,9 @@ a.noangsuran AS noangsuran1,
 b.*
 FROM `daftarangsuran` a
 JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
-WHERE a.`keperluan`<>'JNS-36' AND b.jenis<>'JNS-38';
+WHERE a.`keperluan`<>'JNS-36' 
+AND b.jenis<>'JNS-38'
+AND DATE(a.waktuupload)<=@cutoff;
 
 SELECT
 @idpdam,

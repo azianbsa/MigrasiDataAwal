@@ -24,10 +24,10 @@ IFNULL(rek.prog4, 0) AS prog4,
 IFNULL(rek.prog5, 0) AS prog5
 FROM
 [table] rek
-JOIN pelanggan pel ON pel.nosamb = rek.nosamb
-JOIN __tmp_periode per ON per.periode = rek.periode
-,(SELECT @id := 0) AS id
-WHERE rek.periode = @periode
-AND rek.flaglunas = 1
-AND rek.flagbatal = 0
-AND rek.flagangsur = 0
+JOIN pelanggan pel ON pel.nosamb=rek.nosamb
+JOIN __tmp_periode per ON per.periode=rek.periode
+WHERE rek.periode=@periode
+AND rek.flaglunas=1
+AND rek.flagbatal=0
+AND rek.flagangsur=0
+AND DATE(rek.tglbayar)<=@cutoff
