@@ -55,7 +55,7 @@ SELECT
 pel.id AS idpelangganair,
 per.idperiode AS idperiode,
 gol.id AS idgolongan,
-dia.id AS iddiameter,
+COALESCE(dia.id,-1) AS iddiameter,
 1 AS idjenispipa,
 1 AS idkwh,
 ray.id AS idrayon,
