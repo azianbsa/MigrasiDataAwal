@@ -59,4 +59,5 @@ LEFT JOIN __tmp_userloket usr ON usr.nama=rek.kasir
 LEFT JOIN __tmp_loket lo ON lo.kodeloket=rek.loketbayar
 WHERE rek.flagangsur=0
 AND rek.flagbatal=1
+AND rek.kode NOT LIKE '%\_'
 AND DATE(rek.tglbatal)<=@cutoff
