@@ -2095,12 +2095,23 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
-            await Utils.TrackProgress($"angsuran nonair-patch", async () =>
+            await Utils.TrackProgress($"angsuran nonair|patch0", async () =>
             {
                 await Utils.Client(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
+                        transaction: trans,
+                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                });
+            });
+
+            await Utils.TrackProgress("angsuran nonair|patch1", async () =>
+            {
+                await Utils.Client(async (conn, trans) =>
+                {
+                    await conn.ExecuteAsync(
+                        sql: await File.ReadAllTextAsync(@"Queries\angsuran_nonair\patch.sql"),
                         transaction: trans,
                         commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
                 });
@@ -2253,6 +2264,17 @@ namespace Migrasi.Commands
                         { "[bacameter]", AppSettings.DatabaseBacameter },
                         { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
+            });
+
+            await Utils.TrackProgress("angsuran air|patch", async () =>
+            {
+                await Utils.Client(async (conn, trans) =>
+                {
+                    await conn.ExecuteAsync(
+                        sql: await File.ReadAllTextAsync(@"Queries\angsuran_air\patch.sql"),
+                        transaction: trans,
+                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                });
             });
         }
         private async Task KoreksiData(Settings settings)
