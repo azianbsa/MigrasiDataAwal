@@ -75,6 +75,7 @@ NULL AS `idkondisimeter`,
 NULL AS `idadministrasilain`,
 NULL AS `idpemeliharaanlain`,
 NULL AS `idretribusilain`,
+NULL AS `idkategorikawasan`,
 NULL AS `noserimeter`,
 NULL AS `tglmeter`,
 NULL AS `urutanbaca`,
@@ -119,11 +120,7 @@ NULL AS `waktuverifikasi`,
 0 AS `flaghapus`,
 COALESCE(pp.`tglditerima`,NOW()) AS `waktuupdate`,
 NULL AS `airyangdigunakansebelumnya`,
-IF(ba.nomorba IS NOT NULL,
- 'Selesai',
- IF(ba.nomorspk IS NOT NULL,
-  'Menunggu Berita Acara',
-  'Menunggu SPK Pemasangan')) AS statuspermohonan
+IF(ba.nomorba IS NOT NULL,'Selesai',IF(ba.nomorspk IS NOT NULL,'Menunggu Berita Acara','Menunggu SPK Pemasangan')) AS statuspermohonan
 FROM
 __tmp_pengaduan p
 JOIN pengaduan pp ON p.nomor=pp.nomor
