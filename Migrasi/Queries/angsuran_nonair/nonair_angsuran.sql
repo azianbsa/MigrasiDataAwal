@@ -28,7 +28,7 @@ FROM `daftarangsuran` a
 LEFT JOIN nonair b ON b.`urutan`=a.`urutan_nonair`
 WHERE a.`keperluan`<>'JNS-36'
 AND b.jenis<>'JNS-38'
-AND DATE(a.waktuupload)<=@cutoff;
+AND (DATE(a.waktuupload)<=@cutoff OR a.flagupload=0);
 
 SELECT
 @idpdam,
