@@ -47,7 +47,7 @@ b.flaglunas
 FROM detailangsuran a
 JOIN daftarangsuran b ON b.noangsuran=a.noangsuran
 WHERE b.keperluan='JNS-36'
-AND (DATE(b.waktuupload)=@cutoff OR b.flagupload=0)
+AND (DATE(b.waktuupload)<=@cutoff OR b.flagupload=0)
 GROUP BY a.periode,a.dibebankankepada;
 
 SELECT
