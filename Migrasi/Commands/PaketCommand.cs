@@ -964,7 +964,7 @@ namespace Migrasi.Commands
                     SELECT
                     CASE WHEN periode IS NULL OR periode='' THEN -1 ELSE periode END AS periode
                     FROM nonair
-                    WHERE DATE(COALESCE(`waktuinput`,`waktuupdate`))<=@cutoff
+                    WHERE DATE(COALESCE(`waktuinput`,`waktuupdate`))=@cutoff
                     GROUP BY periode
                     ) a GROUP BY a.periode",
                     param: new
@@ -1480,7 +1480,7 @@ namespace Migrasi.Commands
                     sql: @"
                     SELECT periode
                     FROM bayar
-                    WHERE DATE(`tglbayar`)<=@cutoff
+                    WHERE DATE(`tglbayar`)=@cutoff
                     GROUP BY periode",
                     param: new
                     {

@@ -31,4 +31,4 @@ AND rek.flaglunas=1
 AND rek.flagbatal=0
 AND rek.flagangsur=0
 AND rek.kode NOT LIKE '%\_'
-AND DATE(rek.tglbayar)<=@cutoff
+AND DATE(rek.tglbayar)=@cutoff

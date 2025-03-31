@@ -25,4 +25,4 @@ IFNULL(rek.prog5, 0) AS prog5
 FROM piutang rek
 JOIN pelanggan pel ON pel.nosamb = rek.nosamb
 JOIN __tmp_periode per ON per.periode = rek.periode
-WHERE DATE(rek.tglupload)<=@cutoff
+WHERE rek.periode=202503

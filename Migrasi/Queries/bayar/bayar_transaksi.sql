@@ -60,4 +60,4 @@ LEFT JOIN __tmp_loket lo ON lo.kodeloket=rek.loketbayar
 WHERE rek.periode=@periode
 AND rek.flagangsur=0
 AND rek.kode NOT LIKE '%\_'
-AND DATE(rek.tglbayar)<=@cutoff
+AND DATE(rek.tglbayar)=@cutoff

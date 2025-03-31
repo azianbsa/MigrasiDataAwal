@@ -150,4 +150,4 @@ LEFT JOIN [bsbs].byretribusi_lain ret ON ret.kode=rek.koderetribusilain
 LEFT JOIN [bacameter].`petugasbaca` pbc ON pbc.nama=TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
 LEFT JOIN [bacameter].kelainan kln ON kln.kelainan=rek.kelainan
 ,(SELECT @id:=@lastid) AS id
-WHERE DATE(rek.tglupload)<=@cutoff
+WHERE rek.periode=202503
