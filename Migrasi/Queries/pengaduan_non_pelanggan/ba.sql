@@ -43,14 +43,13 @@ NULL AS distribusinamapaket,
 NULL AS fotobukti1,
 NULL AS fotobukti2,
 NULL AS fotobukti3,
+NULL AS `fotobukti4`,
+NULL AS `fotobukti5`,
+NULL AS `fotobukti6`,
 0 AS flagbatal,
 NULL AS idalasanbatal,
 0 AS flag_dari_verifikasi,
-CASE
-WHEN b.status='Dapat Di Kerjakan' THEN 'Berhasil Dikerjakan' 
-WHEN b.status='Tidak Dapat Dikerjakan' THEN 'Tidak Berhasil Dikerjakan'
-WHEN b.status IS NULL THEN 'Berhasil Dikerjakan' 
-END AS statusberitaacara,
+CASE WHEN b.status='Dapat Di Kerjakan' THEN 'Berhasil Dikerjakan'  WHEN b.status='Tidak Dapat Dikerjakan' THEN 'Tidak Berhasil Dikerjakan' WHEN b.status IS NULL THEN 'Berhasil Dikerjakan'  END AS statusberitaacara,
 COALESCE(b.tgldiselesaikan,NOW()) AS waktuupdate
 FROM
 __tmp_pengaduan p
