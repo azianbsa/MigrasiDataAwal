@@ -4493,7 +4493,7 @@ namespace Migrasi.Commands
                     b.kodejenisnonair
                     FROM master_attribute_tipe_permohonan a
                     JOIN master_attribute_jenis_nonair b ON b.idpdam=a.idpdam AND b.idjenisnonair=a.idjenisnonair
-                    WHERE a.idpdam=@idpdam AND a.flaghapus=0",
+                    WHERE a.idpdam=@idpdam AND a.flaghapus=0 AND a.flagaktif=1",
                     param: new
                     {
                         idpdam = settings.IdPdam
@@ -4698,7 +4698,7 @@ namespace Migrasi.Commands
                     b.kodejenisnonair
                     FROM master_attribute_tipe_permohonan a
                     JOIN master_attribute_jenis_nonair b ON b.idpdam=a.idpdam AND b.idjenisnonair=a.idjenisnonair
-                    WHERE a.idpdam=@idpdam AND a.flaghapus=0 AND a.kategori='Pengaduan'",
+                    WHERE a.idpdam=@idpdam AND a.flaghapus=0 AND a.flagaktif=1",
                     param: new
                     {
                         idpdam = settings.IdPdam

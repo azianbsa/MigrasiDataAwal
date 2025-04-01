@@ -14,13 +14,13 @@ SELECT
 a.nama,
 a.namauser
 FROM (
-SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
+SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses` WHERE aktif=1
 UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses` WHERE aktif=1
 UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket` WHERE flagaktif=1
 UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
+SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl` WHERE flagaktif=1
 ) a,
 (SELECT @id := 0) AS id
 GROUP BY a.namauser;
