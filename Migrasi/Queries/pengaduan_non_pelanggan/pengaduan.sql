@@ -124,7 +124,7 @@ IF(ba.nomorba IS NOT NULL,'Selesai',IF(ba.nomorspk IS NOT NULL,'Menunggu Berita 
 FROM
 __tmp_pengaduan p
 JOIN pengaduan pp ON p.nomor=pp.nomor
-LEFT JOIN spk_pengaduan ba ON ba.nomorpengaduan=pp.nomor
+LEFT JOIN spk_pengaduan ba ON ba.nomorpengaduan=pp.nomor AND ba.flaghapus=0
 LEFT JOIN __tmp_userloket usr ON usr.nama=pp.user
 LEFT JOIN __tmp_sumberpengaduan s ON s.sumberpengaduan=pp.sumberpengaduan
 LEFT JOIN __tmp_tipepermohonan t ON t.kodejenisnonair=pp.kategori

@@ -81,7 +81,7 @@ FROM
 __tmp_pengaduan pp
 JOIN pengaduan p ON p.nomor=pp.nomor
 JOIN pelanggan pel ON pel.nosamb=p.nosamb
-LEFT JOIN spk_pengaduan ba ON ba.nomorpengaduan=p.nomor
+LEFT JOIN spk_pengaduan ba ON ba.nomorpengaduan=p.nomor AND ba.flaghapus=0
 LEFT JOIN __tmp_userloket usr ON usr.nama=p.user
 LEFT JOIN __tmp_sumberpengaduan s ON s.sumberpengaduan=p.sumberpengaduan
 LEFT JOIN __tmp_tipepermohonan t ON t.kodejenisnonair=p.kategori

@@ -29,7 +29,7 @@ NULL AS kategoriputus,
 0 AS flagbatal,
 NULL AS idalasanbatal,
 NULL AS flag_dari_verifikasi,
-ba.`memo` AS statusberitaacara,
+'Berhasil Dikerjakan' AS statusberitaacara,
 ba.`tanggalba` AS waktuupdate
 FROM __tmp_tutup_total p
 JOIN `ba_pemutusan_sementara` ba ON ba.nomorpermohonan=p.nomor

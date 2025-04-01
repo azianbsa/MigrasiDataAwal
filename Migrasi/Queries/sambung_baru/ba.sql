@@ -28,8 +28,8 @@ NULL AS `fotobukti6`,
 0 AS flagbatal,
 NULL AS idalasanbatal,
 NULL AS flag_dari_verifikasi,
-ba.`keteranganmeter` AS statusberitaacara,
-ba.`tanggalba` AS waktuupdate
+'Berhasil Dikerjakan' AS statusberitaacara,
+NOW() AS waktuupdate
 FROM __tmp_pendaftaran p
 JOIN `rab` ba ON ba.`nomorreg`=p.`nomorreg`
 WHERE ba.flaghapus=0 AND ba.`nomorba` IS NOT NULL AND ba.`tanggalba` IS NOT NULL
