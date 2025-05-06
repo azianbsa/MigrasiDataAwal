@@ -496,7 +496,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBacameter,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_kelainan",
-                                            queryPath: @"Queries\master\master_attribute_kelainan.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_kelainan.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
@@ -508,7 +508,7 @@ namespace Migrasi.Commands
                                             sConnectionStr: AppSettings.ConnectionStringBacameter,
                                             tConnectionStr: AppSettings.ConnectionString,
                                             tableName: "master_attribute_petugas_baca",
-                                            queryPath: @"Queries\master\master_attribute_petugas_baca.sql",
+                                            queryPath: @"Queries\bacameter\master_attribute_petugas_baca.sql",
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
