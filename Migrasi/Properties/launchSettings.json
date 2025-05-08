@@ -2,7 +2,7 @@
   "profiles": {
     "Migrasi": {
       "commandName": "Project",
-      "commandLineArgs": "paket -i 3 -n basic"
+      "commandLineArgs": "paket -n bacameter"
     }
   }
 }
