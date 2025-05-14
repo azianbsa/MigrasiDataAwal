@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "Migrasi": {
+    "Basic": {
       "commandName": "Project",
-      "commandLineArgs": "new-bacameter"
+      "commandLineArgs": "register"
     }
   }
 }
