@@ -8,4 +8,14 @@ ket AS keterangan,
 NOW() AS waktuupdate
 FROM
 kolektif,
-(SELECT @id:=0) AS id;
+(SELECT @id:=0) AS id
+WHERE `kodekolektif`<>'-'
+UNION ALL
+SELECT
+@idpdam,
+-1 AS idkolektif,
+'-' AS kodekolektif,
+'-' AS namakolektif,
+'-' AS keterangan,
+0 AS flaghapus,
+NOW() AS waktuupdate

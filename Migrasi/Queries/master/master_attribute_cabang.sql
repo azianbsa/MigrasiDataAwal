@@ -1,9 +1,10 @@
 ﻿SELECT
- @idpdam,
- id AS idcabang,
- kodecabang,
- cabang AS namacabang,
- 0 AS flaghapus,
- NOW() AS waktuupdate
+@idpdam,
+@id:=@id+1 AS idcabang,
+kodecabang,
+cabang AS namacabang,
+0 AS flaghapus,
+NOW() AS waktuupdate
 FROM
- cabang;
+cabang
+,(SELECT @id:=0) AS id

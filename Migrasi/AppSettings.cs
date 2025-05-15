@@ -7,17 +7,36 @@ namespace Migrasi
     {
         public static Environment Environment { get; set; }
 
-        public static string HostConfig { get; set; }
-        public static uint PortConfig { get; set; }
-        public static string UserConfig { get; set; }
-        public static string PasswordConfig { get; set; }
-        public static string DatabaseConfig { get; set; }
+        public static string ConfigHost { get; set; }
+        public static uint ConfigPort { get; set; }
+        public static string ConfigUserId { get; set; }
+        public static string ConfigPassword { get; set; }
+        public static string ConfigDatabase { get; set; }
+        public static string ConfigConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = ConfigHost,
+            Port = ConfigPort,
+            UserID = ConfigUserId,
+            Password = ConfigPassword,
+            Database = ConfigDatabase,
+            AllowUserVariables = true,
+        }.ConnectionString;
 
-        public static string Host { get; set; }
-        public static uint Port { get; set; }
-        public static string User { get; set; }
-        public static string Password { get; set; }
-        public static string Database { get; set; }
+        public static string MainHost { get; set; }
+        public static uint MainPort { get; set; }
+        public static string MainUserId { get; set; }
+        public static string MainPassword { get; set; }
+        public static string MainDatabase { get; set; }
+        public static string MainConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = MainHost,
+            Port = MainPort,
+            UserID = MainUserId,
+            Password = MainPassword,
+            Database = MainDatabase,
+            AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
+        }.ConnectionString;
 
         public static string HostStaging { get; set; }
         public static uint PortStaging { get; set; }
@@ -45,31 +64,6 @@ namespace Migrasi
 
         public static int CommandTimeout { get; set; } = 3600;
 
-        public static string ConfigConnectionString => new MySqlConnectionStringBuilder
-        {
-            Server = HostConfig,
-            Port = PortConfig,
-            UserID = UserConfig,
-            Password = PasswordConfig,
-            Database = DatabaseConfig,
-            AllowUserVariables = true,
-            DefaultCommandTimeout = (uint)CommandTimeout,
-            ConnectionTimeout = (uint)CommandTimeout,
-        }.ConnectionString;
-
-        public static string ConnectionString => new MySqlConnectionStringBuilder
-        {
-            Server = Host,
-            Port = Port,
-            UserID = User,
-            Password = Password,
-            Database = Database,
-            AllowUserVariables = true,
-            AllowLoadLocalInfile = true,
-            AllowZeroDateTime = true,
-            DefaultCommandTimeout = (uint)CommandTimeout,
-            ConnectionTimeout = (uint)CommandTimeout,
-        }.ConnectionString;
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
         {
@@ -80,7 +74,6 @@ namespace Migrasi
             Database = DatabaseStaging,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
-            AllowZeroDateTime = true,
         }.ConnectionString;
 
         public static string ConnectionStringBsbs => new MySqlConnectionStringBuilder
@@ -91,9 +84,7 @@ namespace Migrasi
             Password = PasswordBsbs,
             Database = DatabaseBsbs,
             AllowUserVariables = true,
-            DefaultCommandTimeout = (uint)CommandTimeout,
-            ConnectionTimeout = (uint)CommandTimeout,
-            //Pooling = false,
+            AllowLoadLocalInfile = true,
         }.ConnectionString;
 
         public static string ConnectionStringBacameter => new MySqlConnectionStringBuilder
@@ -104,6 +95,7 @@ namespace Migrasi
             Password = PasswordBacameter,
             Database = DatabaseBacameter,
             AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
         }.ConnectionString;
 
         public static string ConnectionStringLoket => new MySqlConnectionStringBuilder
@@ -114,9 +106,7 @@ namespace Migrasi
             Password = PasswordLoket,
             Database = DatabaseLoket,
             AllowUserVariables = true,
-            DefaultCommandTimeout = (uint)CommandTimeout,
-            ConnectionTimeout = (uint)CommandTimeout,
-            //Pooling = false,
+            AllowLoadLocalInfile = true,
         }.ConnectionString;
     }
 }

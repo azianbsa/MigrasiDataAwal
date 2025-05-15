@@ -7,4 +7,13 @@
 NOW() AS waktuupdate
 FROM
 `kepemilikan`,
-(SELECT @id:=0) AS id;
+(SELECT @id:=0) AS id
+WHERE `kepemilikanbangunan`<>'-'
+UNION ALL
+SELECT
+@idpdam,
+'-1' AS idkepemilikan,
+'-' AS kodekepemilikan,
+'-' AS namakepemilikan,
+0 AS flaghapus,
+NOW() AS waktuupdate;

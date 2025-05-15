@@ -11,6 +11,7 @@ CREATE TABLE __tmp_jnspipa (
 ) ENGINE = INNODB;
 
 INSERT INTO __tmp_jnspipa(idpdam,idjenispipa,kodejenispipa,namajenispipa) VALUES
+(@idpdam,-1,'-','-'),
 (@idpdam,1,'01','Pipa PVC'),
 (@idpdam,2,'02','Pipa HDPE'),
 (@idpdam,3,'03','Pipa GI'),

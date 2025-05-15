@@ -28,17 +28,17 @@ namespace Migrasi
                 _ => "_DEV"
             };
 
-            AppSettings.HostConfig = Env.GetString($"DB_HOST_CONF{dbSuffix}");
-            AppSettings.PortConfig = (uint)Env.GetInt($"DB_PORT_CONF{dbSuffix}");
-            AppSettings.UserConfig = Env.GetString($"DB_USER_CONF{dbSuffix}");
-            AppSettings.PasswordConfig = Env.GetString($"DB_PASSWORD_CONF{dbSuffix}");
-            AppSettings.DatabaseConfig = Env.GetString($"DB_NAME_CONF{dbSuffix}");
+            AppSettings.ConfigHost = Env.GetString($"DB_HOST_CONF{dbSuffix}");
+            AppSettings.ConfigPort = (uint)Env.GetInt($"DB_PORT_CONF{dbSuffix}");
+            AppSettings.ConfigUserId = Env.GetString($"DB_USER_CONF{dbSuffix}");
+            AppSettings.ConfigPassword = Env.GetString($"DB_PASSWORD_CONF{dbSuffix}");
+            AppSettings.ConfigDatabase = Env.GetString($"DB_NAME_CONF{dbSuffix}");
 
-            AppSettings.Host = Env.GetString($"DB_HOST{dbSuffix}");
-            AppSettings.Port = (uint)Env.GetInt($"DB_PORT{dbSuffix}");
-            AppSettings.User = Env.GetString($"DB_USER{dbSuffix}");
-            AppSettings.Password = Env.GetString($"DB_PASSWORD{dbSuffix}");
-            AppSettings.Database = Env.GetString($"DB_NAME{dbSuffix}");
+            AppSettings.MainHost = Env.GetString($"DB_HOST{dbSuffix}");
+            AppSettings.MainPort = (uint)Env.GetInt($"DB_PORT{dbSuffix}");
+            AppSettings.MainUserId = Env.GetString($"DB_USER{dbSuffix}");
+            AppSettings.MainPassword = Env.GetString($"DB_PASSWORD{dbSuffix}");
+            AppSettings.MainDatabase = Env.GetString($"DB_NAME{dbSuffix}");
 
             AppSettings.HostStaging = Env.GetString($"DB_HOST_STG");
             AppSettings.PortStaging = (uint)Env.GetInt($"DB_PORT_STG");

@@ -85,7 +85,7 @@ namespace Migrasi.Helpers
 
         public static async Task Client(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
-            using var conn = new MySqlConnection(AppSettings.ConnectionString);
+            using var conn = new MySqlConnection(AppSettings.MainConnectionString);
             await conn.OpenAsync();
             var trans = await conn.BeginTransactionAsync();
 

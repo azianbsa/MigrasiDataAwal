@@ -1,10 +1,8 @@
 ﻿SELECT
- @idpdam,
- id AS idadministrasilain,
- kode AS kodeadministrasilain,
- keterangan AS namaadministrasilain,
- administrasilain AS administrasi,
- 0 AS flaghapus,
- NOW() AS waktuupdate
-FROM
- byadministrasi_lain;
+@idpdam,
+-1 AS idadministrasilain,
+'-' AS kodeadministrasilain,
+'-' AS namaadministrasilain,
+0 AS administrasi,
+0 AS flaghapus,
+NOW() AS waktuupdate

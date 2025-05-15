@@ -1,12 +1,12 @@
 ﻿SET FOREIGN_KEY_CHECKS = 0;
 
-INSERT INTO master_attribute_pdam (`idpdam`, `namapdam`, `tipe`)
+REPLACE INTO master_attribute_pdam (`idpdam`, `namapdam`, `tipe`)
 SELECT
 @idpdam,
 @namapdam,
 'basic' AS tipe;
 
-INSERT INTO master_attribute_pdam_detail
+REPLACE INTO master_attribute_pdam_detail
 SELECT
 @idpdam,
 `key`,
@@ -16,7 +16,7 @@ FROM
 master_attribute_pdam_detail
 WHERE idpdam = @idpdamcopy;
 
-INSERT INTO setting_configuration
+REPLACE INTO setting_configuration
 SELECT
 @idpdam,
 `setting_id`,
@@ -26,7 +26,7 @@ FROM
 setting_configuration
 WHERE idpdam = @idpdamcopy;
 
-INSERT INTO setting_mobile
+REPLACE INTO setting_mobile
 SELECT
 @idpdam,
 `idmobileitem`,
@@ -36,11 +36,11 @@ FROM
 setting_mobile
 WHERE idpdam = @idpdamcopy;
 
-INSERT INTO master_tarif_meterai (idpdam, kodeperiodemulaiberlaku)
+REPLACE INTO master_tarif_meterai (id,idpdam, kodeperiodemulaiberlaku)
 VALUES
-(@idpdam, '100001');
+(1,@idpdam, '100001');
 
-INSERT INTO `master_user` (
+REPLACE INTO `master_user` (
 idpdam,
 iduser,
 nama,

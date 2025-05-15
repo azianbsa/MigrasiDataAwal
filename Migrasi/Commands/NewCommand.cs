@@ -43,7 +43,7 @@ namespace Migrasi.Commands
                             await Utils.Client(async (conn, trans) =>
                             {
                                 var partisiTable = await conn.QueryAsync<string>("SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
-                                    new { schema = AppSettings.Database }, trans);
+                                    new { schema = AppSettings.MainDatabase }, trans);
                                 if (partisiTable.Any())
                                 {
                                     foreach (var table in partisiTable)
@@ -51,7 +51,7 @@ namespace Migrasi.Commands
                                         var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' AND table_name=@table AND partition_name=@partisi",
                                             new
                                             {
-                                                schema = AppSettings.Database,
+                                                schema = AppSettings.MainDatabase,
                                                 table,
                                                 partisi = $"pdam{settings.IdPdam}"
                                             }, transaction: trans);
@@ -91,7 +91,7 @@ namespace Migrasi.Commands
                             });
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\master_attribute_pdam_detail.sql",
                                 tableName: "master_attribute_pdam_detail",
                                 parameters: new()
@@ -104,7 +104,7 @@ namespace Migrasi.Commands
                         {
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\setting_gcs.sql",
                                 tableName: "setting_gcs",
                                 parameters: new()
@@ -117,17 +117,17 @@ namespace Migrasi.Commands
                         {
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\setting_configuration_sections.sql",
                                 tableName: "setting_configuration_sections");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\setting_configuration_items.sql",
                                 tableName: "setting_configuration_items");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\setting_configuration.sql",
                                 tableName: "setting_configuration",
                                 parameters: new()
@@ -140,12 +140,12 @@ namespace Migrasi.Commands
                         {
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\setting_mobile_items.sql",
                                 tableName: "setting_mobile_items");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\setting_mobile.sql",
                                 tableName: "setting_mobile",
                                 parameters: new()
@@ -158,22 +158,22 @@ namespace Migrasi.Commands
                         {
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\master_user_access.sql",
                                 tableName: "master_user_access");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\master_user_module.sql",
                                 tableName: "master_user_module");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\master_user_module_access.sql",
                                 tableName: "master_user_module_access");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\master_user_role.sql",
                                 tableName: "master_user_role",
                                 parameters: new()
@@ -182,7 +182,7 @@ namespace Migrasi.Commands
                                 });
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\master_user_role_access.sql",
                                 tableName: "master_user_role_access",
                                 parameters: new()
@@ -206,12 +206,12 @@ namespace Migrasi.Commands
                         {
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\app_setting_module.sql",
                                 tableName: "app_setting_module");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\app_setting_pdam_module.sql",
                                 tableName: "app_setting_pdam_module",
                                 parameters: new()
@@ -220,17 +220,17 @@ namespace Migrasi.Commands
                                 });
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\app_setting_main_feature.sql",
                                 tableName: "app_setting_main_feature");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\app_setting_feature.sql",
                                 tableName: "app_setting_feature");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\app_setting_pdam_feature.sql",
                                 tableName: "app_setting_pdam_feature",
                                 parameters: new()
@@ -243,17 +243,17 @@ namespace Migrasi.Commands
                         {
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\dashboard_master_access.sql",
                                 tableName: "dashboard_master_access");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\dashboard_user.sql",
                                 tableName: "dashboard_user");
                             await Utils.BulkCopy(
                                 sConnectionStr: AppSettings.ConnectionStringStaging,
-                                tConnectionStr: AppSettings.ConnectionString,
+                                tConnectionStr: AppSettings.MainConnectionString,
                                 queryPath: @"Queries\Master\dashboard_user_access.sql",
                                 tableName: "dashboard_user_access");
                         });

@@ -1,10 +1,11 @@
 ﻿SELECT
- @idpdam,
- id AS idwilayah,
- kodewil AS kodewilayah,
- wilayah AS namawilayah,
- 0 AS flagpusat,
- 0 AS flaghapus,
- NOW() AS waktuupdate
+@idpdam,
+@id:=@id+1 AS idwilayah,
+kodewil AS kodewilayah,
+wilayah AS namawilayah,
+0 AS flagpusat,
+0 AS flaghapus,
+NOW() AS waktuupdate
 FROM
- wilayah;
+wilayah
+,(SELECT @id:=0) AS id;

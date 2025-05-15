@@ -11,6 +11,7 @@ CREATE TABLE __tmp_kwh (
 ) ENGINE = INNODB;
 
 INSERT INTO __tmp_kwh(idpdam,idkwh,kodekwh,namakwh) VALUES
+(@idpdam,-1,'-','-'),
 (@idpdam,1,'01','450 VA'),
 (@idpdam,2,'02','900 VA'),
 (@idpdam,3,'03','1.300 VA'),

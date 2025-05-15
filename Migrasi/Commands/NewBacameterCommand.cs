@@ -34,7 +34,7 @@ namespace Migrasi.Commands
                 .AddRow("PDAM", $"{settings.IdPdam} {settings.NamaPdam}")
                 .AddRow("PDAM Copy", $"Pdam {settings.IdPdamCopy}")
                 .AddRow("Config DB", $"{AppSettings.ConfigConnectionString}")
-                .AddRow("Main DB", $"{AppSettings.ConnectionString}")
+                .AddRow("Main DB", $"{AppSettings.MainConnectionString}")
                 .AddRow("Environment", AppSettings.Environment.ToString()));
 
             if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
@@ -80,7 +80,7 @@ namespace Migrasi.Commands
             {
                 var partisiTable = await conn.QueryAsync<string>(
                     sql: "SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
-                    param: new { schema = AppSettings.Database },
+                    param: new { schema = AppSettings.MainDatabase },
                     transaction: trans);
                 if (partisiTable.Any())
                 {
@@ -90,7 +90,7 @@ namespace Migrasi.Commands
                             sql: "SELECT 1 FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' AND table_name=@table AND partition_name=@partisi",
                             param: new
                             {
-                                schema = AppSettings.Database,
+                                schema = AppSettings.MainDatabase,
                                 table = table,
                                 partisi = $"pdam{settings.IdPdam}"
                             },
