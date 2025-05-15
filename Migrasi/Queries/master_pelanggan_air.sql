@@ -1,61 +1,23 @@
-DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
-CREATE TEMPORARY TABLE __tmp_golongan AS
-SELECT
-@id:=@id+1 AS id,
-kodegol,
-aktif
-FROM
-golongan,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_diameter;
-CREATE TEMPORARY TABLE __tmp_diameter AS
-SELECT
-@id:=@id+1 AS id,
-kodediameter,
-aktif
-FROM
-diameter,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_merkmeter;
-CREATE TEMPORARY TABLE __tmp_merkmeter AS
-SELECT
-@id:=@id+1 AS id,
-merk
-FROM
-merkmeter,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_kolektif;
-CREATE TEMPORARY TABLE __tmp_kolektif AS
-SELECT
-@id:=@id+1 AS id,
-kodekolektif
-FROM
-kolektif,
-(SELECT @id:=0) AS id;
-
 SELECT
 @idpdam,
 p.id AS idpelangganair,
-p.nosamb AS nosamb,
-p.norekening AS norekening,
-p.nama AS nama,
-p.alamat AS alamat,
+TRIM(p.nosamb) AS nosamb,
+TRIM(p.norekening) AS norekening,
+TRIM(p.nama) AS nama,
+TRIM(p.alamat) AS alamat,
 p.rt AS rt,
 p.rw AS rw,
-g.id AS idgolongan,
-d.id AS iddiameter,
+g.`idgolongan` AS idgolongan,
+d.`iddiameter` AS iddiameter,
 -1 AS idjenispipa,
-m.id AS idkwh,
-r.id AS idrayon,
-k.id AS idkelurahan,
-kl.id AS idkolektif,
+-1 AS idkwh,
+r.`idrayon` AS idrayon,
+k.`idkelurahan` AS idkelurahan,
+COALESCE(kl.`idkolektif`,-1) AS idkolektif,
 p.status AS idstatus,
 p.flag AS idflag,
-bp.`latitude` AS latitude,
-bp.`longitude` AS longitude,
+NULL AS latitude,
+NULL AS longitude,
 NULL AS alamatmap,
 NULL AS fotorumah1,
 NULL AS fotorumah2,
@@ -64,15 +26,13 @@ NULL AS fotokwh,
 NULL AS fotodenah1,
 NULL AS fotodenah2,
 999 AS akurasi,
-NULL AS nosamblama,
+pp.nosamb AS nosamblama,
 p.flaghapus AS flaghapus,
 p.waktuupdate AS waktuupdate
-FROM
-pelanggan p
-LEFT JOIN [bacameter].`pelanggan` bp ON bp.`idpelanggan`=p.nosamb
-LEFT JOIN [bsbs].rayon r ON r.koderayon=p.koderayon
-LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=p.kodekelurahan
-LEFT JOIN __tmp_golongan g ON g.kodegol=p.kodegol AND g.aktif=1
-LEFT JOIN __tmp_diameter d ON d.kodediameter=p.kodediameter AND d.aktif=1
-LEFT JOIN __tmp_merkmeter m ON m.merk=p.merkmeter
-LEFT JOIN __tmp_kolektif kl ON kl.kodekolektif=p.kodekolektif;
+FROM pelanggan p
+LEFT JOIN pelanggan pp ON pp.nosamb_baru=p.nosamb
+LEFT JOIN [dataawal].`master_attribute_rayon` r ON r.koderayon=p.koderayon AND r.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_kelurahan` k ON k.kodekelurahan=p.kodekelurahan AND k.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.`status`=1 AND g.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_tarif_diameter` d ON d.kodediameter=p.kodediameter AND d.`status`=1 AND d.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_kolektif` kl ON kl.kodekolektif=p.kodekolektif AND kl.`idpdam`=@idpdam

@@ -21,12 +21,18 @@ namespace Migrasi.Helpers
             AnsiConsole.WriteException(exception, ExceptionFormats.ShortenEverything);
         }
 
-        public static async Task BulkCopy(string sConnectionStr, string tConnectionStr, string queryPath, string tableName, Dictionary<string, object?>? parameters = null, Dictionary<string, string>? placeholders = null)
+        public static async Task BulkCopy(
+            string sourceConnection,
+            string targetConnection,
+            string table,
+            string queryPath,
+            Dictionary<string, object?>? parameters = null,
+            Dictionary<string, string>? placeholders = null)
         {
-            using var sConnection = new MySqlConnection(sConnectionStr);
+            using var sConnection = new MySqlConnection(sourceConnection);
             await sConnection.OpenAsync();
 
-            using var tConnection = new MySqlConnection(tConnectionStr);
+            using var tConnection = new MySqlConnection(targetConnection);
             await tConnection.OpenAsync();
             var trans = await tConnection.BeginTransactionAsync();
 
@@ -59,17 +65,17 @@ namespace Migrasi.Helpers
 
                 var bulkCopy = new MySqlBulkCopy(tConnection, trans)
                 {
-                    DestinationTableName = tableName,
+                    DestinationTableName = table,
                     ConflictOption = MySqlBulkLoaderConflictOption.Replace,
                 };
 
                 var result = await bulkCopy.WriteToServerAsync(reader);
-                WriteLogMessage($"RowsInserted ({tableName}): {result.RowsInserted}");
+                WriteLogMessage($"RowsInserted ({table}): {result.RowsInserted}");
                 await trans.CommitAsync();
             }
             catch (Exception e)
             {
-                WriteErrMessage(exception: e, process: tableName, message: e.InnerException?.Message ?? e.Message);
+                WriteErrMessage(exception: e, process: table, message: e.InnerException?.Message ?? e.Message);
                 await trans.RollbackAsync();
                 throw;
             }
@@ -82,6 +88,59 @@ namespace Migrasi.Helpers
                 await MySqlConnection.ClearPoolAsync(tConnection);
             }
         }
+
+        public static async Task CopyToDiffrentHost(
+            string sourceConnection,
+            string targetConnection,
+            string table,
+            string query,
+            Dictionary<string, object?>? parameters = null)
+        {
+            using var sourceConn = new MySqlConnection(sourceConnection);
+            await sourceConn.OpenAsync();
+
+            using var targetConn = new MySqlConnection(targetConnection);
+            await targetConn.OpenAsync();
+            var trans = await targetConn.BeginTransactionAsync();
+
+            try
+            {
+                var cmd = new MySqlCommand(query, sourceConn)
+                {
+                    CommandTimeout = AppSettings.CommandTimeout
+                };
+
+                if (parameters?.Count > 0)
+                {
+                    foreach (var parameter in parameters)
+                    {
+                        cmd.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                    }
+                }
+
+                using MySqlDataReader reader = await cmd.ExecuteReaderAsync();
+                var bulkCopy = new MySqlBulkCopy(targetConn, trans)
+                {
+                    DestinationTableName = table,
+                    ConflictOption = MySqlBulkLoaderConflictOption.Replace,
+                };
+                await bulkCopy.WriteToServerAsync(reader);
+                
+                await trans.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                await trans.RollbackAsync();
+                Console.WriteLine($"Gagal copy table: {e.Message}");
+                throw;
+            }
+            finally
+            {
+                await sourceConn.CloseAsync();
+                await targetConn.CloseAsync();
+            }
+        }
+
 
         public static async Task Client(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {

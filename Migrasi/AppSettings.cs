@@ -72,6 +72,18 @@ namespace Migrasi
             AllowLoadLocalInfile = true,
         }.ConnectionString;
 
+        public static string DataAwalDatabase { get; set; } = "kotaparepare_dataawal";
+        public static string DataAwalConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = LoketHost,
+            Port = LoketPort,
+            UserID = LoketUserId,
+            Password = LoketPassword,
+            Database = DataAwalDatabase,
+            AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
+        }.ConnectionString;
+
         public static int CommandTimeout { get; set; } = 3600;
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
