@@ -40,7 +40,7 @@ namespace Migrasi.Commands
                     {
                         await Utils.TrackProgress("Setting partition", async () =>
                         {
-                            await Utils.Client(async (conn, trans) =>
+                            await Utils.MainConnectionWrapper(async (conn, trans) =>
                             {
                                 var partisiTable = await conn.QueryAsync<string>("SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
                                     new { schema = AppSettings.MainDatabase }, trans);
@@ -67,7 +67,7 @@ namespace Migrasi.Commands
 
                         await Utils.TrackProgress("Setup pdam", async () =>
                         {
-                            await Utils.Client(async (conn, trans) =>
+                            await Utils.MainConnectionWrapper(async (conn, trans) =>
                             {
                                 await conn.ExecuteAsync(@"
                                     DELETE FROM master_attribute_pdam WHERE idpdam = @idpdam;
@@ -190,7 +190,7 @@ namespace Migrasi.Commands
                                     { "@idpdam", settings.IdPdam },
                                 });
 
-                            await Utils.Client(async (conn, trans) =>
+                            await Utils.MainConnectionWrapper(async (conn, trans) =>
                             {
                                 var query = await File.ReadAllTextAsync(@"Queries\Patches\setup_new_pdam.sql");
                                 await conn.ExecuteAsync(query,

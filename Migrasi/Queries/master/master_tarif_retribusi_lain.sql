@@ -1,6 +1,6 @@
 ﻿SELECT
 @idpdam,
--11 AS idretribusilain,
+-1 AS idretribusilain,
 '-' AS koderetribusilain,
 '-' AS namaretribusilain,
 0 AS retribusi,

@@ -76,7 +76,7 @@ namespace Migrasi.Commands
 
         public async Task SetupPartition(Settings settings)
         {
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 var partisiTable = await conn.QueryAsync<string>(
                     sql: "SELECT table_name FROM information_schema.PARTITIONS WHERE table_schema=@schema AND partition_method='list' GROUP BY table_name",
@@ -109,7 +109,7 @@ namespace Migrasi.Commands
 
         public async Task SetupPdam(Settings settings)
         {
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 var query = await File.ReadAllTextAsync(@"Queries\bacameter\setup_pdam.sql");
                 await conn.ExecuteAsync(
@@ -126,7 +126,7 @@ namespace Migrasi.Commands
 
         public async Task SetupDbConfig(Settings settings)
         {
-            await Utils.ClientConfig(async (conn, trans) =>
+            await Utils.ConfigConnectionWrapper(async (conn, trans) =>
             {
                 var query = await File.ReadAllTextAsync(@"Queries\bacameter\setup_config.sql");
                 await conn.ExecuteAsync(

@@ -36,7 +36,7 @@ namespace Migrasi.Commands
                         var periodeHMin4 = AnsiConsole.Ask<int>("Periode H-4 (yyyyMM):");
 
                         string? namaPdam = "";
-                        await Utils.Client(async (conn, trans) =>
+                        await Utils.MainConnectionWrapper(async (conn, trans) =>
                         {
                             namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
                         });
@@ -66,7 +66,7 @@ namespace Migrasi.Commands
                                 {
                                     await Utils.TrackProgress("tambah idpelanggan", async () =>
                                     {
-                                        await Utils.ClientBsbs(async (conn, trans) =>
+                                        await Utils.BsbsConnectionWrapper(async (conn, trans) =>
                                         {
                                             var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
                                                 new { schema = AppSettings.DatabaseBsbs }, trans);
@@ -540,7 +540,7 @@ namespace Migrasi.Commands
                                     });
                                     await Utils.TrackProgress("master_attribute_jadwal_baca", async () =>
                                     {
-                                        await Utils.ClientBacameter(async (conn, trans) =>
+                                        await Utils.BacameterConnectionWrapper(async (conn, trans) =>
                                         {
                                             var jadwalbaca = await conn.QueryAsync(
                                                 sql: @"SELECT
@@ -553,7 +553,7 @@ namespace Migrasi.Commands
                                                 transaction: trans);
                                             if (jadwalbaca.Any())
                                             {
-                                                await Utils.Client(async (conn, trans) =>
+                                                await Utils.MainConnectionWrapper(async (conn, trans) =>
                                                 {
                                                     List<dynamic> data = [];
                                                     var listPetugas = await conn.QueryAsync(
@@ -747,7 +747,7 @@ namespace Migrasi.Commands
                 case Paket.Basic:
                     {
                         string? namaPdam = "";
-                        await Utils.Client(async (conn, trans) =>
+                        await Utils.MainConnectionWrapper(async (conn, trans) =>
                         {
                             namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
                         });
@@ -796,7 +796,7 @@ namespace Migrasi.Commands
 
                         try
                         {
-                            await Utils.Client(async (conn, trans) =>
+                            await Utils.MainConnectionWrapper(async (conn, trans) =>
                             {
                                 await conn.ExecuteAsync(@"
                                     SET GLOBAL foreign_key_checks = 0;
@@ -805,7 +805,7 @@ namespace Migrasi.Commands
                             });
 
                             await AnsiConsole.Status()
-                                .StartAsync("...", async _ =>
+                                .StartAsync("...", async ctx =>
                                 {
                                     if (prosesMasterBacameter)
                                     {
@@ -814,6 +814,8 @@ namespace Migrasi.Commands
 
                                     if (prosesPelanggan)
                                     {
+                                        ctx.Status("Copy data master bacameter ke db tampung");
+
                                         await Utils.CopyToDiffrentHost(
                                             sourceConnection: AppSettings.MainConnectionString,
                                             targetConnection: AppSettings.DataAwalConnectionString,
@@ -822,10 +824,6 @@ namespace Migrasi.Commands
                                             parameters: new()
                                             {
                                                 { "@idpdam", settings.IdPdam }
-                                            },
-                                            placeholders: new()
-                                            {
-                                                { "[dataawal]", AppSettings.DataAwalDatabase }
                                             });
 
                                         await Utils.CopyToDiffrentHost(
@@ -907,6 +905,8 @@ namespace Migrasi.Commands
                                             {
                                                 { "@idpdam", settings.IdPdam }
                                             });
+                                        
+                                        ctx.Status("...");
 
                                         await Utils.TrackProgress("master_pelanggan_air", async () =>
                                         {
@@ -923,12 +923,12 @@ namespace Migrasi.Commands
                                                 {
                                                     { "[bacameter]", AppSettings.DatabaseBacameter },
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    { "[dataawal]", AppSettings.DataAwalConnectionString },
+                                                    { "[dataawal]", AppSettings.DataAwalDatabase },
                                                 });
                                         });
                                         await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
                                         {
-                                            await Utils.Client(async (conn, trans) =>
+                                            await Utils.MainConnectionWrapper(async (conn, trans) =>
                                             {
                                                 await conn.ExecuteAsync(@"
                                                 ALTER TABLE master_pelanggan_air_detail
@@ -948,7 +948,7 @@ namespace Migrasi.Commands
                                                 {
                                                     { "[bacameter]", AppSettings.DatabaseBacameter },
                                                     { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    { "[dataawal]", AppSettings.DataAwalConnectionString },
+                                                    { "[dataawal]", AppSettings.DataAwalDatabase },
                                                 });
                                         });
                                     }
@@ -1072,7 +1072,7 @@ namespace Migrasi.Commands
                         }
                         finally
                         {
-                            await Utils.Client(async (conn, trans) =>
+                            await Utils.MainConnectionWrapper(async (conn, trans) =>
                             {
                                 await conn.ExecuteAsync(@"
                                     SET GLOBAL foreign_key_checks = 1;
@@ -1093,7 +1093,7 @@ namespace Migrasi.Commands
         private async Task Nonair(Settings settings)
         {
             IEnumerable<int>? listPeriode = [];
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 listPeriode = await conn.QueryAsync<int>(
                     sql: @"
@@ -1116,7 +1116,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             IEnumerable<dynamic>? jenis = [];
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idnonair),0) FROM rekening_nonair", transaction: trans);
 
@@ -1135,7 +1135,7 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 if (jenis != null)
                 {
@@ -1247,7 +1247,7 @@ namespace Migrasi.Commands
 
             await Utils.TrackProgress($"nonair-patch", async () =>
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
@@ -1256,7 +1256,7 @@ namespace Migrasi.Commands
                 });
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
             });
@@ -1264,7 +1264,7 @@ namespace Migrasi.Commands
         private async Task NonairTahun(Settings settings)
         {
             IEnumerable<string?> nonairTahun = [];
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 nonairTahun = await conn.QueryAsync<string?>(
                     sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'nonair[0-9]{4}'",
@@ -1280,7 +1280,7 @@ namespace Migrasi.Commands
                 await Utils.TrackProgress($"nonair{tahun}", async () =>
                 {
                     IEnumerable<int>? listPeriode = [];
-                    await Utils.ClientLoket(async (conn, trans) =>
+                    await Utils.LoketConnectionWrapper(async (conn, trans) =>
                     {
                         listPeriode = await conn.QueryAsync<int>(
                             sql: $@"
@@ -1303,7 +1303,7 @@ namespace Migrasi.Commands
                     IEnumerable<dynamic>? jenis = [];
 
                     var lastId = 0;
-                    await Utils.Client(async (conn, trans) =>
+                    await Utils.MainConnectionWrapper(async (conn, trans) =>
                     {
                         lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idnonair),0) FROM rekening_nonair", transaction: trans);
                         await conn.ExecuteAsync(
@@ -1321,7 +1321,7 @@ namespace Migrasi.Commands
                             transaction: trans);
                     });
 
-                    await Utils.ClientLoket(async (conn, trans) =>
+                    await Utils.LoketConnectionWrapper(async (conn, trans) =>
                     {
                         if (jenis != null)
                         {
@@ -1435,7 +1435,7 @@ namespace Migrasi.Commands
 
             await Utils.TrackProgress($"nonair tahun-patch", async () =>
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
@@ -1444,7 +1444,7 @@ namespace Migrasi.Commands
                 });
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
             });
@@ -1452,7 +1452,7 @@ namespace Migrasi.Commands
         private async Task Piutang(Settings settings)
         {
             var lastId = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
             });
@@ -1492,7 +1492,7 @@ namespace Migrasi.Commands
         private async Task BayarTahun(Settings settings)
         {
             IEnumerable<string?> bayarTahun = [];
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 bayarTahun = await conn.QueryAsync<string?>(
                     sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
@@ -1505,7 +1505,7 @@ namespace Migrasi.Commands
                 await Utils.TrackProgress($"bayar{tahun}", async () =>
                 {
                     IEnumerable<int>? listPeriode = [];
-                    await Utils.ClientLoket(async (conn, trans) =>
+                    await Utils.LoketConnectionWrapper(async (conn, trans) =>
                     {
                         listPeriode = await conn.QueryAsync<int>(
                             sql: $@"
@@ -1525,7 +1525,7 @@ namespace Migrasi.Commands
                         await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air", async () =>
                         {
                             var lastId = 0;
-                            await Utils.Client(async (conn, trans) =>
+                            await Utils.MainConnectionWrapper(async (conn, trans) =>
                             {
                                 lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                             });
@@ -1613,7 +1613,7 @@ namespace Migrasi.Commands
         private async Task Bayar(Settings settings)
         {
             IEnumerable<int>? listPeriode = [];
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 listPeriode = await conn.QueryAsync<int>(
                     sql: @"
@@ -1633,7 +1633,7 @@ namespace Migrasi.Commands
                 await Utils.TrackProgress($"bayar-{periode}|rekening_air", async () =>
                 {
                     var lastId = 0;
-                    await Utils.Client(async (conn, trans) =>
+                    await Utils.MainConnectionWrapper(async (conn, trans) =>
                     {
                         lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                     });
@@ -1722,7 +1722,7 @@ namespace Migrasi.Commands
             IEnumerable<dynamic>? tipe = [];
             IEnumerable<dynamic>? baDetail = [];
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 tipe = await conn.QueryAsync(
                     sql: @"
@@ -1788,7 +1788,7 @@ namespace Migrasi.Commands
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(sql: @"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 if (tipe != null)
                 {
@@ -1909,7 +1909,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_badetail", transaction: trans);
@@ -1920,7 +1920,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             var tipe = 0;
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 tipe = await conn.QueryFirstOrDefaultAsync<int>(
                     sql: $@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='AIR_TANGKI'",
@@ -2030,7 +2030,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             var tipe = 0;
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 tipe = await conn.QueryFirstOrDefaultAsync<int>(
                     sql: $@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='AIR_TANGKI'",
@@ -2138,7 +2138,7 @@ namespace Migrasi.Commands
         private async Task AngsuranNonair(Settings settings)
         {
             IEnumerable<dynamic>? jenis = [];
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(sql:
                     @"
@@ -2154,7 +2154,7 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 if (jenis != null)
                 {
@@ -2236,7 +2236,7 @@ namespace Migrasi.Commands
 
             await Utils.TrackProgress($"angsuran nonair|patch0", async () =>
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
@@ -2247,7 +2247,7 @@ namespace Migrasi.Commands
 
             await Utils.TrackProgress("angsuran nonair|patch1", async () =>
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\angsuran_nonair\patch.sql"),
@@ -2256,7 +2256,7 @@ namespace Migrasi.Commands
                 });
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: @"
@@ -2269,7 +2269,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress($"angsuran air piutang|rekening_air", async () =>
             {
                 var lastId = 0;
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: @"
@@ -2319,7 +2319,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress($"angsuran air bayar|rekening_air", async () =>
             {
                 var lastId = 0;
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
                 });
@@ -2363,7 +2363,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress($"angsuran air|rekening_air_angsuran", async () =>
             {
                 var jnsNonair = 0;
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     jnsNonair = await conn.QueryFirstOrDefaultAsync<int>($"SELECT idjenisnonair FROM master_attribute_jenis_nonair WHERE idpdam = {settings.IdPdam} AND kodejenisnonair = 'JNS-36' AND flaghapus = 0", transaction: trans);
                 });
@@ -2407,7 +2407,7 @@ namespace Migrasi.Commands
 
             await Utils.TrackProgress("angsuran air|patch", async () =>
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\angsuran_air\patch.sql"),
@@ -2421,7 +2421,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             var lastIdDetail = 0;
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(
                     sql: @"SELECT IFNULL(MAX(idkoreksi),0) FROM `master_pelanggan_air_riwayat_koreksi` WHERE idpdam=@idpdam",
@@ -2600,7 +2600,7 @@ namespace Migrasi.Commands
         }
         private async Task PaketRab(Settings settings)
         {
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: @"
@@ -2623,7 +2623,7 @@ namespace Migrasi.Commands
         }
         private async Task PaketOngkos(Settings settings)
         {
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: @"
@@ -2674,7 +2674,7 @@ namespace Migrasi.Commands
         }
         private async Task PaketMaterial(Settings settings)
         {
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: @"
@@ -3093,7 +3093,7 @@ namespace Migrasi.Commands
 
             await Utils.TrackProgress("master_attribute_kolektif", async () =>
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(@"
                     ALTER TABLE master_attribute_kolektif
@@ -3139,7 +3139,7 @@ namespace Migrasi.Commands
 
             await Utils.TrackProgress("master_attribute_kondisi_meter", async () =>
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(@"
                     ALTER TABLE master_attribute_kondisi_meter
@@ -3382,7 +3382,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             var rabdetail = 0;
             dynamic? rotasimeter = null;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
                 rabdetail = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(id),0) FROM permohonan_pelanggan_air_rab_detail", transaction: trans);
@@ -3413,7 +3413,7 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: @"
@@ -3517,7 +3517,7 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: @"
@@ -3529,7 +3529,7 @@ namespace Migrasi.Commands
         {
             var lastId = 0;
             var rotasimeter = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 rotasimeter = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='GANTI_METER_RUTIN' AND flaghapus=0", transaction: trans);
                 await conn.ExecuteAsync(
@@ -3624,7 +3624,7 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: @"
@@ -3636,7 +3636,7 @@ namespace Migrasi.Commands
         {
             var lastId = 0;
             var krekair = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 krekair = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='KREKAIR'", transaction: trans);
                 await conn.ExecuteAsync(
@@ -3690,7 +3690,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             var rabDetail = 0;
             var sambBaru = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 sambBaru = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNGAN_BARU_AIR'", transaction: trans);
                 await conn.ExecuteAsync(
@@ -3882,7 +3882,7 @@ namespace Migrasi.Commands
         {
             var lastId = 0;
             var bukaSegel = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 bukaSegel = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BUKA_SEGEL'", transaction: trans);
                 await conn.ExecuteAsync(
@@ -3986,7 +3986,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             var rabdetail = 0;
             dynamic? sambKembali = null;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 sambKembali = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='SAMBUNG_KEMBALI'", transaction: trans);
                 await conn.ExecuteAsync(
@@ -4164,7 +4164,7 @@ namespace Migrasi.Commands
         {
             var lastId = 0;
             dynamic? rubahRayon = null;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 rubahRayon = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_RAYON'", transaction: trans);
 
@@ -4281,7 +4281,7 @@ namespace Migrasi.Commands
         {
             var lastId = 0;
             var rubahTarif = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 rubahTarif = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_TARIF'", transaction: trans);
                 await conn.ExecuteAsync(
@@ -4394,7 +4394,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: await File.ReadAllTextAsync(@"Queries\rubah_tarif\patches\p1.sql"),
@@ -4411,7 +4411,7 @@ namespace Migrasi.Commands
         {
             var lastId = 0;
             var idBalikNama = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 idBalikNama = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BALIK_NAMA'", transaction: trans);
 
@@ -4479,7 +4479,7 @@ namespace Migrasi.Commands
                 });
 
             IEnumerable<dynamic>? nonairBaliknama = [];
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 nonairBaliknama = await conn.QueryAsync(
                     sql: @"SELECT `nomor`,`urutannonair` FROM `permohonan_balik_nama` WHERE `flaghapus`=0 AND `biaya`>0",
@@ -4488,7 +4488,7 @@ namespace Migrasi.Commands
 
             if (nonairBaliknama.Any())
             {
-                await Utils.Client(async (conn, trans) =>
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
                         sql: @"
@@ -4518,7 +4518,7 @@ namespace Migrasi.Commands
         {
             var lastId = 0;
             var tipe = 0;
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 tipe = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='TUTUP_TOTAL'", transaction: trans);
                 await conn.ExecuteAsync(
@@ -4622,7 +4622,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             IEnumerable<dynamic>? tipe = [];
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 tipe = await conn.QueryAsync(
                     sql: @"
@@ -4670,7 +4670,7 @@ namespace Migrasi.Commands
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(sql: @"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 if (tipe != null)
                 {
@@ -4805,7 +4805,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
                     sql: await File.ReadAllTextAsync(@"Queries\pengaduan_pelanggan\patches\p1.sql"),
@@ -4817,7 +4817,7 @@ namespace Migrasi.Commands
                     commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_tipepermohonan", transaction: trans);
             });
@@ -4827,7 +4827,7 @@ namespace Migrasi.Commands
             var lastId = 0;
             IEnumerable<dynamic>? tipe = [];
 
-            await Utils.Client(async (conn, trans) =>
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 tipe = await conn.QueryAsync(
                     sql: @"
@@ -4875,7 +4875,7 @@ namespace Migrasi.Commands
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(sql: @"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_non_pelanggan", transaction: trans);
             });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 if (tipe != null)
                 {
@@ -4977,7 +4977,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
 
-            await Utils.ClientLoket(async (conn, trans) =>
+            await Utils.LoketConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_tipepermohonan", transaction: trans);
             });

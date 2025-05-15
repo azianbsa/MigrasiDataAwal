@@ -141,8 +141,7 @@ namespace Migrasi.Helpers
             }
         }
 
-
-        public static async Task Client(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        public static async Task MainConnectionWrapper(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.MainConnectionString);
             await conn.OpenAsync();
@@ -165,7 +164,7 @@ namespace Migrasi.Helpers
             }
         }
 
-        public static async Task ClientConfig(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        public static async Task ConfigConnectionWrapper(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.ConfigConnectionString);
             await conn.OpenAsync();
@@ -188,7 +187,7 @@ namespace Migrasi.Helpers
             }
         }
 
-        public static async Task ClientBsbs(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        public static async Task BsbsConnectionWrapper(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.ConnectionStringBsbs);
             await conn.OpenAsync();
@@ -211,7 +210,7 @@ namespace Migrasi.Helpers
             }
         }
 
-        public static async Task ClientLoket(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        public static async Task LoketConnectionWrapper(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.LoketConnectionString);
             await conn.OpenAsync();
@@ -234,7 +233,7 @@ namespace Migrasi.Helpers
             }
         }
 
-        public static async Task ClientBacameter(Func<MySqlConnection, MySqlTransaction?, Task> operations)
+        public static async Task BacameterConnectionWrapper(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
             using var conn = new MySqlConnection(AppSettings.ConnectionStringBacameter);
             await conn.OpenAsync();
