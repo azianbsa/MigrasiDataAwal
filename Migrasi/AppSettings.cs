@@ -56,14 +56,23 @@ namespace Migrasi
         public static string PasswordBacameter { get; set; }
         public static string DatabaseBacameter { get; set; }
 
-        public static string HostLoket { get; set; }
-        public static uint PortLoket { get; set; }
-        public static string UserLoket { get; set; }
-        public static string PasswordLoket { get; set; }
-        public static string DatabaseLoket { get; set; }
+        public static string LoketHost { get; set; }
+        public static uint LoketPort { get; set; }
+        public static string LoketUserId { get; set; }
+        public static string LoketPassword { get; set; }
+        public static string LoketDatabase { get; set; }
+        public static string LoketConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = LoketHost,
+            Port = LoketPort,
+            UserID = LoketUserId,
+            Password = LoketPassword,
+            Database = LoketDatabase,
+            AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
+        }.ConnectionString;
 
         public static int CommandTimeout { get; set; } = 3600;
-
 
         public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
         {
@@ -94,17 +103,6 @@ namespace Migrasi
             UserID = UserBacameter,
             Password = PasswordBacameter,
             Database = DatabaseBacameter,
-            AllowUserVariables = true,
-            AllowLoadLocalInfile = true,
-        }.ConnectionString;
-
-        public static string ConnectionStringLoket => new MySqlConnectionStringBuilder
-        {
-            Server = HostLoket,
-            Port = PortLoket,
-            UserID = UserLoket,
-            Password = PasswordLoket,
-            Database = DatabaseLoket,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
         }.ConnectionString;

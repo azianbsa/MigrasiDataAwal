@@ -58,11 +58,11 @@ namespace Migrasi
             AppSettings.PasswordBacameter = Env.GetString($"DB_PASSWORD_BACAMETER");
             AppSettings.DatabaseBacameter = Env.GetString($"DB_NAME_BACAMETER");
 
-            AppSettings.HostLoket = Env.GetString($"DB_HOST_LOKET");
-            AppSettings.PortLoket = (uint)Env.GetInt($"DB_PORT_LOKET");
-            AppSettings.UserLoket = Env.GetString($"DB_USER_LOKET");
-            AppSettings.PasswordLoket = Env.GetString($"DB_PASSWORD_LOKET");
-            AppSettings.DatabaseLoket = Env.GetString($"DB_NAME_LOKET");
+            AppSettings.LoketHost = Env.GetString($"DB_HOST_LOKET");
+            AppSettings.LoketPort = (uint)Env.GetInt($"DB_PORT_LOKET");
+            AppSettings.LoketUserId = Env.GetString($"DB_USER_LOKET");
+            AppSettings.LoketPassword = Env.GetString($"DB_PASSWORD_LOKET");
+            AppSettings.LoketDatabase = Env.GetString($"DB_NAME_LOKET");
 
             #endregion
 

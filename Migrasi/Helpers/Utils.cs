@@ -154,7 +154,7 @@ namespace Migrasi.Helpers
 
         public static async Task ClientLoket(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
-            using var conn = new MySqlConnection(AppSettings.ConnectionStringLoket);
+            using var conn = new MySqlConnection(AppSettings.LoketConnectionString);
             await conn.OpenAsync();
             var trans = await conn.BeginTransactionAsync();
 
