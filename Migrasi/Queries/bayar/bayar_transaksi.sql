@@ -1,63 +1,21 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
-CREATE TEMPORARY TABLE __tmp_periode AS
-SELECT
-@id:=@id+1 AS idperiode,
-periode
-FROM
-[bsbs].periode
-,(SELECT @id:=0) AS id
-ORDER BY periode;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket AS
-SELECT
+﻿SELECT
 @idpdam,
-@id := @id + 1 AS iduser,
-a.nama,
-a.namauser
-FROM (
-SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
-) a,
-(SELECT @id := 0) AS id
-GROUP BY a.namauser;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_loket;
-CREATE TEMPORARY TABLE __tmp_loket AS
-SELECT
-@idloket := @idloket + 1 AS idloket,
-kodeloket,
-loket
-FROM loket
-,(SELECT @idloket := 0) AS idloket
-ORDER BY kodeloket;
-
-SELECT
-@idpdam,
-pel.id AS idpelangganair,
-per.idperiode AS idperiode,
-rek.nolpp AS nomortransaksi,
-IF(rek.flagbatal=0,1,0) AS statustransaksi,
-rek.tglbayar AS waktutransaksi,
-YEAR(rek.tglbayar) AS tahuntransaksi,
-usr.iduser AS iduser,
-lo.idloket AS idloket,
+p.id AS idpelangganair,
+pr.idperiode AS idperiode,
+b.nolpp AS nomortransaksi,
+1 AS statustransaksi,
+b.tglbayar AS waktutransaksi,
+YEAR(b.tglbayar) AS tahuntransaksi,
+u.iduser AS iduser,
+l.idloket AS idloket,
 NULL AS idkolektiftransaksi,
-6 AS idalasanbatal,
+0 AS idalasanbatal,
 NULL AS keterangan,
 NOW() AS waktuupdate
-FROM
-[table] rek
-JOIN pelanggan pel ON pel.nosamb=rek.nosamb
-JOIN __tmp_periode per ON per.periode=rek.periode
-LEFT JOIN __tmp_userloket usr ON usr.nama=rek.kasir
-LEFT JOIN __tmp_loket lo ON lo.kodeloket=rek.loketbayar
-WHERE rek.periode=@periode
-AND rek.flagangsur=0
-AND rek.kode NOT LIKE '%\_'
-AND DATE(rek.tglbayar)=@cutoff
+FROM bayar b
+JOIN pelanggan p ON p.nosamb=b.nosamb
+JOIN [dataawal].`master_periode` pr ON pr.`kodeperiode`=b.periode AND pr.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_user` u ON u.nama=b.kasir AND u.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_loket` l ON l.kodeloket=b.loketbayar AND l.`idpdam`=@idpdam
+WHERE b.periode BETWEEN 202502 AND 202504
+AND b.flagangsur=0

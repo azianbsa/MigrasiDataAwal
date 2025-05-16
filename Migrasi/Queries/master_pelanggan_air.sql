@@ -33,6 +33,6 @@ FROM pelanggan p
 LEFT JOIN pelanggan pp ON pp.nosamb_baru=p.nosamb
 LEFT JOIN [dataawal].`master_attribute_rayon` r ON r.koderayon=p.koderayon AND r.`idpdam`=@idpdam
 LEFT JOIN [dataawal].`master_attribute_kelurahan` k ON k.kodekelurahan=p.kodekelurahan AND k.`idpdam`=@idpdam
-LEFT JOIN [dataawal].`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.`status`=1 AND g.`idpdam`=@idpdam
-LEFT JOIN [dataawal].`master_tarif_diameter` d ON d.kodediameter=p.kodediameter AND d.`status`=1 AND d.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_tarif_diameter` d ON d.kodediameter=p.kodediameter AND d.`idpdam`=@idpdam
 LEFT JOIN [dataawal].`master_attribute_kolektif` kl ON kl.kodekolektif=p.kodekolektif AND kl.`idpdam`=@idpdam

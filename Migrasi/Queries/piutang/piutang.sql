@@ -1,81 +1,42 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
-CREATE TEMPORARY TABLE __tmp_periode AS
-SELECT
-@id:=@id+1 AS idperiode,
-periode
-FROM
-[bsbs].periode
-,(SELECT @id:=0) AS id
-ORDER BY periode;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
-CREATE TEMPORARY TABLE __tmp_golongan AS
-SELECT
-@id:=@id+1 AS id,
-kodegol,
-aktif
-FROM
-golongan,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_diameter;
-CREATE TEMPORARY TABLE __tmp_diameter AS
-SELECT
-@id:=@id+1 AS id,
-kodediameter,
-aktif
-FROM
-diameter,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_kolektif;
-CREATE TEMPORARY TABLE __tmp_kolektif AS
-SELECT
-@id:=@id+1 AS id,
-kodekolektif
-FROM
-kolektif,
-(SELECT @id:=0) AS id;
-
-SELECT
+﻿SELECT
 @idpdam,
 @id:=@id+1 AS idrekeningair,
-pel.id AS idpelangganair,
-per.idperiode AS idperiode,
-gol.id AS idgolongan,
-dia.id AS iddiameter,
-1 AS idjenispipa,
-1 AS idkwh,
-ray.id AS idrayon,
-kel.id AS idkelurahan,
-kol.id AS idkolektif,
-adm.id AS idadministrasilain,
-pem.id AS idpemeliharaanlain,
-ret.id AS idretribusilain,
+pl.id AS idpelangganair,
+pr.idperiode AS idperiode,
+g.`idgolongan` AS idgolongan,
+COALESCE(d.`iddiameter`,-1) AS iddiameter,
+-1 AS idjenispipa,
+-1 AS idkwh,
+r.`idrayon` AS idrayon,
+k.`idkelurahan` AS idkelurahan,
+ko.`idkolektif` AS idkolektif,
+-1 AS idadministrasilain,
+-1 AS idpemeliharaanlain,
+-1 AS idretribusilain,
 1 AS idstatus,
-1 AS idflag,
-rek.stanlalu AS stanlalu,
-IFNULL(rek.stanskrg, 0) AS stanskrg,
-IFNULL(rek.stanangkat, 0) AS stanangkat,
-IFNULL(rek.pakai, 0) AS pakai,
+p.flag AS idflag,
+p.stanlalu AS stanlalu,
+IFNULL(p.stanskrg, 0) AS stanskrg,
+IFNULL(p.stanangkat, 0) AS stanangkat,
+IFNULL(p.pakai, 0) AS pakai,
 0 AS pakaikalkulasi,
-IFNULL(rek.biayapemakaian, 0) AS biayapemakaian,
-IFNULL(rek.administrasi, 0) AS administrasi,
-IFNULL(rek.pemeliharaan, 0) AS pemeliharaan,
-IFNULL(rek.retribusi, 0) AS retribusi,
-IFNULL(rek.pelayanan, 0) AS pelayanan,
-IFNULL(rek.airlimbah, 0) AS airlimbah,
-IFNULL(rek.dendapakai0, 0) AS dendapakai0,
-IFNULL(rek.administrasilain, 0) AS administrasilain,
-IFNULL(rek.pemeliharaanlain, 0) AS pemeliharaanlain,
-IFNULL(rek.retribusilain, 0) AS retribusilain,
-IFNULL(rek.ppn, 0) AS ppn,
-IFNULL(rek.meterai, 0) AS meterai,
-IFNULL(rek.rekair, 0) AS rekair,
-IFNULL(rek.dendatunggakan, 0) AS denda,
+IFNULL(p.biayapemakaian, 0) AS biayapemakaian,
+IFNULL(p.administrasi, 0) AS administrasi,
+IFNULL(p.pemeliharaan, 0) AS pemeliharaan,
+IFNULL(p.retribusi, 0) AS retribusi,
+IFNULL(p.pelayanan, 0) AS pelayanan,
+IFNULL(p.airlimbah, 0) AS airlimbah,
+IFNULL(p.dendapakai0, 0) AS dendapakai0,
+IFNULL(p.administrasilain, 0) AS administrasilain,
+IFNULL(p.pemeliharaanlain, 0) AS pemeliharaanlain,
+IFNULL(p.retribusilain, 0) AS retribusilain,
+IFNULL(p.ppn, 0) AS ppn,
+IFNULL(p.meterai, 0) AS meterai,
+IFNULL(p.rekair, 0) AS rekair,
+IFNULL(p.dendatunggakan, 0) AS denda,
 0 AS diskon,
 0 AS deposit,
-IFNULL(rek.total, 0) AS total,
+IFNULL(p.total, 0) AS total,
 0 AS hapussecaraakuntansi,
 NULL AS waktuhapussecaraakuntansi,
 NULL AS iddetailcyclepembacaan,
@@ -84,8 +45,8 @@ NULL AS tglpenentuanbaca,
 0 AS metodebaca,
 DATE(NOW()) AS waktubaca,
 DATE_FORMAT(NOW(), '%H:%i:%s') AS jambaca,
-pbc.kodepetugas AS petugasbaca,
-kln.idkelainan AS kelainan,
+pb.`kodepetugasbaca` AS petugasbaca,
+kl.idkelainan AS kelainan,
 0 AS stanbaca,
 DATE(NOW()) AS waktukirimhasilbaca,
 DATE_FORMAT(NOW(), '%H:%i:%s') AS jamkirimhasilbaca,
@@ -101,9 +62,11 @@ DATE_FORMAT(NOW(), '%H:%i:%s') AS jamkoreksi,
 1 AS flagverifikasi,
 DATE(NOW()) AS waktuverifikasi,
 DATE_FORMAT(NOW(), '%H:%i:%s') AS jamverifikasi,
+NULL AS userverifikasi,
 1 AS flagpublish,
 DATE(NOW()) AS waktupublish,
 DATE_FORMAT(NOW(), '%H:%i:%s') AS jampublish,
+NULL AS userpublish,
 NULL AS latitude,
 NULL AS longitude,
 NULL AS latitudebulanlalu,
@@ -121,33 +84,30 @@ NULL AS longitudebulanlalu,
 0 AS persentase3bulanlalu,
 NULL AS kelainanbulanlalu,
 NULL AS kelainan2bulanlalu,
-rek.flagangsur AS flagangsur,
+p.flagangsur AS flagangsur,
 NULL AS idangsuran,
 NULL AS idmodule,
 0 AS flagkoreksibilling,
-rek.tglmulaidenda AS tglmulaidenda1,
-rek.tglmulaidenda2 AS tglmulaidenda2,
-rek.tglmulaidenda3 AS tglmulaidenda3,
-rek.tglmulaidenda4 AS tglmulaidenda4,
-rek.tglmulaidendaperbulan AS tglmulaidendaperbulan,
+p.tglmulaidenda AS tglmulaidenda1,
+p.tglmulaidenda2 AS tglmulaidenda2,
+p.tglmulaidenda3 AS tglmulaidenda3,
+p.tglmulaidenda4 AS tglmulaidenda4,
+p.tglmulaidendaperbulan AS tglmulaidendaperbulan,
 NULL AS tglmulaidendaperhari,
 0 AS flaghasbeenpublish,
 0 AS flagdrdsusulan,
 NULL AS waktudrdsusulan,
 NOW() AS waktuupdate,
 0 AS flaghapus
-FROM piutang rek
-JOIN pelanggan pel ON pel.nosamb=rek.nosamb
-JOIN __tmp_periode per ON per.periode=rek.periode
-LEFT JOIN __tmp_golongan gol ON gol.kodegol=rek.kodegol AND gol.aktif=1
-LEFT JOIN __tmp_diameter dia ON dia.kodediameter=rek.kodediameter AND dia.aktif=1
-LEFT JOIN [bsbs].rayon ray ON ray.koderayon=rek.koderayon
-LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan=pel.kodekelurahan
-LEFT JOIN __tmp_kolektif kol ON kol.kodekolektif=rek.kodekolektif
-LEFT JOIN [bsbs].byadministrasi_lain adm ON adm.kode=rek.kodeadministrasilain
-LEFT JOIN [bsbs].bypemeliharaan_lain pem ON pem.kode=rek.kodepemeliharaanlain
-LEFT JOIN [bsbs].byretribusi_lain ret ON ret.kode=rek.koderetribusilain
-LEFT JOIN [bacameter].`petugasbaca` pbc ON pbc.nama=TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
-LEFT JOIN [bacameter].kelainan kln ON kln.kelainan=rek.kelainan
+FROM piutang p
+JOIN pelanggan pl ON pl.nosamb=p.nosamb
+JOIN `kotaparepare_dataawal`.`master_periode` pr ON pr.`kodeperiode`=p.periode AND pr.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_tarif_diameter` d ON d.kodediameter=p.kodediameter AND d.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_attribute_rayon` r ON r.koderayon=p.koderayon AND r.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_attribute_kelurahan` k ON k.kodekelurahan=pl.kodekelurahan AND k.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_attribute_kolektif` ko ON ko.kodekolektif=p.kodekolektif AND ko.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_attribute_petugas_baca` pb ON pb.`petugasbaca`=TRIM(SUBSTRING_INDEX(p.pembacameter, '(', 1)) AND pb.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_attribute_kelainan` kl ON kl.`kelainan`=p.kelainan
 ,(SELECT @id:=@lastid) AS id
-WHERE rek.periode=202503
+WHERE p.periode BETWEEN 202502 AND 202504
