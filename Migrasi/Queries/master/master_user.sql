@@ -1,6 +1,6 @@
 ﻿SELECT
 @idpdam,
-@id := @id + 1 AS iduser,
+@id:=@id+1 AS iduser,
 a.nama,
 a.namauser,
 a.passworduser,
@@ -13,9 +13,11 @@ NULL AS noidentitas,
 0 AS flaghapus,
 NOW() AS waktuupdate
 FROM (
+SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bacameter].`userakses`
+UNION ALL
 SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM [loket].`userloket`
 UNION ALL
 SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM [loket].`userbshl`
 ) a,
-(SELECT @id := 0) AS id
+(SELECT @id:=0) AS id
 GROUP BY a.nama

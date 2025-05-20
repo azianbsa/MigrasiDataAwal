@@ -773,6 +773,9 @@ namespace Migrasi.Commands
                             .DefaultValue(false)
                             .WithConverter(choice => choice ? "y" : "n"));
 
+                        var periodeMulai = AnsiConsole.Prompt(
+                            new TextPrompt<string>("Periode mulai (yyyyMM):"));
+
                         AnsiConsole.Write(
                             new Table()
                             .AddColumn(new TableColumn(""))
@@ -782,6 +785,7 @@ namespace Migrasi.Commands
                             .AddRow("Proses data master bacameter", $"{prosesMasterBacameter}")
                             .AddRow("Proses data pelanggan", $"{prosesPelanggan}")
                             .AddRow("Proses piutang & bayar 3 bulan", $"{prosesPiutangBayar3Bulan}")
+                            .AddRow("Periode mulai", periodeMulai)
                             .AddRow("Paket", settings.NamaPaket.ToString()!)
                             .AddRow("Config DB", AppSettings.ConfigConnectionString)
                             .AddRow("Main DB", AppSettings.MainConnectionString)
@@ -799,26 +803,28 @@ namespace Migrasi.Commands
                         {
                             await Utils.MainConnectionWrapper(async (conn, trans) =>
                             {
-                                await conn.ExecuteAsync(@"
-                                    SET GLOBAL foreign_key_checks = 0;
-                                    SET GLOBAL innodb_flush_log_at_trx_commit = 2;
-                                    ", transaction: trans);
+                                await conn.ExecuteAsync(
+                                    sql: @"
+                                    SET GLOBAL foreign_key_checks=0;
+                                    SET GLOBAL innodb_flush_log_at_trx_commit=2;",
+                                    transaction: trans);
                             });
 
                             await AnsiConsole.Status()
-                                .StartAsync("...", async ctx =>
+                                .StartAsync("🚀", async ctx =>
                                 {
                                     if (prosesMasterBacameter)
                                     {
+                                        Utils.WriteLogMessage("Proses data master bacameter");
                                         await MasterData(settings);
                                     }
-                                    
-                                    ctx.Status("Copy data master ke db tampung");
+
+                                    Utils.WriteLogMessage("Copy data master ke db tampung");
                                     await LoadDataMaster(settings);
-                                    ctx.Status("...");
 
                                     if (prosesPelanggan)
                                     {
+                                        Utils.WriteLogMessage("Proses data pelanggan");
                                         await Utils.TrackProgress("master_pelanggan_air", async () =>
                                         {
                                             await Utils.BulkCopy(
@@ -866,7 +872,162 @@ namespace Migrasi.Commands
 
                                     if (prosesPiutangBayar3Bulan)
                                     {
+                                        await Utils.BacameterConnectionWrapper(async (conn, trans) =>
+                                        {
+                                            await conn.ExecuteAsync(
+                                                sql: @"
+                                                DROP TABLE IF EXISTS tampung_hasilbaca;
+                                                CREATE TABLE tampung_hasilbaca AS
+                                                SELECT * FROM hasilbaca LIMIT 0;
+                                                ALTER TABLE `tampung_hasilbaca`
+                                                ADD COLUMN `kode` VARCHAR (100) NOT NULL FIRST,
+                                                ADD PRIMARY KEY (`kode`);",
+                                                transaction: trans);
+
+                                            for (int i = 0; i < 3; i++)
+                                            {
+                                                var periode = DateTime.ParseExact(periodeMulai, "yyyyMM", null).AddMonths(i);
+                                                Utils.WriteLogMessage($"Ambil data hasilbaca{periode:MMyy} ke tampung_hasilbaca");
+                                                await conn.ExecuteAsync(
+                                                    sql: $@"
+                                                    INSERT INTO tampung_hasilbaca
+                                                    SELECT
+                                                      CONCAT({periode:yyyyMM},'.',`idpelanggan`) AS kode,
+                                                      `idpelanggan`,
+                                                      `idmeteran`,
+                                                      `idkec`,
+                                                      `kec`,
+                                                      `idkel`,
+                                                      `kel`,
+                                                      `idrtrw`,
+                                                      `rtrw`,
+                                                      `idblok`,
+                                                      `kodeblok`,
+                                                      `blok`,
+                                                      `idrayon`,
+                                                      `koderayon`,
+                                                      `rayon`,
+                                                      `wilayah`,
+                                                      `nama`,
+                                                      `noktp`,
+                                                      `telprumah`,
+                                                      `alamat`,
+                                                      `pekerjaan`,
+                                                      `nosambungan`,
+                                                      `nometer`,
+                                                      `tekanan`,
+                                                      `idgol`,
+                                                      `kodegol`,
+                                                      `golongan`,
+                                                      `idgol1`,
+                                                      `kodegol1`,
+                                                      `golongan1`,
+                                                      `perubahangol`,
+                                                      `golonganlalu`,
+                                                      `iddiameter`,
+                                                      `kodediameter`,
+                                                      `ukuran`,
+                                                      `tgldaftar`,
+                                                      `luasrumah`,
+                                                      `urutanbaca`,
+                                                      `prosesairlimbah`,
+                                                      `keterangan`,
+                                                      `bln1`,
+                                                      `stan1`,
+                                                      `pakai1`,
+                                                      `persen1`,
+                                                      `bln2`,
+                                                      `stan2`,
+                                                      `pakai2`,
+                                                      `persen2`,
+                                                      `bln3`,
+                                                      `stan3`,
+                                                      `pakai3`,
+                                                      `persen3`,
+                                                      `stanlalu`,
+                                                      `stanskrg`,
+                                                      `pakaiskrg`,
+                                                      `stanangkat`,
+                                                      `persentase`,
+                                                      `taksir`,
+                                                      `taksir2bln`,
+                                                      `taksir3bln`,
+                                                      `idkelainan`,
+                                                      `kodekelainan`,
+                                                      `kelainan`,
+                                                      `kelainanlalu`,
+                                                      `idkelainan1`,
+                                                      `kodekelainan1`,
+                                                      `kelainan1`,
+                                                      `kelainan1lalu`,
+                                                      `kelainan1lalu1`,
+                                                      `tunggakan`,
+                                                      `dendatunggakan`,
+                                                      `biayapemakaian`,
+                                                      `airlimbah`,
+                                                      `administrasi`,
+                                                      `bebanpasif`,
+                                                      `retribusi`,
+                                                      `pemeliharaan`,
+                                                      `pelayanan`,
+                                                      `meterai`,
+                                                      `custombeban1`,
+                                                      `custombeban2`,
+                                                      `custombeban3`,
+                                                      `persenppn`,
+                                                      `ppn`,
+                                                      `totalrekening`,
+                                                      `sudahlunas`,
+                                                      `rincianrekening`,
+                                                      `sudahbaca`,
+                                                      `verifikasi`,
+                                                      `waktuverifikasi`,
+                                                      `a`,
+                                                      `idpetugas`,
+                                                      `kodepetugas`,
+                                                      `namapetugas`,
+                                                      `waktubaca`,
+                                                      `waktubacalalu`,
+                                                      `waktuupload`,
+                                                      `sumberlokasi`,
+                                                      `latitude`,
+                                                      `longitude`,
+                                                      `mnc`,
+                                                      `mcc`,
+                                                      `lac`,
+                                                      `cellid`,
+                                                      `adafotorumah`,
+                                                      `adavideo`,
+                                                      `lampiran`,
+                                                      `flagkirimsms`,
+                                                      `sudahkirimsms`,
+                                                      `logupdate`,
+                                                      `iduserupdate`,
+                                                      `flagsudahupload`,
+                                                      `flagaktif`,
+                                                      `custom1`,
+                                                      `custom2`,
+                                                      `peruntukan`,
+                                                      `hasilbacaulang`,
+                                                      `totalrekeningstr`,
+                                                      `datalapangan`,
+                                                      `ratarata3bln`,
+                                                      `flaghistori3bln`,
+                                                      `terbaca`,
+                                                      `memolapangan`,
+                                                      `wm`,
+                                                      `masterlatlong`,
+                                                      `flagkoreksi`
+                                                    FROM
+                                                      hasilbaca{periode:MMyy}",
+                                                    transaction: trans);
+                                            }
+                                        });
+
+                                        Utils.WriteLogMessage("Proses data piutang");
                                         await Piutang(settings);
+
+                                        Utils.WriteLogMessage("Proses data bayar");
                                         await Bayar(settings);
                                     }
 
@@ -3208,6 +3369,10 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
+                    },
+                    placeholders: new()
+                    {
+                        { "[bacameter]", AppSettings.DatabaseBacameter },
                     });
             });
 
@@ -3221,6 +3386,10 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
+                    },
+                    placeholders: new()
+                    {
+                        { "[bacameter]", AppSettings.DatabaseBacameter },
                     });
             });
 
@@ -3250,69 +3419,81 @@ namespace Migrasi.Commands
                     });
             });
 
-            //await Utils.TrackProgress("master_attribute_jadwal_baca", async () =>
-            //{
-            //    await Utils.ClientBacameter(async (conn, trans) =>
-            //    {
-            //        var jadwalbaca = await conn.QueryAsync(@"
-            //                                    SELECT
-            //                                    b.kodepetugas,
-            //                                    c.koderayon
-            //                                    FROM
-            //                                    jadwalbaca a
-            //                                    JOIN petugasbaca b ON a.idpetugas=b.idpetugas
-            //                                    JOIN rayon c ON a.idrayon=c.idrayon", transaction: trans);
-            //        if (jadwalbaca.Any())
-            //        {
-            //            await Utils.Client(async (conn, trans) =>
-            //            {
-            //                List<dynamic> data = [];
-            //                var listPetugas = await conn.QueryAsync(@"SELECT idpetugasbaca,kodepetugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
-            //                    new { idpdam = settings.IdPdam }, trans);
-            //                var listRayon = await conn.QueryAsync(@"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
-            //                    new { idpdam = settings.IdPdam }, trans);
+            await Utils.TrackProgress("master_attribute_jadwal_baca", async () =>
+            {
+                await Utils.BacameterConnectionWrapper(async (conn, trans) =>
+                {
+                    var jadwalbaca = await conn.QueryAsync(
+                        sql: @"
+                        SELECT
+                        b.kodepetugas,
+                        c.koderayon
+                        FROM jadwalbaca a
+                        JOIN petugasbaca b ON a.idpetugas=b.idpetugas
+                        JOIN rayon c ON a.idrayon=c.idrayon",
+                        transaction: trans);
+                    if (jadwalbaca.Any())
+                    {
+                        await Utils.MainConnectionWrapper(async (conn, trans) =>
+                        {
+                            List<dynamic> data = [];
+                            var listPetugas = await conn.QueryAsync(
+                                sql: @"SELECT idpetugasbaca,kodepetugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
+                                param: new
+                                {
+                                    idpdam = settings.IdPdam
+                                },
+                                transaction: trans);
+                            var listRayon = await conn.QueryAsync(
+                                sql: @"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
+                                param: new
+                                {
+                                    idpdam = settings.IdPdam
+                                },
+                                transaction: trans);
 
-            //                int id = 1;
-            //                foreach (var item in jadwalbaca)
-            //                {
-            //                    dynamic o = new
-            //                    {
-            //                        idpdam = settings.IdPdam,
-            //                        idjadwalbaca = id++,
-            //                        idpetugasbaca =
-            //                            listPetugas
-            //                                .Where(s => s.kodepetugasbaca.ToLower() == item.kodepetugas.ToLower())
-            //                                .Select(s => s.idpetugasbaca).FirstOrDefault(),
-            //                        idrayon =
-            //                            listRayon
-            //                                .Where(s => s.koderayon == item.koderayon)
-            //                                .Select(s => s.idrayon).FirstOrDefault()
-            //                    };
+                            int id = 1;
+                            foreach (var item in jadwalbaca)
+                            {
+                                dynamic o = new
+                                {
+                                    idpdam = settings.IdPdam,
+                                    idjadwalbaca = id++,
+                                    idpetugasbaca =
+                                        listPetugas
+                                            .Where(s => s.kodepetugasbaca.ToLower() == item.kodepetugas.ToLower())
+                                            .Select(s => s.idpetugasbaca).FirstOrDefault(),
+                                    idrayon =
+                                        listRayon
+                                            .Where(s => s.koderayon == item.koderayon)
+                                            .Select(s => s.idrayon).FirstOrDefault()
+                                };
 
-            //                    if (o.idpetugasbaca != null && o.idrayon != null)
-            //                    {
-            //                        data.Add(o);
-            //                    }
-            //                }
+                                if (o.idpetugasbaca != null && o.idrayon != null)
+                                {
+                                    data.Add(o);
+                                }
+                            }
 
-            //                if (data.Count != 0)
-            //                {
-            //                    await conn.ExecuteAsync(
-            //                       sql: @"
-            //                        DELETE FROM master_attribute_jadwal_baca WHERE idpdam=@idpdam",
-            //                       param: new { idpdam = settings.IdPdam },
-            //                       transaction: trans);
-            //                    await conn.ExecuteAsync(
-            //                        sql: @"
-            //                        INSERT INTO master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
-            //                        VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)",
-            //                        param: data,
-            //                        transaction: trans);
-            //                }
-            //            });
-            //        }
-            //    });
-            //});
+                            if (data.Count != 0)
+                            {
+                                await conn.ExecuteAsync(
+                                    sql: @"DELETE FROM master_attribute_jadwal_baca WHERE idpdam=@idpdam",
+                                    param: new
+                                    {
+                                        idpdam = settings.IdPdam
+                                    },
+                                    transaction: trans);
+                                await conn.ExecuteAsync(
+                                    sql: @"INSERT INTO master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
+                                    VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)",
+                                    param: data,
+                                    transaction: trans);
+                            }
+                        });
+                    }
+                });
+            });
 
             await Utils.TrackProgress("master_attribute_loket", async () =>
             {

@@ -1,21 +1,20 @@
 ﻿SELECT
 @idpdam,
-kodepetugas AS idpetugasbaca,
+idpetugas AS idpetugasbaca,
 kodepetugas AS kodepetugasbaca,
 nama AS petugasbaca,
-LOWER(REPLACE(nama,' ','_')) AS namauser,
-'' AS PASSWORD,
+namauser,
+passworduser AS PASSWORD,
 'Pembaca Meter' AS jenispembaca,
-'' AS alamat,
-'1000-01-01' AS tgllahir,
+alamat AS alamat,
+COALESCE(tgllahir,'1000-01-01') AS tgllahir,
 '' AS nohp,
-'1000-01-01' AS tglmulaikerja,
+COALESCE(mulaikerja,'1000-01-01') AS tglmulaikerja,
 NULL AS fotopetugasbaca,
 '' AS keterangan,
 0 AS flagforeman,
-1 AS STATUS,
+aktif AS STATUS,
 0 AS flaghapus,
 NOW() AS waktucreate,
 NOW() AS waktuupdate
-FROM
-`petugasbaca`
+FROM [bacameter].`petugasbaca`
