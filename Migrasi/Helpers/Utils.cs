@@ -27,7 +27,8 @@ namespace Migrasi.Helpers
             string table,
             string queryPath,
             Dictionary<string, object?>? parameters = null,
-            Dictionary<string, string>? placeholders = null)
+            Dictionary<string, string>? placeholders = null,
+            List<MySqlBulkCopyColumnMapping>? columnMappings = null)
         {
             using var sConnection = new MySqlConnection(sourceConnection);
             await sConnection.OpenAsync();
@@ -68,6 +69,11 @@ namespace Migrasi.Helpers
                     DestinationTableName = table,
                     ConflictOption = MySqlBulkLoaderConflictOption.Replace,
                 };
+
+                if (columnMappings != null && columnMappings.Count != 0)
+                {
+                    bulkCopy.ColumnMappings.AddRange(columnMappings);
+                }
 
                 var result = await bulkCopy.WriteToServerAsync(reader);
                 WriteLogMessage($"RowsInserted ({table}): {result.RowsInserted}");
