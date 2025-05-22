@@ -3905,7 +3905,7 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
-        private async Task SambungBaru(Settings settings)
+        private static async Task SambungBaru(Settings settings)
         {
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
