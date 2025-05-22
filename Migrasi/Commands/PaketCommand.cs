@@ -3920,6 +3920,20 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
+            
+            await Utils.BulkCopy(
+                sourceConnection: AppSettings.LoketConnectionString,
+                targetConnection: AppSettings.MainConnectionString,
+                table: "permohonan_non_pelanggan_detail",
+                queryPath: @"Queries\sambung_baru\detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
 
             //copy lg supaya dapet yg terbaru
             await Utils.CopyToDiffrentHost(
@@ -3949,11 +3963,68 @@ namespace Migrasi.Commands
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
+                table: "permohonan_non_pelanggan_spk_detail",
+                queryPath: @"Queries\sambung_baru\spk_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+            
+            await Utils.BulkCopy(
+                sourceConnection: AppSettings.LoketConnectionString,
+                targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_rab",
                 queryPath: @"Queries\sambung_baru\rab.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+
+            var lastIdRabDetail = 0;
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
+            {
+                lastIdRabDetail = await conn.QueryFirstOrDefaultAsync<int>(
+                    sql: @"SELECT COALESCE(MAX(`idpermohonan`),0) AS maxid FROM `permohonan_non_pelanggan_rab_detail`",
+                    transaction: trans);
+                var idPermohonanList = await conn.QueryAsync<int>(
+                    sql: @"
+                    SELECT a.`idpermohonan` FROM permohonan_non_pelanggan a
+                    JOIN `master_attribute_tipe_permohonan` b ON b.`idpdam`=a.`idpdam` AND b.`idtipepermohonan`=a.`idtipepermohonan`
+                    WHERE a.`idpdam`=@idpdam AND b.`kodetipepermohonan`='SAMBUNGAN_BARU_AIR'",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                    },
+                    transaction: trans);
+                if (idPermohonanList.Any())
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"delete from permohonan_non_pelanggan_rab_detail where idpdam=@idpdam and idpermohonan in @idpermohonan",
+                        param: new
+                        {
+                            idpdam = settings.IdPdam,
+                            idpermohonan = idPermohonanList.ToList(),
+                        },
+                        transaction: trans);
+                }
+            });
+            await Utils.BulkCopy(
+                sourceConnection: AppSettings.LoketConnectionString,
+                targetConnection: AppSettings.MainConnectionString,
+                table: "permohonan_non_pelanggan_rab_detail",
+                queryPath: @"Queries\sambung_baru\rab_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam },
+                    { "@lastid", lastIdRabDetail },
                 },
                 placeholders: new()
                 {
@@ -3987,7 +4058,20 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-
+            
+            await Utils.BulkCopy(
+                sourceConnection: AppSettings.LoketConnectionString,
+                targetConnection: AppSettings.MainConnectionString,
+                table: "permohonan_non_pelanggan_ba_detail",
+                queryPath: @"Queries\sambung_baru\ba_detail.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
         }
         private async Task BukaSegel(Settings settings)
         {

@@ -1,16 +1,7 @@
-﻿DROP TABLE IF EXISTS __tmp_pendaftaran;
-CREATE TABLE __tmp_pendaftaran AS
-SELECT
-@id:=@id+1 AS id,
-nomorreg
-FROM `pendaftaran`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0;
-
-SELECT
+﻿SELECT
 @id:=@id+1 AS `id`,
 @idpdam AS `idpdam`,
-p.id AS `idpermohonan`,
+p.idpermohonan AS `idpermohonan`,
 d.`tipe` AS `tipe`,
 d.`kode` AS `kode`,
 d.`nama` AS `uraian`,
@@ -32,8 +23,8 @@ d.`paket` AS `flagpaket`,
 0 AS `flagdistribusi`,
 0 AS `untuksppbdarispk`,
 r.`tglrab` AS `waktuupdate`
-FROM __tmp_pendaftaran p
-JOIN `rab` r ON r.`nomorreg`=p.`nomorreg`
+FROM rab r
+JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg` AND p.idtipepermohonan=@idtipepermohonan AND p.idpdam=@idpdam
 JOIN `detailrab` d ON d.`norab`=r.`norab`
 ,(SELECT @id:=@lastid) AS id
-WHERE r.`flaghapus`=0 AND r.`tglrab` IS NOT NULL
+WHERE r.`flaghapus`=0
