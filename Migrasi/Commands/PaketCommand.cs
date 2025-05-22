@@ -1391,7 +1391,7 @@ namespace Migrasi.Commands
                 });
 
         }
-        private async Task Nonair(Settings settings)
+        private static async Task Nonair(Settings settings)
         {
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -3945,6 +3945,49 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
+            
+            await Utils.BulkCopy(
+                sourceConnection: AppSettings.LoketConnectionString,
+                targetConnection: AppSettings.MainConnectionString,
+                table: "permohonan_non_pelanggan_rab",
+                queryPath: @"Queries\sambung_baru\rab.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+            
+            await Utils.BulkCopy(
+                sourceConnection: AppSettings.LoketConnectionString,
+                targetConnection: AppSettings.MainConnectionString,
+                table: "permohonan_non_pelanggan_spk_pasang",
+                queryPath: @"Queries\sambung_baru\spk_pasang.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+            
+            await Utils.BulkCopy(
+                sourceConnection: AppSettings.LoketConnectionString,
+                targetConnection: AppSettings.MainConnectionString,
+                table: "permohonan_non_pelanggan_ba",
+                queryPath: @"Queries\sambung_baru\ba.sql",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+
         }
         private async Task BukaSegel(Settings settings)
         {

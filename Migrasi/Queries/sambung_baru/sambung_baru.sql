@@ -67,8 +67,8 @@ NULL AS `fotoimb`,
 NULL AS `fotobukti1`,
 NULL AS `fotobukti2`,
 NULL AS `fotobukti3`,
-0 AS `flagverifikasi`,
-NULL AS `waktuverifikasi`,
+ra.flagaktif AS `flagverifikasi`,
+ra.waktupengaktifan AS `waktuverifikasi`,
 0 AS `flagusulan`,
 0 AS `flaglanjutkelanggananlimbah`,
 p.`pelanggan_kavling` AS `flagpelanggankavlingan`,
@@ -87,6 +87,7 @@ LEFT JOIN [dataawal].`master_attribute_jenis_bangunan` j ON j.`namajenisbangunan
 LEFT JOIN [dataawal].`master_attribute_kepemilikan` kp ON kp.`namakepemilikan`=p.`kepemilikan` AND kp.`idpdam`=@idpdam
 LEFT JOIN [dataawal].`master_attribute_pekerjaan` pk ON pk.`namapekerjaan`=p.`pekerjaan` AND pk.`idpdam`=@idpdam
 LEFT JOIN [dataawal].`master_attribute_sumber_air` s ON s.`namasumberair`=p.`airyangdigunakansaatini` AND s.`idpdam`=@idpdam
+LEFT JOIN rab ra ON ra.nomorreg=p.nomorreg AND ra.flaghapus=0 AND ra.flagaktif=1
 ,(SELECT @id:=@maxid) AS id
 WHERE p.flaghapus=0
 AND p.nomorreg NOT IN (SELECT `nomorpermohonan` FROM [dataawal].`tampung_permohonan_non_pelanggan` WHERE idpdam=@idpdam)
