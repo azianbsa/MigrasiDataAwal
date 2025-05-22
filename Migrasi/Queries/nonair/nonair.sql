@@ -1,58 +1,47 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
-CREATE TEMPORARY TABLE __tmp_golongan AS
-SELECT
-@id:=@id+1 AS id,
-kodegol,
-aktif
-FROM
-golongan,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_nonair;
-CREATE TEMPORARY TABLE __tmp_nonair AS
-SELECT
-@id:=@id+1 AS id,
-urutan
-FROM [table]
-,(SELECT @id:=@lastid) AS id
-WHERE flagangsur=0 
-AND jenis<>'JNS-38'
-AND DATE(COALESCE(waktuinput,waktuupdate))=@cutoff;
+﻿SET @maxid=(SELECT COALESCE(MAX(`idnonair`),0) AS maxid FROM [dataawal].`tampung_rekening_nonair` WHERE idpdam=@idpdam);
 
 SELECT
-@idpdam,
-n.id AS idnonair,
-jns.idjenisnonair AS idjenisnonair,
-pel.id AS idpelangganair,
+@idpdam AS idpdam,
+@id:=@id+1 AS idnonair,
+j.`idjenisnonair` AS idjenisnonair,
+p.`idpelangganair` AS idpelangganair,
 NULL AS idpelangganlimbah,
 NULL AS idpelangganlltt,
-IF(na.periode='',NULL,na.periode) AS kodeperiode,
-na.urutan AS nomornonair,
-na.keterangan AS keterangan,
-na.total AS total,
-na.tglmulaitagih AS tanggalmulaitagih,
-na.validdate AS tanggalkadaluarsa,
-na.nama AS nama,
-na.alamat AS alamat,
-ryn.id AS idrayon,
+IF(n.periode='',NULL,n.periode) AS kodeperiode,
+n.`nomor` AS nomornonair,
+n.keterangan AS keterangan,
+n.total AS total,
+n.tglmulaitagih AS tanggalmulaitagih,
+n.validdate AS tanggalkadaluarsa,
+n.nama AS nama,
+n.alamat AS alamat,
+r.`idrayon` AS idrayon,
 NULL AS idkelurahan,
-gol.id AS idgolongan,
+g.`idgolongan` AS idgolongan,
 NULL AS idtariflimbah,
 NULL AS idtariflltt,
-na.flagangsur AS flagangsur,
+n.`flagangsur` AS flagangsur,
 NULL AS idangsuran,
-na.termin AS termin,
-na.kwitansimanual AS flagmanual,
+n.`termin` AS termin,
+n.`kwitansimanual` AS flagmanual,
 NULL AS idpermohonansambunganbaru,
-na.flaghapus AS flaghapus,
-NULL AS `iduser`,
-COALESCE(na.waktuupdate,NOW()) AS waktuupdate,
-COALESCE(na.waktuinput,na.waktuupdate) AS `created_at`
-FROM
-__tmp_nonair n
-JOIN [table] na ON na.urutan=n.urutan
-LEFT JOIN pelanggan pel ON pel.nosamb=na.dibebankankepada
-LEFT JOIN __tmp_jenisnonair jns ON jns.kodejenisnonair=na.jenis
-LEFT JOIN [bsbs].rayon ryn ON ryn.koderayon=na.koderayon
-LEFT JOIN __tmp_golongan gol ON gol.kodegol=na.kodegol AND gol.aktif=1
-WHERE na.periode=@periode OR na.periode IS NULL OR na.periode=''
+n.flaghapus AS flaghapus,
+u.`iduser` AS `iduser`,
+n.`waktuupdate` AS waktuupdate,
+n.`waktuinput` AS `created_at`,
+n.urutan AS urutan
+FROM `nonair` n
+LEFT JOIN [dataawal].`tampung_master_pelanggan_air` p ON p.`nosamb`=n.`dibebankankepada` AND p.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_jenis_nonair` j ON j.`kodejenisnonair`=n.`jenis` AND j.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_rayon` r ON r.`koderayon`=n.koderayon AND r.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_tarif_golongan` g ON g.`kodegolongan`=n.`kodegol` AND g.`status`=1 AND g.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_user` u ON u.`nama`=n.`userinput` AND u.`idpdam`=@idpdam
+,(SELECT @id:=@maxid) AS id
+WHERE n.flaghapus=0
+AND n.flagangsur=0
+AND n.`nomor` NOT IN (SELECT `nomornonair` FROM [dataawal].`tampung_rekening_nonair` WHERE idpdam=@idpdam)
+AND n.`jenis` NOT IN (
+'JNS-38', -- denda air
+'JNS-16' -- meterai
+)
+AND DATE_FORMAT(n.`tglmulaitagih`,'%Y%m') BETWEEN 202502 AND 202504;

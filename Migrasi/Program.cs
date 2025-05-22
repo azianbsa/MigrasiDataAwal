@@ -91,8 +91,9 @@ namespace Migrasi
 
                 return app.Run(args);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return -99;
             }
             finally

@@ -7,7 +7,7 @@
  satuan AS satuan,
  tipe AS kelompok,
  kategori AS postbiaya,
- perhitungan AS perhitungan,
+ NULL AS perhitungan,
  NULL AS idpaketmaterial,
  jumlah_persen AS persentase,
  harga AS biaya,
