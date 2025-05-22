@@ -79,12 +79,11 @@ namespace Migrasi
                     .WithDescription("Migrasi data paket bacameter only, basic");
             });
 
-            var sw = Stopwatch.StartNew();
             try
             {
                 using SqliteConnection conn = await Utils.SqliteConnectionFactory();
                 var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM proses_manager WHERE flagproses=1");
-                if (cek != null && Utils.ConfirmationPrompt(message: "Proses ulang?", defaultChoice: false))
+                if (cek != null && Utils.ConfirmationPrompt(message: "Proses ulang?", defaultChoice: true))
                 {
                     await conn.ExecuteAsync("DELETE FROM proses_manager");
                 }
@@ -98,9 +97,8 @@ namespace Migrasi
             }
             finally
             {
-                sw.Stop();
                 AnsiConsole.MarkupLine("");
-                AnsiConsole.MarkupLine($"[bold green]Program exit. (elapsed {sw.Elapsed})[/]");
+                AnsiConsole.MarkupLine($"Program exit.");
             }
         }
     }

@@ -50,69 +50,56 @@ namespace Migrasi.Commands
 
         private async Task<int> Basic(Settings settings)
         {
+            const string PROSES_DATA_MASTER_BSHPD = "Proses data master bshpd";
+            const string PROSES_DATA_PELANGGAN = "Proses data pelanggan";
+            const string PROSES_PIUTANG_BAYAR_3_BULAN = "Proses piutang & bayar 3 bulan";
+            const string PROSES_NONAIR_3_BULAN = "Proses nonair 3 bulan";
+            const string PROSES_PERMOHONAN_SAMBUNG_BARU = "Proses permohonan sambung baru";
+            const string PROSES_PERMOHONAN_BALIK_NAMA = "Proses permohonan balik nama";
+
+            var prosesList = new List<string>
+            {
+                PROSES_DATA_MASTER_BSHPD,
+                PROSES_DATA_PELANGGAN,
+                PROSES_PIUTANG_BAYAR_3_BULAN,
+                PROSES_NONAIR_3_BULAN,
+                PROSES_PERMOHONAN_SAMBUNG_BARU,
+            };
+
             string? namaPdam = "";
             await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
             });
 
-            var prosesMasterBshpd = AnsiConsole.Prompt(
-                new TextPrompt<bool>("Proses data master bshpd?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(false)
-                .WithConverter(choice => choice ? "y" : "n"));
+            AnsiConsole.WriteLine();
+            AnsiConsole.WriteLine($"Environment: {AppSettings.Environment}");
+            AnsiConsole.WriteLine($"{settings.IdPdam} {namaPdam}");
+            AnsiConsole.WriteLine();
 
-            var prosesPelanggan = AnsiConsole.Prompt(
-                new TextPrompt<bool>("Proses data pelanggan?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(false)
-                .WithConverter(choice => choice ? "y" : "n"));
+            var selectedProses = AnsiConsole.Prompt(
+                new MultiSelectionPrompt<string>()
+                .Title("Pilih proses")
+                .NotRequired()
+                .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
+                .AddChoices(prosesList));
 
-            var prosesPiutangBayar3Bulan = AnsiConsole.Prompt(
-                new TextPrompt<bool>("Proses piutang & bayar 3 bulan?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(false)
-                .WithConverter(choice => choice ? "y" : "n"));
-            
-            var prosesNonair3Bulan = AnsiConsole.Prompt(
-                new TextPrompt<bool>("Proses nonair 3 bulan?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(false)
-                .WithConverter(choice => choice ? "y" : "n"));
-            
-            var prosesPermohonanSambungBaru = AnsiConsole.Prompt(
-                new TextPrompt<bool>("Proses permohonan sambung baru?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(false)
-                .WithConverter(choice => choice ? "y" : "n"));
+            var prosesMasterBshpd = selectedProses.Exists(s => s == PROSES_DATA_MASTER_BSHPD);
+            var prosesPelanggan = selectedProses.Exists(s => s == PROSES_DATA_PELANGGAN);
+            var prosesPiutangBayar3Bulan = selectedProses.Exists(s => s == PROSES_PIUTANG_BAYAR_3_BULAN);
+            var prosesNonair3Bulan = selectedProses.Exists(s => s == PROSES_NONAIR_3_BULAN);
+            var prosesPermohonanSambungBaru = selectedProses.Exists(s => s == PROSES_PERMOHONAN_SAMBUNG_BARU);
+            var prosesPermohonanBalikNama = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BALIK_NAMA);
 
             var periodeMulai = AnsiConsole.Prompt(
                 new TextPrompt<string>("Periode mulai (yyyyMM):"));
 
-            AnsiConsole.Write(
-                new Table()
-                .AddColumn(new TableColumn(""))
-                .AddColumn(new TableColumn(""))
-                .AddRow("Environment", AppSettings.Environment.ToString())
-                .AddRow("PDAM", $"{settings.IdPdam} {namaPdam}")
-                .AddRow("Proses data master BSHPD", $"{prosesMasterBshpd}")
-                .AddRow("Proses data pelanggan", $"{prosesPelanggan}")
-                .AddRow("Proses piutang & bayar 3 bulan", $"{prosesPiutangBayar3Bulan}")
-                .AddRow("Proses nonair 3 bulan", $"{prosesNonair3Bulan}")
-                .AddRow("Proses permohonan sambung baru", $"{prosesPermohonanSambungBaru}")
-                .AddRow("Periode mulai", periodeMulai)
-                .AddRow("Paket", settings.NamaPaket.ToString()!)
-                .AddRow("Config DB", AppSettings.ConfigConnectionString)
-                .AddRow("Main DB", AppSettings.MainConnectionString)
-                .AddRow("Bacameter V4", AppSettings.ConnectionStringBacameter)
-                .AddRow("Billing V4", AppSettings.ConnectionStringBsbs)
-                .AddRow("Loket V4", AppSettings.LoketConnectionString)
-                .AddRow("Database tampung", AppSettings.DataAwalDatabase));
+            AnsiConsole.WriteLine();
+            AnsiConsole.WriteLine($"Paket: {settings.NamaPaket}");
+            AnsiConsole.WriteLine($"Periode mulai: {periodeMulai}");
+            AnsiConsole.WriteLine("Proses dipilih:");
+            AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
+            AnsiConsole.WriteLine();
 
             if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
             {
@@ -364,6 +351,12 @@ namespace Migrasi.Commands
                         {
                             Utils.WriteLogMessage("Proses data permohonan sambung baru");
                             await SambungBaru(settings);
+                        }
+
+                        if (prosesPermohonanBalikNama)
+                        {
+                            Utils.WriteLogMessage("Proses data permohonan balik nama");
+                            await BalikNama(settings);
                         }
 
                         if (false)
