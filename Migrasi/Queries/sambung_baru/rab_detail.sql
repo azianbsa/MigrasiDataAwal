@@ -1,4 +1,6 @@
-﻿SELECT
+﻿SET @idtipepermohonan=(SELECT idtipepermohonan FROM [dataawal].`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='SAMBUNGAN_BARU_AIR');
+
+SELECT
 @id:=@id+1 AS `id`,
 @idpdam AS `idpdam`,
 p.idpermohonan AS `idpermohonan`,
