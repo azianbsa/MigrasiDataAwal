@@ -60,6 +60,7 @@ namespace Migrasi.Commands
             const string PROSES_PERMOHONAN_BALIK_NAMA = "Proses permohonan balik nama";
             const string PROSES_PERMOHONAN_BUKA_SEGEL = "Proses permohonan buka segel";
             const string PROSES_PERMOHONAN_KOREKSI_DATA = "Proses permohonan koreksi data";
+            const string PROSES_PERMOHONAN_KOREKSI_REKENING = "Proses permohonan koreksi rekening";
 
             var prosesList = new List<string>
             {
@@ -71,6 +72,7 @@ namespace Migrasi.Commands
                 PROSES_PERMOHONAN_BALIK_NAMA,
                 PROSES_PERMOHONAN_BUKA_SEGEL,
                 PROSES_PERMOHONAN_KOREKSI_DATA,
+                PROSES_PERMOHONAN_KOREKSI_REKENING,
             };
 
             string? namaPdam = "";
@@ -99,6 +101,7 @@ namespace Migrasi.Commands
             var prosesPermohonanBalikNama = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BALIK_NAMA);
             var prosesPermohonanBukaSegel = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BUKA_SEGEL);
             var prosesPermohonanKoreksiData = selectedProses.Exists(s => s == PROSES_PERMOHONAN_KOREKSI_DATA);
+            var prosesPermohonanKoreksiRekening = selectedProses.Exists(s => s == PROSES_PERMOHONAN_KOREKSI_REKENING);
 
             var periodeMulai = AnsiConsole.Prompt(
                 new TextPrompt<string>("Periode mulai (yyyyMM):"));
@@ -382,6 +385,12 @@ namespace Migrasi.Commands
                             await KoreksiData(settings);
                         }
 
+                        if (prosesPermohonanKoreksiRekening)
+                        {
+                            Utils.WriteLogMessage("Proses data permohonan koreksi rekening");
+                            await KoreksiRekair(settings);
+                        }
+
                         if (false)
                         {
                             await Report(settings);
@@ -433,10 +442,6 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("buka segel", async () =>
                             {
                                 await BukaSegel(settings);
-                            });
-                            await Utils.TrackProgress("koreksi rekair", async () =>
-                            {
-                                await KoreksiRekair(settings);
                             });
                             await Utils.TrackProgress("rotasimeter", async () =>
                             {
@@ -3874,28 +3879,8 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
         }
-        private async Task KoreksiRekair(Settings settings)
+        private static async Task KoreksiRekair(Settings settings)
         {
-            var lastId = 0;
-            var krekair = 0;
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
-            {
-                krekair = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='KREKAIR'", transaction: trans);
-                await conn.ExecuteAsync(
-                    sql: @"
-                    DELETE FROM `permohonan_pelanggan_air_koreksi_rekening` WHERE idpdam=@idpdam AND `idpermohonan` 
-                    IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
-                    param: new
-                    {
-                        idpdam = settings.IdPdam,
-                        idtipepermohonan = krekair
-                    },
-                    transaction: trans);
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-            });
-
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -3904,14 +3889,51 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                    { "@tipepermohonan", krekair },
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawaal]", AppSettings.DataAwalDatabase },
                 });
 
+            //copy terbaru
+            await Utils.CopyToDiffrentHost(
+                sourceConnection: AppSettings.MainConnectionString,
+                targetConnection: AppSettings.DataAwalConnectionString,
+                table: "tampung_permohonan_pelanggan_air",
+                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                });
+
+            var lastId = 0;
+            await Utils.MainConnectionWrapper(async (conn, trans) =>
+            {
+                var idPermohonanList = await conn.QueryAsync<int>(
+                    sql: @"
+                    SELECT a.`idpermohonan` FROM permohonan_non_pelanggan a
+                    JOIN `master_attribute_tipe_permohonan` b ON b.`idpdam`=a.`idpdam` AND b.`idtipepermohonan`=a.`idtipepermohonan`
+                    WHERE a.`idpdam`=@idpdam AND b.`kodetipepermohonan`='KREKAIR'",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam,
+                    },
+                    transaction: trans);
+                if (idPermohonanList.Any())
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"delete from permohonan_pelanggan_air_koreksi_rekening where idpdam=@idpdam and idpermohonan in @idpermohonan",
+                        param: new
+                        {
+                            idpdam = settings.IdPdam,
+                            idpermohonan = idPermohonanList.ToList(),
+                        },
+                        transaction: trans);
+                }
+                lastId = await conn.QueryFirstOrDefaultAsync<int>(
+                    sql: @"SELECT COALESCE(MAX(`id`),0) AS maxid FROM `permohonan_pelanggan_air_koreksi_rekening`",
+                    transaction: trans);
+            });
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -3924,7 +3946,7 @@ namespace Migrasi.Commands
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
         }
         private static async Task SambungBaru(Settings settings)

@@ -1,54 +1,19 @@
-﻿DROP TABLE IF EXISTS __tmp_periode;
-CREATE TEMPORARY TABLE __tmp_periode
-SELECT
-@idperiode := @idperiode+1 AS idperiode,
-periode
-FROM [bsbs].periode
-,(SELECT @idperiode := 0) AS idperiode
-ORDER BY periode;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
-CREATE TEMPORARY TABLE __tmp_golongan AS
-SELECT
-@id:=@id+1 AS id,
-kodegol,
-aktif
-FROM
-golongan,
-(SELECT @id:=0) AS id;
-
-DROP TABLE IF EXISTS __tmp_koreksi_rek;
-CREATE TABLE __tmp_koreksi_rek AS
-SELECT 
-@id := @id+1 AS id,
-a.nomor,
-CAST(CONCAT(a.status,'[',COUNT(*),']') AS CHAR) AS `status`
-FROM (
-SELECT
-p.`nomor`,
-IF(d.`id` IS NULL,
- 'Menunggu Usulan Koreksi',
- '(Selesai) Sudah Verifikasi Pusat') AS `status`
-FROM `permohonan_koreksi_rek` p
-LEFT JOIN `ba_usulan_koreksi_rekening_periode` d ON d.`nomorpermohonan`=p.`nomor`
-WHERE p.`flaghapus`=0 ) a
-,(SELECT @id := @lastid) AS id
-GROUP BY a.nomor,a.status;
+﻿SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='KREKAIR');
 
 SELECT
-d.`id` AS `id`,
+@id:=@id+1 AS `id`,
 @idpdam AS `idpdam`,
-pl.`id` AS `idpelangganair`,
-pr.idperiode AS `idperiode`,
-p.`id` AS `idpermohonan`,
-d.`tanggalba` AS `waktuusulan`,
+pl.`idpelangganair` AS `idpelangganair`,
+pr.`idperiode` AS `idperiode`,
+pp.`idpermohonan` AS `idpermohonan`,
+p.`tanggalba` AS `waktuusulan`,
 1 AS `statusverifikasilapangan`,
-d.`tanggalba` AS `waktustatusverifikasilapangan`,
+p.`tanggalba` AS `waktustatusverifikasilapangan`,
 NULL AS `keteranganstatusverifikasilapangan`,
 1 AS `statusverifikasipusat`,
-d.`tanggalba` AS `waktustatusverifikasipusat`,
+p.`tanggalba` AS `waktustatusverifikasipusat`,
 NULL AS `keteranganstatusverifikasipusat`,
-d.`nomorba` AS `nomorba`,
+p.`nomorba` AS `nomorba`,
 d.`stanlalu_lama` AS `stanlalu`,
 d.`stankini_lama` AS `stanskrg`,
 0 AS `stanangkat`,
@@ -112,11 +77,11 @@ d.`rekair_baru` AS `rekair_baru`,
 d.`rekair_baru` AS `total_baru`,
 '(Selesai) Sudah Verifikasi Pusat' AS `statuspermohonan`,
 0 AS `flaghapus`,
-d.`tanggalba` AS `waktuupdate`
-FROM __tmp_koreksi_rek p
-JOIN `ba_usulan_koreksi_rekening_periode` d ON d.nomorpermohonan=p.nomor
-JOIN pelanggan pl ON pl.nosamb=d.nosamb
-JOIN __tmp_periode pr ON pr.periode=d.`periode`
-LEFT JOIN __tmp_golongan g ON g.kodegol=d.kodegol AND g.aktif=1
-LEFT JOIN [bsbs].rayon r ON r.koderayon=d.koderayon
-LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=pl.kodekelurahan
+p.`tanggalba` AS `waktuupdate`
+FROM `ba_usulan_koreksi_rekening` p
+JOIN `ba_usulan_koreksi_rekening_periode` d ON d.`nomorba`=p.`nomorba`
+JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan` AND pp.`idtipepermohonan`=@idtipepermohonan AND pp.`idpdam`=@idpdam
+JOIN `kotaparepare_dataawal`.`tampung_master_pelanggan_air` pl ON pl.nosamb=d.`nosamb` AND pl.`idpdam`=@idpdam
+JOIN `kotaparepare_dataawal`.`master_periode` pr ON pr.`kodeperiode`=d.`periode`
+,(SELECT @id:=@lastid) AS id
+WHERE p.`flaghapus`=0
