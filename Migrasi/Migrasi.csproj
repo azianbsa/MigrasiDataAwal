@@ -229,6 +229,9 @@
     <None Update="Queries\tutup_total\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\tutup_total\spk.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\tutup_total\tutup_total.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -1,35 +1,19 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
-CREATE TEMPORARY TABLE __tmp_golongan AS
-SELECT
-@id:=@id+1 AS id,
-kodegol,
-aktif
-FROM
-golongan,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_tutup_total;
-CREATE TEMPORARY TABLE __tmp_tutup_total AS
-SELECT
-@id:=@id+1 AS id,
-nomor
-FROM `permohonan_pemutusan_sementara`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0;
+﻿SET @maxid=(SELECT COALESCE(MAX(idpermohonan),0) AS maxid FROM `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam);
+SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='TUTUP_TOTAL');
 
 SELECT
 @idpdam AS idpdam,
-p.id AS idpermohonan,
-@tipepermohonan AS idtipepermohonan,
+@id:=@id+1 AS idpermohonan,
+@idtipepermohonan AS idtipepermohonan,
 NULL AS idsumberpengaduan,
-pp.nomor AS nomorpermohonan,
-pp.tanggal AS waktupermohonan,
-r.id AS idrayon,
-k.id AS idkelurahan,
-g.id AS idgolongan,
+p.nomor AS nomorpermohonan,
+p.tanggal AS waktupermohonan,
+r.`idrayon` AS idrayon,
+k.`idkelurahan` AS idkelurahan,
+g.`idgolongan` AS idgolongan,
 NULL AS iddiameter,
-pel.id idpelangganair,
-pp.keterangan AS keterangan,
+pe.`idpelangganair` idpelangganair,
+p.keterangan AS keterangan,
 NULL AS iduser,
 NULL AS idnonair,
 NULL AS latitude,
@@ -38,29 +22,19 @@ NULL AS alamatmap,
 NULL AS fotobukti1,
 NULL AS fotobukti2,
 NULL AS fotobukti3,
-IF(v.`waktuverifikasi` IS NULL,0,1) AS flagverifikasi,
-v.`waktuverifikasi` AS waktuverifikasi,
+0 AS flagverifikasi,
+NULL AS waktuverifikasi,
 0 AS flagusulan,
-IF(v.`waktuverifikasi` IS NULL,
- IF(ba.`tanggalba` IS NULL,
-  IF(spk.`tanggalspk` IS NULL,
-   IF(COALESCE(n.`waktubayar`,nn.`waktubayar`) IS NULL,
-    'Menunggu Pelunasan Reguler',
-    'Menunggu SPK Pemasangan'),
-   'Menunggu Berita Acara'),
-  'Menunggu Verifikasi'),
- 'Selesai') AS statuspermohonan,
-0 AS flaghapus,
-COALESCE(v.`waktuverifikasi`,pp.`tanggal`) AS waktuupdate
-FROM __tmp_tutup_total p
-JOIN `permohonan_pemutusan_sementara` pp ON pp.nomor=p.nomor
-JOIN pelanggan pel ON pel.nosamb=pp.nosamb
-LEFT JOIN [bsbs].rayon r ON r.koderayon=pp.koderayon
-LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=pp.kodekelurahan
-LEFT JOIN __tmp_golongan g ON g.kodegol=pp.kodegol AND g.aktif=1
-LEFT JOIN nonair n ON n.urutan=pp.urutannonair
-LEFT JOIN `nonair2022` nn ON nn.`urutan`=pp.`urutannonair`
-LEFT JOIN `spk_pemutusan_sementara` spk ON spk.nomorpermohonan=pp.nomor AND spk.flaghapus=0
-LEFT JOIN `ba_pemutusan_sementara` ba ON ba.nomorpermohonan=pp.nomor AND ba.flaghapus=0
-LEFT JOIN `verifikasi` v ON v.`nomorba`=ba.`nomorba`
-,(SELECT @id:=@lastid) AS id
+NULL AS statuspermohonan,
+0 AS flagworkorder,
+p.`flaghapus` AS flaghapus,
+p.`tanggal` AS waktuupdate
+FROM permohonan_pemutusan_sementara p
+JOIN `kotaparepare_dataawal`.`tampung_master_pelanggan_air` pe ON pe.nosamb=p.nosamb AND pe.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_attribute_rayon` r ON r.koderayon=p.koderayon AND r.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_attribute_kelurahan` k ON k.kodekelurahan=p.kodekelurahan AND k.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.status=1 AND g.`idpdam`=@idpdam
+,(SELECT @id:=@maxid) AS id
+WHERE p.`flaghapus`=0
+AND p.`nomor` NOT IN (SELECT `nomorpermohonan` FROM `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam AND idtipepermohonan=@idtipepermohonan)
+AND DATE_FORMAT(p.`tanggal`,'%Y%m') BETWEEN 202502 AND 202504
