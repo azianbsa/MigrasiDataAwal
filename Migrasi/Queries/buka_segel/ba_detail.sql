@@ -1,15 +1,6 @@
-﻿DROP TABLE IF EXISTS __tmp_buka_segel;
-CREATE TABLE __tmp_buka_segel AS
-SELECT
-@id:=@id+1 AS id,
-nomor
-FROM `permohonan_bukasegel`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0;
-
-SELECT
+﻿SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+pp.`idpermohonan` AS `idpermohonan`,
 'Alasan Putus' AS `parameter`,
 'int' AS `tipedata`,
 NULL AS `valuestring`,
@@ -17,19 +8,20 @@ NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_buka_segel p
+p.`tanggalba` AS `waktuupdate`
+FROM `ba_bukasegel` p
+JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+pp.`idpermohonan` AS `idpermohonan`,
 'Keterangan' AS `parameter`,
 'string' AS `tipedata`,
-ba.memo AS `valuestring`,
+p.`memo` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_buka_segel p
-JOIN `ba_bukasegel` ba ON ba.nomorpermohonan=p.`nomor`
+p.`tanggalba` AS `waktuupdate`
+FROM `ba_bukasegel` p
+JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`

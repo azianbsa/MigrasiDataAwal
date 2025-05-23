@@ -1,18 +1,9 @@
-﻿DROP TABLE IF EXISTS __tmp_buka_segel;
-CREATE TABLE __tmp_buka_segel AS
-SELECT
-@id:=@id+1 AS id,
-nomor
-FROM `permohonan_bukasegel`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0;
-
-SELECT
+﻿SELECT
 @idpdam AS idpdam,
-p.`id` AS idpermohonan,
-ba.`nomorba` AS nomorba,
-ba.`tanggalba` AS tanggalba,
-NULL AS iduser,
+pp.`idpermohonan` AS idpermohonan,
+p.`nomorba` AS nomorba,
+p.`tanggalba` AS tanggalba,
+u.`iduser` AS iduser,
 NULL AS persilnamapaket,
 0 AS persilflagdialihkankevendor,
 0 AS persilflagbiayadibebankankepdam,
@@ -25,12 +16,14 @@ NULL AS fotobukti3,
 NULL AS `fotobukti4`,
 NULL AS `fotobukti5`,
 NULL AS `fotobukti6`,
+NULL AS fotosignature,
 NULL AS kategoriputus,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-NULL AS flag_dari_verifikasi,
+0 AS flag_dari_verifikasi,
 'Berhasil Dikerjakan' AS statusberitaacara,
-ba.`tanggalba` AS waktuupdate
-FROM __tmp_buka_segel p
-JOIN `ba_bukasegel` ba ON ba.nomorpermohonan=p.nomor
-WHERE ba.flaghapus=0
+p.`tanggalba` AS waktuupdate
+FROM `ba_bukasegel` p
+JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan` AND pp.`idpdam`=@idpdam
+LEFT JOIN `kotaparepare_dataawal`.`master_user` u ON u.`nama`=p.`user` AND u.`idpdam`=@idpdam
+WHERE p.flaghapus=0

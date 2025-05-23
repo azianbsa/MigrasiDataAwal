@@ -4,6 +4,7 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using Sprache;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Migrasi.Commands
 {
@@ -56,6 +57,7 @@ namespace Migrasi.Commands
             const string PROSES_NONAIR_3_BULAN = "Proses nonair 3 bulan";
             const string PROSES_PERMOHONAN_SAMBUNG_BARU = "Proses permohonan sambung baru";
             const string PROSES_PERMOHONAN_BALIK_NAMA = "Proses permohonan balik nama";
+            const string PROSES_PERMOHONAN_BUKA_SEGEL = "Proses permohonan buka segel";
 
             var prosesList = new List<string>
             {
@@ -65,6 +67,7 @@ namespace Migrasi.Commands
                 PROSES_NONAIR_3_BULAN,
                 PROSES_PERMOHONAN_SAMBUNG_BARU,
                 PROSES_PERMOHONAN_BALIK_NAMA,
+                PROSES_PERMOHONAN_BUKA_SEGEL,
             };
 
             string? namaPdam = "";
@@ -91,6 +94,7 @@ namespace Migrasi.Commands
             var prosesNonair3Bulan = selectedProses.Exists(s => s == PROSES_NONAIR_3_BULAN);
             var prosesPermohonanSambungBaru = selectedProses.Exists(s => s == PROSES_PERMOHONAN_SAMBUNG_BARU);
             var prosesPermohonanBalikNama = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BALIK_NAMA);
+            var prosesPermohonanBukaSegel = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BUKA_SEGEL);
 
             var periodeMulai = AnsiConsole.Prompt(
                 new TextPrompt<string>("Periode mulai (yyyyMM):"));
@@ -145,22 +149,24 @@ namespace Migrasi.Commands
                                     queryPath: @"Queries\master_pelanggan_air.sql",
                                     parameters: new()
                                     {
-                                                    { "@idpdam", settings.IdPdam }
+                                        { "@idpdam", settings.IdPdam }
                                     },
                                     placeholders: new()
                                     {
-                                                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                                        { "[dataawal]", AppSettings.DataAwalDatabase },
                                     });
                             });
                             await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
                             {
                                 await Utils.MainConnectionWrapper(async (conn, trans) =>
                                 {
-                                    await conn.ExecuteAsync(@"
-                                                ALTER TABLE master_pelanggan_air_detail
-                                                 CHANGE alamatpemilik alamatpemilik VARCHAR (250) CHARSET latin1 COLLATE latin1_swedish_ci NULL", transaction: trans);
+                                    await conn.ExecuteAsync(
+                                        sql: @"
+                                        ALTER TABLE master_pelanggan_air_detail
+                                        CHANGE alamatpemilik alamatpemilik VARCHAR (250) CHARSET latin1 COLLATE latin1_swedish_ci NULL",
+                                        transaction: trans);
                                 });
 
                                 await Utils.BulkCopy(
@@ -170,13 +176,13 @@ namespace Migrasi.Commands
                                     queryPath: @"Queries\master_pelanggan_air_detail.sql",
                                     parameters: new()
                                     {
-                                                    { "@idpdam", settings.IdPdam }
+                                        { "@idpdam", settings.IdPdam }
                                     },
                                     placeholders: new()
                                     {
-                                                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                                                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                                                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                                        { "[bacameter]", AppSettings.DatabaseBacameter },
+                                        { "[bsbs]", AppSettings.DatabaseBsbs },
+                                        { "[dataawal]", AppSettings.DataAwalDatabase },
                                     });
                             });
                         }
@@ -187,12 +193,12 @@ namespace Migrasi.Commands
                             {
                                 await conn.ExecuteAsync(
                                     sql: @"
-                                                DROP TABLE IF EXISTS tampung_hasilbaca;
-                                                CREATE TABLE tampung_hasilbaca AS
-                                                SELECT * FROM hasilbaca LIMIT 0;
-                                                ALTER TABLE `tampung_hasilbaca`
-                                                ADD COLUMN `kode` VARCHAR (100) NOT NULL FIRST,
-                                                ADD PRIMARY KEY (`kode`);",
+                                    DROP TABLE IF EXISTS tampung_hasilbaca;
+                                    CREATE TABLE tampung_hasilbaca AS
+                                    SELECT * FROM hasilbaca LIMIT 0;
+                                    ALTER TABLE `tampung_hasilbaca`
+                                    ADD COLUMN `kode` VARCHAR (100) NOT NULL FIRST,
+                                    ADD PRIMARY KEY (`kode`);",
                                     transaction: trans);
 
                                 for (int i = 0; i < 3; i++)
@@ -201,136 +207,136 @@ namespace Migrasi.Commands
                                     Utils.WriteLogMessage($"Ambil data hasilbaca{periode:MMyy} ke tampung_hasilbaca");
                                     await conn.ExecuteAsync(
                                         sql: $@"
-                                                    INSERT INTO tampung_hasilbaca
-                                                    SELECT
-                                                      CONCAT({periode:yyyyMM},'.',`idpelanggan`) AS kode,
-                                                      `idpelanggan`,
-                                                      `idmeteran`,
-                                                      `idkec`,
-                                                      `kec`,
-                                                      `idkel`,
-                                                      `kel`,
-                                                      `idrtrw`,
-                                                      `rtrw`,
-                                                      `idblok`,
-                                                      `kodeblok`,
-                                                      `blok`,
-                                                      `idrayon`,
-                                                      `koderayon`,
-                                                      `rayon`,
-                                                      `wilayah`,
-                                                      `nama`,
-                                                      `noktp`,
-                                                      `telprumah`,
-                                                      `alamat`,
-                                                      `pekerjaan`,
-                                                      `nosambungan`,
-                                                      `nometer`,
-                                                      `tekanan`,
-                                                      `idgol`,
-                                                      `kodegol`,
-                                                      `golongan`,
-                                                      `idgol1`,
-                                                      `kodegol1`,
-                                                      `golongan1`,
-                                                      `perubahangol`,
-                                                      `golonganlalu`,
-                                                      `iddiameter`,
-                                                      `kodediameter`,
-                                                      `ukuran`,
-                                                      `tgldaftar`,
-                                                      `luasrumah`,
-                                                      `urutanbaca`,
-                                                      `prosesairlimbah`,
-                                                      `keterangan`,
-                                                      `bln1`,
-                                                      `stan1`,
-                                                      `pakai1`,
-                                                      `persen1`,
-                                                      `bln2`,
-                                                      `stan2`,
-                                                      `pakai2`,
-                                                      `persen2`,
-                                                      `bln3`,
-                                                      `stan3`,
-                                                      `pakai3`,
-                                                      `persen3`,
-                                                      `stanlalu`,
-                                                      `stanskrg`,
-                                                      `pakaiskrg`,
-                                                      `stanangkat`,
-                                                      `persentase`,
-                                                      `taksir`,
-                                                      `taksir2bln`,
-                                                      `taksir3bln`,
-                                                      `idkelainan`,
-                                                      `kodekelainan`,
-                                                      `kelainan`,
-                                                      `kelainanlalu`,
-                                                      `idkelainan1`,
-                                                      `kodekelainan1`,
-                                                      `kelainan1`,
-                                                      `kelainan1lalu`,
-                                                      `kelainan1lalu1`,
-                                                      `tunggakan`,
-                                                      `dendatunggakan`,
-                                                      `biayapemakaian`,
-                                                      `airlimbah`,
-                                                      `administrasi`,
-                                                      `bebanpasif`,
-                                                      `retribusi`,
-                                                      `pemeliharaan`,
-                                                      `pelayanan`,
-                                                      `meterai`,
-                                                      `custombeban1`,
-                                                      `custombeban2`,
-                                                      `custombeban3`,
-                                                      `persenppn`,
-                                                      `ppn`,
-                                                      `totalrekening`,
-                                                      `sudahlunas`,
-                                                      `rincianrekening`,
-                                                      `sudahbaca`,
-                                                      `verifikasi`,
-                                                      `waktuverifikasi`,
-                                                      `a`,
-                                                      `idpetugas`,
-                                                      `kodepetugas`,
-                                                      `namapetugas`,
-                                                      `waktubaca`,
-                                                      `waktubacalalu`,
-                                                      `waktuupload`,
-                                                      `sumberlokasi`,
-                                                      `latitude`,
-                                                      `longitude`,
-                                                      `mnc`,
-                                                      `mcc`,
-                                                      `lac`,
-                                                      `cellid`,
-                                                      `adafotorumah`,
-                                                      `adavideo`,
-                                                      `lampiran`,
-                                                      `flagkirimsms`,
-                                                      `sudahkirimsms`,
-                                                      `logupdate`,
-                                                      `iduserupdate`,
-                                                      `flagsudahupload`,
-                                                      `flagaktif`,
-                                                      `custom1`,
-                                                      `custom2`,
-                                                      `peruntukan`,
-                                                      `hasilbacaulang`,
-                                                      `totalrekeningstr`,
-                                                      `datalapangan`,
-                                                      `ratarata3bln`,
-                                                      `flaghistori3bln`,
-                                                      `terbaca`,
-                                                      `memolapangan`,
-                                                      `wm`,
-                                                      `masterlatlong`,
-                                                      `flagkoreksi`
-                                                    FROM
-                                                      hasilbaca{periode:MMyy}",
+                                        INSERT INTO tampung_hasilbaca
+                                        SELECT
+                                            CONCAT({periode:yyyyMM},'.',`idpelanggan`) AS kode,
+                                            `idpelanggan`,
+                                            `idmeteran`,
+                                            `idkec`,
+                                            `kec`,
+                                            `idkel`,
+                                            `kel`,
+                                            `idrtrw`,
+                                            `rtrw`,
+                                            `idblok`,
+                                            `kodeblok`,
+                                            `blok`,
+                                            `idrayon`,
+                                            `koderayon`,
+                                            `rayon`,
+                                            `wilayah`,
+                                            `nama`,
+                                            `noktp`,
+                                            `telprumah`,
+                                            `alamat`,
+                                            `pekerjaan`,
+                                            `nosambungan`,
+                                            `nometer`,
+                                            `tekanan`,
+                                            `idgol`,
+                                            `kodegol`,
+                                            `golongan`,
+                                            `idgol1`,
+                                            `kodegol1`,
+                                            `golongan1`,
+                                            `perubahangol`,
+                                            `golonganlalu`,
+                                            `iddiameter`,
+                                            `kodediameter`,
+                                            `ukuran`,
+                                            `tgldaftar`,
+                                            `luasrumah`,
+                                            `urutanbaca`,
+                                            `prosesairlimbah`,
+                                            `keterangan`,
+                                            `bln1`,
+                                            `stan1`,
+                                            `pakai1`,
+                                            `persen1`,
+                                            `bln2`,
+                                            `stan2`,
+                                            `pakai2`,
+                                            `persen2`,
+                                            `bln3`,
+                                            `stan3`,
+                                            `pakai3`,
+                                            `persen3`,
+                                            `stanlalu`,
+                                            `stanskrg`,
+                                            `pakaiskrg`,
+                                            `stanangkat`,
+                                            `persentase`,
+                                            `taksir`,
+                                            `taksir2bln`,
+                                            `taksir3bln`,
+                                            `idkelainan`,
+                                            `kodekelainan`,
+                                            `kelainan`,
+                                            `kelainanlalu`,
+                                            `idkelainan1`,
+                                            `kodekelainan1`,
+                                            `kelainan1`,
+                                            `kelainan1lalu`,
+                                            `kelainan1lalu1`,
+                                            `tunggakan`,
+                                            `dendatunggakan`,
+                                            `biayapemakaian`,
+                                            `airlimbah`,
+                                            `administrasi`,
+                                            `bebanpasif`,
+                                            `retribusi`,
+                                            `pemeliharaan`,
+                                            `pelayanan`,
+                                            `meterai`,
+                                            `custombeban1`,
+                                            `custombeban2`,
+                                            `custombeban3`,
+                                            `persenppn`,
+                                            `ppn`,
+                                            `totalrekening`,
+                                            `sudahlunas`,
+                                            `rincianrekening`,
+                                            `sudahbaca`,
+                                            `verifikasi`,
+                                            `waktuverifikasi`,
+                                            `a`,
+                                            `idpetugas`,
+                                            `kodepetugas`,
+                                            `namapetugas`,
+                                            `waktubaca`,
+                                            `waktubacalalu`,
+                                            `waktuupload`,
+                                            `sumberlokasi`,
+                                            `latitude`,
+                                            `longitude`,
+                                            `mnc`,
+                                            `mcc`,
+                                            `lac`,
+                                            `cellid`,
+                                            `adafotorumah`,
+                                            `adavideo`,
+                                            `lampiran`,
+                                            `flagkirimsms`,
+                                            `sudahkirimsms`,
+                                            `logupdate`,
+                                            `iduserupdate`,
+                                            `flagsudahupload`,
+                                            `flagaktif`,
+                                            `custom1`,
+                                            `custom2`,
+                                            `peruntukan`,
+                                            `hasilbacaulang`,
+                                            `totalrekeningstr`,
+                                            `datalapangan`,
+                                            `ratarata3bln`,
+                                            `flaghistori3bln`,
+                                            `terbaca`,
+                                            `memolapangan`,
+                                            `wm`,
+                                            `masterlatlong`,
+                                            `flagkoreksi`
+                                        FROM
+                                            hasilbaca{periode:MMyy}",
                                         transaction: trans);
                                 }
                             });
@@ -360,34 +366,23 @@ namespace Migrasi.Commands
                             await BalikNama(settings);
                         }
 
+                        if (prosesPermohonanBukaSegel)
+                        {
+                            Utils.WriteLogMessage("Proses data permohonan balik nama");
+                            await BukaSegel(settings);
+                        }
+
                         if (false)
                         {
-                            await JenisNonair(settings);
-                            await TipePermohonan(settings);
-                            await PaketMaterial(settings);
-                            await PaketOngkos(settings);
-                            await PaketRab(settings);
                             await Report(settings);
 
-                            await Utils.TrackProgress("piutang", async () =>
-                            {
-                                await Piutang(settings);
-                            });
                             await Utils.TrackProgress("bayar tahun", async () =>
                             {
                                 await BayarTahun(settings);
                             });
-                            await Utils.TrackProgress("bayar", async () =>
-                            {
-                                await Bayar(settings);
-                            });
                             await Utils.TrackProgress("nonair tahun", async () =>
                             {
                                 await NonairTahun(settings);
-                            });
-                            await Utils.TrackProgress("nonair", async () =>
-                            {
-                                await Nonair(settings);
                             });
                             await Utils.TrackProgress("angsuran air", async () =>
                             {
@@ -413,10 +408,6 @@ namespace Migrasi.Commands
                             {
                                 await AirTangkiPelanggan(settings);
                             });
-                            await Utils.TrackProgress("balik nama", async () =>
-                            {
-                                await BalikNama(settings);
-                            });
                             await Utils.TrackProgress("rubah tarif", async () =>
                             {
                                 await RubahTarif(settings);
@@ -432,10 +423,6 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("buka segel", async () =>
                             {
                                 await BukaSegel(settings);
-                            });
-                            await Utils.TrackProgress("sambung baru", async () =>
-                            {
-                                await SambungBaru(settings);
                             });
                             await Utils.TrackProgress("koreksi rekair", async () =>
                             {
@@ -4076,40 +4063,8 @@ namespace Migrasi.Commands
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
         }
-        private async Task BukaSegel(Settings settings)
+        private static async Task BukaSegel(Settings settings)
         {
-            var lastId = 0;
-            var bukaSegel = 0;
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
-            {
-                bukaSegel = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BUKA_SEGEL'", transaction: trans);
-                await conn.ExecuteAsync(
-                    sql: @"
-                    DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-                    
-                    DELETE FROM permohonan_pelanggan_air_spk_pasang_detail WHERE idpdam=@idpdam AND `idpermohonan`
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_ba_detail WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_detail WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
-                    param: new
-                    {
-                        idpdam = settings.IdPdam,
-                        idtipepermohonan = bukaSegel
-                    },
-                    transaction: trans);
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-            });
-
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4117,13 +4072,22 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\buka_segel\buka_segel.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                    { "@tipepermohonan", bukaSegel },
+                    { "@idpdam", settings.IdPdam }
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+
+            //copy terbaru
+            await Utils.CopyToDiffrentHost(
+                sourceConnection: AppSettings.MainConnectionString,
+                targetConnection: AppSettings.DataAwalConnectionString,
+                table: "tampung_permohonan_pelanggan_air",
+                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
                 });
 
             await Utils.BulkCopy(
@@ -4133,14 +4097,13 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\buka_segel\detail.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
+                    { "@idpdam", settings.IdPdam }
                 },
                 placeholders: new()
                 {
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-
+            
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4148,15 +4111,13 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\buka_segel\spk_pasang.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
+                    { "@idpdam", settings.IdPdam }
                 },
                 placeholders: new()
                 {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-
+            
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4164,10 +4125,13 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\buka_segel\ba.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-
+            
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4175,8 +4139,11 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\buka_segel\ba_detail.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
         }
         private async Task SambungKembali(Settings settings)
