@@ -3,9 +3,6 @@ using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sprache;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Migrasi.Commands
 {
@@ -63,6 +60,7 @@ namespace Migrasi.Commands
             const string PROSES_PERMOHONAN_KOREKSI_REKENING = "Proses permohonan koreksi rekening";
             const string PROSES_PERMOHONAN_TUTUP_TOTAL = "Proses permohonan tutup total";
             const string PROSES_PERMOHONAN_RUBAH_TARIF = "Proses permohonan rubah tarif";
+            const string PROSES_PERMOHONAN_RUBAH_RAYON = "Proses permohonan rubah rayon";
 
             var prosesList = new List<string>
             {
@@ -77,6 +75,7 @@ namespace Migrasi.Commands
                 PROSES_PERMOHONAN_KOREKSI_REKENING,
                 PROSES_PERMOHONAN_TUTUP_TOTAL,
                 PROSES_PERMOHONAN_RUBAH_TARIF,
+                PROSES_PERMOHONAN_RUBAH_RAYON,
             };
 
             string? namaPdam = "";
@@ -108,6 +107,7 @@ namespace Migrasi.Commands
             var prosesPermohonanKoreksiRekening = selectedProses.Exists(s => s == PROSES_PERMOHONAN_KOREKSI_REKENING);
             var prosesPermohonanTutupTotal = selectedProses.Exists(s => s == PROSES_PERMOHONAN_TUTUP_TOTAL);
             var prosesPermohonanRubahTarif = selectedProses.Exists(s => s == PROSES_PERMOHONAN_RUBAH_TARIF);
+            var prosesPermohonanRubahRayon = selectedProses.Exists(s => s == PROSES_PERMOHONAN_RUBAH_RAYON);
 
             var periodeMulai = AnsiConsole.Prompt(
                 new TextPrompt<string>("Periode mulai (yyyyMM):"));
@@ -409,6 +409,12 @@ namespace Migrasi.Commands
                             await RubahTarif(settings);
                         }
 
+                        if (prosesPermohonanRubahRayon)
+                        {
+                            Utils.WriteLogMessage("Proses data permohonan rubah rayon");
+                            await RubahRayon(settings);
+                        }
+
                         if (false)
                         {
                             await Report(settings);
@@ -444,10 +450,6 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("air tangki pelanggan", async () =>
                             {
                                 await AirTangkiPelanggan(settings);
-                            });
-                            await Utils.TrackProgress("rubah rayon", async () =>
-                            {
-                                await RubahRayon(settings);
                             });
                             await Utils.TrackProgress("sambung kembali", async () =>
                             {
@@ -1082,7 +1084,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1092,7 +1094,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1102,7 +1104,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1172,7 +1174,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1182,7 +1184,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1192,7 +1194,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1212,7 +1214,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1222,7 +1224,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1232,7 +1234,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1242,7 +1244,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1252,7 +1254,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1262,7 +1264,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1302,7 +1304,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1312,7 +1314,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1322,7 +1324,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1391,7 +1393,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1411,7 +1413,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -1421,7 +1423,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
@@ -2660,7 +2662,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-            
+
             var lastIdKoreksiDetail = 0;
             await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
@@ -4032,7 +4034,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4046,7 +4048,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4103,7 +4105,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4117,7 +4119,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4131,7 +4133,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4186,7 +4188,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4200,7 +4202,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4214,7 +4216,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4408,42 +4410,8 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
-        private async Task RubahRayon(Settings settings)
+        private static async Task RubahRayon(Settings settings)
         {
-            var lastId = 0;
-            dynamic? rubahRayon = null;
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
-            {
-                rubahRayon = await conn.QueryFirstOrDefaultAsync($@"SELECT idtipepermohonan,idjenisnonair FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='RUBAH_RAYON'", transaction: trans);
-
-                await conn.ExecuteAsync(
-                    sql: @"
-                    DELETE FROM permohonan_pelanggan_air_spk_pasang WHERE idpdam=@idpdam AND `idpermohonan`
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_spk_pasang_detail WHERE idpdam=@idpdam AND `idpermohonan`
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_ba_detail WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_detail WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
-                    param: new
-                    {
-                        idpdam = settings.IdPdam,
-                        idtipepermohonan = rubahRayon?.idtipepermohonan
-                    },
-                    transaction: trans);
-
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-            });
-
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4452,13 +4420,21 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                    { "@tipepermohonan", rubahRayon.idtipepermohonan },
                 },
                 placeholders: new()
                 {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+            
+            //copy terbaru
+            await Utils.CopyToDiffrentHost(
+                sourceConnection: AppSettings.MainConnectionString,
+                targetConnection: AppSettings.DataAwalConnectionString,
+                table: "tampung_permohonan_pelanggan_air",
+                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
                 });
 
             await Utils.BulkCopy(
@@ -4469,28 +4445,10 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\rubah_rayon\spk_pasang.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
 
             await Utils.BulkCopy(
@@ -4501,12 +4459,10 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
 
             await Utils.BulkCopy(
@@ -4517,12 +4473,10 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
                 },
                 placeholders: new()
                 {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
         }
         private static async Task RubahTarif(Settings settings)
@@ -4637,7 +4591,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
@@ -4662,7 +4616,7 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,

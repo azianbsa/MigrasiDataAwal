@@ -715,9 +715,6 @@
     <None Update="Queries\rubah_tarif\spk.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\rubah_rayon\spk_pasang.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Queries\rubah_rayon\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
