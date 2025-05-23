@@ -1,29 +1,22 @@
-﻿DROP TABLE IF EXISTS __tmp_baliknama;
-CREATE TABLE __tmp_baliknama AS
-SELECT
-@id:=@id+1 AS id,
-nomor
-FROM `permohonan_balik_nama`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0;
+﻿SET @idtipepermohonan=(SELECT idtipepermohonan FROM [dataawal].`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='BALIK_NAMA');
 
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Alamat Pemilik Baru' AS `parameter`,
 'string' AS `tipedata`,
-b.`alamat` AS `valuestring`,
+p.`alamat` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
-JOIN `permohonan_balik_nama` b ON b.`nomor`=p.nomor
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.id AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Ditagih Setelah' AS `parameter`,
 'string' AS `tipedata`,
 NULL AS `valuestring`,
@@ -31,12 +24,13 @@ NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Email Baru' AS `parameter`,
 'string' AS `tipedata`,
 NULL AS `valuestring`,
@@ -44,67 +38,69 @@ NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Kepemilikan Baru' AS `parameter`,
 'int' AS `tipedata`,
 NULL AS `valuestring`,
 NULL AS `valuedecimal`,
-1 AS `valueinteger`,
+-1 AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Nama Baru' AS `parameter`,
 'string' AS `tipedata`,
-b.`baru` AS `valuestring`,
+p.`baru` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
-JOIN `permohonan_balik_nama` b ON b.`nomor`=p.nomor
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Nama Lama' AS `parameter`,
 'string' AS `tipedata`,
-b.`lama` AS `valuestring`,
+p.`lama` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
-JOIN `permohonan_balik_nama` b ON b.`nomor`=p.nomor
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Nama Pemilik Baru' AS `parameter`,
 'string' AS `tipedata`,
-b.`baru` AS `valuestring`,
+p.`baru` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
-JOIN `permohonan_balik_nama` b ON b.`nomor`=p.nomor
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'No HP Baru' AS `parameter`,
 'string' AS `tipedata`,
 NULL AS `valuestring`,
@@ -112,40 +108,41 @@ NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'No KK Baru' AS `parameter`,
 'string' AS `tipedata`,
-b.`nokk_baru` AS `valuestring`,
+p.`nokk_baru` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
-JOIN `permohonan_balik_nama` b ON b.`nomor`=p.nomor
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'No KTP Baru' AS `parameter`,
 'string' AS `tipedata`,
-b.`noktp_baru` AS `valuestring`,
+p.`noktp_baru` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
-JOIN `permohonan_balik_nama` b ON b.`nomor`=p.nomor
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'No Telp Baru' AS `parameter`,
 'string' AS `tipedata`,
 NULL AS `valuestring`,
@@ -153,18 +150,21 @@ NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
+b.`idpermohonan` AS `idpermohonan`,
 'Pekerjaan Baru' AS `parameter`,
 'int' AS `tipedata`,
 NULL AS `valuestring`,
 NULL AS `valuedecimal`,
--1 AS `valueinteger`,
+COALESCE(pk.idpekerjaan,-1) AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_baliknama p
+p.`tanggal` AS `waktuupdate`
+FROM permohonan_balik_nama p
+JOIN [dataawal].`tampung_permohonan_pelanggan_air` b ON b.`nomorpermohonan`=p.nomor AND b.`idtipepermohonan`=@idtipepermohonan AND b.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_pekerjaan` pk ON pk.namapekerjaan=p.`pekerjaan_baru` AND pk.idpdam=@idpdam

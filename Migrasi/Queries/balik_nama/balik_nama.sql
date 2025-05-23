@@ -1,75 +1,42 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket AS
-SELECT
-@idpdam,
-@id := @id + 1 AS iduser,
-a.nama,
-a.namauser
-FROM (
-SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
-) a,
-(SELECT @id := 0) AS id
-GROUP BY a.namauser;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
-CREATE TEMPORARY TABLE __tmp_golongan AS
-SELECT
-@id:=@id+1 AS id,
-kodegol,
-aktif
-FROM
-golongan,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_baliknama;
-CREATE TEMPORARY TABLE __tmp_baliknama AS
-SELECT
-@id:=@id+1 AS id,
-nomor
-FROM `permohonan_balik_nama`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0;
+﻿SET @maxid=(SELECT COALESCE(MAX(idpermohonan),0) AS maxid FROM [dataawal].`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam);
+SET @idtipepermohonan=(SELECT idtipepermohonan FROM [dataawal].`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='BALIK_NAMA');
 
 SELECT
-@idpdam as idpdam,
-b.id AS idpermohonan,
-@tipepermohonan AS idtipepermohonan,
+@idpdam AS idpdam,
+@id:=@id+1 AS idpermohonan,
+@idtipepermohonan AS idtipepermohonan,
 NULL AS idsumberpengaduan,
-bn.nomor AS nomorpermohonan,
-bn.tanggal AS waktupermohonan,
-ray.id AS idrayon,
-kel.id AS idkelurahan,
-gol.id AS idgolongan,
+p.nomor AS nomorpermohonan,
+p.tanggal AS waktupermohonan,
+r.`idrayon` AS idrayon,
+kl.`idkelurahan` AS idkelurahan,
+g.`idgolongan` AS idgolongan,
 NULL AS iddiameter,
-pel.id idpelangganair,
-bn.keterangan AS keterangan,
-usr.iduser AS iduser,
-NULL AS idnonair,
+pe.`idpelangganair` idpelangganair,
+p.keterangan AS keterangan,
+u.iduser AS iduser,
+n.`idnonair` AS idnonair,
 NULL AS latitude,
 NULL AS longitude,
 NULL AS alamatmap,
 NULL AS fotobukti1,
 NULL AS fotobukti2,
 NULL AS fotobukti3,
-IF(ba.nomorba IS NULL,0,1) AS flagverifikasi,
-ba.tanggalba AS waktuverifikasi,
+0 AS flagverifikasi,
+NULL AS waktuverifikasi,
 0 AS flagusulan,
-IF(ba.nomorba IS NULL,
- 'Menunggu Verifikasi',
- 'Selesai') AS statuspermohonan,
-0 AS flaghapus,
-bn.tanggal waktuupdate
-FROM __tmp_baliknama b
-JOIN permohonan_balik_nama bn ON bn.nomor=b.nomor
-JOIN pelanggan pel ON pel.nosamb=bn.nosamb
-LEFT JOIN [bsbs].rayon ray ON ray.koderayon=bn.koderayon
-LEFT JOIN [bsbs].kelurahan kel ON kel.kodekelurahan=bn.kodekelurahan
-LEFT JOIN __tmp_golongan gol ON gol.kodegol=bn.kodegol AND gol.aktif=1
-LEFT JOIN ba_balik_nama ba ON ba.nomorpermohonan=bn.nomor AND ba.flaghapus=0
-LEFT JOIN __tmp_userloket usr ON usr.nama=SUBSTRING_INDEX(bn.urutannonair,'.BALIK NAMA.',1)
+NULL AS statuspermohonan,
+0 AS `flagworkorder`,
+p.`flaghapus` AS flaghapus,
+p.tanggal AS waktuupdate
+FROM `permohonan_balik_nama` p
+JOIN [dataawal].`tampung_master_pelanggan_air` pe ON pe.nosamb=p.nosamb AND pe.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_rayon` r ON r.koderayon=p.koderayon AND r.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_attribute_kelurahan` kl ON kl.kodekelurahan=p.kodekelurahan AND kl.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.status=1 AND g.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`master_user` u ON u.nama=SUBSTRING_INDEX(p.urutannonair,'.BALIK NAMA.',1)
+LEFT JOIN [dataawal].`tampung_rekening_nonair` n ON n.`urutan`=p.urutannonair AND n.`idpdam`=@idpdam
+,(SELECT @id:=@maxid) AS id
+WHERE p.`flaghapus`=0
+AND p.`nomor` NOT IN (SELECT `nomorpermohonan` FROM [dataawal].`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam AND idtipepermohonan=@idtipepermohonan)
+AND DATE_FORMAT(p.`tanggal`,'%Y%m') BETWEEN 202502 AND 202504

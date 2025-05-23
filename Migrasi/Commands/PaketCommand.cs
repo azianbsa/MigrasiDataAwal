@@ -64,6 +64,7 @@ namespace Migrasi.Commands
                 PROSES_PIUTANG_BAYAR_3_BULAN,
                 PROSES_NONAIR_3_BULAN,
                 PROSES_PERMOHONAN_SAMBUNG_BARU,
+                PROSES_PERMOHONAN_BALIK_NAMA,
             };
 
             string? namaPdam = "";
@@ -1366,6 +1367,16 @@ namespace Migrasi.Commands
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
+                table: "tampung_rekening_nonair",
+                query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                });
+
+            await Utils.CopyToDiffrentHost(
+                sourceConnection: AppSettings.MainConnectionString,
+                targetConnection: AppSettings.DataAwalConnectionString,
                 table: "tampung_permohonan_non_pelanggan",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -1376,13 +1387,12 @@ namespace Migrasi.Commands
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
-                table: "tampung_rekening_nonair",
-                query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
+                table: "tampung_permohonan_pelanggan_air",
+                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
                 });
-
         }
         private static async Task Nonair(Settings settings)
         {
@@ -3913,7 +3923,18 @@ namespace Migrasi.Commands
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-            
+
+            //copy lg supaya dapet yg terbaru
+            await Utils.CopyToDiffrentHost(
+                sourceConnection: AppSettings.MainConnectionString,
+                targetConnection: AppSettings.DataAwalConnectionString,
+                table: "tampung_permohonan_non_pelanggan",
+                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
+                });
+
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -3926,17 +3947,6 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
-
-            //copy lg supaya dapet yg terbaru
-            await Utils.CopyToDiffrentHost(
-                sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
-                table: "tampung_permohonan_non_pelanggan",
-                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam }
                 });
 
             await Utils.BulkCopy(
@@ -4595,33 +4605,8 @@ namespace Migrasi.Commands
                     commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
             });
         }
-        private async Task BalikNama(Settings settings)
+        private static async Task BalikNama(Settings settings)
         {
-            var lastId = 0;
-            var idBalikNama = 0;
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
-            {
-                idBalikNama = await conn.QueryFirstOrDefaultAsync<int>($@"SELECT idtipepermohonan FROM master_attribute_tipe_permohonan WHERE idpdam={settings.IdPdam} AND kodetipepermohonan='BALIK_NAMA'", transaction: trans);
-
-                await conn.ExecuteAsync(
-                    sql: @"
-                    DELETE FROM permohonan_pelanggan_air_ba WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM permohonan_pelanggan_air_detail WHERE idpdam=@idpdam AND `idpermohonan` 
-                     IN (SELECT `idpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan);
-
-                    DELETE FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam AND `idtipepermohonan`=@idtipepermohonan;",
-                    param: new
-                    {
-                        idpdam = settings.IdPdam,
-                        idtipepermohonan = idBalikNama
-                    },
-                    transaction: trans);
-
-                lastId = await conn.QueryFirstOrDefaultAsync<int>(@"SELECT IFNULL(MAX(idpermohonan),0) FROM permohonan_pelanggan_air", transaction: trans);
-            });
-
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4629,14 +4614,22 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\balik_nama\balik_nama.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                    { "@tipepermohonan", idBalikNama },
+                    { "@idpdam", settings.IdPdam }
                 },
                 placeholders: new()
                 {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
+                });
+            
+            //copy terbaru
+            await Utils.CopyToDiffrentHost(
+                sourceConnection: AppSettings.MainConnectionString,
+                targetConnection: AppSettings.DataAwalConnectionString,
+                table: "tampung_permohonan_pelanggan_air",
+                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
+                parameters: new()
+                {
+                    { "@idpdam", settings.IdPdam }
                 });
 
             await Utils.BulkCopy(
@@ -4646,10 +4639,13 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\balik_nama\detail.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
+                    { "@idpdam", settings.IdPdam }
+                },
+                placeholders: new()
+                {
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-
+            
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
@@ -4657,50 +4653,12 @@ namespace Migrasi.Commands
                 queryPath: @"Queries\balik_nama\ba.sql",
                 parameters: new()
                 {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
+                    { "@idpdam", settings.IdPdam }
                 },
                 placeholders: new()
                 {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
+                    { "[dataawal]", AppSettings.DataAwalDatabase },
                 });
-
-            IEnumerable<dynamic>? nonairBaliknama = [];
-            await Utils.LoketConnectionWrapper(async (conn, trans) =>
-            {
-                nonairBaliknama = await conn.QueryAsync(
-                    sql: @"SELECT `nomor`,`urutannonair` FROM `permohonan_balik_nama` WHERE `flaghapus`=0 AND `biaya`>0",
-                    transaction: trans);
-            });
-
-            if (nonairBaliknama.Any())
-            {
-                await Utils.MainConnectionWrapper(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        DROP TABLE IF EXISTS __tmp_nonair_baliknama;
-                        CREATE TABLE __tmp_nonair_baliknama (
-                        nomor varchar(100),
-                        urutannonair varchar(100)
-                        )",
-                        transaction: trans);
-                    await conn.ExecuteAsync(
-                        sql: @"INSERT INTO __tmp_nonair_baliknama VALUES (@nomor,@urutannonair)",
-                        param: nonairBaliknama,
-                        transaction: trans);
-                    await conn.ExecuteAsync(
-                        sql: await File.ReadAllTextAsync(@"Queries\balik_nama\patches\p1.sql"),
-                        param: new
-                        {
-                            idpdam = settings.IdPdam,
-                            idtipe = idBalikNama,
-                        },
-                        transaction: trans,
-                        commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
-                });
-            }
         }
         private async Task TutupTotal(Settings settings)
         {
