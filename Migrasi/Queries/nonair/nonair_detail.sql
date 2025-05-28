@@ -1,4 +1,13 @@
-﻿SELECT
+﻿/* rekening_nonair_detail
+ * new(0, "idpdam")
+ * new(1, "idnonair")
+ * new(2, "parameter")
+ * new(3, "postbiaya")
+ * new(4, "value")
+ * new(5, "waktuupdate")
+ */
+
+SELECT
 @idpdam AS idpdam,
 p.idnonair AS idnonair,
 p.parameter AS parameter,

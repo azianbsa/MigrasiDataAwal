@@ -1,4 +1,20 @@
-﻿SELECT
+﻿/* rekening_air_transaksi
+ * new(0, "idpdam")
+ * new(1, "idpelangganair")
+ * new(2, "idperiode")
+ * new(3, "nomortransaksi")
+ * new(4, "statustransaksi")
+ * new(5, "waktutransaksi")
+ * new(6, "tahuntransaksi")
+ * new(7, "iduser")
+ * new(8, "idloket")
+ * new(9, "idkolektiftransaksi")
+ * new(10, "idalasanbatal")
+ * new(11, "keterangan")
+ * new(12, "waktuupdate")
+ */
+
+SELECT
 @idpdam,
 p.id AS idpelangganair,
 pr.idperiode AS idperiode,

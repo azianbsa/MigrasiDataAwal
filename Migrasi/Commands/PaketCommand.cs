@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Migrasi.Helpers;
+using MySqlConnector;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sprache;
@@ -8,6 +9,282 @@ namespace Migrasi.Commands
 {
     public class PaketCommand : AsyncCommand<PaketCommand.Settings>
     {
+        private static readonly Dictionary<string, List<MySqlBulkCopyColumnMapping>> ColumnMappings = new()
+        {
+            {
+                "master_pelanggan_air",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpelangganair"),
+                    new(2, "nosamb"),
+                    new(3, "norekening"),
+                    new(4, "nama"),
+                    new(5, "alamat"),
+                    new(6, "rt"),
+                    new(7, "rw"),
+                    new(8, "idgolongan"),
+                    new(9, "iddiameter"),
+                    new(10, "idjenispipa"),
+                    new(11, "idkwh"),
+                    new(12, "idrayon"),
+                    new(13, "idkelurahan"),
+                    new(14, "idkolektif"),
+                    new(15, "idstatus"),
+                    new(16, "idflag"),
+                    new(17, "latitude"),
+                    new(18, "longitude"),
+                    new(19, "akurasi"),
+                    new(20, "nosamblama"),
+                    new(21, "flaghapus"),
+                    new(22, "waktuupdate"),
+                }
+            },
+            {
+                "master_pelanggan_air_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpelangganair"),
+                    new(2, "idsumberair"),
+                    new(3, "iddma"),
+                    new(4, "iddmz"),
+                    new(5, "idblok"),
+                    new(6, "idmerekmeter"),
+                    new(7, "idkondisimeter"),
+                    new(8, "idadministrasilain"),
+                    new(9, "idpemeliharaanlain"),
+                    new(10, "idretribusilain"),
+                    new(11, "idpekerjaan"),
+                    new(12, "idjenisbangunan"),
+                    new(13, "idperuntukan"),
+                    new(14, "idkepemilikan"),
+                    new(15, "nosegel"),
+                    new(16, "nohp"),
+                    new(17, "notelp"),
+                    new(18, "noktp"),
+                    new(19, "nokk"),
+                    new(20, "email"),
+                    new(21, "noserimeter"),
+                    new(22, "tglmeter"),
+                    new(23, "pekerjaan"),
+                    new(24, "penghuni"),
+                    new(25, "namapemilik"),
+                    new(26, "alamatpemilik"),
+                    new(27, "kodepost"),
+                    new(28, "dayalistrik"),
+                    new(29, "luastanah"),
+                    new(30, "luasrumah"),
+                    new(31, "urutanbaca"),
+                    new(32, "stanawalpasang"),
+                    new(33, "nopendaftaran"),
+                    new(34, "tgldaftar"),
+                    new(35, "tglpenentuanbaca"),
+                    new(36, "norab"),
+                    new(37, "nobapemasangan"),
+                    new(38, "tglpasang"),
+                    new(39, "tglputus"),
+                    new(40, "noserimeterlama"),
+                    new(41, "kategoriputus"),
+                    new(42, "idtipependaftaransambungan"),
+                    new(43, "idkategorikawasan"),
+                    new(44, "keterangan"),
+                    new(45, "waktuupdate"),
+                }
+            },
+            {
+                "rekening_air",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idrekeningair"),
+                    new(2, "idpelangganair"),
+                    new(3, "idperiode"),
+                    new(4, "idgolongan"),
+                    new(5, "iddiameter"),
+                    new(6, "idjenispipa"),
+                    new(7, "idkwh"),
+                    new(8, "idrayon"),
+                    new(9, "idkelurahan"),
+                    new(10, "idkolektif"),
+                    new(11, "idadministrasilain"),
+                    new(12, "idpemeliharaanlain"),
+                    new(13, "idretribusilain"),
+                    new(14, "idstatus"),
+                    new(15, "idflag"),
+                    new(16, "stanlalu"),
+                    new(17, "stanskrg"),
+                    new(18, "stanangkat"),
+                    new(19, "pakai"),
+                    new(20, "pakaikalkulasi"),
+                    new(21, "biayapemakaian"),
+                    new(22, "administrasi"),
+                    new(23, "pemeliharaan"),
+                    new(24, "retribusi"),
+                    new(25, "pelayanan"),
+                    new(26, "airlimbah"),
+                    new(27, "dendapakai0"),
+                    new(28, "administrasilain"),
+                    new(29, "pemeliharaanlain"),
+                    new(30, "retribusilain"),
+                    new(31, "ppn"),
+                    new(32, "meterai"),
+                    new(33, "rekair"),
+                    new(34, "denda"),
+                    new(35, "diskon"),
+                    new(36, "deposit"),
+                    new(37, "total"),
+                    new(38, "hapussecaraakuntansi"),
+                    new(39, "waktuhapussecaraakuntansi"),
+                    new(40, "iddetailcyclepembacaan"),
+                    new(41, "tglpenentuanbaca"),
+                    new(42, "flagbaca"),
+                    new(43, "metodebaca"),
+                    new(44, "waktubaca"),
+                    new(45, "jambaca"),
+                    new(46, "petugasbaca"),
+                    new(47, "kelainan"),
+                    new(48, "stanbaca"),
+                    new(49, "waktukirimhasilbaca"),
+                    new(50, "jamkirimhasilbaca"),
+                    new(51, "memolapangan"),
+                    new(52, "lampiran"),
+                    new(53, "taksasi"),
+                    new(54, "taksir"),
+                    new(55, "flagrequestbacaulang"),
+                    new(56, "waktuupdaterequestbacaulang"),
+                    new(57, "flagkoreksi"),
+                    new(58, "waktukoreksi"),
+                    new(59, "jamkoreksi"),
+                    new(60, "flagverifikasi"),
+                    new(61, "waktuverifikasi"),
+                    new(62, "jamverifikasi"),
+                    new(63, "userverifikasi"),
+                    new(64, "flagpublish"),
+                    new(65, "waktupublish"),
+                    new(66, "jampublish"),
+                    new(67, "userpublish"),
+                    new(68, "latitude"),
+                    new(69, "longitude"),
+                    new(70, "latitudebulanlalu"),
+                    new(71, "longitudebulanlalu"),
+                    new(72, "adafotometer"),
+                    new(73, "adafotorumah"),
+                    new(74, "adavideo"),
+                    new(75, "flagminimumpakai"),
+                    new(76, "pakaibulanlalu"),
+                    new(77, "pakai2bulanlalu"),
+                    new(78, "pakai3bulanlalu"),
+                    new(79, "pakai4bulanlalu"),
+                    new(80, "persentasebulanlalu"),
+                    new(81, "persentase2bulanlalu"),
+                    new(82, "persentase3bulanlalu"),
+                    new(83, "kelainanbulanlalu"),
+                    new(84, "kelainan2bulanlalu"),
+                    new(85, "flagangsur"),
+                    new(86, "idangsuran"),
+                    new(87, "idmodule"),
+                    new(88, "flagkoreksibilling"),
+                    new(89, "tglmulaidenda1"),
+                    new(90, "tglmulaidenda2"),
+                    new(91, "tglmulaidenda3"),
+                    new(92, "tglmulaidenda4"),
+                    new(93, "tglmulaidendaperbulan"),
+                    new(94, "tglmulaidendaperhari"),
+                    new(95, "flaghasbeenpublish"),
+                    new(96, "flagdrdsusulan"),
+                    new(97, "waktudrdsusulan"),
+                    new(98, "waktuupdate"),
+                    new(99, "flaghapus"),
+                }
+            },
+            {
+                "rekening_air_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpelangganair"),
+                    new(2, "idperiode"),
+                    new(3, "blok1"),
+                    new(4, "blok2"),
+                    new(5, "blok3"),
+                    new(6, "blok4"),
+                    new(7, "blok5"),
+                    new(8, "prog1"),
+                    new(9, "prog2"),
+                    new(10, "prog3"),
+                    new(11, "prog4"),
+                    new(12, "prog5"),
+                }
+            },
+            {
+                "rekening_air_transaksi",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpelangganair"),
+                    new(2, "idperiode"),
+                    new(3, "nomortransaksi"),
+                    new(4, "statustransaksi"),
+                    new(5, "waktutransaksi"),
+                    new(6, "tahuntransaksi"),
+                    new(7, "iduser"),
+                    new(8, "idloket"),
+                    new(9, "idkolektiftransaksi"),
+                    new(10, "idalasanbatal"),
+                    new(11, "keterangan"),
+                    new(12, "waktuupdate"),
+                }
+            },
+            {
+                "rekening_nonair",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idnonair"),
+                    new(2, "idjenisnonair"),
+                    new(3, "idpelangganair"),
+                    new(4, "idpelangganlimbah"),
+                    new(5, "idpelangganlltt"),
+                    new(6, "kodeperiode"),
+                    new(7, "nomornonair"),
+                    new(8, "keterangan"),
+                    new(9, "total"),
+                    new(10, "tanggalmulaitagih"),
+                    new(11, "tanggalkadaluarsa"),
+                    new(12, "nama"),
+                    new(13, "alamat"),
+                    new(14, "idrayon"),
+                    new(15, "idkelurahan"),
+                    new(16, "idgolongan"),
+                    new(17, "idtariflimbah"),
+                    new(18, "idtariflltt"),
+                    new(19, "flagangsur"),
+                    new(20, "idangsuran"),
+                    new(21, "termin"),
+                    new(22, "flagmanual"),
+                    new(23, "idpermohonansambunganbaru"),
+                    new(24, "flaghapus"),
+                    new(25, "iduser"),
+                    new(26, "waktuupdate"),
+                    new(27, "created_at"),
+                    new(28, "urutan"),
+                }
+            },
+            {
+                "rekening_nonair_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idnonair"),
+                    new(2, "parameter"),
+                    new(3, "postbiaya"),
+                    new(4, "value"),
+                    new(5, "waktuupdate"),
+                }
+            }
+        };
+
         public class Settings : CommandSettings
         {
             [CommandOption("-i|--idpdam")]
@@ -63,8 +340,8 @@ namespace Migrasi.Commands
             const string PROSES_PERMOHONAN_RUBAH_RAYON = "Proses permohonan rubah rayon";
             const string PROSES_PERMOHONAN_SAMBUNG_KEMBALI = "Proses permohonan sambung kembali";
 
-            var prosesList = new List<string>
-            {
+            List<string> prosesList =
+            [
                 PROSES_DATA_MASTER_BSHPD,
                 PROSES_DATA_PELANGGAN,
                 PROSES_PIUTANG_BAYAR_3_BULAN,
@@ -78,7 +355,7 @@ namespace Migrasi.Commands
                 PROSES_PERMOHONAN_RUBAH_TARIF,
                 PROSES_PERMOHONAN_RUBAH_RAYON,
                 PROSES_PERMOHONAN_SAMBUNG_KEMBALI,
-            };
+            ];
 
             string? namaPdam = "";
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -173,32 +450,7 @@ namespace Migrasi.Commands
                                         { "[bsbs]", AppSettings.DatabaseBsbs },
                                         { "[dataawal]", AppSettings.DataAwalDatabase },
                                     },
-                                    columnMappings:
-                                    [
-                                        new(0, "idpdam"),
-                                        new(1, "idpelangganair"),
-                                        new(2, "nosamb"),
-                                        new(3, "norekening"),
-                                        new(4, "nama"),
-                                        new(5, "alamat"),
-                                        new(6, "rt"),
-                                        new(7, "rw"),
-                                        new(8, "idgolongan"),
-                                        new(9, "iddiameter"),
-                                        new(10, "idjenispipa"),
-                                        new(11, "idkwh"),
-                                        new(12, "idrayon"),
-                                        new(13, "idkelurahan"),
-                                        new(14, "idkolektif"),
-                                        new(15, "idstatus"),
-                                        new(16, "idflag"),
-                                        new(17, "latitude"),
-                                        new(18, "longitude"),
-                                        new(19, "akurasi"),
-                                        new(20, "nosamblama"),
-                                        new(21, "flaghapus"),
-                                        new(22, "waktuupdate"),
-                                    ]);
+                                    columnMappings: ColumnMappings["master_pelanggan_air"]);
                             });
                             await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
                             {
@@ -226,55 +478,7 @@ namespace Migrasi.Commands
                                         { "[bsbs]", AppSettings.DatabaseBsbs },
                                         { "[dataawal]", AppSettings.DataAwalDatabase },
                                     },
-                                    columnMappings:
-                                    [
-                                        new(0, "idpdam"),
-                                        new(1, "idpelangganair"),
-                                        new(2, "idsumberair"),
-                                        new(3, "iddma"),
-                                        new(4, "iddmz"),
-                                        new(5, "idblok"),
-                                        new(6, "idmerekmeter"),
-                                        new(7, "idkondisimeter"),
-                                        new(8, "idadministrasilain"),
-                                        new(9, "idpemeliharaanlain"),
-                                        new(10, "idretribusilain"),
-                                        new(11, "idpekerjaan"),
-                                        new(12, "idjenisbangunan"),
-                                        new(13, "idperuntukan"),
-                                        new(14, "idkepemilikan"),
-                                        new(15, "nosegel"),
-                                        new(16, "nohp"),
-                                        new(17, "notelp"),
-                                        new(18, "noktp"),
-                                        new(19, "nokk"),
-                                        new(20, "email"),
-                                        new(21, "noserimeter"),
-                                        new(22, "tglmeter"),
-                                        new(23, "pekerjaan"),
-                                        new(24, "penghuni"),
-                                        new(25, "namapemilik"),
-                                        new(26, "alamatpemilik"),
-                                        new(27, "kodepost"),
-                                        new(28, "dayalistrik"),
-                                        new(29, "luastanah"),
-                                        new(30, "luasrumah"),
-                                        new(31, "urutanbaca"),
-                                        new(32, "stanawalpasang"),
-                                        new(33, "nopendaftaran"),
-                                        new(34, "tgldaftar"),
-                                        new(35, "tglpenentuanbaca"),
-                                        new(36, "norab"),
-                                        new(37, "nobapemasangan"),
-                                        new(38, "tglpasang"),
-                                        new(39, "tglputus"),
-                                        new(40, "noserimeterlama"),
-                                        new(41, "kategoriputus"),
-                                        new(42, "idtipependaftaransambungan"),
-                                        new(43, "idkategorikawasan"),
-                                        new(44, "keterangan"),
-                                        new(45, "waktuupdate"),
-                                    ]);
+                                    columnMappings: ColumnMappings["master_pelanggan_air_detail"]);
                             });
                         }
 
@@ -1535,7 +1739,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["rekening_nonair"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -1560,7 +1765,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["rekening_nonair_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -1574,7 +1780,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["rekening_nonair_transaksi"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -1588,7 +1795,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["rekening_nonair_transaksi"]);
         }
         private async Task NonairTahun(Settings settings)
         {
@@ -1778,7 +1986,7 @@ namespace Migrasi.Commands
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_jenisnonair", transaction: trans);
             });
         }
-        private async Task Piutang(Settings settings)
+        private static async Task Piutang(Settings settings)
         {
             var lastId = 0;
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -1801,7 +2009,8 @@ namespace Migrasi.Commands
                     { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["rekening_air"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -1817,7 +2026,8 @@ namespace Migrasi.Commands
                     { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["rekening_air_detail"]);
         }
         private async Task BayarTahun(Settings settings)
         {
@@ -1940,7 +2150,7 @@ namespace Migrasi.Commands
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
-        private async Task Bayar(Settings settings)
+        private static async Task Bayar(Settings settings)
         {
             await Utils.TrackProgress($"bayar|rekening_air", async () =>
             {
@@ -1965,7 +2175,8 @@ namespace Migrasi.Commands
                         { "[bacameter]", AppSettings.DatabaseBacameter },
                         { "[bsbs]", AppSettings.DatabaseBsbs },
                         { "[dataawal]", AppSettings.DataAwalDatabase },
-                    });
+                    },
+                    columnMappings: ColumnMappings["rekening_air"]);
             });
 
             await Utils.TrackProgress($"bayar|rekening_air_detail", async () =>
@@ -1984,7 +2195,8 @@ namespace Migrasi.Commands
                         { "[bacameter]", AppSettings.DatabaseBacameter },
                         { "[bsbs]", AppSettings.DatabaseBsbs },
                         { "[dataawal]", AppSettings.DataAwalDatabase },
-                    });
+                    },
+                    columnMappings: ColumnMappings["rekening_air_detail"]);
             });
 
             await Utils.TrackProgress($"bayar|rekening_air_transaksi", async () =>
@@ -2003,7 +2215,8 @@ namespace Migrasi.Commands
                         { "[bacameter]", AppSettings.DatabaseBacameter },
                         { "[bsbs]", AppSettings.DatabaseBsbs },
                         { "[dataawal]", AppSettings.DataAwalDatabase },
-                    });
+                    },
+                    columnMappings: ColumnMappings["rekening_air_transaksi"]);
             });
 
             await Utils.BulkCopy(
@@ -2020,7 +2233,8 @@ namespace Migrasi.Commands
                     { "[bacameter]", AppSettings.DatabaseBacameter },
                     { "[bsbs]", AppSettings.DatabaseBsbs },
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["rekening_air_transaksi"]);
         }
         private async Task RabLainnyaPelanggan(Settings settings)
         {
