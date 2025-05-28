@@ -19,3 +19,13 @@ FROM
 kecamatan k
 JOIN __tmp_cabang c ON c.kodecabang = k.kodecabang
 ,(SELECT @id:=0) AS id
+WHERE k.`kodekecamatan`<>'-'
+UNION ALL
+SELECT
+@idpdam,
+-1 AS idkecamatan,
+'-' AS kodekecamatan,
+'-' AS namakecamatan,
+-1 AS idcabang,
+0 AS flaghapus,
+NOW() AS waktuupdate

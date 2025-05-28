@@ -1,4 +1,16 @@
-﻿DROP TABLE IF EXISTS __tmp_status;
+﻿/* column mapping
+ * 0,idpdam
+ * 1,idstatus
+ * 2,namastatus
+ * 3,rekening_air_include
+ * 4,rekening_limbah_include
+ * 5,rekening_lltt_include
+ * 6,tanpabiayapemakaianair
+ * 7,flaghapus
+ * 8,waktuupdate
+ */
+
+DROP TABLE IF EXISTS __tmp_status;
 
 CREATE TABLE __tmp_status (
  idpdam SMALLINT (6) NOT NULL,

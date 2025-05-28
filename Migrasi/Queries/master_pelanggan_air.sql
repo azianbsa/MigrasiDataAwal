@@ -1,3 +1,29 @@
+/* column mappings
+ * new(0, "idpdam")
+ * new(1, "idpelangganair")
+ * new(2, "nosamb")
+ * new(3, "norekening")
+ * new(4, "nama")
+ * new(5, "alamat")
+ * new(6, "rt")
+ * new(7, "rw")
+ * new(8, "idgolongan")
+ * new(9, "iddiameter")
+ * new(10, "idjenispipa")
+ * new(11, "idkwh")
+ * new(12, "idrayon")
+ * new(13, "idkelurahan")
+ * new(14, "idkolektif")
+ * new(15, "idstatus")
+ * new(16, "idflag")
+ * new(17, "latitude")
+ * new(18, "longitude")
+ * new(19, "akurasi")
+ * new(20, "nosamblama")
+ * new(21, "flaghapus")
+ * new(22, "waktuupdate")
+ */
+
 SELECT
 @idpdam,
 p.id AS idpelangganair,
@@ -12,19 +38,12 @@ d.`iddiameter` AS iddiameter,
 -1 AS idjenispipa,
 -1 AS idkwh,
 r.`idrayon` AS idrayon,
-k.`idkelurahan` AS idkelurahan,
+COALESCE(k.`idkelurahan`,-1) AS idkelurahan,
 COALESCE(kl.`idkolektif`,-1) AS idkolektif,
 p.status AS idstatus,
 p.flag AS idflag,
 NULL AS latitude,
 NULL AS longitude,
-NULL AS alamatmap,
-NULL AS fotorumah1,
-NULL AS fotorumah2,
-NULL AS fotorumah3,
-NULL AS fotokwh,
-NULL AS fotodenah1,
-NULL AS fotodenah2,
 999 AS akurasi,
 pp.nosamb AS nosamblama,
 p.flaghapus AS flaghapus,

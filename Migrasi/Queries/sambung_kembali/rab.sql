@@ -1,46 +1,20 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket AS
-SELECT
-@idpdam,
-@id := @id + 1 AS iduser,
-a.nama,
-a.namauser
-FROM (
-SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket`
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl`
-) a,
-(SELECT @id := 0) AS id
-GROUP BY a.namauser;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_sambung_kembali;
-CREATE TEMPORARY TABLE __tmp_sambung_kembali AS
-SELECT
-@id := @id+1 AS ID,
-p.nomor
-FROM permohonan_sambung_kembali P
-,(SELECT @id := @lastid) AS id
-WHERE p.flaghapus=0;
+﻿SET @idjenisnonair=(SELECT `idjenisnonair` FROM `kotaparepare_dataawal`.`master_attribute_jenis_nonair` WHERE idpdam=@idpdam AND `namajenisnonair`='SAMB.KEMBALI');
 
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
-@jenisnonair AS `idjenisnonair`,
-NULL AS `idnonair`,
-rab.`norab` AS `nomorrab`,
-rab.`tglrab` AS `tanggalrab`,
-'-' AS `nomorbppi`,
-NULL as `iduserbppi`,
-rab.`tglrab` AS `tanggalbppi`,
-usr.iduser AS `iduser`,
-rab.`validdate` AS `tanggalkadaluarsa`,
-`namapaketrab` AS  `persilnamapaket`,
-IFNULL(rab.`dialihkankevendor`,0) AS `persilflagdialihkankevendor`,
-IFNULL(rab.`biayadibebankankepdam`,0) AS `persilflagbiayadibebankankepdam`,
+pp.`idpermohonan` AS `idpermohonan`,
+@idjenisnonair AS `idjenisnonair`,
+n.`idnonair` AS `idnonair`,
+p.`norab` AS `nomorrab`,
+p.`tglrab` AS `tanggalrab`,
+REPLACE(p.`norab`,'/RAB SAMB.KEMBALI/','/BPPI SAMB.KEMBALI/') AS `nomorbppi`,
+NULL AS `iduserbppi`,
+p.`tglrab` AS `tanggalbppi`,
+u.iduser AS `iduser`,
+p.`validdate` AS `tanggalkadaluarsa`,
+p.`namapaketrab` AS  `persilnamapaket`,
+IFNULL(p.`dialihkankevendor`,0) AS `persilflagdialihkankevendor`,
+IFNULL(p.`biayadibebankankepdam`,0) AS `persilflagbiayadibebankankepdam`,
 0 AS `persilsubtotal`,
 0 AS `persildibebankankepdam`,
 0 AS `persiltotal`,
@@ -57,12 +31,13 @@ NULL AS `fotobukti2`,
 NULL AS `fotobukti3`,
 0 AS `rekapsubtotal`,
 0 AS `rekapdibebankankepdam`,
-rab.`grandtotal` AS `rekaptotal`,
+p.`grandtotal` AS `rekaptotal`,
 0 AS `flagrablainnya`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
-rab.`tglrab` AS `waktuupdate`
-FROM __tmp_sambung_kembali p
-JOIN `rab_sambung_kembali` rab ON rab.nomorpermohonan=p.nomor
-LEFT JOIN __tmp_userloket usr ON usr.nama=rab.`user`
-WHERE rab.`flaghapus`=0 AND rab.tglrab IS NOT NULL
+p.`tglrab` AS `waktuupdate`
+FROM `rab_sambung_kembali` p
+JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan`
+LEFT JOIN `kotaparepare_dataawal`.`tampung_rekening_nonair` n ON n.`urutan`=p.`norab`
+LEFT JOIN `kotaparepare_dataawal`.`master_user` u ON u.nama=p.`user`
+WHERE p.`flaghapus`=0

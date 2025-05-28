@@ -1,4 +1,12 @@
-﻿DROP TABLE IF EXISTS __tmp_flag;
+﻿/* column mapping
+ * 0,idpdam
+ * 1,idflag
+ * 2,namaflag
+ * 3,flaghapus
+ * 4,waktuupdate
+ */
+
+DROP TABLE IF EXISTS __tmp_flag;
 
 CREATE TABLE __tmp_flag (
  idpdam SMALLINT (6) NOT NULL,

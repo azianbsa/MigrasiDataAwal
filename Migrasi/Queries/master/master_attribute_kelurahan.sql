@@ -20,3 +20,14 @@ FROM
 kelurahan k
 JOIN __tmp_kecamatan kc ON kc.kodekecamatan = k.kodekecamatan
 ,(SELECT @id:=0) AS id
+WHERE k.`kodekelurahan`<>'-'
+UNION ALL
+SELECT
+@idpdam,
+-1 AS idkelurahan,
+'-' AS kodekelurahan,
+'-' AS namakelurahan,
+-1 AS idkecamatan,
+0 AS jumlahjiwa,
+0 AS flaghapus,
+NOW() AS waktuupdate

@@ -193,6 +193,9 @@
     <None Update="Queries\bayar\bayar_transaksi.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\master\personalia_master_attribute_urusan_pegawai.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\master\personalia_master_pegawai.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
