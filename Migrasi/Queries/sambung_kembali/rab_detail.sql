@@ -1,4 +1,30 @@
-﻿SELECT
+﻿-- permohonan_pelanggan_air_rab_detail
+-- new(0, "id")
+-- new(1, "idpdam")
+-- new(2, "idpermohonan")
+-- new(3, "tipe")
+-- new(4, "kode")
+-- new(5, "uraian")
+-- new(6, "hargasatuan")
+-- new(7, "satuan")
+-- new(8, "qty")
+-- new(9, "jumlah")
+-- new(10, "ppn")
+-- new(11, "keuntungan")
+-- new(12, "jasadaribahan")
+-- new(13, "total")
+-- new(14, "kategori")
+-- new(15, "kelompok")
+-- new(16, "postbiaya")
+-- new(17, "qtyrkp")
+-- new(18, "flagbiayadibebankankepdam")
+-- new(19, "flagdialihkankevendor")
+-- new(20, "flagpaket")
+-- new(21, "flagdistribusi")
+-- new(22, "untuksppbdarispk")
+-- new(23, "waktuupdate")
+
+SELECT
 @id:=@id+1 AS `id`,
 @idpdam AS `idpdam`,
 pp.`idpermohonan` AS `idpermohonan`,

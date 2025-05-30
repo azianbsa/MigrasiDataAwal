@@ -1,4 +1,16 @@
-﻿SELECT
+﻿-- permohonan_pelanggan_air_spk_pasang
+-- new(0, "idpdam")
+-- new(1, "idpermohonan")
+-- new(2, "nomorspk")
+-- new(3, "tanggalspk")
+-- new(4, "nomorsppb")
+-- new(5, "tanggalsppb")
+-- new(6, "iduser,")
+-- new(7, "flagbatal")
+-- new(8, "idalasanbatal")
+-- new(9, "waktuupdate")
+
+SELECT
 @idpdam AS `idpdam`,
 p.idpermohonan AS `idpermohonan`,
 r.`nomorspkp` AS `nomorspk`,
@@ -6,9 +18,6 @@ r.`tanggalspk` AS `tanggalspk`,
 r.`nomorsppb` AS `nomorsppb`,
 r.`tanggalspk` AS `tanggalsppb`,
 u.iduser AS `iduser`, -- harus ambil dari logakses bukan rab, karna ini user pembuat rab bukan user pembuat spkp
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
 r.tanggalspk AS `waktuupdate`

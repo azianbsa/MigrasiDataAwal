@@ -1,4 +1,36 @@
-﻿SET @idjenisnonair=(SELECT `idjenisnonair` FROM `kotaparepare_dataawal`.`master_attribute_jenis_nonair` WHERE idpdam=@idpdam AND `namajenisnonair`='SAMB.KEMBALI');
+﻿--permohonan_pelanggan_air_rab
+--new(0, "idpdam")
+--new(1, "idpermohonan")
+--new(2, "idjenisnonair")
+--new(3, "idnonair")
+--new(4, "nomorrab")
+--new(5, "tanggalrab")
+--new(6, "nomorbppi")
+--new(7, "tanggalbppi")
+--new(8, "iduserbppi")
+--new(9, "iduser")
+--new(10, "tanggalkadaluarsa")
+--new(11, "persilnamapaket")
+--new(12, "persilflagdialihkankevendor")
+--new(13, "persilflagbiayadibebankankepdam")
+--new(14, "persilsubtotal")
+--new(15, "persildibebankankepdam")
+--new(16, "persiltotal")
+--new(17, "distribusinamapaket")
+--new(18, "distribusiflagdialihkankevendor")
+--new(19, "distribusiflagbiayadibebankankepdam")
+--new(20, "distribusisubtotal")
+--new(21, "distribusidibebankankepdam")
+--new(22, "distribusitotal")
+--new(23, "rekapsubtotal")
+--new(24, "rekapdibebankankepdam")
+--new(25, "rekaptotal")
+--new(26, "flagrablainnya")
+--new(27, "flagbatal")
+--new(28, "idalasanbatal")
+--new(29, "waktuupdate")
+
+SET @idjenisnonair=(SELECT `idjenisnonair` FROM `kotaparepare_dataawal`.`master_attribute_jenis_nonair` WHERE idpdam=@idpdam AND `namajenisnonair`='SAMB.KEMBALI');
 
 SELECT
 @idpdam AS `idpdam`,
@@ -8,8 +40,8 @@ n.`idnonair` AS `idnonair`,
 p.`norab` AS `nomorrab`,
 p.`tglrab` AS `tanggalrab`,
 REPLACE(p.`norab`,'/RAB SAMB.KEMBALI/','/BPPI SAMB.KEMBALI/') AS `nomorbppi`,
-NULL AS `iduserbppi`,
 p.`tglrab` AS `tanggalbppi`,
+NULL AS `iduserbppi`,
 u.iduser AS `iduser`,
 p.`validdate` AS `tanggalkadaluarsa`,
 p.`namapaketrab` AS  `persilnamapaket`,
@@ -24,11 +56,6 @@ NULL AS `distribusinamapaket`,
 0 AS `distribusisubtotal`,
 0 AS `distribusidibebankankepdam`,
 0 AS `distribusitotal`,
-NULL AS `fotodenah1`,
-NULL AS `fotodenah2`,
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
 0 AS `rekapsubtotal`,
 0 AS `rekapdibebankankepdam`,
 p.`grandtotal` AS `rekaptotal`,

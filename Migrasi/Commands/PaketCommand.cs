@@ -544,6 +544,202 @@ namespace Migrasi.Commands
                     new(9, "waktuupdate"),
                 }
             },
+            {
+                "permohonan_pelanggan_air",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "idtipepermohonan"),
+                    new(3, "idsumberpengaduan"),
+                    new(4, "nomorpermohonan"),
+                    new(5, "waktupermohonan"),
+                    new(6, "idrayon"),
+                    new(7, "idkelurahan"),
+                    new(8, "idgolongan"),
+                    new(9, "iddiameter"),
+                    new(10, "idpelangganair"),
+                    new(11, "keterangan"),
+                    new(12, "iduser"),
+                    new(13, "idnonair"),
+                    new(14, "latitude"),
+                    new(15, "longitude"),
+                    new(16, "alamatmap"),
+                    new(17, "flagverifikasi"),
+                    new(18, "waktuverifikasi"),
+                    new(19, "flagusulan"),
+                    new(20, "statuspermohonan"),
+                    new(21, "flaghapus"),
+                    new(22, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "parameter"),
+                    new(3, "tipedata"),
+                    new(4, "valuestring"),
+                    new(5, "valuedecimal"),
+                    new(6, "valueinteger"),
+                    new(7, "valuedate"),
+                    new(8, "valuebool"),
+                    new(9, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_spk",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "nomorspk"),
+                    new(3, "tanggalspk"),
+                    new(4, "iduser"),
+                    new(5, "flagsurvey"),
+                    new(6, "flagbatal"),
+                    new(7, "idalasanbatal"),
+                    new(8, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_spk_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "parameter"),
+                    new(3, "tipedata"),
+                    new(4, "valuestring"),
+                    new(5, "valuedecimal"),
+                    new(6, "valueinteger"),
+                    new(7, "valuedate"),
+                    new(8, "valuebool"),
+                    new(9, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_rab",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "idjenisnonair"),
+                    new(3, "idnonair"),
+                    new(4, "nomorrab"),
+                    new(5, "tanggalrab"),
+                    new(6, "nomorbppi"),
+                    new(7, "tanggalbppi"),
+                    new(8, "iduserbppi"),
+                    new(9, "iduser"),
+                    new(10, "tanggalkadaluarsa"),
+                    new(11, "persilnamapaket"),
+                    new(12, "persilflagdialihkankevendor"),
+                    new(13, "persilflagbiayadibebankankepdam"),
+                    new(14, "persilsubtotal"),
+                    new(15, "persildibebankankepdam"),
+                    new(16, "persiltotal"),
+                    new(17, "distribusinamapaket"),
+                    new(18, "distribusiflagdialihkankevendor"),
+                    new(19, "distribusiflagbiayadibebankankepdam"),
+                    new(20, "distribusisubtotal"),
+                    new(21, "distribusidibebankankepdam"),
+                    new(22, "distribusitotal"),
+                    new(23, "rekapsubtotal"),
+                    new(24, "rekapdibebankankepdam"),
+                    new(25, "rekaptotal"),
+                    new(26, "flagrablainnya"),
+                    new(27, "flagbatal"),
+                    new(28, "idalasanbatal"),
+                    new(29, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_rab_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "id"),
+                    new(1, "idpdam"),
+                    new(2, "idpermohonan"),
+                    new(3, "tipe"),
+                    new(4, "kode"),
+                    new(5, "uraian"),
+                    new(6, "hargasatuan"),
+                    new(7, "satuan"),
+                    new(8, "qty"),
+                    new(9, "jumlah"),
+                    new(10, "ppn"),
+                    new(11, "keuntungan"),
+                    new(12, "jasadaribahan"),
+                    new(13, "total"),
+                    new(14, "kategori"),
+                    new(15, "kelompok"),
+                    new(16, "postbiaya"),
+                    new(17, "qtyrkp"),
+                    new(18, "flagbiayadibebankankepdam"),
+                    new(19, "flagdialihkankevendor"),
+                    new(20, "flagpaket"),
+                    new(21, "flagdistribusi"),
+                    new(22, "untuksppbdarispk"),
+                    new(23, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_spk_pasang",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "nomorspk"),
+                    new(3, "tanggalspk"),
+                    new(4, "nomorsppb"),
+                    new(5, "tanggalsppb"),
+                    new(6, "iduser,"),
+                    new(7, "flagbatal"),
+                    new(8, "idalasanbatal"),
+                    new(9, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_ba",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "nomorba"),
+                    new(3, "tanggalba"),
+                    new(4, "iduser"),
+                    new(5, "persilnamapaket"),
+                    new(6, "persilflagdialihkankevendor"),
+                    new(7, "persilflagbiayadibebankankepdam"),
+                    new(8, "distribusinamapaket"),
+                    new(9, "distribusiflagdialihkankevendor"),
+                    new(10, "distribusiflagbiayadibebankankepdam"),
+                    new(11, "flagbatal"),
+                    new(12, "idalasanbatal"),
+                    new(13, "flag_dari_verifikasi"),
+                    new(14, "statusberitaacara"),
+                    new(15, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_pelanggan_air_ba_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "parameter"),
+                    new(3, "tipedata"),
+                    new(4, "valuestring"),
+                    new(5, "valuedecimal"),
+                    new(6, "valueinteger"),
+                    new(7, "valuedate"),
+                    new(8, "valuebool"),
+                    new(9, "waktuupdate"),
+                }
+            },
         };
 
         public class Settings : CommandSettings
@@ -3211,7 +3407,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["master_pelanggan_air_riwayat_koreksi"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -3262,7 +3459,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["master_pelanggan_air_riwayat_koreksi_detail"]);
         }
         private async Task Report(Settings settings)
         {
@@ -4377,7 +4575,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawaal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -4431,7 +4630,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_koreksi_rekening"]);
         }
         private static async Task SambungBaru(Settings settings)
         {
@@ -4624,7 +4824,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -4649,7 +4850,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4663,7 +4865,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_pasang"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4677,7 +4880,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4691,7 +4895,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
         }
         private static async Task SambungKembali(Settings settings)
         {
@@ -4707,7 +4912,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
 
             //copy lg supaya dapet yg terbaru
             await Utils.CopyToDiffrentHost(
@@ -4732,7 +4938,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4746,7 +4953,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4760,7 +4968,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4774,7 +4983,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_rab"]);
 
             var lastIdRabDetail = 0;
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -4817,7 +5027,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_rab_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4831,7 +5042,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_pasang"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4845,7 +5057,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4859,7 +5072,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
         }
         private static async Task RubahRayon(Settings settings)
         {
@@ -4875,7 +5089,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -4900,7 +5115,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4914,7 +5130,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4928,7 +5145,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
         }
         private static async Task RubahTarif(Settings settings)
         {
@@ -4944,7 +5162,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -4969,7 +5188,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4983,7 +5203,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4997,7 +5218,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5011,7 +5233,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5025,7 +5248,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
         }
         private static async Task BalikNama(Settings settings)
         {
@@ -5041,7 +5265,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -5066,7 +5291,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5080,7 +5306,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
         }
         private static async Task TutupTotal(Settings settings)
         {
@@ -5096,7 +5323,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
@@ -5121,7 +5349,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5135,7 +5364,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5149,7 +5379,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_pasang"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5163,7 +5394,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5177,7 +5409,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
         }
         private async Task PengaduanPelanggan(Settings settings)
         {
