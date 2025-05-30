@@ -1,4 +1,22 @@
-﻿SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='SAMBUNGAN_BARU_AIR');
+﻿-- permohonan_non_pelanggan_ba
+-- new(0, "idpdam")
+-- new(1, "idpermohonan")
+-- new(2, "nomorba")
+-- new(3, "tanggalba")
+-- new(4, "iduser")
+-- new(5, "persilnamapaket")
+-- new(6, "persilflagdialihkankevendor")
+-- new(7, "persilflagbiayadibebankankepdam")
+-- new(8, "distribusinamapaket")
+-- new(9, "distribusiflagdialihkankevendor")
+-- new(10, "distribusiflagbiayadibebankankepdam")
+-- new(11, "flagbatal")
+-- new(12, "idalasanbatal")
+-- new(13, "flag_dari_verifikasi")
+-- new(14, "statusberitaacara")
+-- new(15, "waktuupdate")
+
+SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='SAMBUNGAN_BARU_AIR');
 
 SELECT
 @idpdam AS idpdam,
@@ -12,13 +30,6 @@ NULL AS persilnamapaket,
 NULL AS distribusinamapaket,
 0 AS distribusiflagdialihkankevendor,
 0 AS distribusiflagbiayadibebankankepdam,
-NULL AS fotobukti1,
-NULL AS fotobukti2,
-NULL AS fotobukti3,
-NULL AS `fotobukti4`,
-NULL AS `fotobukti5`,
-NULL AS `fotobukti6`,
-NULL AS `fotosignature`,
 0 AS flagbatal,
 NULL AS idalasanbatal,
 NULL AS flag_dari_verifikasi,

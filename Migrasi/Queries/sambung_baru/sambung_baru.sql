@@ -1,4 +1,71 @@
-﻿SET @maxid=(SELECT COALESCE(MAX(idpermohonan),0) AS maxid FROM [dataawal].`tampung_permohonan_non_pelanggan` WHERE idpdam=@idpdam);
+﻿/* permohonan_non_pelanggan
+ * new(0, "idpdam")
+ * new(1, "idpermohonan")
+ * new(2, "idtipepermohonan")
+ * new(3, "idsumberpengaduan")
+ * new(4, "nomorpermohonan")
+ * new(5, "waktupermohonan")
+ * new(6, "flagpendaftaran")
+ * new(7, "idtipependaftaransambungan")
+ * new(8, "nama")
+ * new(9, "alamat")
+ * new(10, "idgolongan")
+ * new(11, "iddiameter")
+ * new(12, "idrayon")
+ * new(13, "idkelurahan")
+ * new(14, "idblok")
+ * new(15, "idperuntukan")
+ * new(16, "idjenisbangunan")
+ * new(17, "idkepemilikan")
+ * new(18, "idpekerjaan")
+ * new(19, "idkolektif")
+ * new(20, "idsumberair")
+ * new(21, "iddma")
+ * new(22, "iddmz")
+ * new(23, "idmerekmeter")
+ * new(24, "idkondisimeter")
+ * new(25, "idadministrasilain")
+ * new(26, "idpemeliharaanlain")
+ * new(27, "idretribusilain")
+ * new(28, "noserimeter")
+ * new(29, "tglmeter")
+ * new(30, "urutanbaca")
+ * new(31, "stanawalpasang")
+ * new(32, "notelp")
+ * new(33, "email")
+ * new(34, "noktp")
+ * new(35, "nokk")
+ * new(36, "kodepost")
+ * new(37, "dayalistrik")
+ * new(38, "luastanah")
+ * new(39, "luasrumah")
+ * new(40, "rt")
+ * new(41, "rw")
+ * new(42, "nohp")
+ * new(43, "keterangan")
+ * new(44, "nosambyangdiberikan")
+ * new(45, "nosambdepan")
+ * new(46, "nosambbelakang")
+ * new(47, "nosambkiri")
+ * new(48, "nosambkanan")
+ * new(49, "penghuni")
+ * new(50, "namapemilik")
+ * new(51, "alamatpemilik")
+ * new(52, "iduser")
+ * new(53, "idnonair")
+ * new(54, "latitude")
+ * new(55, "longitude")
+ * new(56, "alamatmap")
+ * new(57, "flagverifikasi")
+ * new(58, "waktuverifikasi")
+ * new(59, "flagpelanggankavlingan")
+ * new(60, "flaghapus")
+ * new(61, "waktuupdate")
+ * new(62, "airyangdigunakansebelumnya")
+ * new(63, "statuspermohonan")
+ */
+
+SET @maxid=(SELECT COALESCE(MAX(idpermohonan),0) AS maxid FROM [dataawal].`tampung_permohonan_non_pelanggan` WHERE idpdam=@idpdam);
 SET @idtipepermohonan=(SELECT idtipepermohonan FROM [dataawal].`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='SAMBUNGAN_BARU_AIR');
 
 SELECT
@@ -30,7 +97,6 @@ COALESCE(s.`idsumberair`,-1) AS `idsumberair`,
 -1 AS `idadministrasilain`,
 -1 AS `idpemeliharaanlain`,
 -1 AS `idretribusilain`,
-NULL AS `idkategorikawasan`,
 NULL AS `noserimeter`,
 NULL AS `tglmeter`,
 NULL AS `urutanbaca`,
@@ -60,23 +126,13 @@ NULL AS `idnonair`,
 NULL AS `latitude`,
 NULL AS `longitude`,
 NULL AS `alamatmap`,
-NULL AS `fotoktp`,
-NULL AS `fotokk`,
-NULL AS `fotosuratpernyataan`,
-NULL AS `fotoimb`,
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
 ra.flagaktif AS `flagverifikasi`,
 ra.waktupengaktifan AS `waktuverifikasi`,
-0 AS `flagusulan`,
-0 AS `flaglanjutkelanggananlimbah`,
 p.`pelanggan_kavling` AS `flagpelanggankavlingan`,
 p.`flaghapus` AS `flaghapus`,
 p.`tgldaftar` AS `waktuupdate`,
 NULL AS `airyangdigunakansebelumnya`,
-NULL AS `statuspermohonan`,
-0 AS `flagworkorder`
+NULL AS `statuspermohonan`
 FROM `pendaftaran` p
 LEFT JOIN [dataawal].`master_attribute_tipe_pendaftaran_sambungan` t ON t.`namatipependaftaransambungan`=p.`tipe` AND t.`idpdam`=@idpdam
 LEFT JOIN [dataawal].`master_attribute_rayon` r ON r.koderayon=p.koderayon AND r.`idpdam`=@idpdam

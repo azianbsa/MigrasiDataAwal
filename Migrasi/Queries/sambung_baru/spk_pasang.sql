@@ -1,4 +1,19 @@
-﻿SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='SAMBUNGAN_BARU_AIR');
+﻿-- permohonan_non_pelanggan_spk_pasang
+-- new(0, "idpdam")
+-- new(1, "idpermohonan")
+-- new(2, "nomorspk")
+-- new(3, "tanggalspk")
+-- new(4, "nomorsppb")
+-- new(5, "tanggalsppb")
+-- new(6, "iduser,")
+-- new(7, "fotobukti1")
+-- new(8, "fotobukti2")
+-- new(9, "fotobukti3")
+-- new(10, "flagbatal")
+-- new(11, "idalasanbatal")
+-- new(12, "waktuupdate")
+
+SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='SAMBUNGAN_BARU_AIR');
 
 SELECT
 @idpdam AS `idpdam`,

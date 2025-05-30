@@ -300,7 +300,250 @@ namespace Migrasi.Commands
                     new(10, "keterangan"),
                     new(11, "waktuupdate"),
                 }
-            }
+            },
+            {
+                "permohonan_non_pelanggan",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "idtipepermohonan"),
+                    new(3, "idsumberpengaduan"),
+                    new(4, "nomorpermohonan"),
+                    new(5, "waktupermohonan"),
+                    new(6, "flagpendaftaran"),
+                    new(7, "idtipependaftaransambungan"),
+                    new(8, "nama"),
+                    new(9, "alamat"),
+                    new(10, "idgolongan"),
+                    new(11, "iddiameter"),
+                    new(12, "idrayon"),
+                    new(13, "idkelurahan"),
+                    new(14, "idblok"),
+                    new(15, "idperuntukan"),
+                    new(16, "idjenisbangunan"),
+                    new(17, "idkepemilikan"),
+                    new(18, "idpekerjaan"),
+                    new(19, "idkolektif"),
+                    new(20, "idsumberair"),
+                    new(21, "iddma"),
+                    new(22, "iddmz"),
+                    new(23, "idmerekmeter"),
+                    new(24, "idkondisimeter"),
+                    new(25, "idadministrasilain"),
+                    new(26, "idpemeliharaanlain"),
+                    new(27, "idretribusilain"),
+                    new(28, "noserimeter"),
+                    new(29, "tglmeter"),
+                    new(30, "urutanbaca"),
+                    new(31, "stanawalpasang"),
+                    new(32, "notelp"),
+                    new(33, "email"),
+                    new(34, "noktp"),
+                    new(35, "nokk"),
+                    new(36, "kodepost"),
+                    new(37, "dayalistrik"),
+                    new(38, "luastanah"),
+                    new(39, "luasrumah"),
+                    new(40, "rt"),
+                    new(41, "rw"),
+                    new(42, "nohp"),
+                    new(43, "keterangan"),
+                    new(44, "nosambyangdiberikan"),
+                    new(45, "nosambdepan"),
+                    new(46, "nosambbelakang"),
+                    new(47, "nosambkiri"),
+                    new(48, "nosambkanan"),
+                    new(49, "penghuni"),
+                    new(50, "namapemilik"),
+                    new(51, "alamatpemilik"),
+                    new(52, "iduser"),
+                    new(53, "idnonair"),
+                    new(54, "latitude"),
+                    new(55, "longitude"),
+                    new(56, "alamatmap"),
+                    new(57, "flagverifikasi"),
+                    new(58, "waktuverifikasi"),
+                    new(59, "flagpelanggankavlingan"),
+                    new(60, "flaghapus"),
+                    new(61, "waktuupdate"),
+                    new(62, "airyangdigunakansebelumnya"),
+                    new(63, "statuspermohonan"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "parameter"),
+                    new(3, "tipedata"),
+                    new(4, "valuestring"),
+                    new(5, "valuedecimal"),
+                    new(6, "valueinteger"),
+                    new(7, "valuedate"),
+                    new(8, "valuebool"),
+                    new(9, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_spk",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "nomorspk"),
+                    new(3, "tanggalspk"),
+                    new(4, "iduser"),
+                    new(5, "flagsurvey"),
+                    new(6, "fotobukti1"),
+                    new(7, "fotobukti2"),
+                    new(8, "fotobukti3"),
+                    new(9, "flagbatal"),
+                    new(10, "idalasanbatal"),
+                    new(11, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_spk_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "parameter"),
+                    new(3, "tipedata"),
+                    new(4, "valuestring"),
+                    new(5, "valuedecimal"),
+                    new(6, "valueinteger"),
+                    new(7, "valuedate"),
+                    new(8, "valuebool"),
+                    new(9, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_rab",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "idjenisnonair"),
+                    new(3, "idnonair"),
+                    new(4, "nomorrab"),
+                    new(5, "tanggalrab"),
+                    new(6, "nomorbppi"),
+                    new(7, "tanggalbppi"),
+                    new(8, "iduserbppi"),
+                    new(9, "iduser"),
+                    new(10, "tanggalkadaluarsa"),
+                    new(11, "persilnamapaket"),
+                    new(12, "persilflagdialihkankevendor"),
+                    new(13, "persilflagbiayadibebankankepdam"),
+                    new(14, "persilsubtotal"),
+                    new(15, "persildibebankankepdam"),
+                    new(16, "persiltotal"),
+                    new(17, "distribusinamapaket"),
+                    new(18, "distribusiflagdialihkankevendor"),
+                    new(19, "distribusiflagbiayadibebankankepdam"),
+                    new(20, "distribusisubtotal"),
+                    new(21, "distribusidibebankankepdam"),
+                    new(22, "distribusitotal"),
+                    new(23, "rekapsubtotal"),
+                    new(24, "rekapdibebankankepdam"),
+                    new(25, "rekaptotal"),
+                    new(26, "flagrablainnya"),
+                    new(27, "flagbatal"),
+                    new(28, "idalasanbatal"),
+                    new(29, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_rab_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "id"),
+                    new(1, "idpdam"),
+                    new(2, "idpermohonan"),
+                    new(3, "tipe"),
+                    new(4, "kode"),
+                    new(5, "uraian"),
+                    new(6, "hargasatuan"),
+                    new(7, "satuan"),
+                    new(8, "qty"),
+                    new(9, "jumlah"),
+                    new(10, "ppn"),
+                    new(11, "keuntungan"),
+                    new(12, "jasadaribahan"),
+                    new(13, "total"),
+                    new(14, "kategori"),
+                    new(15, "kelompok"),
+                    new(16, "postbiaya"),
+                    new(17, "qtyrkp"),
+                    new(18, "flagbiayadibebankankepdam"),
+                    new(19, "flagdialihkankevendor"),
+                    new(20, "flagpaket"),
+                    new(21, "flagdistribusi"),
+                    new(22, "untuksppbdarispk"),
+                    new(23, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_spk_pasang",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "nomorspk"),
+                    new(3, "tanggalspk"),
+                    new(4, "nomorsppb"),
+                    new(5, "tanggalsppb"),
+                    new(6, "iduser,"),
+                    new(7, "fotobukti1"),
+                    new(8, "fotobukti2"),
+                    new(9, "fotobukti3"),
+                    new(10, "flagbatal"),
+                    new(11, "idalasanbatal"),
+                    new(12, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_ba",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "nomorba"),
+                    new(3, "tanggalba"),
+                    new(4, "iduser"),
+                    new(5, "persilnamapaket"),
+                    new(6, "persilflagdialihkankevendor"),
+                    new(7, "persilflagbiayadibebankankepdam"),
+                    new(8, "distribusinamapaket"),
+                    new(9, "distribusiflagdialihkankevendor"),
+                    new(10, "distribusiflagbiayadibebankankepdam"),
+                    new(11, "flagbatal"),
+                    new(12, "idalasanbatal"),
+                    new(13, "flag_dari_verifikasi"),
+                    new(14, "statusberitaacara"),
+                    new(15, "waktuupdate"),
+                }
+            },
+            {
+                "permohonan_non_pelanggan_ba_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idpermohonan"),
+                    new(2, "parameter"),
+                    new(3, "tipedata"),
+                    new(4, "valuestring"),
+                    new(5, "valuedecimal"),
+                    new(6, "valueinteger"),
+                    new(7, "valuedate"),
+                    new(8, "valuebool"),
+                    new(9, "waktuupdate"),
+                }
+            },
         };
 
         public class Settings : CommandSettings
@@ -4204,7 +4447,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan"]);
 
             //copy lg supaya dapet yg terbaru
             await Utils.CopyToDiffrentHost(
@@ -4229,7 +4473,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4243,7 +4488,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_spk"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4257,7 +4503,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_spk_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4271,7 +4518,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_rab"]);
 
             var lastIdRabDetail = 0;
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -4314,7 +4562,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_rab_detail"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4328,7 +4577,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_spk_pasang"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4342,7 +4592,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_ba"]);
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4356,7 +4607,8 @@ namespace Migrasi.Commands
                 placeholders: new()
                 {
                     { "[dataawal]", AppSettings.DataAwalDatabase },
-                });
+                },
+                columnMappings: ColumnMappings["permohonan_non_pelanggan_ba_detail"]);
         }
         private static async Task BukaSegel(Settings settings)
         {
