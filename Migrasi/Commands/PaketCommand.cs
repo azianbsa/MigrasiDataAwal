@@ -696,7 +696,7 @@ namespace Migrasi.Commands
                     new(3, "tanggalspk"),
                     new(4, "nomorsppb"),
                     new(5, "tanggalsppb"),
-                    new(6, "iduser,"),
+                    new(6, "iduser"),
                     new(7, "flagbatal"),
                     new(8, "idalasanbatal"),
                     new(9, "waktuupdate"),

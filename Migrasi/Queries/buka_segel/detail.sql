@@ -1,4 +1,16 @@
-﻿SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='BUKA_SEGEL');
+﻿-- permohonan_pelanggan_air_detail
+-- new(0, "idpdam")
+-- new(1, "idpermohonan")
+-- new(2, "parameter")
+-- new(3, "tipedata")
+-- new(4, "valuestring")
+-- new(5, "valuedecimal")
+-- new(6, "valueinteger")
+-- new(7, "valuedate")
+-- new(8, "valuebool")
+-- new(9, "waktuupdate")
+
+SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='BUKA_SEGEL');
 
 SELECT
 @idpdam AS `idpdam`,
