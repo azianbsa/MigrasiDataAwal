@@ -5,10 +5,7 @@
 -- new(3, "tanggalspk")
 -- new(4, "nomorsppb")
 -- new(5, "tanggalsppb")
--- new(6, "iduser,")
--- new(7, "fotobukti1")
--- new(8, "fotobukti2")
--- new(9, "fotobukti3")
+-- new(6, "iduser")
 -- new(10, "flagbatal")
 -- new(11, "idalasanbatal")
 -- new(12, "waktuupdate")
@@ -23,9 +20,6 @@ r.`tanggalspkp` AS `tanggalspk`,
 r.`nomorsppb` AS `nomorsppb`,
 r.`tanggalspkp` AS `tanggalsppb`,
 u.iduser AS `iduser`, -- harus ambil dari logakses bukan rab, karna ini user pembuat rab bukan user pembuat spkp
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
 r.tanggalspkp AS `waktuupdate`

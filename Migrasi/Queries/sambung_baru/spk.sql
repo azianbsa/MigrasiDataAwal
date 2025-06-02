@@ -5,9 +5,6 @@
 -- new(3, "tanggalspk")
 -- new(4, "iduser")
 -- new(5, "flagsurvey")
--- new(6, "fotobukti1")
--- new(7, "fotobukti2")
--- new(8, "fotobukti3")
 -- new(9, "flagbatal")
 -- new(10, "idalasanbatal")
 -- new(11, "waktuupdate")
@@ -21,9 +18,6 @@ s.`nomorspkopname` AS `nomorspk`,
 s.`tglspko` AS `tanggalspk`,
 u.`iduser` AS `iduser`,
 s.`disetujui` AS `flagsurvey`,
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
 s.`tglspko` AS `waktuupdate`

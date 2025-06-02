@@ -1,4 +1,16 @@
-﻿SELECT
+﻿-- permohonan_pelanggan_air_spk_pasang
+-- new(0, "idpdam")
+-- new(1, "idpermohonan")
+-- new(2, "nomorspk")
+-- new(3, "tanggalspk")
+-- new(4, "nomorsppb")
+-- new(5, "tanggalsppb")
+-- new(6, "iduser")
+-- new(7, "flagbatal")
+-- new(8, "idalasanbatal")
+-- new(9, "waktuupdate")
+
+SELECT
 @idpdam AS `idpdam`,
 pp.`idpermohonan` AS `idpermohonan`,
 p.`nomorspk` AS `nomorspk`,
@@ -6,9 +18,6 @@ p.tanggalba AS `tanggalspk`,
 NULL AS `nomorsppb`,
 NULL AS `tanggalsppb`,
 NULL AS `iduser`,
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
 0 AS `flagbatal`,
 NULL AS `idalasanbatal`,
 p.tanggalba AS `waktuupdate`
