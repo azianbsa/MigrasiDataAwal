@@ -1,17 +1,17 @@
-﻿/* rekening_nonair_transaksi
- * new(0, "idpdam")
- * new(1, "idnonair")
- * new(2, "nomortransaksi")
- * new(3, "statustransaksi")
- * new(4, "waktutransaksi")
- * new(5, "tahuntransaksi")
- * new(6, "iduser")
- * new(7, "idloket")
- * new(8, "idkolektiftransaksi")
- * new(9, "idalasanbatal")
- * new(10, "keterangan")
- * new(11, "waktuupdate")
- */
+﻿-- rekening_nonair_transaksi
+-- new(0, "idpdam")
+-- new(1, "idnonair")
+-- new(2, "nomortransaksi")
+-- new(3, "statustransaksi")
+-- new(4, "waktutransaksi")
+-- new(5, "tahuntransaksi")
+-- new(6, "iduser")
+-- new(7, "idloket")
+-- new(8, "idkolektiftransaksi")
+-- new(9, "idalasanbatal")
+-- new(10, "keterangan")
+-- new(11, "waktuupdate")
+
 
 SELECT
 @idpdam,

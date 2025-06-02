@@ -1,18 +1,17 @@
-﻿/* rekening_air_detail
- * new(0, "idpdam")
- * new(1, "idpelangganair")
- * new(2, "idperiode")
- * new(3, "blok1")
- * new(4, "blok2")
- * new(5, "blok3")
- * new(6, "blok4")
- * new(7, "blok5")
- * new(8, "prog1")
- * new(9, "prog2")
- * new(10, "prog3")
- * new(11, "prog4")
- * new(12, "prog5")
- */
+﻿-- rekening_air_detail
+-- new(0, "idpdam")
+-- new(1, "idpelangganair")
+-- new(2, "idperiode")
+-- new(3, "blok1")
+-- new(4, "blok2")
+-- new(5, "blok3")
+-- new(6, "blok4")
+-- new(7, "blok5")
+-- new(8, "prog1")
+-- new(9, "prog2")
+-- new(10, "prog3")
+-- new(11, "prog4")
+-- new(12, "prog5")
 
 SELECT
 @idpdam,
