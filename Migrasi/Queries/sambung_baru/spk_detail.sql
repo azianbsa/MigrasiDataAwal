@@ -1,13 +1,14 @@
-﻿new(0, "idpdam")
-new(1, "idpermohonan")
-new(2, "parameter")
-new(3, "tipedata")
-new(4, "valuestring")
-new(5, "valuedecimal")
-new(6, "valueinteger")
-new(7, "valuedate")
-new(8, "valuebool")
-new(9, "waktuupdate")
+﻿-- permohonan_non_pelanggan_spk_detail
+-- new(0, "idpdam")
+-- new(1, "idpermohonan")
+-- new(2, "parameter")
+-- new(3, "tipedata")
+-- new(4, "valuestring")
+-- new(5, "valuedecimal")
+-- new(6, "valueinteger")
+-- new(7, "valuedate")
+-- new(8, "valuebool")
+-- new(9, "waktuupdate")
 
 SELECT
 @idpdam AS `idpdam`,

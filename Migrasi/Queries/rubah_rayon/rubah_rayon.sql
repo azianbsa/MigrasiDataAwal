@@ -44,8 +44,8 @@ n.`idnonair` AS idnonair,
 NULL AS latitude,
 NULL AS longitude,
 NULL AS alamatmap,
-0 AS flagverifikasi,
-NULL AS waktuverifikasi,
+v.`waktuverifikasi` IS NOT NULL AS flagverifikasi,
+v.`waktuverifikasi` AS waktuverifikasi,
 0 AS flagusulan,
 NULL AS statuspermohonan,
 p.`flaghapus` AS flaghapus,
@@ -57,6 +57,7 @@ LEFT JOIN `kotaparepare_dataawal`.`master_attribute_kelurahan` kl ON kl.kodekelu
 LEFT JOIN `kotaparepare_dataawal`.`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.status=1
 LEFT JOIN `kotaparepare_dataawal`.`master_user` u ON u.nama=p.user_input
 LEFT JOIN `kotaparepare_dataawal`.`tampung_rekening_nonair` n ON n.`urutan`=p.`urutannonair`
+LEFT JOIN `verifikasi` v ON v.`nomorba`=p.`nomor_ba` AND p.`flag_ba`=1
 ,(SELECT @id:=@maxid) AS id
 WHERE p.`flaghapus`=0
 AND p.`nomor` NOT IN (SELECT `nomorpermohonan` FROM `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam AND idtipepermohonan=@idtipepermohonan)
