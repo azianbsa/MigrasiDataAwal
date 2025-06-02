@@ -1,4 +1,29 @@
-﻿SET @maxid=(SELECT COALESCE(MAX(idpermohonan),0) AS maxid FROM `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam);
+﻿-- permohonan_pelanggan_air
+-- new(0, "idpdam")
+-- new(1, "idpermohonan")
+-- new(2, "idtipepermohonan")
+-- new(3, "idsumberpengaduan")
+-- new(4, "nomorpermohonan")
+-- new(5, "waktupermohonan")
+-- new(6, "idrayon")
+-- new(7, "idkelurahan")
+-- new(8, "idgolongan")
+-- new(9, "iddiameter")
+-- new(10, "idpelangganair")
+-- new(11, "keterangan")
+-- new(12, "iduser")
+-- new(13, "idnonair")
+-- new(14, "latitude")
+-- new(15, "longitude")
+-- new(16, "alamatmap")
+-- new(17, "flagverifikasi")
+-- new(18, "waktuverifikasi")
+-- new(19, "flagusulan")
+-- new(20, "statuspermohonan")
+-- new(21, "flaghapus")
+-- new(22, "waktuupdate")
+
+SET @maxid=(SELECT COALESCE(MAX(idpermohonan),0) AS maxid FROM `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam);
 SET @idtipepermohonan=(SELECT idtipepermohonan FROM `kotaparepare_dataawal`.`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='KREKAIR');
 
 SELECT
@@ -19,14 +44,10 @@ n.`idnonair` AS idnonair,
 NULL AS latitude,
 NULL AS longitude,
 NULL AS alamatmap,
-NULL AS fotobukti1,
-NULL AS fotobukti2,
-NULL AS fotobukti3,
 0 AS flagverifikasi,
 NULL AS waktuverifikasi,
 0 AS flagusulan,
 NULL AS statuspermohonan,
-0 AS flagworkorder,
 p.`flaghapus` AS flaghapus,
 p.tanggal AS waktuupdate
 FROM `permohonan_koreksi_rek` p
