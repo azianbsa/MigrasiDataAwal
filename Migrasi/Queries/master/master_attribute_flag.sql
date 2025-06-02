@@ -1,10 +1,9 @@
-﻿/* column mapping
- * 0,idpdam
- * 1,idflag
- * 2,namaflag
- * 3,flaghapus
- * 4,waktuupdate
- */
+﻿-- master_attribute_flag
+-- new(0, "idpdam")
+-- new(1, "idflag")
+-- new(2, "namaflag")
+-- new(3, "flaghapus")
+-- new(4, "waktuupdate")
 
 DROP TABLE IF EXISTS __tmp_flag;
 

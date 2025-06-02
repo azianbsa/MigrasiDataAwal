@@ -12,7 +12,6 @@
 -- new(10, "keterangan")
 -- new(11, "waktuupdate")
 
-
 SELECT
 @idpdam AS idpdam,
 t.idnonair AS idnonair,

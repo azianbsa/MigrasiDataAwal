@@ -6,7 +6,6 @@
 -- new(4, "value")
 -- new(5, "waktuupdate")
 
-
 SELECT
 @idpdam AS idpdam,
 p.idnonair AS idnonair,

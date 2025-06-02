@@ -1,14 +1,13 @@
-﻿/* column mapping
- * 0,idpdam
- * 1,idstatus
- * 2,namastatus
- * 3,rekening_air_include
- * 4,rekening_limbah_include
- * 5,rekening_lltt_include
- * 6,tanpabiayapemakaianair
- * 7,flaghapus
- * 8,waktuupdate
- */
+﻿-- master_attribute_status
+-- new(0, "idpdam")
+-- new(1, "idstatus")
+-- new(2, "namastatus")
+-- new(3, "rekening_air_include")
+-- new(4, "rekening_limbah_include")
+-- new(5, "rekening_lltt_include")
+-- new(6, "tanpabiayapemakaianair")
+-- new(7, "flaghapus")
+-- new(8, "waktuupdate")
 
 DROP TABLE IF EXISTS __tmp_status;
 
