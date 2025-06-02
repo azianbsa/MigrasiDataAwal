@@ -740,6 +740,37 @@ namespace Migrasi.Commands
                     new(9, "waktuupdate"),
                 }
             },
+            {
+                "master_pelanggan_air_riwayat_koreksi",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "idpdam"),
+                    new(1, "idkoreksi"),
+                    new(2, "idpermohonan"),
+                    new(3, "sumberperubahan"),
+                    new(4, "waktukoreksi"),
+                    new(5, "jamkoreksi"),
+                    new(6, "iduser"),
+                    new(7, "idpelangganair"),
+                    new(8, "flagverifikasi"),
+                    new(9, "waktuverifikasi"),
+                    new(10, "waktuupdate"),
+                    new(11, "nomor"),
+                }
+            },
+            {
+                "master_pelanggan_air_riwayat_koreksi_detail",
+                new List<MySqlBulkCopyColumnMapping>()
+                {
+                    new(0, "id"),
+                    new(1, "idpdam"),
+                    new(2, "idkoreksi"),
+                    new(3, "parameter"),
+                    new(4, "lama"),
+                    new(5, "baru"),
+                    new(6, "valueid"),
+                }
+            }
         };
 
         public class Settings : CommandSettings

@@ -1,13 +1,22 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_koreksi_data_detail;
+﻿-- master_pelanggan_air_riwayat_koreksi_detail
+-- new(0, "id")
+-- new(1, "idpdam")
+-- new(2, "idkoreksi")
+-- new(3, "parameter")
+-- new(4, "lama")
+-- new(5, "baru")
+-- new(6, "valueid")
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_koreksi_data_detail;
 CREATE TEMPORARY TABLE __tmp_koreksi_data_detail AS
 SELECT
 @id:=@id+1 AS `id`,
 @idpdam AS `idpdam`,
 pp.idkoreksi AS `idkoreksi`,
-p.`parameter`,
-p.`lama`,
-p.`baru`,
-p.`valueid`
+p.`parameter` AS parameter,
+p.`lama` AS lama,
+p.`baru` AS baru,
+p.`valueid` AS valueid
 FROM (
 SELECT
 a.`nomor`,

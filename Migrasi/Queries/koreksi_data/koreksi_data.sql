@@ -1,4 +1,18 @@
-﻿SET @maxid=(SELECT COALESCE(MAX(idkoreksi),0) AS maxid FROM `kotaparepare_dataawal`.`tampung_koreksi_data` WHERE idpdam=@idpdam);
+﻿-- master_pelanggan_air_riwayat_koreksi
+-- new(0, "idpdam")
+-- new(1, "idkoreksi")
+-- new(2, "idpermohonan")
+-- new(3, "sumberperubahan")
+-- new(4, "waktukoreksi")
+-- new(5, "jamkoreksi")
+-- new(6, "iduser")
+-- new(7, "idpelangganair")
+-- new(8, "flagverifikasi")
+-- new(9, "waktuverifikasi")
+-- new(10, "waktuupdate")
+-- new(11, "nomor")
+
+SET @maxid=(SELECT COALESCE(MAX(idkoreksi),0) AS maxid FROM `kotaparepare_dataawal`.`tampung_koreksi_data` WHERE idpdam=@idpdam);
 
 SELECT
 @idpdam AS `idpdam`,
