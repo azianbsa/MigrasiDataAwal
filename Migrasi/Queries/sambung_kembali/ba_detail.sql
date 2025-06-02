@@ -15,15 +15,15 @@ SELECT
 p.`idpermohonan` AS `idpermohonan`,
 'Keterangan' AS `parameter`,
 'string' AS `tipedata`,
-r.`keteranganmeter` AS `valuestring`,
+r.`memo` AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM `rab_sambung_kembali` r
+r.`tanggalba` AS `waktuupdate`
+FROM `ba_sambungkembali` r
 JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` p ON p.`nomorpermohonan`=r.`nomorpermohonan`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
+WHERE r.`flaghapus`=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -32,14 +32,13 @@ p.`idpermohonan` AS `idpermohonan`,
 'int' AS `tipedata`,
 NULL AS `valuestring`,
 NULL AS `valuedecimal`,
-k.`idkondisimeter` AS `valueinteger`,
+-1 AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM `rab_sambung_kembali` r
+r.`tanggalba` AS `waktuupdate`
+FROM `ba_sambungkembali` r
 JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` p ON p.`nomorpermohonan`=r.`nomorpermohonan`
-LEFT JOIN `kotaparepare_dataawal`.`master_attribute_kondisi_meter` k ON k.`kodekondisimeter`=r.`kondisimeter`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
+WHERE r.`flaghapus`=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -51,11 +50,11 @@ NULL AS `valuedecimal`,
 m.`idmerekmeter` AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM `rab_sambung_kembali` r
+r.`tanggalba` AS `waktuupdate`
+FROM `ba_sambungkembali` r
 JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` p ON p.`nomorpermohonan`=r.`nomorpermohonan`
 LEFT JOIN `kotaparepare_dataawal`.`master_attribute_merek_meter` m ON m.namamerekmeter=r.`merkmeter`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
+WHERE r.`flaghapus`=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -67,10 +66,10 @@ NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM `rab_sambung_kembali` r
+r.`tanggalba` AS `waktuupdate`
+FROM `ba_sambungkembali` r
 JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` p ON p.`nomorpermohonan`=r.`nomorpermohonan`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
+WHERE r.`flaghapus`=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -82,10 +81,10 @@ NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM `rab_sambung_kembali` r
+r.`tanggalba` AS `waktuupdate`
+FROM `ba_sambungkembali` r
 JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` p ON p.`nomorpermohonan`=r.`nomorpermohonan`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
+WHERE r.`flaghapus`=0
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
@@ -93,11 +92,11 @@ p.`idpermohonan` AS `idpermohonan`,
 'Stan Meter' AS `parameter`,
 'decimal' AS `tipedata`,
 NULL AS `valuestring`,
-r.`stanawalpasang` AS `valuedecimal`,
+r.`angkameter` AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM `rab_sambung_kembali` r
+r.`tanggalba` AS `waktuupdate`
+FROM `ba_sambungkembali` r
 JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` p ON p.`nomorpermohonan`=r.`nomorpermohonan`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
+WHERE r.`flaghapus`=0
