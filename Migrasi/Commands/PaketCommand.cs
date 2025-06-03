@@ -1036,8 +1036,6 @@ namespace Migrasi.Commands
                                     },
                                     placeholders: new()
                                     {
-                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                        { "[bsbs]", AppSettings.DatabaseBsbs },
                                         { "[dataawal]", AppSettings.DataAwalDatabase },
                                     },
                                     columnMappings: ColumnMappings["master_pelanggan_air_detail"]);
@@ -2111,11 +2109,26 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
                 table: "master_attribute_peruntukan",
-                query: @"select * from master_attribute_peruntukan where idpdam=@idpdam",
+                query: @"
+                SELECT
+                `idpdam`,
+                `idperuntukan`,
+                `namaperuntukan`,
+                `flaghapus`,
+                `waktuupdate`
+                FROM master_attribute_peruntukan where idpdam=@idpdam",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                });
+                },
+                columnMappings:
+                [
+                    new(0,"idpdam"),
+                    new(1,"idperuntukan"),
+                    new(2,"namaperuntukan"),
+                    new(3,"flaghapus"),
+                    new(4,"waktuupdate"),
+                ]);
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
@@ -2161,7 +2174,34 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.DataAwalConnectionString,
                 table: "master_attribute_tipe_permohonan",
-                query: @"select * from master_attribute_tipe_permohonan where idpdam=@idpdam",
+                query: @"
+                SELECT
+                `idpdam`,
+                `idtipepermohonan`,
+                `kodetipepermohonan`,
+                `namatipepermohonan`,
+                `idjenisnonair`,
+                `kategori`,
+                `flagpelangganair`,
+                `flagpelangganlimbah`,
+                `flagpelangganlltt`,
+                `flagnonpelanggan`,
+                `flagpermohonanpelanggannonaktif`,
+                `step_spk`,
+                `step_rab`,
+                `step_spkpasang`,
+                `step_beritaacara`,
+                `step_verifikasi`,
+                `kolektif`,
+                `listselainidstatus`,
+                `idurusan`,
+                `tipecekpiutang`,
+                `jumlahpiutang`,
+                `listblokpermohonan`,
+                `flagaktif`,
+                `flaghapus`,
+                `waktuupdate`
+                FROM master_attribute_tipe_permohonan where idpdam=@idpdam",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }

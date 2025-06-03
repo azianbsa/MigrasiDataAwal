@@ -100,7 +100,8 @@ namespace Migrasi.Helpers
             string targetConnection,
             string table,
             string query,
-            Dictionary<string, object?>? parameters = null)
+            Dictionary<string, object?>? parameters = null,
+            List<MySqlBulkCopyColumnMapping>? columnMappings = null)
         {
             using var sourceConn = new MySqlConnection(sourceConnection);
             await sourceConn.OpenAsync();
@@ -130,6 +131,12 @@ namespace Migrasi.Helpers
                     DestinationTableName = table,
                     ConflictOption = MySqlBulkLoaderConflictOption.Replace,
                 };
+                
+                if (columnMappings != null && columnMappings.Count != 0)
+                {
+                    bulkCopy.ColumnMappings.AddRange(columnMappings);
+                }
+
                 await bulkCopy.WriteToServerAsync(reader);
                 
                 await trans.CommitAsync();
