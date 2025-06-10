@@ -40,12 +40,12 @@ NULL AS iddiameter,
 pe.`idpelangganair` idpelangganair,
 p.keterangan AS keterangan,
 NULL AS iduser,
-NULL AS idnonair,
+n.idnonair AS idnonair,
 NULL AS latitude,
 NULL AS longitude,
 NULL AS alamatmap,
-0 AS flagverifikasi,
-NULL AS waktuverifikasi,
+v.`waktuverifikasi` IS NOT NULL AS flagverifikasi,
+v.`waktuverifikasi` AS waktuverifikasi,
 0 AS flagusulan,
 NULL AS statuspermohonan,
 p.`flaghapus` AS flaghapus,
@@ -55,6 +55,9 @@ JOIN `kotaparepare_dataawal`.`tampung_master_pelanggan_air` pe ON pe.nosamb=p.no
 LEFT JOIN `kotaparepare_dataawal`.`master_attribute_rayon` r ON r.koderayon=p.koderayon AND r.`idpdam`=@idpdam
 LEFT JOIN `kotaparepare_dataawal`.`master_attribute_kelurahan` k ON k.kodekelurahan=p.kodekelurahan AND k.`idpdam`=@idpdam
 LEFT JOIN `kotaparepare_dataawal`.`master_tarif_golongan` g ON g.`kodegolongan`=p.kodegol AND g.status=1 AND g.`idpdam`=@idpdam
+LEFT JOIN [dataawal].`tampung_rekening_nonair` n ON n.`urutan`=p.urutannonair AND n.`idpdam`=@idpdam
+LEFT JOIN `ba_pemutusan_sementara` b ON b.nomorpermohonan=p.nomor AND b.flaghapus=0
+LEFT JOIN verifikasi v ON v.nomorba=b.nomorba
 ,(SELECT @id:=@maxid) AS id
 WHERE p.`flaghapus`=0
 AND p.`nomor` NOT IN (SELECT `nomorpermohonan` FROM `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` WHERE idpdam=@idpdam AND idtipepermohonan=@idtipepermohonan)

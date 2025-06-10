@@ -397,9 +397,9 @@ namespace Migrasi.Commands
                     new(3, "tanggalspk"),
                     new(4, "iduser"),
                     new(5, "flagsurvey"),
-                    new(9, "flagbatal"),
-                    new(10, "idalasanbatal"),
-                    new(11, "waktuupdate"),
+                    new(6, "flagbatal"),
+                    new(7, "idalasanbatal"),
+                    new(8, "waktuupdate"),
                 }
             },
             {
@@ -495,9 +495,9 @@ namespace Migrasi.Commands
                     new(4, "nomorsppb"),
                     new(5, "tanggalsppb"),
                     new(6, "iduser"),
-                    new(10, "flagbatal"),
-                    new(11, "idalasanbatal"),
-                    new(12, "waktuupdate"),
+                    new(7, "flagbatal"),
+                    new(8, "idalasanbatal"),
+                    new(9, "waktuupdate"),
                 }
             },
             {
@@ -829,20 +829,20 @@ namespace Migrasi.Commands
                     new(57, "administrasi_baru"),
                     new(58, "pemeliharaan_baru"),
                     new(59, "retribusi_baru"),
-                    new(50, "pelayanan_baru"),
-                    new(51, "airlimbah_baru"),
-                    new(52, "dendapakai0_baru"),
-                    new(53, "administrasilain_baru"),
-                    new(54, "pemeliharaanlain_baru"),
-                    new(55, "retribusilain_baru"),
-                    new(56, "meterai_baru"),
-                    new(57, "ppn_baru"),
-                    new(58, "rekair_baru"),
-                    new(59, "denda_baru"),
-                    new(60, "total_baru"),
-                    new(61, "statuspermohonan"),
-                    new(62, "flaghapus"),
-                    new(63, "waktuupdate"),
+                    new(60, "pelayanan_baru"),
+                    new(61, "airlimbah_baru"),
+                    new(62, "dendapakai0_baru"),
+                    new(63, "administrasilain_baru"),
+                    new(64, "pemeliharaanlain_baru"),
+                    new(65, "retribusilain_baru"),
+                    new(66, "meterai_baru"),
+                    new(67, "ppn_baru"),
+                    new(68, "rekair_baru"),
+                    new(69, "denda_baru"),
+                    new(70, "total_baru"),
+                    new(71, "statuspermohonan"),
+                    new(72, "flaghapus"),
+                    new(73, "waktuupdate"),
                 }
             }
         };
@@ -973,7 +973,16 @@ namespace Migrasi.Commands
                     await conn.ExecuteAsync(
                         sql: @"
                         SET GLOBAL foreign_key_checks=0;
-                        SET GLOBAL innodb_flush_log_at_trx_commit=2;",
+                        SET GLOBAL innodb_flush_log_at_trx_commit=2;
+                        SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
+                        transaction: trans);
+                });
+
+                await Utils.LoketConnectionWrapper(async (conn, trans) =>
+                {
+                    await conn.ExecuteAsync(
+                        sql: @"
+                        SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
                         transaction: trans);
                 });
 

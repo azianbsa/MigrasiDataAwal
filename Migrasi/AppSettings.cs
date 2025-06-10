@@ -36,6 +36,8 @@ namespace Migrasi
             Database = MainDatabase,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
+            ConnectionTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
+            DefaultCommandTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
         }.ConnectionString;
 
         public static string HostStaging { get; set; }
@@ -70,6 +72,8 @@ namespace Migrasi
             Database = LoketDatabase,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
+            ConnectionTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
+            DefaultCommandTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
         }.ConnectionString;
 
         public static string DataAwalDatabase { get; set; } = "kotaparepare_dataawal";
@@ -82,6 +86,8 @@ namespace Migrasi
             Database = DataAwalDatabase,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
+            ConnectionTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
+            DefaultCommandTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
         }.ConnectionString;
 
         public static int CommandTimeout { get; set; } = 3600;

@@ -75,4 +75,4 @@ AND n.`jenis` NOT IN (
 'JNS-38', -- denda air
 'JNS-16' -- meterai
 )
-AND DATE_FORMAT(n.`tglmulaitagih`,'%Y%m') BETWEEN 202502 AND 202504;
+AND DATE_FORMAT(n.`tglmulaitagih`,'%Y%m') BETWEEN 202401 AND 202504;

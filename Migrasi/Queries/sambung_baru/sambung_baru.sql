@@ -121,7 +121,7 @@ p.`penghuni` AS `penghuni`,
 p.`nama_pemilik` AS `namapemilik`,
 p.`alamat_pemilik` AS `alamatpemilik`,
 NULL AS `iduser`,
-NULL AS `idnonair`,
+n.idnonair AS `idnonair`,
 NULL AS `latitude`,
 NULL AS `longitude`,
 NULL AS `alamatmap`,
@@ -143,6 +143,7 @@ LEFT JOIN [dataawal].`master_attribute_kepemilikan` kp ON kp.`namakepemilikan`=p
 LEFT JOIN [dataawal].`master_attribute_pekerjaan` pk ON pk.`namapekerjaan`=p.`pekerjaan` AND pk.`idpdam`=@idpdam
 LEFT JOIN [dataawal].`master_attribute_sumber_air` s ON s.`namasumberair`=p.`airyangdigunakansaatini` AND s.`idpdam`=@idpdam
 LEFT JOIN rab ra ON ra.nomorreg=p.nomorreg AND ra.flaghapus=0 AND ra.flagaktif=1
+LEFT JOIN [dataawal].`tampung_rekening_nonair` n ON n.urutan=ra.norab AND n.idpdam=@idpdam
 ,(SELECT @id:=@maxid) AS id
 WHERE p.flaghapus=0
 AND p.nomorreg NOT IN (SELECT `nomorpermohonan` FROM [dataawal].`tampung_permohonan_non_pelanggan` WHERE idpdam=@idpdam)

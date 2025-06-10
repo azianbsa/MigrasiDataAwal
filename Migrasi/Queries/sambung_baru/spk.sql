@@ -5,9 +5,9 @@
 -- new(3, "tanggalspk")
 -- new(4, "iduser")
 -- new(5, "flagsurvey")
--- new(9, "flagbatal")
--- new(10, "idalasanbatal")
--- new(11, "waktuupdate")
+-- new(6, "flagbatal")
+-- new(7, "idalasanbatal")
+-- new(8, "waktuupdate")
 
 SET @idtipepermohonan=(SELECT idtipepermohonan FROM [dataawal].`master_attribute_tipe_permohonan` WHERE idpdam=@idpdam AND `kodetipepermohonan`='SAMBUNGAN_BARU_AIR');
 
