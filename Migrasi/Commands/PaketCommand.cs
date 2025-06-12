@@ -4,6 +4,7 @@ using MySqlConnector;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sprache;
+using System.Reflection;
 
 namespace Migrasi.Commands
 {
@@ -1365,8 +1366,8 @@ namespace Migrasi.Commands
             });
 
             AnsiConsole.WriteLine();
-            AnsiConsole.WriteLine($"Environment: {AppSettings.Environment}");
-            AnsiConsole.WriteLine($"{settings.IdPdam} {namaPdam}");
+            AnsiConsole.WriteLine($"Tools Migrasi Data v{Assembly.GetExecutingAssembly().GetName().Version}");
+            AnsiConsole.WriteLine($"{settings.IdPdam} {namaPdam} {AppSettings.Environment}");
             AnsiConsole.WriteLine();
 
             var selectedProses = AnsiConsole.Prompt(
