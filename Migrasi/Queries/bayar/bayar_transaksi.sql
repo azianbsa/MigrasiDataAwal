@@ -1,21 +1,25 @@
 ﻿SELECT
-@idpdam,
-p.id AS idpelangganair,
-pr.idperiode AS idperiode,
-b.nolpp AS nomortransaksi,
+@idpdam AS idpdam,
+pel.`idpelangganair` AS idpelangganair,
+per.`idperiode` AS idperiode,
+rek.`NO_BAYAR` AS nomortransaksi,
 1 AS statustransaksi,
-b.tglbayar AS waktutransaksi,
-YEAR(b.tglbayar) AS tahuntransaksi,
-u.iduser AS iduser,
-l.idloket AS idloket,
+rek.`TANGGALBAYAR` AS waktutransaksi,
+YEAR(rek.`TANGGALBAYAR`) AS tahuntransaksi,
+COALESCE(us.`iduser`,-1) AS iduser,
+l.`idloket` AS idloket,
 NULL AS idkolektiftransaksi,
 0 AS idalasanbatal,
 NULL AS keterangan,
-NOW() AS waktuupdate
-FROM bayar b
-JOIN pelanggan p ON p.nosamb=b.nosamb
-JOIN [dataawal].`master_periode` pr ON pr.`kodeperiode`=b.periode AND pr.`idpdam`=@idpdam
-LEFT JOIN [dataawal].`master_user` u ON u.nama=b.kasir AND u.`idpdam`=@idpdam
-LEFT JOIN [dataawal].`master_attribute_loket` l ON l.kodeloket=b.loketbayar AND l.`idpdam`=@idpdam
-WHERE b.periode BETWEEN 202502 AND 202504
-AND b.flagangsur=0
+rek.`TANGGALBAYAR` AS waktuupdate
+FROM `maros_awal`.`t_penjualan_copy` rek
+JOIN `maros_awal`.`pelangganmaros` pel ON pel.nosamb=rek.nosamb
+JOIN `maros_awal`.`periodemaros` per ON per.kodeperiode=rek.`periode`
+LEFT JOIN `maros_awal`.`t_user` u ON u.`NO_ID`=rek.`USER_BAYAR`
+LEFT JOIN `maros_awal`.`usermaros` us ON `us`.`nama`=u.`NAMA_USER`
+LEFT JOIN `maros_awal`.`loketmaros` l ON l.`kodeloket`=rek.`LOKET_BAYAR`
+LEFT JOIN `maros_awal`.`t_penjualan_hps` hps ON hps.`nosamb`=rek.`nosamb` AND hps.`periode`=rek.`periode` AND hps.`NO_BUKTI`=rek.`NO_BUKTI`
+WHERE rek.`TANGGALBAYAR` IS NOT NULL 
+AND rek.`TANGGALBAYAR`>='2025-01-01' 
+AND rek.`TANGGALBAYAR`<'2025-05-21'
+AND hps.`NO_BUKTI` IS NULL;

@@ -186,12 +186,6 @@
     <None Update="Queries\balik_nama\patches\p1.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\bayar\bayar.v4.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\bayar\bayar_detail.v4.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Queries\bayar\bayar_transaksi.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -588,9 +582,6 @@
     <None Update="Queries\patches\tambah_field_id_tabel_pelanggan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Queries\bayar\bayar.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Queries\air_tangki_non_pelanggan\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -652,9 +643,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\pengaduan_pelanggan\pengaduan.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Queries\bayar\bayar_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Queries\angsuran_air\piutang_rekening_air.sql">

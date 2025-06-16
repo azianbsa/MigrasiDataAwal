@@ -290,12 +290,12 @@ namespace Migrasi.Helpers
             try
             {
                 await fn();
-                Console.WriteLine($"{process}...OK {sw.ElapsedMilliseconds}ms");
+                AnsiConsole.WriteLine($"{process}...OK {sw.ElapsedMilliseconds}ms");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{process}...FAILED {sw.ElapsedMilliseconds}ms");
-                Console.WriteLine($"Error: {e.Message}");
+                AnsiConsole.WriteLine($"{process}...FAILED {sw.ElapsedMilliseconds}ms");
+                AnsiConsole.WriteLine($"Error: {e.Message}");
                 throw;
             }
             finally

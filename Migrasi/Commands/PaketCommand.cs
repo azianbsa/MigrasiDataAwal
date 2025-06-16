@@ -50,11 +50,12 @@ namespace Migrasi.Commands
 
         private async Task<int> Basic(Settings settings)
         {
-            const string PROSES_DATA_MASTER_BSHPD = "Proses data master bshpd";
+            const string PROSES_DATA_MASTER = "Proses data master";
             const string PROSES_DATA_PELANGGAN = "Proses data pelanggan";
-            const string PROSES_PIUTANG = "Proses piutang";
-            const string PROSES_BAYAR = "Proses bayar";
-            const string PROSES_NONAIR = "Proses nonair";
+            const string PROSES_PIUTANG_AIR = "Proses piutang air";
+            const string PROSES_BAYAR_AIR = "Proses bayar air";
+            const string PROSES_PIUTANG_NONAIR = "Proses piutang nonair";
+            const string PROSES_BAYAR_NONAIR = "Proses bayar nonair";
             const string PROSES_PERMOHONAN_SAMBUNG_BARU = "Proses permohonan sambung baru";
             const string PROSES_PERMOHONAN_BALIK_NAMA = "Proses permohonan balik nama";
             const string PROSES_PERMOHONAN_BUKA_SEGEL = "Proses permohonan buka segel";
@@ -67,11 +68,11 @@ namespace Migrasi.Commands
 
             List<string> prosesList =
             [
-                PROSES_DATA_MASTER_BSHPD,
+                PROSES_DATA_MASTER,
                 PROSES_DATA_PELANGGAN,
-                PROSES_PIUTANG,
-                PROSES_BAYAR,
-                PROSES_NONAIR,
+                PROSES_PIUTANG_AIR,
+                PROSES_BAYAR_AIR,
+                PROSES_PIUTANG_NONAIR,
                 PROSES_PERMOHONAN_SAMBUNG_BARU,
                 PROSES_PERMOHONAN_BALIK_NAMA,
                 PROSES_PERMOHONAN_BUKA_SEGEL,
@@ -101,11 +102,11 @@ namespace Migrasi.Commands
                 .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
                 .AddChoices(prosesList));
 
-            var prosesMasterBshpd = selectedProses.Exists(s => s == PROSES_DATA_MASTER_BSHPD);
+            var prosesMaster = selectedProses.Exists(s => s == PROSES_DATA_MASTER);
             var prosesPelanggan = selectedProses.Exists(s => s == PROSES_DATA_PELANGGAN);
-            var prosesPiutang = selectedProses.Exists(s => s == PROSES_PIUTANG);
-            var prosesBayar = selectedProses.Exists(s => s == PROSES_BAYAR);
-            var prosesNonair3Bulan = selectedProses.Exists(s => s == PROSES_NONAIR);
+            var prosesPiutangAir = selectedProses.Exists(s => s == PROSES_PIUTANG_AIR);
+            var prosesBayarAir = selectedProses.Exists(s => s == PROSES_BAYAR_AIR);
+            var prosesPiutangNonair = selectedProses.Exists(s => s == PROSES_PIUTANG_NONAIR);
             var prosesPermohonanSambungBaru = selectedProses.Exists(s => s == PROSES_PERMOHONAN_SAMBUNG_BARU);
             var prosesPermohonanBalikNama = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BALIK_NAMA);
             var prosesPermohonanBukaSegel = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BUKA_SEGEL);
@@ -116,12 +117,8 @@ namespace Migrasi.Commands
             var prosesPermohonanRubahRayon = selectedProses.Exists(s => s == PROSES_PERMOHONAN_RUBAH_RAYON);
             var prosesPermohonanSambungKembali = selectedProses.Exists(s => s == PROSES_PERMOHONAN_SAMBUNG_KEMBALI);
 
-            var periodeMulai = AnsiConsole.Prompt(
-                new TextPrompt<string>("Periode mulai (yyyyMM):"));
-
             AnsiConsole.WriteLine();
             AnsiConsole.WriteLine($"Paket: {settings.NamaPaket}");
-            AnsiConsole.WriteLine($"Periode mulai: {periodeMulai}");
             AnsiConsole.WriteLine("Proses dipilih:");
             AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
             AnsiConsole.WriteLine();
@@ -133,40 +130,39 @@ namespace Migrasi.Commands
 
             try
             {
-                await Utils.MainConnectionWrapper(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        SET GLOBAL foreign_key_checks=0;
-                        SET GLOBAL innodb_flush_log_at_trx_commit=2;
-                        SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
-                        transaction: trans);
-                });
+                //await Utils.MainConnectionWrapper(async (conn, trans) =>
+                //{
+                //    await conn.ExecuteAsync(
+                //        sql: @"
+                //        SET GLOBAL foreign_key_checks=0;
+                //        SET GLOBAL innodb_flush_log_at_trx_commit=2;
+                //        -- SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
+                //        transaction: trans);
+                //});
 
-                await Utils.LoketConnectionWrapper(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
-                        transaction: trans);
-                });
+                //await Utils.LoketConnectionWrapper(async (conn, trans) =>
+                //{
+                //    await conn.ExecuteAsync(
+                //        sql: @"
+                //        SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
+                //        transaction: trans);
+                //});
 
                 await AnsiConsole.Status()
                     .StartAsync("Sedang diproses...", async _ =>
                     {
-                        if (prosesMasterBshpd)
+                        if (prosesMaster)
                         {
-                            Utils.WriteLogMessage("Proses data master bshpd");
                             await MasterData(settings);
                             await PaketMaterial(settings);
                             await PaketOngkos(settings);
                             await PaketRab(settings);
                         }
 
-                        await Utils.TrackProgress("Copy data master ke db tampung", async () =>
-                        {
-                            await LoadDataMaster(settings);
-                        });
+                        //await Utils.TrackProgress("Copy data master ke db tampung", async () =>
+                        //{
+                        //    await LoadDataMaster(settings);
+                        //});
 
                         if (prosesPelanggan)
                         {
@@ -205,177 +201,21 @@ namespace Migrasi.Commands
                             });
                         }
 
-                        if (prosesPiutang)
+                        if (prosesPiutangAir)
                         {
-                            //await Utils.BacameterConnectionWrapper(async (conn, trans) =>
-                            //{
-                            //    await conn.ExecuteAsync(
-                            //        sql: @"
-                            //        DROP TABLE IF EXISTS tampung_hasilbaca;
-                            //        CREATE TABLE tampung_hasilbaca AS
-                            //        SELECT * FROM hasilbaca LIMIT 0;
-                            //        ALTER TABLE `tampung_hasilbaca`
-                            //        ADD COLUMN `kode` VARCHAR (100) NOT NULL FIRST,
-                            //        ADD PRIMARY KEY (`kode`);",
-                            //        transaction: trans);
-
-                            //    for (int i = 0; i < 3; i++)
-                            //    {
-                            //        var periode = DateTime.ParseExact(periodeMulai, "yyyyMM", null).AddMonths(i);
-                            //        Utils.WriteLogMessage($"Ambil data hasilbaca{periode:MMyy} ke tampung_hasilbaca");
-                            //        await conn.ExecuteAsync(
-                            //            sql: $@"
-                            //            INSERT INTO tampung_hasilbaca
-                            //            SELECT
-                            //                CONCAT({periode:yyyyMM},'.',`idpelanggan`) AS kode,
-                            //                `idpelanggan`,
-                            //                `idmeteran`,
-                            //                `idkec`,
-                            //                `kec`,
-                            //                `idkel`,
-                            //                `kel`,
-                            //                `idrtrw`,
-                            //                `rtrw`,
-                            //                `idblok`,
-                            //                `kodeblok`,
-                            //                `blok`,
-                            //                `idrayon`,
-                            //                `koderayon`,
-                            //                `rayon`,
-                            //                `wilayah`,
-                            //                `nama`,
-                            //                `noktp`,
-                            //                `telprumah`,
-                            //                `alamat`,
-                            //                `pekerjaan`,
-                            //                `nosambungan`,
-                            //                `nometer`,
-                            //                `tekanan`,
-                            //                `idgol`,
-                            //                `kodegol`,
-                            //                `golongan`,
-                            //                `idgol1`,
-                            //                `kodegol1`,
-                            //                `golongan1`,
-                            //                `perubahangol`,
-                            //                `golonganlalu`,
-                            //                `iddiameter`,
-                            //                `kodediameter`,
-                            //                `ukuran`,
-                            //                `tgldaftar`,
-                            //                `luasrumah`,
-                            //                `urutanbaca`,
-                            //                `prosesairlimbah`,
-                            //                `keterangan`,
-                            //                `bln1`,
-                            //                `stan1`,
-                            //                `pakai1`,
-                            //                `persen1`,
-                            //                `bln2`,
-                            //                `stan2`,
-                            //                `pakai2`,
-                            //                `persen2`,
-                            //                `bln3`,
-                            //                `stan3`,
-                            //                `pakai3`,
-                            //                `persen3`,
-                            //                `stanlalu`,
-                            //                `stanskrg`,
-                            //                `pakaiskrg`,
-                            //                `stanangkat`,
-                            //                `persentase`,
-                            //                `taksir`,
-                            //                `taksir2bln`,
-                            //                `taksir3bln`,
-                            //                `idkelainan`,
-                            //                `kodekelainan`,
-                            //                `kelainan`,
-                            //                `kelainanlalu`,
-                            //                `idkelainan1`,
-                            //                `kodekelainan1`,
-                            //                `kelainan1`,
-                            //                `kelainan1lalu`,
-                            //                `kelainan1lalu1`,
-                            //                `tunggakan`,
-                            //                `dendatunggakan`,
-                            //                `biayapemakaian`,
-                            //                `airlimbah`,
-                            //                `administrasi`,
-                            //                `bebanpasif`,
-                            //                `retribusi`,
-                            //                `pemeliharaan`,
-                            //                `pelayanan`,
-                            //                `meterai`,
-                            //                `custombeban1`,
-                            //                `custombeban2`,
-                            //                `custombeban3`,
-                            //                `persenppn`,
-                            //                `ppn`,
-                            //                `totalrekening`,
-                            //                `sudahlunas`,
-                            //                `rincianrekening`,
-                            //                `sudahbaca`,
-                            //                `verifikasi`,
-                            //                `waktuverifikasi`,
-                            //                `a`,
-                            //                `idpetugas`,
-                            //                `kodepetugas`,
-                            //                `namapetugas`,
-                            //                `waktubaca`,
-                            //                `waktubacalalu`,
-                            //                `waktuupload`,
-                            //                `sumberlokasi`,
-                            //                `latitude`,
-                            //                `longitude`,
-                            //                `mnc`,
-                            //                `mcc`,
-                            //                `lac`,
-                            //                `cellid`,
-                            //                `adafotorumah`,
-                            //                `adavideo`,
-                            //                `lampiran`,
-                            //                `flagkirimsms`,
-                            //                `sudahkirimsms`,
-                            //                `logupdate`,
-                            //                `iduserupdate`,
-                            //                `flagsudahupload`,
-                            //                `flagaktif`,
-                            //                `custom1`,
-                            //                `custom2`,
-                            //                `peruntukan`,
-                            //                `hasilbacaulang`,
-                            //                `totalrekeningstr`,
-                            //                `datalapangan`,
-                            //                `ratarata3bln`,
-                            //                `flaghistori3bln`,
-                            //                `terbaca`,
-                            //                `memolapangan`,
-                            //                `wm`,
-                            //                `masterlatlong`,
-                            //                `flagkoreksi`
-                            //            FROM
-                            //                hasilbaca{periode:MMyy}",
-                            //            transaction: trans);
-                            //    }
-                            //});
-
                             await Utils.TrackProgress("Proses data piutang", async () =>
                             {
                                 await Piutang(settings);
                             });
                         }
 
-                        if (prosesBayar)
+                        if (prosesBayarAir)
                         {
-                            await Utils.TrackProgress("Proses data bayar", async () =>
-                            {
-                                await Bayar(settings);
-                            });
+                            await Bayar(settings);
                         }
 
-                        if (prosesNonair3Bulan)
+                        if (prosesPiutangNonair)
                         {
-                            Utils.WriteLogMessage("Proses data nonair 3 bulan");
                             await Nonair(settings);
                         }
 
@@ -437,14 +277,6 @@ namespace Migrasi.Commands
                         {
                             await Report(settings);
 
-                            await Utils.TrackProgress("bayar tahun", async () =>
-                            {
-                                await BayarTahun(settings);
-                            });
-                            await Utils.TrackProgress("nonair tahun", async () =>
-                            {
-                                await NonairTahun(settings);
-                            });
                             await Utils.TrackProgress("angsuran air", async () =>
                             {
                                 await AngsuranAir(settings);
@@ -496,14 +328,14 @@ namespace Migrasi.Commands
             }
             finally
             {
-                await Utils.MainConnectionWrapper(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        SET GLOBAL foreign_key_checks = 1;
-                        SET GLOBAL innodb_flush_log_at_trx_commit = 1;",
-                        transaction: trans);
-                });
+                //await Utils.MainConnectionWrapper(async (conn, trans) =>
+                //{
+                //    await conn.ExecuteAsync(
+                //        sql: @"
+                //        SET GLOBAL foreign_key_checks = 1;
+                //        SET GLOBAL innodb_flush_log_at_trx_commit = 1;",
+                //        transaction: trans);
+                //});
             }
         }
         private static async Task<int> Bacameter(Settings settings)
@@ -1764,140 +1596,8 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                 });
         }
-        private async Task BayarTahun(Settings settings)
-        {
-            IEnumerable<string?> bayarTahun = [];
-            await Utils.LoketConnectionWrapper(async (conn, trans) =>
-            {
-                bayarTahun = await conn.QueryAsync<string?>(
-                    sql: @"SELECT RIGHT(table_name, 4) FROM information_schema.TABLES WHERE table_schema=@table_schema AND table_name RLIKE 'bayar[0-9]{4}'",
-                    param: new { table_schema = AppSettings.LoketDatabase },
-                    transaction: trans);
-            });
-
-            foreach (var tahun in bayarTahun)
-            {
-                await Utils.TrackProgress($"bayar{tahun}", async () =>
-                {
-                    IEnumerable<int>? listPeriode = [];
-                    await Utils.LoketConnectionWrapper(async (conn, trans) =>
-                    {
-                        listPeriode = await conn.QueryAsync<int>(
-                            sql: $@"
-                            SELECT periode
-                            FROM bayar{tahun}
-                            WHERE DATE(`tglbayar`)<=@cutoff
-                            GROUP BY periode",
-                            param: new
-                            {
-                                cutoff = settings.Cutoff,
-                            },
-                            transaction: trans);
-                    });
-
-                    foreach (var periode in listPeriode)
-                    {
-                        await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air", async () =>
-                        {
-                            var lastId = 0;
-                            await Utils.MainConnectionWrapper(async (conn, trans) =>
-                            {
-                                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                            });
-
-                            await Utils.BulkCopy(
-                                sourceConnection: AppSettings.LoketConnectionString,
-                                targetConnection: AppSettings.MainConnectionString,
-                                table: "rekening_air",
-                                queryPath: @"Queries\bayar\bayar.sql",
-                                parameters: new()
-                                {
-                                    { "@idpdam", settings.IdPdam },
-                                    { "@lastid", lastId },
-                                    { "@periode", periode },
-                                    { "@cutoff", settings.Cutoff },
-                                });
-                        });
-
-                        await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_detail", async () =>
-                        {
-                            await Utils.BulkCopy(
-                                sourceConnection: AppSettings.LoketConnectionString,
-                                targetConnection: AppSettings.MainConnectionString,
-                                table: "rekening_air_detail",
-                                queryPath: @"Queries\bayar\bayar_detail.sql",
-                                parameters: new()
-                                {
-                                    { "@idpdam", settings.IdPdam },
-                                    { "@periode", periode },
-                                    { "@cutoff", settings.Cutoff },
-                                });
-                        });
-
-                        await Utils.TrackProgress($"bayar{tahun}-{periode}|rekening_air_transaksi", async () =>
-                        {
-                            await Utils.BulkCopy(
-                                sourceConnection: AppSettings.LoketConnectionString,
-                                targetConnection: AppSettings.MainConnectionString,
-                                table: "rekening_air_transaksi",
-                                queryPath: @"Queries\bayar\bayar_transaksi.sql",
-                                parameters: new()
-                                {
-                                    { "@idpdam", settings.IdPdam },
-                                    { "@periode", periode },
-                                    { "@cutoff", settings.Cutoff },
-                                });
-                        });
-                    }
-                });
-            }
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_air_transaksi",
-                queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                    { "@cutoff", settings.Cutoff },
-                });
-        }
         private static async Task Bayar(Settings settings)
         {
-            await Utils.TrackProgress($"bayar|rekening_air", async () =>
-            {
-                var lastId = 0;
-                await Utils.MainConnectionWrapper(async (conn, trans) =>
-                {
-                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                });
-
-                await Utils.BulkCopy(
-                    sourceConnection: AppSettings.LoketConnectionString,
-                    targetConnection: AppSettings.MainConnectionString,
-                    table: "rekening_air",
-                    queryPath: @"Queries\bayar\bayar.sql",
-                    parameters: new()
-                    {
-                        { "@idpdam", settings.IdPdam },
-                        { "@lastid", lastId },
-                    });
-            });
-
-            await Utils.TrackProgress($"bayar|rekening_air_detail", async () =>
-            {
-                await Utils.BulkCopy(
-                    sourceConnection: AppSettings.LoketConnectionString,
-                    targetConnection: AppSettings.MainConnectionString,
-                    table: "rekening_air_detail",
-                    queryPath: @"Queries\bayar\bayar_detail.sql",
-                    parameters: new()
-                    {
-                        { "@idpdam", settings.IdPdam },
-                    });
-            });
-
             await Utils.TrackProgress($"bayar|rekening_air_transaksi", async () =>
             {
                 await Utils.BulkCopy(
@@ -1911,18 +1611,18 @@ namespace Migrasi.Commands
                     });
             });
 
-            await Utils.TrackProgress("bayar batal|rekening_air_transaksi", async () =>
-            {
-                await Utils.BulkCopy(
-                    sourceConnection: AppSettings.LoketConnectionString,
-                    targetConnection: AppSettings.MainConnectionString,
-                    table: "rekening_air_transaksi",
-                    queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
-                    parameters: new()
-                    {
-                        { "@idpdam", settings.IdPdam },
-                    });
-            });
+            //await Utils.TrackProgress("bayar batal|rekening_air_transaksi", async () =>
+            //{
+            //    await Utils.BulkCopy(
+            //        sourceConnection: AppSettings.LoketConnectionString,
+            //        targetConnection: AppSettings.MainConnectionString,
+            //        table: "rekening_air_transaksi",
+            //        queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
+            //        parameters: new()
+            //        {
+            //            { "@idpdam", settings.IdPdam },
+            //        });
+            //});
         }
         private async Task RabLainnyaPelanggan(Settings settings)
         {
