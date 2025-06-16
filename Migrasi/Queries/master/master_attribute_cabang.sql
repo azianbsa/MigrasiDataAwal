@@ -1,7 +1,7 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idcabang,
-kodecabang,
+kodecabang AS kodecabang,
 cabang AS namacabang,
 0 AS flaghapus,
 NOW() AS waktuupdate

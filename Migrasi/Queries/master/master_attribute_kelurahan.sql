@@ -8,9 +8,9 @@ kecamatan
 ,(SELECT @id:=0) AS id;
 
 SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idkelurahan,
-k.kodekelurahan,
+k.kodekelurahan AS kodekelurahan,
 k.kelurahan AS namakelurahan,
 kc.id AS idkecamatan,
 0 AS jumlahjiwa,

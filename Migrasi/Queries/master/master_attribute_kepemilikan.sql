@@ -1,5 +1,5 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idkepemilikan,
 @id AS kodekepemilikan,
 `kepemilikanbangunan` AS namakepemilikan,
@@ -11,7 +11,7 @@ FROM
 WHERE `kepemilikanbangunan`<>'-'
 UNION ALL
 SELECT
-@idpdam,
+@idpdam AS idpdam,
 '-1' AS idkepemilikan,
 '-' AS kodekepemilikan,
 '-' AS namakepemilikan,

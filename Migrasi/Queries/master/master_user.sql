@@ -1,9 +1,9 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS iduser,
-a.nama,
-a.namauser,
-a.passworduser,
+a.nama AS nama,
+a.namauser AS namauser,
+a.passworduser AS passworduser,
 a.aktif AS aktif,
 NULL AS noidentitas,
 -1 AS idrole,

@@ -1,7 +1,7 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idsumberair,
-kodesumberair,
+kodesumberair AS kodesumberair,
 sumberair AS namasumberair,
 0 AS flaghapus,
 NOW() AS waktuupdate

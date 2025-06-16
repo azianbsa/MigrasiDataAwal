@@ -1,5 +1,5 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 -1 AS idpemeliharaanlain,
 '-' AS kodepemeliharaanlain,
 '-' AS namapemeliharaanlain,

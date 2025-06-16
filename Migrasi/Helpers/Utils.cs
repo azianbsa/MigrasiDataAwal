@@ -1,8 +1,5 @@
-﻿using Dapper;
-using Microsoft.Data.Sqlite;
-using MySqlConnector;
+﻿using MySqlConnector;
 using Spectre.Console;
-using SQLitePCL;
 using System.Diagnostics;
 
 namespace Migrasi.Helpers
@@ -14,21 +11,12 @@ namespace Migrasi.Helpers
             AnsiConsole.MarkupLine($"[grey]LOG: {DateTime.Now}[/] {message}[grey]...[/]" + (skip ? "skip" : ""));
         }
 
-        public static void WriteErrMessage(Exception exception, string process, string message)
-        {
-            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now}[/] process: {process}");
-            AnsiConsole.MarkupLine($"[red]ERR: {DateTime.Now}[/] message: {message}");
-            AnsiConsole.WriteException(exception, ExceptionFormats.ShortenEverything);
-        }
-
         public static async Task BulkCopy(
             string sourceConnection,
             string targetConnection,
             string table,
             string queryPath,
-            Dictionary<string, object?>? parameters = null,
-            Dictionary<string, string>? placeholders = null,
-            List<MySqlBulkCopyColumnMapping>? columnMappings = null)
+            Dictionary<string, object?>? parameters = null)
         {
             using var sConnection = new MySqlConnection(sourceConnection);
             await sConnection.OpenAsync();
@@ -39,19 +27,26 @@ namespace Migrasi.Helpers
 
             try
             {
+                var columnMappings = AppSettings.ColumnMappings
+                    .Where(cm => cm.TableName == table)
+                    .Select(cm => cm.ToMySqlBulkCopyColumnMapping())
+                    .ToList();
+
+                if (columnMappings.Count == 0)
+                {
+                    Console.WriteLine($"[Warning] Column mapping untuk {table} belum ada");
+                }
+
                 string query = await File.ReadAllTextAsync(queryPath);
 
-                if (placeholders != null)
+                foreach (var item in AppSettings.Placeholders)
                 {
-                    foreach (var item in placeholders)
-                    {
-                        query = query.Replace(item.Key, item.Value);
-                    }
+                    query = query.Replace(item.Key, item.Value);
                 }
 
                 var cmd = new MySqlCommand(query, sConnection)
                 {
-                    CommandTimeout = AppSettings.CommandTimeout
+                    CommandTimeout = (int)AppSettings.CommandTimeout
                 };
 
                 if (parameters?.Count > 0)
@@ -64,34 +59,59 @@ namespace Migrasi.Helpers
 
                 using MySqlDataReader reader = await cmd.ExecuteReaderAsync();
 
+                ValidateSchema(reader, columnMappings);
+
                 var bulkCopy = new MySqlBulkCopy(tConnection, trans)
                 {
                     DestinationTableName = table,
                     ConflictOption = MySqlBulkLoaderConflictOption.Replace,
                 };
 
-                if (columnMappings != null && columnMappings.Count != 0)
+                if (columnMappings.Count > 0)
                 {
                     bulkCopy.ColumnMappings.AddRange(columnMappings);
                 }
 
-                var result = await bulkCopy.WriteToServerAsync(reader);
-                WriteLogMessage($"RowsInserted ({table}): {result.RowsInserted}");
+                await bulkCopy.WriteToServerAsync(reader);
                 await trans.CommitAsync();
             }
             catch (Exception e)
             {
-                WriteErrMessage(exception: e, process: table, message: e.InnerException?.Message ?? e.Message);
+                Console.WriteLine($"BulkCopy error: {table}: {e.Message}");
                 await trans.RollbackAsync();
                 throw;
             }
             finally
             {
                 await sConnection.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(sConnection);
-
                 await tConnection.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(tConnection);
+            }
+        }
+
+        private static void ValidateSchema(MySqlDataReader reader, List<MySqlBulkCopyColumnMapping> columnMappings)
+        {
+            if (columnMappings.Count == 0)
+            {
+                return;
+            }
+
+            var expectedColumns = columnMappings
+                .OrderBy(cm => cm.SourceOrdinal)
+                .Select(cm => cm.DestinationColumn)
+                .ToList();
+
+            if (reader.FieldCount != expectedColumns.Count)
+            {
+                throw new InvalidOperationException("Jumlah kolom pada query tidak sesuai dengan jumlah kolom yang diharapkan.");
+            }
+
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                var columnName = reader.GetName(i);
+                if (!string.Equals(columnName, expectedColumns[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException($"Kolom '{columnName}' pada posisi {i} tidak sesuai dengan kolom yang diharapkan '{expectedColumns[i]}'.");
+                }
             }
         }
 
@@ -114,7 +134,7 @@ namespace Migrasi.Helpers
             {
                 var cmd = new MySqlCommand(query, sourceConn)
                 {
-                    CommandTimeout = AppSettings.CommandTimeout
+                    CommandTimeout = (int)AppSettings.CommandTimeout
                 };
 
                 if (parameters?.Count > 0)
@@ -131,14 +151,14 @@ namespace Migrasi.Helpers
                     DestinationTableName = table,
                     ConflictOption = MySqlBulkLoaderConflictOption.Replace,
                 };
-                
+
                 if (columnMappings != null && columnMappings.Count != 0)
                 {
                     bulkCopy.ColumnMappings.AddRange(columnMappings);
                 }
 
                 await bulkCopy.WriteToServerAsync(reader);
-                
+
                 await trans.CommitAsync();
             }
             catch (Exception e)
@@ -173,7 +193,6 @@ namespace Migrasi.Helpers
             finally
             {
                 await conn.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(conn);
             }
         }
 
@@ -196,13 +215,12 @@ namespace Migrasi.Helpers
             finally
             {
                 await conn.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(conn);
             }
         }
 
         public static async Task BsbsConnectionWrapper(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
-            using var conn = new MySqlConnection(AppSettings.ConnectionStringBsbs);
+            using var conn = new MySqlConnection(AppSettings.BsbsConnectionString);
             await conn.OpenAsync();
             var trans = await conn.BeginTransactionAsync();
 
@@ -219,7 +237,6 @@ namespace Migrasi.Helpers
             finally
             {
                 await conn.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(conn);
             }
         }
 
@@ -242,13 +259,12 @@ namespace Migrasi.Helpers
             finally
             {
                 await conn.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(conn);
             }
         }
 
         public static async Task BacameterConnectionWrapper(Func<MySqlConnection, MySqlTransaction?, Task> operations)
         {
-            using var conn = new MySqlConnection(AppSettings.ConnectionStringBacameter);
+            using var conn = new MySqlConnection(AppSettings.BacameterConnectionString);
             await conn.OpenAsync();
             var trans = await conn.BeginTransactionAsync();
 
@@ -265,49 +281,27 @@ namespace Migrasi.Helpers
             finally
             {
                 await conn.CloseAsync();
-                await MySqlConnection.ClearPoolAsync(conn);
             }
         }
 
         public static async Task TrackProgress(string process, Func<Task> fn)
         {
-            using SqliteConnection conn = await SqliteConnectionFactory();
-            var cek = await conn.QueryFirstOrDefaultAsync("SELECT nama,flagproses FROM proses_manager WHERE trim(nama)=@nama", new { nama = process });
-            if (cek != null)
-            {
-                if (cek.flagproses == 1)
-                {
-                    WriteLogMessage(message: process, skip: true);
-                    return;
-                };
-            }
-
             var sw = Stopwatch.StartNew();
             try
             {
-                WriteLogMessage($"{process}");
                 await fn();
-                await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 1 });
+                Console.WriteLine($"{process}...OK {sw.ElapsedMilliseconds}ms");
             }
             catch (Exception e)
             {
-                WriteErrMessage(exception: e, process: process, message: e.InnerException?.Message ?? e.Message);
-                await conn.ExecuteAsync("REPLACE INTO proses_manager VALUES (@nama,@flagproses)", new { nama = process, flagproses = 0 });
+                Console.WriteLine($"{process}...FAILED {sw.ElapsedMilliseconds}ms");
+                Console.WriteLine($"Error: {e.Message}");
                 throw;
             }
             finally
             {
                 sw.Stop();
-                AnsiConsole.MarkupLine($"[grey]LOG: {DateTime.Now}[/] {process}[bold green] finish (elapsed {sw.Elapsed})[/]");
             }
-        }
-
-        public static async Task<SqliteConnection> SqliteConnectionFactory()
-        {
-            Batteries.Init();
-            var conn = new SqliteConnection("Data Source=database.db");
-            await conn.OpenAsync();
-            return conn;
         }
 
         public static bool ConfirmationPrompt(string message, bool defaultChoice = true)

@@ -8,10 +8,10 @@ FROM
 ,(SELECT @id:=0) AS id;
 
 SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idrayon,
-r.koderayon,
-r.namarayon,
+r.koderayon AS koderayon,
+r.namarayon AS namarayon,
 a.id AS idarea,
 0 AS flaghapus,
 NOW() AS waktuupdate

@@ -8,9 +8,9 @@ cabang
 ,(SELECT @id:=0) AS id;
 
 SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idkecamatan,
-k.kodekecamatan,
+k.kodekecamatan AS kodekecamatan,
 k.kecamatan AS namakecamatan,
 c.id AS idcabang,
 0 AS flaghapus,

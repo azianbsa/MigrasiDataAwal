@@ -8,9 +8,9 @@ wilayah
 ,(SELECT @id:=0) AS id;
 
 SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idarea,
-a.kodearea,
+a.kodearea AS kodearea,
 a.area AS namaarea,
 w.id AS idwilayah,
 0 AS flaghapus,

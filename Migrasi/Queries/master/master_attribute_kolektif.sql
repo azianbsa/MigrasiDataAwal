@@ -1,7 +1,7 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idkolektif,
-kodekolektif,
+kodekolektif AS kodekolektif,
 kolektif AS namakolektif,
 ket AS keterangan,
 0 AS flaghapus,

@@ -7,6 +7,9 @@ namespace Migrasi
     {
         public static Environment Environment { get; set; }
 
+        public static uint ConnectionTimeout { get; set; } = (uint)TimeSpan.FromMinutes(5).TotalSeconds;
+        public static uint CommandTimeout { get; set; } = (uint)TimeSpan.FromMinutes(5).TotalSeconds;
+
         public static string ConfigHost { get; set; }
         public static uint ConfigPort { get; set; }
         public static string ConfigUserId { get; set; }
@@ -36,27 +39,61 @@ namespace Migrasi
             Database = MainDatabase,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
-            ConnectionTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
-            DefaultCommandTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
+            ConnectionTimeout = ConnectionTimeout,
+            DefaultCommandTimeout = CommandTimeout,
         }.ConnectionString;
 
-        public static string HostStaging { get; set; }
-        public static uint PortStaging { get; set; }
-        public static string UserStaging { get; set; }
-        public static string PasswordStaging { get; set; }
-        public static string DatabaseStaging { get; set; }
+        public static string StagingHost { get; set; }
+        public static uint StagingPort { get; set; }
+        public static string StagingUserId { get; set; }
+        public static string StagingPassword { get; set; }
+        public static string StagingDatabase { get; set; }
+        public static string StagingConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = StagingHost,
+            Port = StagingPort,
+            UserID = StagingUserId,
+            Password = StagingPassword,
+            Database = StagingDatabase,
+            AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
+        }.ConnectionString;
 
-        public static string HostBsbs { get; set; }
-        public static uint PortBsbs { get; set; }
-        public static string UserBsbs { get; set; }
-        public static string PasswordBsbs { get; set; }
-        public static string DatabaseBsbs { get; set; }
+        public static string BsbsHost { get; set; }
+        public static uint BsbsPort { get; set; }
+        public static string BsbsUserId { get; set; }
+        public static string BsbsPassword { get; set; }
+        public static string BsbsDatabase { get; set; }
+        public static string BsbsConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = BsbsHost,
+            Port = BsbsPort,
+            UserID = BsbsUserId,
+            Password = BsbsPassword,
+            Database = BsbsDatabase,
+            AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
+            ConnectionTimeout = ConnectionTimeout,
+            DefaultCommandTimeout = CommandTimeout,
+        }.ConnectionString;
 
-        public static string HostBacameter { get; set; }
-        public static uint PortBacameter { get; set; }
-        public static string UserBacameter { get; set; }
-        public static string PasswordBacameter { get; set; }
-        public static string DatabaseBacameter { get; set; }
+        public static string BacameterHost { get; set; }
+        public static uint BacameterPort { get; set; }
+        public static string BacameterUserId { get; set; }
+        public static string BacameterPassword { get; set; }
+        public static string BacameterDatabase { get; set; }
+        public static string BacameterConnectionString => new MySqlConnectionStringBuilder
+        {
+            Server = BacameterHost,
+            Port = BacameterPort,
+            UserID = BacameterUserId,
+            Password = BacameterPassword,
+            Database = BacameterDatabase,
+            AllowUserVariables = true,
+            AllowLoadLocalInfile = true,
+            ConnectionTimeout = ConnectionTimeout,
+            DefaultCommandTimeout = CommandTimeout,
+        }.ConnectionString;
 
         public static string LoketHost { get; set; }
         public static uint LoketPort { get; set; }
@@ -72,57 +109,36 @@ namespace Migrasi
             Database = LoketDatabase,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
-            ConnectionTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
-            DefaultCommandTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
+            ConnectionTimeout = ConnectionTimeout,
+            DefaultCommandTimeout = CommandTimeout,
         }.ConnectionString;
 
-        public static string DataAwalDatabase { get; set; } = "kotaparepare_dataawal";
-        public static string DataAwalConnectionString => new MySqlConnectionStringBuilder
+        public static string TampungHost { get; set; }
+        public static uint TampungPort { get; set; }
+        public static string TampungUserId { get; set; }
+        public static string TampungPassword { get; set; }
+        public static string TampungDatabase { get; set; }
+        public static string TampungConnectionString => new MySqlConnectionStringBuilder
         {
-            Server = LoketHost,
-            Port = LoketPort,
-            UserID = LoketUserId,
-            Password = LoketPassword,
-            Database = DataAwalDatabase,
+            Server = TampungHost,
+            Port = TampungPort,
+            UserID = TampungUserId,
+            Password = TampungPassword,
+            Database = TampungDatabase,
             AllowUserVariables = true,
             AllowLoadLocalInfile = true,
-            ConnectionTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
-            DefaultCommandTimeout = (uint)TimeSpan.FromMinutes(5).TotalSeconds,
+            ConnectionTimeout = ConnectionTimeout,
+            DefaultCommandTimeout = CommandTimeout,
         }.ConnectionString;
 
-        public static int CommandTimeout { get; set; } = 3600;
-
-        public static string ConnectionStringStaging => new MySqlConnectionStringBuilder
+        public static List<ColumnMapping> ColumnMappings { get; set; }
+        public static Dictionary<string, string> Placeholders => new()
         {
-            Server = HostStaging,
-            Port = PortStaging,
-            UserID = UserStaging,
-            Password = PasswordStaging,
-            Database = DatabaseStaging,
-            AllowUserVariables = true,
-            AllowLoadLocalInfile = true,
-        }.ConnectionString;
-
-        public static string ConnectionStringBsbs => new MySqlConnectionStringBuilder
-        {
-            Server = HostBsbs,
-            Port = PortBsbs,
-            UserID = UserBsbs,
-            Password = PasswordBsbs,
-            Database = DatabaseBsbs,
-            AllowUserVariables = true,
-            AllowLoadLocalInfile = true,
-        }.ConnectionString;
-
-        public static string ConnectionStringBacameter => new MySqlConnectionStringBuilder
-        {
-            Server = HostBacameter,
-            Port = PortBacameter,
-            UserID = UserBacameter,
-            Password = PasswordBacameter,
-            Database = DatabaseBacameter,
-            AllowUserVariables = true,
-            AllowLoadLocalInfile = true,
-        }.ConnectionString;
+            { "[bacameter]", BacameterDatabase },
+            { "[loket]", LoketDatabase },
+            { "[bsbs]", BsbsDatabase },
+            { "[tampung]", TampungDatabase },
+            { "[dataawal]", TampungDatabase },
+        };
     }
 }

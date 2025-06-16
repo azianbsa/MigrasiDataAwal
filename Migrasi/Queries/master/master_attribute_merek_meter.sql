@@ -1,5 +1,5 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idmerekmeter,
 @id AS kodemerekmeter,
 merk AS namamerekmeter,

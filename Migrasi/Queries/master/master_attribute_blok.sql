@@ -8,10 +8,10 @@ rayon a
 ,(SELECT @id:=0) AS id;
 
 SELECT
-@idpdam,
+@idpdam AS idpdam,
 b.id AS idblok,
-b.kodeblok,
-b.namablok,
+b.kodeblok AS kodeblok,
+b.namablok AS namablok,
 r.id AS idrayon,
 0 AS flaghapus,
 NOW() AS waktuupdate

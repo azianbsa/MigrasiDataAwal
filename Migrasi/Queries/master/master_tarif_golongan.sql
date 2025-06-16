@@ -1,13 +1,13 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idgolongan,
 kodegol AS kodegolongan,
 golongan AS namagolongan,
-kategori,
-uraian,
+kategori AS kategori,
+uraian AS uraian,
 '' AS nomorsk,
-periodemulaiberlaku,
-aktif AS STATUS,
+periodemulaiberlaku AS periodemulaiberlaku,
+aktif AS status,
 0 AS flaghapus,
 NOW() AS waktuupdate
 FROM

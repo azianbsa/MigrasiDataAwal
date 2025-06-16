@@ -1,5 +1,5 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idkondisimeter,
 kodekondisi AS kodekondisimeter,
 kondisi AS namakondisimeter,

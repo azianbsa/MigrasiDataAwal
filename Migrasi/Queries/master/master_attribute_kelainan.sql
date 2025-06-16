@@ -1,15 +1,15 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 idkelainan AS idkelainan,
 kodekelainan AS kodekelainan,
 kelainan AS kelainan,
 'Biasa' AS jeniskelainan,
-deskripsi,
+deskripsi AS deskripsi,
 idx AS posisi,
 0 AS blokir,
-aktif AS STATUS,
+aktif AS status,
 0 AS taksirotomatis,
 0 AS requestbacaulangotomatis,
 0 AS flaghapus,
 NOW() AS waktuupdate
-FROM `kotaparepare_bacameter`.kelainan;
+FROM [bacameter].kelainan;

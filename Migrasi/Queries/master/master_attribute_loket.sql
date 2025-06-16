@@ -1,12 +1,12 @@
 ﻿SELECT
 @idpdam AS idpdam,
 @id := @id + 1 AS idloket,
-kodeloket,
+kodeloket AS kodeloket,
 loket AS namaloket,
 NULL AS idwilayah,
-flagmitra,
+flagmitra AS flagmitra,
 admmitra AS biayamitra,
-aktif AS `status`,
+aktif AS status,
 1 AS idbank,
 0 AS flaghapus,
 NOW() AS waktuupdate

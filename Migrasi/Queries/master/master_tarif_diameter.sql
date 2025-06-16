@@ -1,10 +1,10 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS iddiameter,
-kodediameter,
+kodediameter AS kodediameter,
 ukuran AS namadiameter,
-periodemulaiberlaku,
-aktif AS STATUS,
+periodemulaiberlaku AS periodemulaiberlaku,
+aktif AS status,
 '' AS nomorsk,
 0 AS flaghapus,
 NOW() AS waktuupdate

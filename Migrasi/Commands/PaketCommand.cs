@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Migrasi.Helpers;
-using MySqlConnector;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sprache;
@@ -10,844 +9,6 @@ namespace Migrasi.Commands
 {
     public class PaketCommand : AsyncCommand<PaketCommand.Settings>
     {
-        private static readonly Dictionary<string, List<MySqlBulkCopyColumnMapping>> ColumnMappings = new()
-        {
-            {
-                "master_pelanggan_air",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpelangganair"),
-                    new(2, "nosamb"),
-                    new(3, "norekening"),
-                    new(4, "nama"),
-                    new(5, "alamat"),
-                    new(6, "rt"),
-                    new(7, "rw"),
-                    new(8, "idgolongan"),
-                    new(9, "iddiameter"),
-                    new(10, "idjenispipa"),
-                    new(11, "idkwh"),
-                    new(12, "idrayon"),
-                    new(13, "idkelurahan"),
-                    new(14, "idkolektif"),
-                    new(15, "idstatus"),
-                    new(16, "idflag"),
-                    new(17, "latitude"),
-                    new(18, "longitude"),
-                    new(19, "akurasi"),
-                    new(20, "nosamblama"),
-                    new(21, "flaghapus"),
-                    new(22, "waktuupdate"),
-                }
-            },
-            {
-                "master_pelanggan_air_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpelangganair"),
-                    new(2, "idsumberair"),
-                    new(3, "iddma"),
-                    new(4, "iddmz"),
-                    new(5, "idblok"),
-                    new(6, "idmerekmeter"),
-                    new(7, "idkondisimeter"),
-                    new(8, "idadministrasilain"),
-                    new(9, "idpemeliharaanlain"),
-                    new(10, "idretribusilain"),
-                    new(11, "idpekerjaan"),
-                    new(12, "idjenisbangunan"),
-                    new(13, "idperuntukan"),
-                    new(14, "idkepemilikan"),
-                    new(15, "nosegel"),
-                    new(16, "nohp"),
-                    new(17, "notelp"),
-                    new(18, "noktp"),
-                    new(19, "nokk"),
-                    new(20, "email"),
-                    new(21, "noserimeter"),
-                    new(22, "tglmeter"),
-                    new(23, "pekerjaan"),
-                    new(24, "penghuni"),
-                    new(25, "namapemilik"),
-                    new(26, "alamatpemilik"),
-                    new(27, "kodepost"),
-                    new(28, "dayalistrik"),
-                    new(29, "luastanah"),
-                    new(30, "luasrumah"),
-                    new(31, "urutanbaca"),
-                    new(32, "stanawalpasang"),
-                    new(33, "nopendaftaran"),
-                    new(34, "tgldaftar"),
-                    new(35, "tglpenentuanbaca"),
-                    new(36, "norab"),
-                    new(37, "nobapemasangan"),
-                    new(38, "tglpasang"),
-                    new(39, "tglputus"),
-                    new(40, "noserimeterlama"),
-                    new(41, "kategoriputus"),
-                    new(42, "idtipependaftaransambungan"),
-                    new(43, "idkategorikawasan"),
-                    new(44, "keterangan"),
-                    new(45, "waktuupdate"),
-                }
-            },
-            {
-                "rekening_air",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idrekeningair"),
-                    new(2, "idpelangganair"),
-                    new(3, "idperiode"),
-                    new(4, "idgolongan"),
-                    new(5, "iddiameter"),
-                    new(6, "idjenispipa"),
-                    new(7, "idkwh"),
-                    new(8, "idrayon"),
-                    new(9, "idkelurahan"),
-                    new(10, "idkolektif"),
-                    new(11, "idadministrasilain"),
-                    new(12, "idpemeliharaanlain"),
-                    new(13, "idretribusilain"),
-                    new(14, "idstatus"),
-                    new(15, "idflag"),
-                    new(16, "stanlalu"),
-                    new(17, "stanskrg"),
-                    new(18, "stanangkat"),
-                    new(19, "pakai"),
-                    new(20, "pakaikalkulasi"),
-                    new(21, "biayapemakaian"),
-                    new(22, "administrasi"),
-                    new(23, "pemeliharaan"),
-                    new(24, "retribusi"),
-                    new(25, "pelayanan"),
-                    new(26, "airlimbah"),
-                    new(27, "dendapakai0"),
-                    new(28, "administrasilain"),
-                    new(29, "pemeliharaanlain"),
-                    new(30, "retribusilain"),
-                    new(31, "ppn"),
-                    new(32, "meterai"),
-                    new(33, "rekair"),
-                    new(34, "denda"),
-                    new(35, "diskon"),
-                    new(36, "deposit"),
-                    new(37, "total"),
-                    new(38, "hapussecaraakuntansi"),
-                    new(39, "waktuhapussecaraakuntansi"),
-                    new(40, "iddetailcyclepembacaan"),
-                    new(41, "tglpenentuanbaca"),
-                    new(42, "flagbaca"),
-                    new(43, "metodebaca"),
-                    new(44, "waktubaca"),
-                    new(45, "jambaca"),
-                    new(46, "petugasbaca"),
-                    new(47, "kelainan"),
-                    new(48, "stanbaca"),
-                    new(49, "waktukirimhasilbaca"),
-                    new(50, "jamkirimhasilbaca"),
-                    new(51, "memolapangan"),
-                    new(52, "lampiran"),
-                    new(53, "taksasi"),
-                    new(54, "taksir"),
-                    new(55, "flagrequestbacaulang"),
-                    new(56, "waktuupdaterequestbacaulang"),
-                    new(57, "flagkoreksi"),
-                    new(58, "waktukoreksi"),
-                    new(59, "jamkoreksi"),
-                    new(60, "flagverifikasi"),
-                    new(61, "waktuverifikasi"),
-                    new(62, "jamverifikasi"),
-                    new(63, "userverifikasi"),
-                    new(64, "flagpublish"),
-                    new(65, "waktupublish"),
-                    new(66, "jampublish"),
-                    new(67, "userpublish"),
-                    new(68, "latitude"),
-                    new(69, "longitude"),
-                    new(70, "latitudebulanlalu"),
-                    new(71, "longitudebulanlalu"),
-                    new(72, "adafotometer"),
-                    new(73, "adafotorumah"),
-                    new(74, "adavideo"),
-                    new(75, "flagminimumpakai"),
-                    new(76, "pakaibulanlalu"),
-                    new(77, "pakai2bulanlalu"),
-                    new(78, "pakai3bulanlalu"),
-                    new(79, "pakai4bulanlalu"),
-                    new(80, "persentasebulanlalu"),
-                    new(81, "persentase2bulanlalu"),
-                    new(82, "persentase3bulanlalu"),
-                    new(83, "kelainanbulanlalu"),
-                    new(84, "kelainan2bulanlalu"),
-                    new(85, "flagangsur"),
-                    new(86, "idangsuran"),
-                    new(87, "idmodule"),
-                    new(88, "flagkoreksibilling"),
-                    new(89, "tglmulaidenda1"),
-                    new(90, "tglmulaidenda2"),
-                    new(91, "tglmulaidenda3"),
-                    new(92, "tglmulaidenda4"),
-                    new(93, "tglmulaidendaperbulan"),
-                    new(94, "tglmulaidendaperhari"),
-                    new(95, "flaghasbeenpublish"),
-                    new(96, "flagdrdsusulan"),
-                    new(97, "waktudrdsusulan"),
-                    new(98, "waktuupdate"),
-                    new(99, "flaghapus"),
-                }
-            },
-            {
-                "rekening_air_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpelangganair"),
-                    new(2, "idperiode"),
-                    new(3, "blok1"),
-                    new(4, "blok2"),
-                    new(5, "blok3"),
-                    new(6, "blok4"),
-                    new(7, "blok5"),
-                    new(8, "prog1"),
-                    new(9, "prog2"),
-                    new(10, "prog3"),
-                    new(11, "prog4"),
-                    new(12, "prog5"),
-                }
-            },
-            {
-                "rekening_air_transaksi",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpelangganair"),
-                    new(2, "idperiode"),
-                    new(3, "nomortransaksi"),
-                    new(4, "statustransaksi"),
-                    new(5, "waktutransaksi"),
-                    new(6, "tahuntransaksi"),
-                    new(7, "iduser"),
-                    new(8, "idloket"),
-                    new(9, "idkolektiftransaksi"),
-                    new(10, "idalasanbatal"),
-                    new(11, "keterangan"),
-                    new(12, "waktuupdate"),
-                }
-            },
-            {
-                "rekening_nonair",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idnonair"),
-                    new(2, "idjenisnonair"),
-                    new(3, "idpelangganair"),
-                    new(4, "idpelangganlimbah"),
-                    new(5, "idpelangganlltt"),
-                    new(6, "kodeperiode"),
-                    new(7, "nomornonair"),
-                    new(8, "keterangan"),
-                    new(9, "total"),
-                    new(10, "tanggalmulaitagih"),
-                    new(11, "tanggalkadaluarsa"),
-                    new(12, "nama"),
-                    new(13, "alamat"),
-                    new(14, "idrayon"),
-                    new(15, "idkelurahan"),
-                    new(16, "idgolongan"),
-                    new(17, "idtariflimbah"),
-                    new(18, "idtariflltt"),
-                    new(19, "flagangsur"),
-                    new(20, "idangsuran"),
-                    new(21, "termin"),
-                    new(22, "flagmanual"),
-                    new(23, "idpermohonansambunganbaru"),
-                    new(24, "flaghapus"),
-                    new(25, "iduser"),
-                    new(26, "waktuupdate"),
-                    new(27, "created_at"),
-                    new(28, "urutan"),
-                }
-            },
-            {
-                "rekening_nonair_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idnonair"),
-                    new(2, "parameter"),
-                    new(3, "postbiaya"),
-                    new(4, "value"),
-                    new(5, "waktuupdate"),
-                }
-            },
-            {
-                "rekening_nonair_transaksi",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idnonair"),
-                    new(2, "nomortransaksi"),
-                    new(3, "statustransaksi"),
-                    new(4, "waktutransaksi"),
-                    new(5, "tahuntransaksi"),
-                    new(6, "iduser"),
-                    new(7, "idloket"),
-                    new(8, "idkolektiftransaksi"),
-                    new(9, "idalasanbatal"),
-                    new(10, "keterangan"),
-                    new(11, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "idtipepermohonan"),
-                    new(3, "idsumberpengaduan"),
-                    new(4, "nomorpermohonan"),
-                    new(5, "waktupermohonan"),
-                    new(6, "flagpendaftaran"),
-                    new(7, "idtipependaftaransambungan"),
-                    new(8, "nama"),
-                    new(9, "alamat"),
-                    new(10, "idgolongan"),
-                    new(11, "iddiameter"),
-                    new(12, "idrayon"),
-                    new(13, "idkelurahan"),
-                    new(14, "idblok"),
-                    new(15, "idperuntukan"),
-                    new(16, "idjenisbangunan"),
-                    new(17, "idkepemilikan"),
-                    new(18, "idpekerjaan"),
-                    new(19, "idkolektif"),
-                    new(20, "idsumberair"),
-                    new(21, "iddma"),
-                    new(22, "iddmz"),
-                    new(23, "idmerekmeter"),
-                    new(24, "idkondisimeter"),
-                    new(25, "idadministrasilain"),
-                    new(26, "idpemeliharaanlain"),
-                    new(27, "idretribusilain"),
-                    new(28, "noserimeter"),
-                    new(29, "tglmeter"),
-                    new(30, "urutanbaca"),
-                    new(31, "stanawalpasang"),
-                    new(32, "notelp"),
-                    new(33, "email"),
-                    new(34, "noktp"),
-                    new(35, "nokk"),
-                    new(36, "kodepost"),
-                    new(37, "dayalistrik"),
-                    new(38, "luastanah"),
-                    new(39, "luasrumah"),
-                    new(40, "rt"),
-                    new(41, "rw"),
-                    new(42, "nohp"),
-                    new(43, "keterangan"),
-                    new(44, "nosambyangdiberikan"),
-                    new(45, "nosambdepan"),
-                    new(46, "nosambbelakang"),
-                    new(47, "nosambkiri"),
-                    new(48, "nosambkanan"),
-                    new(49, "penghuni"),
-                    new(50, "namapemilik"),
-                    new(51, "alamatpemilik"),
-                    new(52, "iduser"),
-                    new(53, "idnonair"),
-                    new(54, "latitude"),
-                    new(55, "longitude"),
-                    new(56, "alamatmap"),
-                    new(57, "flagverifikasi"),
-                    new(58, "waktuverifikasi"),
-                    new(59, "flagpelanggankavlingan"),
-                    new(60, "flaghapus"),
-                    new(61, "waktuupdate"),
-                    new(62, "airyangdigunakansebelumnya"),
-                    new(63, "statuspermohonan"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "parameter"),
-                    new(3, "tipedata"),
-                    new(4, "valuestring"),
-                    new(5, "valuedecimal"),
-                    new(6, "valueinteger"),
-                    new(7, "valuedate"),
-                    new(8, "valuebool"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_spk",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "nomorspk"),
-                    new(3, "tanggalspk"),
-                    new(4, "iduser"),
-                    new(5, "flagsurvey"),
-                    new(6, "flagbatal"),
-                    new(7, "idalasanbatal"),
-                    new(8, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_spk_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "parameter"),
-                    new(3, "tipedata"),
-                    new(4, "valuestring"),
-                    new(5, "valuedecimal"),
-                    new(6, "valueinteger"),
-                    new(7, "valuedate"),
-                    new(8, "valuebool"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_rab",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "idjenisnonair"),
-                    new(3, "idnonair"),
-                    new(4, "nomorrab"),
-                    new(5, "tanggalrab"),
-                    new(6, "nomorbppi"),
-                    new(7, "tanggalbppi"),
-                    new(8, "iduserbppi"),
-                    new(9, "iduser"),
-                    new(10, "tanggalkadaluarsa"),
-                    new(11, "persilnamapaket"),
-                    new(12, "persilflagdialihkankevendor"),
-                    new(13, "persilflagbiayadibebankankepdam"),
-                    new(14, "persilsubtotal"),
-                    new(15, "persildibebankankepdam"),
-                    new(16, "persiltotal"),
-                    new(17, "distribusinamapaket"),
-                    new(18, "distribusiflagdialihkankevendor"),
-                    new(19, "distribusiflagbiayadibebankankepdam"),
-                    new(20, "distribusisubtotal"),
-                    new(21, "distribusidibebankankepdam"),
-                    new(22, "distribusitotal"),
-                    new(23, "rekapsubtotal"),
-                    new(24, "rekapdibebankankepdam"),
-                    new(25, "rekaptotal"),
-                    new(26, "flagrablainnya"),
-                    new(27, "flagbatal"),
-                    new(28, "idalasanbatal"),
-                    new(29, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_rab_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "id"),
-                    new(1, "idpdam"),
-                    new(2, "idpermohonan"),
-                    new(3, "tipe"),
-                    new(4, "kode"),
-                    new(5, "uraian"),
-                    new(6, "hargasatuan"),
-                    new(7, "satuan"),
-                    new(8, "qty"),
-                    new(9, "jumlah"),
-                    new(10, "ppn"),
-                    new(11, "keuntungan"),
-                    new(12, "jasadaribahan"),
-                    new(13, "total"),
-                    new(14, "kategori"),
-                    new(15, "kelompok"),
-                    new(16, "postbiaya"),
-                    new(17, "qtyrkp"),
-                    new(18, "flagbiayadibebankankepdam"),
-                    new(19, "flagdialihkankevendor"),
-                    new(20, "flagpaket"),
-                    new(21, "flagdistribusi"),
-                    new(22, "untuksppbdarispk"),
-                    new(23, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_spk_pasang",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "nomorspk"),
-                    new(3, "tanggalspk"),
-                    new(4, "nomorsppb"),
-                    new(5, "tanggalsppb"),
-                    new(6, "iduser"),
-                    new(7, "flagbatal"),
-                    new(8, "idalasanbatal"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_ba",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "nomorba"),
-                    new(3, "tanggalba"),
-                    new(4, "iduser"),
-                    new(5, "persilnamapaket"),
-                    new(6, "persilflagdialihkankevendor"),
-                    new(7, "persilflagbiayadibebankankepdam"),
-                    new(8, "distribusinamapaket"),
-                    new(9, "distribusiflagdialihkankevendor"),
-                    new(10, "distribusiflagbiayadibebankankepdam"),
-                    new(11, "flagbatal"),
-                    new(12, "idalasanbatal"),
-                    new(13, "flag_dari_verifikasi"),
-                    new(14, "statusberitaacara"),
-                    new(15, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_non_pelanggan_ba_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "parameter"),
-                    new(3, "tipedata"),
-                    new(4, "valuestring"),
-                    new(5, "valuedecimal"),
-                    new(6, "valueinteger"),
-                    new(7, "valuedate"),
-                    new(8, "valuebool"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "idtipepermohonan"),
-                    new(3, "idsumberpengaduan"),
-                    new(4, "nomorpermohonan"),
-                    new(5, "waktupermohonan"),
-                    new(6, "idrayon"),
-                    new(7, "idkelurahan"),
-                    new(8, "idgolongan"),
-                    new(9, "iddiameter"),
-                    new(10, "idpelangganair"),
-                    new(11, "keterangan"),
-                    new(12, "iduser"),
-                    new(13, "idnonair"),
-                    new(14, "latitude"),
-                    new(15, "longitude"),
-                    new(16, "alamatmap"),
-                    new(17, "flagverifikasi"),
-                    new(18, "waktuverifikasi"),
-                    new(19, "flagusulan"),
-                    new(20, "statuspermohonan"),
-                    new(21, "flaghapus"),
-                    new(22, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "parameter"),
-                    new(3, "tipedata"),
-                    new(4, "valuestring"),
-                    new(5, "valuedecimal"),
-                    new(6, "valueinteger"),
-                    new(7, "valuedate"),
-                    new(8, "valuebool"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_spk",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "nomorspk"),
-                    new(3, "tanggalspk"),
-                    new(4, "iduser"),
-                    new(5, "flagsurvey"),
-                    new(6, "flagbatal"),
-                    new(7, "idalasanbatal"),
-                    new(8, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_spk_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "parameter"),
-                    new(3, "tipedata"),
-                    new(4, "valuestring"),
-                    new(5, "valuedecimal"),
-                    new(6, "valueinteger"),
-                    new(7, "valuedate"),
-                    new(8, "valuebool"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_rab",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "idjenisnonair"),
-                    new(3, "idnonair"),
-                    new(4, "nomorrab"),
-                    new(5, "tanggalrab"),
-                    new(6, "nomorbppi"),
-                    new(7, "tanggalbppi"),
-                    new(8, "iduserbppi"),
-                    new(9, "iduser"),
-                    new(10, "tanggalkadaluarsa"),
-                    new(11, "persilnamapaket"),
-                    new(12, "persilflagdialihkankevendor"),
-                    new(13, "persilflagbiayadibebankankepdam"),
-                    new(14, "persilsubtotal"),
-                    new(15, "persildibebankankepdam"),
-                    new(16, "persiltotal"),
-                    new(17, "distribusinamapaket"),
-                    new(18, "distribusiflagdialihkankevendor"),
-                    new(19, "distribusiflagbiayadibebankankepdam"),
-                    new(20, "distribusisubtotal"),
-                    new(21, "distribusidibebankankepdam"),
-                    new(22, "distribusitotal"),
-                    new(23, "rekapsubtotal"),
-                    new(24, "rekapdibebankankepdam"),
-                    new(25, "rekaptotal"),
-                    new(26, "flagrablainnya"),
-                    new(27, "flagbatal"),
-                    new(28, "idalasanbatal"),
-                    new(29, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_rab_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "id"),
-                    new(1, "idpdam"),
-                    new(2, "idpermohonan"),
-                    new(3, "tipe"),
-                    new(4, "kode"),
-                    new(5, "uraian"),
-                    new(6, "hargasatuan"),
-                    new(7, "satuan"),
-                    new(8, "qty"),
-                    new(9, "jumlah"),
-                    new(10, "ppn"),
-                    new(11, "keuntungan"),
-                    new(12, "jasadaribahan"),
-                    new(13, "total"),
-                    new(14, "kategori"),
-                    new(15, "kelompok"),
-                    new(16, "postbiaya"),
-                    new(17, "qtyrkp"),
-                    new(18, "flagbiayadibebankankepdam"),
-                    new(19, "flagdialihkankevendor"),
-                    new(20, "flagpaket"),
-                    new(21, "flagdistribusi"),
-                    new(22, "untuksppbdarispk"),
-                    new(23, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_spk_pasang",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "nomorspk"),
-                    new(3, "tanggalspk"),
-                    new(4, "nomorsppb"),
-                    new(5, "tanggalsppb"),
-                    new(6, "iduser"),
-                    new(7, "flagbatal"),
-                    new(8, "idalasanbatal"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_ba",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "nomorba"),
-                    new(3, "tanggalba"),
-                    new(4, "iduser"),
-                    new(5, "persilnamapaket"),
-                    new(6, "persilflagdialihkankevendor"),
-                    new(7, "persilflagbiayadibebankankepdam"),
-                    new(8, "distribusinamapaket"),
-                    new(9, "distribusiflagdialihkankevendor"),
-                    new(10, "distribusiflagbiayadibebankankepdam"),
-                    new(11, "flagbatal"),
-                    new(12, "idalasanbatal"),
-                    new(13, "flag_dari_verifikasi"),
-                    new(14, "statusberitaacara"),
-                    new(15, "waktuupdate"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_ba_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idpermohonan"),
-                    new(2, "parameter"),
-                    new(3, "tipedata"),
-                    new(4, "valuestring"),
-                    new(5, "valuedecimal"),
-                    new(6, "valueinteger"),
-                    new(7, "valuedate"),
-                    new(8, "valuebool"),
-                    new(9, "waktuupdate"),
-                }
-            },
-            {
-                "master_pelanggan_air_riwayat_koreksi",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "idpdam"),
-                    new(1, "idkoreksi"),
-                    new(2, "idpermohonan"),
-                    new(3, "sumberperubahan"),
-                    new(4, "waktukoreksi"),
-                    new(5, "jamkoreksi"),
-                    new(6, "iduser"),
-                    new(7, "idpelangganair"),
-                    new(8, "flagverifikasi"),
-                    new(9, "waktuverifikasi"),
-                    new(10, "waktuupdate"),
-                    new(11, "nomor"),
-                }
-            },
-            {
-                "master_pelanggan_air_riwayat_koreksi_detail",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "id"),
-                    new(1, "idpdam"),
-                    new(2, "idkoreksi"),
-                    new(3, "parameter"),
-                    new(4, "lama"),
-                    new(5, "baru"),
-                    new(6, "valueid"),
-                }
-            },
-            {
-                "permohonan_pelanggan_air_koreksi_rekening",
-                new List<MySqlBulkCopyColumnMapping>()
-                {
-                    new(0, "id"),
-                    new(1, "idpdam"),
-                    new(2, "idpelangganair"),
-                    new(3, "idperiode"),
-                    new(4, "idpermohonan"),
-                    new(5, "waktuusulan"),
-                    new(6, "statusverifikasilapangan"),
-                    new(7, "waktustatusverifikasilapangan"),
-                    new(8, "keteranganstatusverifikasilapangan"),
-                    new(9, "statusverifikasipusat"),
-                    new(10, "waktustatusverifikasipusat"),
-                    new(11, "keteranganstatusverifikasipusat"),
-                    new(12, "nomorba"),
-                    new(13, "stanlalu"),
-                    new(14, "stanskrg"),
-                    new(15, "stanangkat"),
-                    new(16, "pakai"),
-                    new(17, "biayapemakaian"),
-                    new(18, "administrasi"),
-                    new(19, "pemeliharaan"),
-                    new(20, "retribusi"),
-                    new(21, "pelayanan"),
-                    new(22, "airlimbah"),
-                    new(23, "dendapakai0"),
-                    new(24, "administrasilain"),
-                    new(25, "pemeliharaanlain"),
-                    new(26, "retribusilain"),
-                    new(27, "ppn"),
-                    new(28, "meterai"),
-                    new(29, "rekair"),
-                    new(30, "denda"),
-                    new(31, "total"),
-                    new(32, "flaghanyaabonemen"),
-                    new(33, "stanlalu_usulan"),
-                    new(34, "stanskrg_usulan"),
-                    new(35, "stanangkat_usulan"),
-                    new(36, "pakai_usulan"),
-                    new(37, "biayapemakaian_usulan"),
-                    new(38, "administrasi_usulan"),
-                    new(39, "pemeliharaan_usulan"),
-                    new(40, "retribusi_usulan"),
-                    new(41, "pelayanan_usulan"),
-                    new(42, "airlimbah_usulan"),
-                    new(43, "dendapakai0_usulan"),
-                    new(44, "administrasilain_usulan"),
-                    new(45, "pemeliharaanlain_usulan"),
-                    new(46, "retribusilain_usulan"),
-                    new(47, "meterai_usulan"),
-                    new(48, "ppn_usulan"),
-                    new(49, "rekair_usulan"),
-                    new(50, "denda_usulan"),
-                    new(51, "total_usulan"),
-                    new(52, "stanlalu_baru"),
-                    new(53, "stanskrg_baru"),
-                    new(54, "stanangkat_baru"),
-                    new(55, "pakai_baru"),
-                    new(56, "biayapemakaian_baru"),
-                    new(57, "administrasi_baru"),
-                    new(58, "pemeliharaan_baru"),
-                    new(59, "retribusi_baru"),
-                    new(60, "pelayanan_baru"),
-                    new(61, "airlimbah_baru"),
-                    new(62, "dendapakai0_baru"),
-                    new(63, "administrasilain_baru"),
-                    new(64, "pemeliharaanlain_baru"),
-                    new(65, "retribusilain_baru"),
-                    new(66, "meterai_baru"),
-                    new(67, "ppn_baru"),
-                    new(68, "rekair_baru"),
-                    new(69, "denda_baru"),
-                    new(70, "total_baru"),
-                    new(71, "statuspermohonan"),
-                    new(72, "flaghapus"),
-                    new(73, "waktuupdate"),
-                }
-            }
-        };
-
         public class Settings : CommandSettings
         {
             [CommandOption("-i|--idpdam")]
@@ -891,8 +52,9 @@ namespace Migrasi.Commands
         {
             const string PROSES_DATA_MASTER_BSHPD = "Proses data master bshpd";
             const string PROSES_DATA_PELANGGAN = "Proses data pelanggan";
-            const string PROSES_PIUTANG_BAYAR_3_BULAN = "Proses piutang & bayar 3 bulan";
-            const string PROSES_NONAIR_3_BULAN = "Proses nonair 3 bulan";
+            const string PROSES_PIUTANG = "Proses piutang";
+            const string PROSES_BAYAR = "Proses bayar";
+            const string PROSES_NONAIR = "Proses nonair";
             const string PROSES_PERMOHONAN_SAMBUNG_BARU = "Proses permohonan sambung baru";
             const string PROSES_PERMOHONAN_BALIK_NAMA = "Proses permohonan balik nama";
             const string PROSES_PERMOHONAN_BUKA_SEGEL = "Proses permohonan buka segel";
@@ -907,8 +69,9 @@ namespace Migrasi.Commands
             [
                 PROSES_DATA_MASTER_BSHPD,
                 PROSES_DATA_PELANGGAN,
-                PROSES_PIUTANG_BAYAR_3_BULAN,
-                PROSES_NONAIR_3_BULAN,
+                PROSES_PIUTANG,
+                PROSES_BAYAR,
+                PROSES_NONAIR,
                 PROSES_PERMOHONAN_SAMBUNG_BARU,
                 PROSES_PERMOHONAN_BALIK_NAMA,
                 PROSES_PERMOHONAN_BUKA_SEGEL,
@@ -940,8 +103,9 @@ namespace Migrasi.Commands
 
             var prosesMasterBshpd = selectedProses.Exists(s => s == PROSES_DATA_MASTER_BSHPD);
             var prosesPelanggan = selectedProses.Exists(s => s == PROSES_DATA_PELANGGAN);
-            var prosesPiutangBayar3Bulan = selectedProses.Exists(s => s == PROSES_PIUTANG_BAYAR_3_BULAN);
-            var prosesNonair3Bulan = selectedProses.Exists(s => s == PROSES_NONAIR_3_BULAN);
+            var prosesPiutang = selectedProses.Exists(s => s == PROSES_PIUTANG);
+            var prosesBayar = selectedProses.Exists(s => s == PROSES_BAYAR);
+            var prosesNonair3Bulan = selectedProses.Exists(s => s == PROSES_NONAIR);
             var prosesPermohonanSambungBaru = selectedProses.Exists(s => s == PROSES_PERMOHONAN_SAMBUNG_BARU);
             var prosesPermohonanBalikNama = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BALIK_NAMA);
             var prosesPermohonanBukaSegel = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BUKA_SEGEL);
@@ -988,7 +152,7 @@ namespace Migrasi.Commands
                 });
 
                 await AnsiConsole.Status()
-                    .StartAsync("🚀", async _ =>
+                    .StartAsync("Sedang diproses...", async _ =>
                     {
                         if (prosesMasterBshpd)
                         {
@@ -999,12 +163,13 @@ namespace Migrasi.Commands
                             await PaketRab(settings);
                         }
 
-                        Utils.WriteLogMessage("Copy data master bshpd ke db tampung");
-                        await LoadDataMaster(settings);
+                        await Utils.TrackProgress("Copy data master ke db tampung", async () =>
+                        {
+                            await LoadDataMaster(settings);
+                        });
 
                         if (prosesPelanggan)
                         {
-                            Utils.WriteLogMessage("Proses data pelanggan");
                             await Utils.TrackProgress("master_pelanggan_air", async () =>
                             {
                                 await Utils.BulkCopy(
@@ -1015,14 +180,7 @@ namespace Migrasi.Commands
                                     parameters: new()
                                     {
                                         { "@idpdam", settings.IdPdam }
-                                    },
-                                    placeholders: new()
-                                    {
-                                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                                        { "[dataawal]", AppSettings.DataAwalDatabase },
-                                    },
-                                    columnMappings: ColumnMappings["master_pelanggan_air"]);
+                                    });
                             });
                             await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
                             {
@@ -1043,174 +201,176 @@ namespace Migrasi.Commands
                                     parameters: new()
                                     {
                                         { "@idpdam", settings.IdPdam }
-                                    },
-                                    placeholders: new()
-                                    {
-                                        { "[dataawal]", AppSettings.DataAwalDatabase },
-                                    },
-                                    columnMappings: ColumnMappings["master_pelanggan_air_detail"]);
+                                    });
                             });
                         }
 
-                        if (prosesPiutangBayar3Bulan)
+                        if (prosesPiutang)
                         {
-                            await Utils.BacameterConnectionWrapper(async (conn, trans) =>
+                            //await Utils.BacameterConnectionWrapper(async (conn, trans) =>
+                            //{
+                            //    await conn.ExecuteAsync(
+                            //        sql: @"
+                            //        DROP TABLE IF EXISTS tampung_hasilbaca;
+                            //        CREATE TABLE tampung_hasilbaca AS
+                            //        SELECT * FROM hasilbaca LIMIT 0;
+                            //        ALTER TABLE `tampung_hasilbaca`
+                            //        ADD COLUMN `kode` VARCHAR (100) NOT NULL FIRST,
+                            //        ADD PRIMARY KEY (`kode`);",
+                            //        transaction: trans);
+
+                            //    for (int i = 0; i < 3; i++)
+                            //    {
+                            //        var periode = DateTime.ParseExact(periodeMulai, "yyyyMM", null).AddMonths(i);
+                            //        Utils.WriteLogMessage($"Ambil data hasilbaca{periode:MMyy} ke tampung_hasilbaca");
+                            //        await conn.ExecuteAsync(
+                            //            sql: $@"
+                            //            INSERT INTO tampung_hasilbaca
+                            //            SELECT
+                            //                CONCAT({periode:yyyyMM},'.',`idpelanggan`) AS kode,
+                            //                `idpelanggan`,
+                            //                `idmeteran`,
+                            //                `idkec`,
+                            //                `kec`,
+                            //                `idkel`,
+                            //                `kel`,
+                            //                `idrtrw`,
+                            //                `rtrw`,
+                            //                `idblok`,
+                            //                `kodeblok`,
+                            //                `blok`,
+                            //                `idrayon`,
+                            //                `koderayon`,
+                            //                `rayon`,
+                            //                `wilayah`,
+                            //                `nama`,
+                            //                `noktp`,
+                            //                `telprumah`,
+                            //                `alamat`,
+                            //                `pekerjaan`,
+                            //                `nosambungan`,
+                            //                `nometer`,
+                            //                `tekanan`,
+                            //                `idgol`,
+                            //                `kodegol`,
+                            //                `golongan`,
+                            //                `idgol1`,
+                            //                `kodegol1`,
+                            //                `golongan1`,
+                            //                `perubahangol`,
+                            //                `golonganlalu`,
+                            //                `iddiameter`,
+                            //                `kodediameter`,
+                            //                `ukuran`,
+                            //                `tgldaftar`,
+                            //                `luasrumah`,
+                            //                `urutanbaca`,
+                            //                `prosesairlimbah`,
+                            //                `keterangan`,
+                            //                `bln1`,
+                            //                `stan1`,
+                            //                `pakai1`,
+                            //                `persen1`,
+                            //                `bln2`,
+                            //                `stan2`,
+                            //                `pakai2`,
+                            //                `persen2`,
+                            //                `bln3`,
+                            //                `stan3`,
+                            //                `pakai3`,
+                            //                `persen3`,
+                            //                `stanlalu`,
+                            //                `stanskrg`,
+                            //                `pakaiskrg`,
+                            //                `stanangkat`,
+                            //                `persentase`,
+                            //                `taksir`,
+                            //                `taksir2bln`,
+                            //                `taksir3bln`,
+                            //                `idkelainan`,
+                            //                `kodekelainan`,
+                            //                `kelainan`,
+                            //                `kelainanlalu`,
+                            //                `idkelainan1`,
+                            //                `kodekelainan1`,
+                            //                `kelainan1`,
+                            //                `kelainan1lalu`,
+                            //                `kelainan1lalu1`,
+                            //                `tunggakan`,
+                            //                `dendatunggakan`,
+                            //                `biayapemakaian`,
+                            //                `airlimbah`,
+                            //                `administrasi`,
+                            //                `bebanpasif`,
+                            //                `retribusi`,
+                            //                `pemeliharaan`,
+                            //                `pelayanan`,
+                            //                `meterai`,
+                            //                `custombeban1`,
+                            //                `custombeban2`,
+                            //                `custombeban3`,
+                            //                `persenppn`,
+                            //                `ppn`,
+                            //                `totalrekening`,
+                            //                `sudahlunas`,
+                            //                `rincianrekening`,
+                            //                `sudahbaca`,
+                            //                `verifikasi`,
+                            //                `waktuverifikasi`,
+                            //                `a`,
+                            //                `idpetugas`,
+                            //                `kodepetugas`,
+                            //                `namapetugas`,
+                            //                `waktubaca`,
+                            //                `waktubacalalu`,
+                            //                `waktuupload`,
+                            //                `sumberlokasi`,
+                            //                `latitude`,
+                            //                `longitude`,
+                            //                `mnc`,
+                            //                `mcc`,
+                            //                `lac`,
+                            //                `cellid`,
+                            //                `adafotorumah`,
+                            //                `adavideo`,
+                            //                `lampiran`,
+                            //                `flagkirimsms`,
+                            //                `sudahkirimsms`,
+                            //                `logupdate`,
+                            //                `iduserupdate`,
+                            //                `flagsudahupload`,
+                            //                `flagaktif`,
+                            //                `custom1`,
+                            //                `custom2`,
+                            //                `peruntukan`,
+                            //                `hasilbacaulang`,
+                            //                `totalrekeningstr`,
+                            //                `datalapangan`,
+                            //                `ratarata3bln`,
+                            //                `flaghistori3bln`,
+                            //                `terbaca`,
+                            //                `memolapangan`,
+                            //                `wm`,
+                            //                `masterlatlong`,
+                            //                `flagkoreksi`
+                            //            FROM
+                            //                hasilbaca{periode:MMyy}",
+                            //            transaction: trans);
+                            //    }
+                            //});
+
+                            await Utils.TrackProgress("Proses data piutang", async () =>
                             {
-                                await conn.ExecuteAsync(
-                                    sql: @"
-                                    DROP TABLE IF EXISTS tampung_hasilbaca;
-                                    CREATE TABLE tampung_hasilbaca AS
-                                    SELECT * FROM hasilbaca LIMIT 0;
-                                    ALTER TABLE `tampung_hasilbaca`
-                                    ADD COLUMN `kode` VARCHAR (100) NOT NULL FIRST,
-                                    ADD PRIMARY KEY (`kode`);",
-                                    transaction: trans);
-
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    var periode = DateTime.ParseExact(periodeMulai, "yyyyMM", null).AddMonths(i);
-                                    Utils.WriteLogMessage($"Ambil data hasilbaca{periode:MMyy} ke tampung_hasilbaca");
-                                    await conn.ExecuteAsync(
-                                        sql: $@"
-                                        INSERT INTO tampung_hasilbaca
-                                        SELECT
-                                            CONCAT({periode:yyyyMM},'.',`idpelanggan`) AS kode,
-                                            `idpelanggan`,
-                                            `idmeteran`,
-                                            `idkec`,
-                                            `kec`,
-                                            `idkel`,
-                                            `kel`,
-                                            `idrtrw`,
-                                            `rtrw`,
-                                            `idblok`,
-                                            `kodeblok`,
-                                            `blok`,
-                                            `idrayon`,
-                                            `koderayon`,
-                                            `rayon`,
-                                            `wilayah`,
-                                            `nama`,
-                                            `noktp`,
-                                            `telprumah`,
-                                            `alamat`,
-                                            `pekerjaan`,
-                                            `nosambungan`,
-                                            `nometer`,
-                                            `tekanan`,
-                                            `idgol`,
-                                            `kodegol`,
-                                            `golongan`,
-                                            `idgol1`,
-                                            `kodegol1`,
-                                            `golongan1`,
-                                            `perubahangol`,
-                                            `golonganlalu`,
-                                            `iddiameter`,
-                                            `kodediameter`,
-                                            `ukuran`,
-                                            `tgldaftar`,
-                                            `luasrumah`,
-                                            `urutanbaca`,
-                                            `prosesairlimbah`,
-                                            `keterangan`,
-                                            `bln1`,
-                                            `stan1`,
-                                            `pakai1`,
-                                            `persen1`,
-                                            `bln2`,
-                                            `stan2`,
-                                            `pakai2`,
-                                            `persen2`,
-                                            `bln3`,
-                                            `stan3`,
-                                            `pakai3`,
-                                            `persen3`,
-                                            `stanlalu`,
-                                            `stanskrg`,
-                                            `pakaiskrg`,
-                                            `stanangkat`,
-                                            `persentase`,
-                                            `taksir`,
-                                            `taksir2bln`,
-                                            `taksir3bln`,
-                                            `idkelainan`,
-                                            `kodekelainan`,
-                                            `kelainan`,
-                                            `kelainanlalu`,
-                                            `idkelainan1`,
-                                            `kodekelainan1`,
-                                            `kelainan1`,
-                                            `kelainan1lalu`,
-                                            `kelainan1lalu1`,
-                                            `tunggakan`,
-                                            `dendatunggakan`,
-                                            `biayapemakaian`,
-                                            `airlimbah`,
-                                            `administrasi`,
-                                            `bebanpasif`,
-                                            `retribusi`,
-                                            `pemeliharaan`,
-                                            `pelayanan`,
-                                            `meterai`,
-                                            `custombeban1`,
-                                            `custombeban2`,
-                                            `custombeban3`,
-                                            `persenppn`,
-                                            `ppn`,
-                                            `totalrekening`,
-                                            `sudahlunas`,
-                                            `rincianrekening`,
-                                            `sudahbaca`,
-                                            `verifikasi`,
-                                            `waktuverifikasi`,
-                                            `a`,
-                                            `idpetugas`,
-                                            `kodepetugas`,
-                                            `namapetugas`,
-                                            `waktubaca`,
-                                            `waktubacalalu`,
-                                            `waktuupload`,
-                                            `sumberlokasi`,
-                                            `latitude`,
-                                            `longitude`,
-                                            `mnc`,
-                                            `mcc`,
-                                            `lac`,
-                                            `cellid`,
-                                            `adafotorumah`,
-                                            `adavideo`,
-                                            `lampiran`,
-                                            `flagkirimsms`,
-                                            `sudahkirimsms`,
-                                            `logupdate`,
-                                            `iduserupdate`,
-                                            `flagsudahupload`,
-                                            `flagaktif`,
-                                            `custom1`,
-                                            `custom2`,
-                                            `peruntukan`,
-                                            `hasilbacaulang`,
-                                            `totalrekeningstr`,
-                                            `datalapangan`,
-                                            `ratarata3bln`,
-                                            `flaghistori3bln`,
-                                            `terbaca`,
-                                            `memolapangan`,
-                                            `wm`,
-                                            `masterlatlong`,
-                                            `flagkoreksi`
-                                        FROM
-                                            hasilbaca{periode:MMyy}",
-                                        transaction: trans);
-                                }
+                                await Piutang(settings);
                             });
+                        }
 
-                            Utils.WriteLogMessage("Proses data piutang");
-                            await Piutang(settings);
-
-                            Utils.WriteLogMessage("Proses data bayar");
-                            await Bayar(settings);
+                        if (prosesBayar)
+                        {
+                            await Utils.TrackProgress("Proses data bayar", async () =>
+                            {
+                                await Bayar(settings);
+                            });
                         }
 
                         if (prosesNonair3Bulan)
@@ -1362,13 +522,15 @@ namespace Migrasi.Commands
             string? namaPdam = "";
             await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
-                namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
+                namaPdam = await conn.QueryFirstOrDefaultAsync<string>(
+                    sql: @"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam",
+                    param: new
+                    {
+                        idpdam = settings.IdPdam
+                    },
+                    transaction: trans);
             });
-
-            AnsiConsole.WriteLine();
-            AnsiConsole.WriteLine($"Tools Migrasi Data v{Assembly.GetExecutingAssembly().GetName().Version}");
-            AnsiConsole.WriteLine($"{settings.IdPdam} {namaPdam} {AppSettings.Environment}");
-            AnsiConsole.WriteLine();
+            Console.WriteLine($"{settings.IdPdam} {namaPdam} ({AppSettings.Environment})");
 
             var selectedProses = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
@@ -1381,13 +543,11 @@ namespace Migrasi.Commands
             var prosesPelanggan = selectedProses.Exists(s => s == PROSES_DATA_PELANGGAN);
             var prosesRekening = selectedProses.Exists(s => s == PROSES_REKENING);
 
-            AnsiConsole.WriteLine();
             AnsiConsole.WriteLine($"Paket: {settings.NamaPaket}");
             AnsiConsole.WriteLine("Proses dipilih:");
             AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
-            AnsiConsole.WriteLine();
 
-            if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
+            if (!Utils.ConfirmationPrompt(message: "Yakin untuk melanjutkan?", defaultChoice: false))
             {
                 return 0;
             }
@@ -1397,16 +557,21 @@ namespace Migrasi.Commands
                 await AnsiConsole.Status()
                     .StartAsync("Sedang diproses...", async ctx =>
                     {
-                        await Utils.TrackProgress("tambah idpelanggan", async () =>
+                        await Utils.TrackProgress("Tambah idpelanggan di bsbs tabel pelanggan", async () =>
                         {
                             await Utils.BsbsConnectionWrapper(async (conn, trans) =>
                             {
-                                var cek = await conn.QueryFirstOrDefaultAsync<int?>("SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
-                                    new { schema = AppSettings.DatabaseBsbs }, trans);
+                                var cek = await conn.QueryFirstOrDefaultAsync<int?>(
+                                    sql: "SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
+                                    param: new
+                                    {
+                                        schema = AppSettings.BsbsDatabase
+                                    },
+                                    transaction: trans);
                                 if (cek is null)
                                 {
                                     var query = await File.ReadAllTextAsync(@"Queries\patches\tambah_field_id_tabel_pelanggan.sql");
-                                    await conn.ExecuteAsync(query, transaction: trans, commandTimeout: AppSettings.CommandTimeout);
+                                    await conn.ExecuteAsync(query, transaction: trans);
                                 }
                             });
                         });
@@ -1416,7 +581,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_flag", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     queryPath: @"Queries\bacameter\master_attribute_flag.sql",
                                     table: "master_attribute_flag",
@@ -1428,7 +593,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_status", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_status",
                                     queryPath: @"Queries\bacameter\master_attribute_status.sql",
@@ -1440,7 +605,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_jenis_bangunan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_jenis_bangunan",
                                     queryPath: @"Queries\bacameter\master_attribute_jenis_bangunan.sql",
@@ -1452,7 +617,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_kepemilikan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_kepemilikan",
                                     queryPath: @"Queries\bacameter\master_attribute_kepemilikan.sql",
@@ -1464,7 +629,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_pekerjaan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_pekerjaan",
                                     queryPath: @"Queries\bacameter\master_attribute_pekerjaan.sql",
@@ -1476,7 +641,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_peruntukan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_peruntukan",
                                     queryPath: @"Queries\bacameter\master_attribute_peruntukan.sql",
@@ -1488,7 +653,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_jenis_pipa", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_jenis_pipa",
                                     queryPath: @"Queries\bacameter\master_attribute_jenis_pipa.sql",
@@ -1500,7 +665,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_kwh", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_kwh",
                                     queryPath: @"Queries\bacameter\master_attribute_kwh.sql",
@@ -1512,7 +677,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_tarif_golongan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_tarif_golongan",
                                     queryPath: @"Queries\bacameter\master_tarif_golongan.sql",
@@ -1524,7 +689,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_tarif_golongan_detail", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_tarif_golongan_detail",
                                     queryPath: @"Queries\bacameter\master_tarif_golongan_detail.sql",
@@ -1536,7 +701,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_tarif_diameter", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_tarif_diameter",
                                     queryPath: @"Queries\bacameter\master_tarif_diameter.sql",
@@ -1548,7 +713,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_tarif_diameter_detail", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_tarif_diameter_detail",
                                     queryPath: @"Queries\bacameter\master_tarif_diameter_detail.sql",
@@ -1560,7 +725,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_wilayah", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_wilayah",
                                     queryPath: @"Queries\bacameter\master_attribute_wilayah.sql",
@@ -1572,7 +737,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_area", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_area",
                                     queryPath: @"Queries\bacameter\master_attribute_area.sql",
@@ -1584,7 +749,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_rayon", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_rayon",
                                     queryPath: @"Queries\bacameter\master_attribute_rayon.sql",
@@ -1596,7 +761,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_blok", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_blok",
                                     queryPath: @"Queries\bacameter\master_attribute_blok.sql",
@@ -1608,7 +773,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_cabang", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_cabang",
                                     queryPath: @"Queries\bacameter\master_attribute_cabang.sql",
@@ -1620,7 +785,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_kecamatan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_kecamatan",
                                     queryPath: @"Queries\bacameter\master_attribute_kecamatan.sql",
@@ -1632,7 +797,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_kelurahan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_kelurahan",
                                     queryPath: @"Queries\bacameter\master_attribute_kelurahan.sql",
@@ -1644,7 +809,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_dma", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_dma",
                                     queryPath: @"Queries\bacameter\master_attribute_dma.sql",
@@ -1656,7 +821,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_dmz", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_dmz",
                                     queryPath: @"Queries\bacameter\master_attribute_dmz.sql",
@@ -1668,7 +833,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_tarif_administrasi_lain", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_tarif_administrasi_lain",
                                     queryPath: @"Queries\bacameter\master_tarif_administrasi_lain.sql",
@@ -1680,7 +845,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_tarif_pemeliharaan_lain", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_tarif_pemeliharaan_lain",
                                     queryPath: @"Queries\bacameter\master_tarif_pemeliharaan_lain.sql",
@@ -1692,7 +857,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_tarif_retribusi_lain", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_tarif_retribusi_lain",
                                     queryPath: @"Queries\bacameter\master_tarif_retribusi_lain.sql",
@@ -1704,7 +869,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_kolektif", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_kolektif",
                                     queryPath: @"Queries\bacameter\master_attribute_kolektif.sql",
@@ -1716,7 +881,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_sumber_air", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_sumber_air",
                                     queryPath: @"Queries\bacameter\master_attribute_sumber_air.sql",
@@ -1728,7 +893,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_merek_meter", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_merek_meter",
                                     queryPath: @"Queries\bacameter\master_attribute_merek_meter.sql",
@@ -1740,7 +905,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_kondisi_meter", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_kondisi_meter",
                                     queryPath: @"Queries\bacameter\master_attribute_kondisi_meter.sql",
@@ -1752,7 +917,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_kelainan", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBacameter,
+                                    sourceConnection: AppSettings.BacameterConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_kelainan",
                                     queryPath: @"Queries\bacameter\master_attribute_kelainan.sql",
@@ -1764,7 +929,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_attribute_petugas_baca", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBacameter,
+                                    sourceConnection: AppSettings.BacameterConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_attribute_petugas_baca",
                                     queryPath: @"Queries\bacameter\master_attribute_petugas_baca.sql",
@@ -1776,7 +941,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_periode", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_periode",
                                     queryPath: @"Queries\bacameter\master_periode.sql",
@@ -1788,7 +953,7 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_periode_billing", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_periode_billing",
                                     queryPath: @"Queries\bacameter\master_periode_billing.sql",
@@ -1873,23 +1038,19 @@ namespace Migrasi.Commands
                             await Utils.TrackProgress("master_pelanggan_air", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_pelanggan_air",
                                     queryPath: @"Queries\bacameter\master_pelanggan_air.sql",
                                     parameters: new()
                                     {
                                                 { "@idpdam", settings.IdPdam }
-                                    },
-                                    placeholders: new()
-                                    {
-                                                { "[bacameter]", AppSettings.DatabaseBacameter }
                                     });
                             });
                             await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
                             {
                                 await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.ConnectionStringBsbs,
+                                    sourceConnection: AppSettings.BsbsConnectionString,
                                     targetConnection: AppSettings.MainConnectionString,
                                     table: "master_pelanggan_air_detail",
                                     queryPath: @"Queries\bacameter\master_pelanggan_air_detail.sql",
@@ -1909,7 +1070,7 @@ namespace Migrasi.Commands
                             });
 
                             await Utils.BulkCopy(
-                                sourceConnection: AppSettings.ConnectionStringBsbs,
+                                sourceConnection: AppSettings.BsbsConnectionString,
                                 targetConnection: AppSettings.MainConnectionString,
                                 table: "rekening_air",
                                 queryPath: @"Queries\bacameter\drd.sql",
@@ -1917,28 +1078,16 @@ namespace Migrasi.Commands
                                 {
                                     { "@idpdam", settings.IdPdam },
                                     { "@lastid", lastId },
-                                },
-                                placeholders: new()
-                                {
-                                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                                    { "[loket]", AppSettings.LoketDatabase },
                                 });
 
                             await Utils.BulkCopy(
-                                sourceConnection: AppSettings.ConnectionStringBsbs,
+                                sourceConnection: AppSettings.BsbsConnectionString,
                                 targetConnection: AppSettings.MainConnectionString,
                                 table: "rekening_air_detail",
                                 queryPath: @"Queries\bacameter\drd_detail.sql",
                                 parameters: new()
                                 {
                                     { "@idpdam", settings.IdPdam }
-                                },
-                                placeholders: new()
-                                {
-                                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                                    { "[loket]", AppSettings.LoketDatabase },
                                 });
                         }
                     });
@@ -1957,7 +1106,7 @@ namespace Migrasi.Commands
         {
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_blok",
                 query: @"select * from master_attribute_blok where idpdam=@idpdam",
                 parameters: new()
@@ -1967,7 +1116,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_jenis_bangunan",
                 query: @"select * from master_attribute_jenis_bangunan where idpdam=@idpdam",
                 parameters: new()
@@ -1977,7 +1126,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_jenis_nonair",
                 query: @"select * from master_attribute_jenis_nonair where idpdam=@idpdam",
                 parameters: new()
@@ -1987,7 +1136,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_kelainan",
                 query: @"select * from master_attribute_kelainan where idpdam=@idpdam",
                 parameters: new()
@@ -1997,7 +1146,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_kelurahan",
                 query: @"select * from master_attribute_kelurahan where idpdam=@idpdam",
                 parameters: new()
@@ -2007,7 +1156,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_kepemilikan",
                 query: @"select * from master_attribute_kepemilikan where idpdam=@idpdam",
                 parameters: new()
@@ -2017,7 +1166,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_kolektif",
                 query: @"select * from master_attribute_kolektif where idpdam=@idpdam",
                 parameters: new()
@@ -2027,7 +1176,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_kondisi_meter",
                 query: @"select * from master_attribute_kondisi_meter where idpdam=@idpdam",
                 parameters: new()
@@ -2037,7 +1186,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_kwh",
                 query: @"select * from master_attribute_kwh where idpdam=@idpdam",
                 parameters: new()
@@ -2047,7 +1196,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_loket",
                 query: @"select * from master_attribute_loket where idpdam=@idpdam",
                 parameters: new()
@@ -2057,7 +1206,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_material",
                 query: @"select * from master_attribute_material where idpdam=@idpdam",
                 parameters: new()
@@ -2067,7 +1216,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_material_paket",
                 query: @"select * from master_attribute_material_paket where idpdam=@idpdam",
                 parameters: new()
@@ -2077,7 +1226,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_material_paket_detail",
                 query: @"select * from master_attribute_material_paket_detail where idpdam=@idpdam",
                 parameters: new()
@@ -2087,7 +1236,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_merek_meter",
                 query: @"select * from master_attribute_merek_meter where idpdam=@idpdam",
                 parameters: new()
@@ -2097,7 +1246,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_ongkos",
                 query: @"select * from master_attribute_ongkos where idpdam=@idpdam",
                 parameters: new()
@@ -2107,7 +1256,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_ongkos_paket",
                 query: @"select * from master_attribute_ongkos_paket where idpdam=@idpdam",
                 parameters: new()
@@ -2117,7 +1266,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_ongkos_paket_detail",
                 query: @"select * from master_attribute_ongkos_paket_detail where idpdam=@idpdam",
                 parameters: new()
@@ -2127,7 +1276,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_paket",
                 query: @"select * from master_attribute_paket where idpdam=@idpdam",
                 parameters: new()
@@ -2137,7 +1286,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_pekerjaan",
                 query: @"select * from master_attribute_pekerjaan where idpdam=@idpdam",
                 parameters: new()
@@ -2147,7 +1296,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_peruntukan",
                 query: @"
                 SELECT
@@ -2172,7 +1321,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_petugas_baca",
                 query: @"select * from master_attribute_petugas_baca where idpdam=@idpdam",
                 parameters: new()
@@ -2182,7 +1331,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_rayon",
                 query: @"select * from master_attribute_rayon where idpdam=@idpdam",
                 parameters: new()
@@ -2192,7 +1341,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_sumber_air",
                 query: @"select * from master_attribute_sumber_air where idpdam=@idpdam",
                 parameters: new()
@@ -2202,7 +1351,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_tipe_pendaftaran_sambungan",
                 query: @"select * from master_attribute_tipe_pendaftaran_sambungan where idpdam=@idpdam",
                 parameters: new()
@@ -2212,7 +1361,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_tipe_permohonan",
                 query: @"
                 SELECT
@@ -2249,7 +1398,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_attribute_warna_segel",
                 query: @"
                 REPLACE INTO master_attribute_warna_segel VALUES
@@ -2268,7 +1417,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_periode",
                 query: @"select * from master_periode where idpdam=@idpdam",
                 parameters: new()
@@ -2278,7 +1427,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_tarif_diameter",
                 query: @"select * from master_tarif_diameter where idpdam=@idpdam",
                 parameters: new()
@@ -2288,7 +1437,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_tarif_golongan",
                 query: @"select * from master_tarif_golongan where idpdam=@idpdam",
                 parameters: new()
@@ -2298,7 +1447,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "master_user",
                 query: @"select * from master_user where idpdam=@idpdam",
                 parameters: new()
@@ -2308,7 +1457,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "personalia_master_attribute_urusan_pegawai",
                 query: @"select * from personalia_master_attribute_urusan_pegawai where idpdam=@idpdam",
                 parameters: new()
@@ -2318,7 +1467,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_master_pelanggan_air",
                 query: @"SELECT idpdam,`idpelangganair`,`nosamb` FROM `master_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -2328,7 +1477,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_rekening_nonair",
                 query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -2338,7 +1487,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_non_pelanggan",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -2348,7 +1497,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -2358,7 +1507,7 @@ namespace Migrasi.Commands
 
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_koreksi_data",
                 query: @"SELECT idpdam,`idkoreksi`,nomor FROM `master_pelanggan_air_riwayat_koreksi` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -2377,17 +1526,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["rekening_nonair"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_rekening_nonair",
                 query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -2403,12 +1547,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["rekening_nonair_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -2418,12 +1557,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["rekening_nonair_transaksi"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -2433,12 +1567,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["rekening_nonair_transaksi"]);
+                });
         }
         private async Task NonairTahun(Settings settings)
         {
@@ -2538,11 +1667,6 @@ namespace Migrasi.Commands
                                     { "@periode", periode },
                                     { "@lastid", lastId },
                                     { "@cutoff", settings.Cutoff },
-                                },
-                                placeholders: new()
-                                {
-                                    { "[table]", $"nonair{tahun}" },
-                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
 
@@ -2559,10 +1683,6 @@ namespace Migrasi.Commands
                                     { "@periode", periode },
                                     { "@lastid", lastId },
                                     { "@cutoff", settings.Cutoff },
-                                },
-                                placeholders: new()
-                                {
-                                    { "[table]", $"nonair{tahun}" },
                                 });
                         });
 
@@ -2579,12 +1699,6 @@ namespace Migrasi.Commands
                                     { "@periode", periode },
                                     { "@lastid", lastId },
                                     { "@cutoff", settings.Cutoff },
-                                },
-                                placeholders: new()
-                                {
-                                    { "[table]", $"nonair{tahun}" },
-                                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
                     }
@@ -2601,12 +1715,6 @@ namespace Migrasi.Commands
                                 { "@idpdam", settings.IdPdam },
                                 { "@lastid", lastId },
                                 { "@cutoff", settings.Cutoff },
-                            },
-                            placeholders: new()
-                            {
-                                { "[table]", $"nonair{tahun}" },
-                                { "[bacameter]", AppSettings.DatabaseBacameter },
-                                { "[bsbs]", AppSettings.DatabaseBsbs },
                             });
                     });
                 });
@@ -2618,8 +1726,7 @@ namespace Migrasi.Commands
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
-                        transaction: trans,
-                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                        transaction: trans);
                 });
             });
 
@@ -2645,14 +1752,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["rekening_air"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -2662,14 +1762,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["rekening_air_detail"]);
+                });
         }
         private async Task BayarTahun(Settings settings)
         {
@@ -2723,12 +1816,6 @@ namespace Migrasi.Commands
                                     { "@lastid", lastId },
                                     { "@periode", periode },
                                     { "@cutoff", settings.Cutoff },
-                                },
-                                placeholders: new()
-                                {
-                                    { "[table]", $"bayar{tahun}" },
-                                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
 
@@ -2744,11 +1831,6 @@ namespace Migrasi.Commands
                                     { "@idpdam", settings.IdPdam },
                                     { "@periode", periode },
                                     { "@cutoff", settings.Cutoff },
-                                },
-                                placeholders: new()
-                                {
-                                    { "[table]", $"bayar{tahun}" },
-                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
 
@@ -2764,12 +1846,6 @@ namespace Migrasi.Commands
                                     { "@idpdam", settings.IdPdam },
                                     { "@periode", periode },
                                     { "@cutoff", settings.Cutoff },
-                                },
-                                placeholders: new()
-                                {
-                                    { "[table]", $"bayar{tahun}" },
-                                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                                    { "[bsbs]", AppSettings.DatabaseBsbs },
                                 });
                         });
                     }
@@ -2785,11 +1861,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@cutoff", settings.Cutoff },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
         }
         private static async Task Bayar(Settings settings)
@@ -2811,14 +1882,7 @@ namespace Migrasi.Commands
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@lastid", lastId },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                        { "[dataawal]", AppSettings.DataAwalDatabase },
-                    },
-                    columnMappings: ColumnMappings["rekening_air"]);
+                    });
             });
 
             await Utils.TrackProgress($"bayar|rekening_air_detail", async () =>
@@ -2831,14 +1895,7 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                        { "[dataawal]", AppSettings.DataAwalDatabase },
-                    },
-                    columnMappings: ColumnMappings["rekening_air_detail"]);
+                    });
             });
 
             await Utils.TrackProgress($"bayar|rekening_air_transaksi", async () =>
@@ -2851,32 +1908,21 @@ namespace Migrasi.Commands
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
-                        { "[dataawal]", AppSettings.DataAwalDatabase },
-                    },
-                    columnMappings: ColumnMappings["rekening_air_transaksi"]);
+                    });
             });
 
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_air_transaksi",
-                queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["rekening_air_transaksi"]);
+            await Utils.TrackProgress("bayar batal|rekening_air_transaksi", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_air_transaksi",
+                    queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
         }
         private async Task RabLainnyaPelanggan(Settings settings)
         {
@@ -2998,11 +2044,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3014,11 +2055,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             //await Utils.BulkCopy(
@@ -3042,11 +2078,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3126,11 +2157,6 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
                     { "@tipepermohonan", tipe },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3153,11 +2179,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3169,11 +2190,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3236,11 +2252,6 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
                     { "@tipepermohonan", tipe },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3263,11 +2274,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3279,11 +2285,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3347,10 +2348,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@cutoff", settings.Cutoff },
-                },
-                placeholders: new()
-                {
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3373,11 +2370,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@cutoff", settings.Cutoff },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -3389,11 +2381,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@cutoff", settings.Cutoff },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.TrackProgress($"angsuran nonair|patch0", async () =>
@@ -3402,8 +2389,7 @@ namespace Migrasi.Commands
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
-                        transaction: trans,
-                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                        transaction: trans);
                 });
             });
 
@@ -3413,8 +2399,7 @@ namespace Migrasi.Commands
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\angsuran_nonair\patch.sql"),
-                        transaction: trans,
-                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                        transaction: trans);
                 });
             });
 
@@ -3452,11 +2437,6 @@ namespace Migrasi.Commands
                         { "@idpdam", settings.IdPdam },
                         { "@lastid", lastId },
                         { "@cutoff", settings.Cutoff },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
             });
 
@@ -3471,10 +2451,6 @@ namespace Migrasi.Commands
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@cutoff", settings.Cutoff },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
             });
 
@@ -3496,11 +2472,6 @@ namespace Migrasi.Commands
                         { "@idpdam", settings.IdPdam },
                         { "@lastid", lastId },
                         { "@cutoff", settings.Cutoff },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
             });
 
@@ -3515,10 +2486,6 @@ namespace Migrasi.Commands
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@cutoff", settings.Cutoff },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
             });
 
@@ -3540,11 +2507,6 @@ namespace Migrasi.Commands
                         { "@idpdam", settings.IdPdam },
                         { "@jnsnonair", jnsNonair },
                         { "@cutoff", settings.Cutoff },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
             });
 
@@ -3559,11 +2521,6 @@ namespace Migrasi.Commands
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@cutoff", settings.Cutoff },
-                    },
-                    placeholders: new()
-                    {
-                        { "[bacameter]", AppSettings.DatabaseBacameter },
-                        { "[bsbs]", AppSettings.DatabaseBsbs },
                     });
             });
 
@@ -3573,8 +2530,7 @@ namespace Migrasi.Commands
                 {
                     await conn.ExecuteAsync(
                         sql: await File.ReadAllTextAsync(@"Queries\angsuran_air\patch.sql"),
-                        transaction: trans,
-                        commandTimeout: (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                        transaction: trans);
                 });
             });
         }
@@ -3588,17 +2544,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["master_pelanggan_air_riwayat_koreksi"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_koreksi_data",
                 query: @"SELECT idpdam,`idkoreksi`,nomor FROM `master_pelanggan_air_riwayat_koreksi` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -3640,19 +2591,14 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastIdKoreksiDetail },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["master_pelanggan_air_riwayat_koreksi_detail"]);
+                });
         }
         private async Task Report(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_label_report", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_label_report",
                     queryPath: @"Queries\master\report\master_attribute_label_report.sql",
@@ -3665,7 +2611,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("master_report_maingroup", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_report_maingroup",
                     queryPath: @"Queries\master\report\master_report_maingroup.sql",
@@ -3678,7 +2624,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("master_report_subgroup", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_report_subgroup",
                     queryPath: @"Queries\master\report\master_report_subgroup.sql");
@@ -3687,7 +2633,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_api", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_api",
                     queryPath: @"Queries\master\report\report_api.sql");
@@ -3696,7 +2642,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_models", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_models",
                     queryPath: @"Queries\master\report\report_models.sql",
@@ -3709,7 +2655,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_model_sources", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_sources",
                     queryPath: @"Queries\master\report\report_model_sources.sql",
@@ -3722,7 +2668,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_model_sorts", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_sorts",
                     queryPath: @"Queries\master\report\report_model_sorts.sql",
@@ -3735,7 +2681,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_model_props", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_props",
                     queryPath: @"Queries\master\report\report_model_props.sql",
@@ -3748,7 +2694,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_model_params", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_params",
                     queryPath: @"Queries\master\report\report_model_params.sql",
@@ -3761,7 +2707,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_filter_custom", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_filter_custom",
                     queryPath: @"Queries\master\report\report_filter_custom.sql");
@@ -3770,7 +2716,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("report_filter_custom_detail", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_filter_custom_detail",
                     queryPath: @"Queries\master\report\report_filter_custom_detail.sql");
@@ -3906,7 +2852,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("master_attribute_tipe_permohonan", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan",
                     queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan.sql",
@@ -3919,7 +2865,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("master_attribute_tipe_permohonan_detail", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan_detail",
                     queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail.sql",
@@ -3932,7 +2878,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("master_attribute_tipe_permohonan_detail_ba", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan_detail_ba",
                     queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_ba.sql",
@@ -3945,7 +2891,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("master_attribute_tipe_permohonan_detail_spk", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan_detail_spk",
                     queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_spk.sql",
@@ -3965,15 +2911,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                columnMappings:
-                [
-                    new(0, "idpdam"),
-                    new(1, "idflag"),
-                    new(2, "namaflag"),
-                    new(3, "flaghapus"),
-                    new(4, "waktuupdate"),
-                ]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.MainConnectionString,
@@ -3983,19 +2921,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                columnMappings:
-                [
-                    new(0, "idpdam"),
-                    new(1, "idstatus"),
-                    new(2, "namastatus"),
-                    new(3, "rekening_air_include"),
-                    new(4, "rekening_limbah_include"),
-                    new(5, "rekening_lltt_include"),
-                    new(6, "tanpabiayapemakaianair"),
-                    new(7, "flaghapus"),
-                    new(8, "waktuupdate"),
-                ]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4283,10 +3209,6 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
                 });
 
             await Utils.BulkCopy(
@@ -4297,10 +3219,6 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
                 });
 
             await Utils.BulkCopy(
@@ -4414,12 +3332,6 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
-                    { "[loket]", AppSettings.LoketDatabase },
                 });
 
             await Utils.BulkCopy(
@@ -4450,25 +3362,14 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                columnMappings:
-                [
-                    new(0, "idpdam"),
-                    new(1, "idpegawai"),
-                    new(2, "nomorindukpegawai"),
-                    new(3, "namapegawai"),
-                    new(4, "alamatktp"),
-                    new(5, "flagaktif"),
-                    new(6, "flaghapus"),
-                    new(7, "waktuupdate"),
-                ]);
+                });
         }
         private async Task JenisNonair(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_jenis_nonair", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_jenis_nonair",
                     queryPath: @"Queries\master\jenis_nonair\master_attribute_jenis_nonair.sql",
@@ -4481,7 +3382,7 @@ namespace Migrasi.Commands
             await Utils.TrackProgress("master_attribute_jenis_nonair_detail", async () =>
             {
                 await Utils.BulkCopy(
-                    sourceConnection: AppSettings.ConnectionStringStaging,
+                    sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_jenis_nonair_detail",
                     queryPath: @"Queries\master\jenis_nonair\master_attribute_jenis_nonair_detail.sql",
@@ -4553,10 +3454,6 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
                     { "@tipepermohonan", rotasimeter.idtipepermohonan },
-                },
-                placeholders: new()
-                {
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -4567,11 +3464,6 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -4583,11 +3475,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@jenisnonair", rotasimeter.idjenisnonair },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -4609,11 +3496,6 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -4624,11 +3506,6 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.LoketConnectionWrapper(async (conn, trans) =>
@@ -4683,11 +3560,6 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
                     { "@tipepermohonan", rotasimeter },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBsbs },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -4699,11 +3571,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -4715,11 +3582,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -4731,11 +3593,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.LoketConnectionWrapper(async (conn, trans) =>
@@ -4756,17 +3613,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawaal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -4811,12 +3663,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_koreksi_rekening"]);
+                });
         }
         private static async Task SambungBaru(Settings settings)
         {
@@ -4828,17 +3675,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan"]);
+                });
 
             //copy lg supaya dapet yg terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_non_pelanggan",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_non_pelanggan` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -4854,12 +3696,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4869,12 +3706,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_spk"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4884,12 +3716,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_spk_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4899,12 +3726,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_rab"]);
+                });
 
             var lastIdRabDetail = 0;
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -4943,12 +3765,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastIdRabDetail },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_rab_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4958,12 +3775,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_spk_pasang"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4973,12 +3785,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_ba"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -4988,12 +3795,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_non_pelanggan_ba_detail"]);
+                });
         }
         private static async Task BukaSegel(Settings settings)
         {
@@ -5005,17 +3807,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -5031,12 +3828,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5046,12 +3838,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_pasang"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5061,12 +3848,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5076,12 +3858,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
+                });
         }
         private static async Task SambungKembali(Settings settings)
         {
@@ -5093,17 +3870,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
+                });
 
             //copy lg supaya dapet yg terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -5119,12 +3891,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5134,12 +3901,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5149,12 +3911,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5164,12 +3921,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_rab"]);
+                });
 
             var lastIdRabDetail = 0;
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -5208,12 +3960,7 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastIdRabDetail },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_rab_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5223,12 +3970,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_pasang"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5238,12 +3980,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5253,12 +3990,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
+                });
         }
         private static async Task RubahRayon(Settings settings)
         {
@@ -5270,17 +4002,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -5296,12 +4023,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5311,12 +4033,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5326,12 +4043,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
+                });
         }
         private static async Task RubahTarif(Settings settings)
         {
@@ -5343,17 +4055,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -5369,12 +4076,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5384,12 +4086,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5399,12 +4096,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5414,12 +4106,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5429,12 +4116,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
+                });
         }
         private static async Task BalikNama(Settings settings)
         {
@@ -5446,17 +4128,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -5472,12 +4149,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5487,12 +4159,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
+                });
         }
         private static async Task TutupTotal(Settings settings)
         {
@@ -5504,17 +4171,12 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air"]);
+                });
 
             //copy terbaru
             await Utils.CopyToDiffrentHost(
                 sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.DataAwalConnectionString,
+                targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
                 query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
@@ -5530,12 +4192,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_detail"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5545,12 +4202,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5560,12 +4212,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_spk_pasang"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5575,12 +4222,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba"]);
+                });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -5590,12 +4232,7 @@ namespace Migrasi.Commands
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                },
-                placeholders: new()
-                {
-                    { "[dataawal]", AppSettings.DataAwalDatabase },
-                },
-                columnMappings: ColumnMappings["permohonan_pelanggan_air_ba_detail"]);
+                });
         }
         private async Task PengaduanPelanggan(Settings settings)
         {
@@ -5680,11 +4317,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -5718,11 +4350,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -5734,11 +4361,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -5793,8 +4415,7 @@ namespace Migrasi.Commands
                     {
                         idpdam = settings.IdPdam,
                     },
-                    transaction: trans,
-                    commandTimeout: (int)TimeSpan.FromHours(1).TotalSeconds);
+                    transaction: trans);
             });
 
             await Utils.LoketConnectionWrapper(async (conn, trans) =>
@@ -5885,11 +4506,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -5912,11 +4528,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(
@@ -5928,11 +4539,6 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                     { "@lastid", lastId },
-                },
-                placeholders: new()
-                {
-                    { "[bacameter]", AppSettings.DatabaseBacameter },
-                    { "[bsbs]", AppSettings.DatabaseBsbs },
                 });
 
             await Utils.BulkCopy(

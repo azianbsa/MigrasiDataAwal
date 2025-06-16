@@ -10,10 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BacameterOnly", "BacameterOnly\BacameterOnly.csproj", "{56776EE5-906F-4288-BE85-385DC6066B60}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basic", "Basic\Basic.csproj", "{5750ABE5-83C6-4AED-A31F-145D97DD4957}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,14 +20,6 @@ Global
 		{3A26BC5B-DC4D-4539-9F63-BEB3E242A0CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A26BC5B-DC4D-4539-9F63-BEB3E242A0CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A26BC5B-DC4D-4539-9F63-BEB3E242A0CC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{56776EE5-906F-4288-BE85-385DC6066B60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{56776EE5-906F-4288-BE85-385DC6066B60}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{56776EE5-906F-4288-BE85-385DC6066B60}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{56776EE5-906F-4288-BE85-385DC6066B60}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5750ABE5-83C6-4AED-A31F-145D97DD4957}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5750ABE5-83C6-4AED-A31F-145D97DD4957}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5750ABE5-83C6-4AED-A31F-145D97DD4957}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5750ABE5-83C6-4AED-A31F-145D97DD4957}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

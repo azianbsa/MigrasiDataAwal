@@ -1,5 +1,5 @@
 ﻿SELECT
- @idpdam,
+ @idpdam AS idpdam,
  -1 AS iddmz,
  '-' AS kodedmz,
  '-' AS namadmz,

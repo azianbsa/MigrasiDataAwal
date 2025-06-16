@@ -1,5 +1,5 @@
 ﻿SELECT
-@idpdam,
+@idpdam AS idpdam,
 @id:=@id+1 AS idjenisbangunan,
 jenis AS namajenisbangunan,
 0 AS flaghapus,
@@ -10,7 +10,7 @@ FROM
 WHERE `jenis`<>'-'
 UNION ALL
 SELECT
-@idpdam,
+@idpdam AS idpdam,
 -1 AS idjenisbangunan,
 '-' AS namajenisbangunan,
 0 AS flaghapus,
