@@ -27,6 +27,9 @@
     <None Update=".env.example">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="column_mappings_seeder.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\air_tangki_pelanggan\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
