@@ -33,6 +33,8 @@ namespace Migrasi
                         .WithDescription("Setup new pdam untuk paket bacameter only");
                     config.AddCommand<PaketCommand>("paket")
                         .WithDescription("Migrasi data paket bacameter only, basic");
+                    config.AddCommand<GenerateExampleQueryCommand>("example")
+                        .WithDescription("Generate contoh query");
                 });
                 return app.Run(args);
             }
