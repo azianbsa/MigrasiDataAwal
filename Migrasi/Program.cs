@@ -33,9 +33,7 @@ namespace Migrasi
                     config.PropagateExceptions();
 #endif
                     config.AddCommand<NewCommand>("new")
-                        .WithDescription("Setup new pdam untuk paket basic");
-                    config.AddCommand<NewBacameterCommand>("new-bacameter")
-                        .WithDescription("Setup new pdam untuk paket bacameter only");
+                        .WithDescription("Setup pdam baru");
                     config.AddCommand<BacameterCommand>("bacameter")
                         .WithDescription("Migrasi data bacameter");
                     config.AddCommand<BasicCommand>("basic")
