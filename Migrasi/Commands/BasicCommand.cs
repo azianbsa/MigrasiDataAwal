@@ -6,43 +6,17 @@ using Sprache;
 
 namespace Migrasi.Commands
 {
-    public class PaketCommand : AsyncCommand<PaketCommand.Settings>
+    public class BasicCommand : AsyncCommand<BasicCommand.Settings>
     {
         public class Settings : CommandSettings
         {
-            [CommandOption("-i|--idpdam")]
+            [CommandArgument(0, "<idpdam>")]
             public int? IdPdam { get; set; }
-
-            [CommandOption("-n|--nama-paket")]
-            public Paket? NamaPaket { get; set; }
-
-            [CommandOption("-c|--cutoff")]
-            public string Cutoff { get; set; } = DateTime.Now.AddDays(-1).Date.ToString(format: "yyyy-MM-dd");
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            settings.IdPdam ??= AnsiConsole.Ask<int>("ID PDAM:");
-            settings.NamaPaket ??= AnsiConsole.Prompt(
-                new SelectionPrompt<Paket>()
-                .Title("Pilih Paket:")
-                .AddChoices([Paket.Bacameter, Paket.Basic]));
-
-            switch (settings.NamaPaket)
-            {
-                case Paket.Bacameter:
-                    {
-                        await Bacameter(settings);
-                        break;
-                    }
-                case Paket.Basic:
-                    {
-                        await Basic(settings);
-                        break;
-                    }
-                default:
-                    break;
-            }
+            await Basic(settings);
 
             return 0;
         }
@@ -87,17 +61,16 @@ namespace Migrasi.Commands
             {
                 namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
             });
-
-            AnsiConsole.WriteLine();
-            AnsiConsole.WriteLine($"Environment: {AppSettings.Environment}");
+            
+            Console.WriteLine();
             AnsiConsole.WriteLine($"{settings.IdPdam} {namaPdam}");
-            AnsiConsole.WriteLine();
 
             var selectedProses = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
-                .Title("Pilih proses")
-                .NotRequired()
+                .Title("Pilih proses:")
+                .Required()
                 .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
+                .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
                 .AddChoices(prosesList));
 
             var prosesMaster = selectedProses.Exists(s => s == MASTER_DATA);
@@ -115,11 +88,8 @@ namespace Migrasi.Commands
             var prosesPermohonanRubahRayon = selectedProses.Exists(s => s == PERMOHONAN_RUBAH_RAYON);
             var prosesPermohonanSambungKembali = selectedProses.Exists(s => s == PERMOHONAN_SAMBUNG_KEMBALI);
 
-            AnsiConsole.WriteLine();
-            AnsiConsole.WriteLine($"Paket: {settings.NamaPaket}");
             AnsiConsole.WriteLine("Proses dipilih:");
             AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
-            AnsiConsole.WriteLine();
 
             if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
             {
@@ -247,602 +217,6 @@ namespace Migrasi.Commands
 
                         }
                     });
-
-                return 0;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        private static async Task<int> Bacameter(Settings settings)
-        {
-            const string PROSES_DATA_MASTER = "Proses data master";
-            const string PROSES_DATA_PELANGGAN = "Proses data pelanggan";
-            const string PROSES_REKENING = "Proses rekening";
-
-            List<string> prosesList =
-            [
-                PROSES_DATA_MASTER,
-                PROSES_DATA_PELANGGAN,
-                PROSES_REKENING,
-            ];
-
-            string? namaPdam = "";
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
-            {
-                namaPdam = await conn.QueryFirstOrDefaultAsync<string>(
-                    sql: @"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam",
-                    param: new
-                    {
-                        idpdam = settings.IdPdam
-                    },
-                    transaction: trans);
-            });
-            Console.WriteLine($"{settings.IdPdam} {namaPdam} ({AppSettings.Environment})");
-
-            var selectedProses = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                .Title("Pilih proses")
-                .NotRequired()
-                .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
-                .AddChoices(prosesList));
-
-            var prosesMaster = selectedProses.Exists(s => s == PROSES_DATA_MASTER);
-            var prosesPelanggan = selectedProses.Exists(s => s == PROSES_DATA_PELANGGAN);
-            var prosesRekening = selectedProses.Exists(s => s == PROSES_REKENING);
-
-            AnsiConsole.WriteLine($"Paket: {settings.NamaPaket}");
-            AnsiConsole.WriteLine("Proses dipilih:");
-            AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
-
-            if (!Utils.ConfirmationPrompt(message: "Yakin untuk melanjutkan?", defaultChoice: false))
-            {
-                return 0;
-            }
-
-            try
-            {
-                await AnsiConsole.Status()
-                    .StartAsync("Sedang diproses...", async ctx =>
-                    {
-                        await Utils.TrackProgress("Tambah idpelanggan di bsbs tabel pelanggan", async () =>
-                        {
-                            await Utils.BsbsConnectionWrapper(async (conn, trans) =>
-                            {
-                                var cek = await conn.QueryFirstOrDefaultAsync<int?>(
-                                    sql: "SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
-                                    param: new
-                                    {
-                                        schema = AppSettings.BsbsDatabase
-                                    },
-                                    transaction: trans);
-                                if (cek is null)
-                                {
-                                    var query = await File.ReadAllTextAsync(@"Queries\patches\tambah_field_id_tabel_pelanggan.sql");
-                                    await conn.ExecuteAsync(query, transaction: trans);
-                                }
-                            });
-                        });
-
-                        if (prosesMaster)
-                        {
-                            await Utils.TrackProgress("master_attribute_flag", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    queryPath: @"Queries\bacameter\master_attribute_flag.sql",
-                                    table: "master_attribute_flag",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_status", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_status",
-                                    queryPath: @"Queries\bacameter\master_attribute_status.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_jenis_bangunan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_jenis_bangunan",
-                                    queryPath: @"Queries\bacameter\master_attribute_jenis_bangunan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_kepemilikan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_kepemilikan",
-                                    queryPath: @"Queries\bacameter\master_attribute_kepemilikan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_pekerjaan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_pekerjaan",
-                                    queryPath: @"Queries\bacameter\master_attribute_pekerjaan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_peruntukan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_peruntukan",
-                                    queryPath: @"Queries\bacameter\master_attribute_peruntukan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_jenis_pipa", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_jenis_pipa",
-                                    queryPath: @"Queries\bacameter\master_attribute_jenis_pipa.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_kwh", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_kwh",
-                                    queryPath: @"Queries\bacameter\master_attribute_kwh.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_tarif_golongan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_tarif_golongan",
-                                    queryPath: @"Queries\bacameter\master_tarif_golongan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_tarif_golongan_detail", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_tarif_golongan_detail",
-                                    queryPath: @"Queries\bacameter\master_tarif_golongan_detail.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_tarif_diameter", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_tarif_diameter",
-                                    queryPath: @"Queries\bacameter\master_tarif_diameter.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_tarif_diameter_detail", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_tarif_diameter_detail",
-                                    queryPath: @"Queries\bacameter\master_tarif_diameter_detail.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_wilayah", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_wilayah",
-                                    queryPath: @"Queries\bacameter\master_attribute_wilayah.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_area", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_area",
-                                    queryPath: @"Queries\bacameter\master_attribute_area.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_rayon", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_rayon",
-                                    queryPath: @"Queries\bacameter\master_attribute_rayon.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_blok", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_blok",
-                                    queryPath: @"Queries\bacameter\master_attribute_blok.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_cabang", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_cabang",
-                                    queryPath: @"Queries\bacameter\master_attribute_cabang.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_kecamatan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_kecamatan",
-                                    queryPath: @"Queries\bacameter\master_attribute_kecamatan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_kelurahan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_kelurahan",
-                                    queryPath: @"Queries\bacameter\master_attribute_kelurahan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_dma", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_dma",
-                                    queryPath: @"Queries\bacameter\master_attribute_dma.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_dmz", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_dmz",
-                                    queryPath: @"Queries\bacameter\master_attribute_dmz.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_tarif_administrasi_lain", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_tarif_administrasi_lain",
-                                    queryPath: @"Queries\bacameter\master_tarif_administrasi_lain.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_tarif_pemeliharaan_lain", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_tarif_pemeliharaan_lain",
-                                    queryPath: @"Queries\bacameter\master_tarif_pemeliharaan_lain.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_tarif_retribusi_lain", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_tarif_retribusi_lain",
-                                    queryPath: @"Queries\bacameter\master_tarif_retribusi_lain.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_kolektif", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_kolektif",
-                                    queryPath: @"Queries\bacameter\master_attribute_kolektif.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_sumber_air", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_sumber_air",
-                                    queryPath: @"Queries\bacameter\master_attribute_sumber_air.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_merek_meter", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_merek_meter",
-                                    queryPath: @"Queries\bacameter\master_attribute_merek_meter.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_kondisi_meter", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_kondisi_meter",
-                                    queryPath: @"Queries\bacameter\master_attribute_kondisi_meter.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_kelainan", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BacameterConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_kelainan",
-                                    queryPath: @"Queries\bacameter\master_attribute_kelainan.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_petugas_baca", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BacameterConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_attribute_petugas_baca",
-                                    queryPath: @"Queries\bacameter\master_attribute_petugas_baca.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_periode", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_periode",
-                                    queryPath: @"Queries\bacameter\master_periode.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_periode_billing", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_periode_billing",
-                                    queryPath: @"Queries\bacameter\master_periode_billing.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_attribute_jadwal_baca", async () =>
-                            {
-                                await Utils.BacameterConnectionWrapper(async (conn, trans) =>
-                                {
-                                    var jadwalbaca = await conn.QueryAsync(
-                                        sql: @"SELECT
-                                                b.nama AS petugasbaca,
-                                                c.koderayon
-                                                FROM
-                                                jadwalbaca a
-                                                JOIN petugasbaca b ON a.idpetugas=b.idpetugas
-                                                JOIN rayon c ON a.idrayon=c.idrayon",
-                                        transaction: trans);
-                                    if (jadwalbaca.Any())
-                                    {
-                                        await Utils.MainConnectionWrapper(async (conn, trans) =>
-                                        {
-                                            List<dynamic> data = [];
-                                            var listPetugas = await conn.QueryAsync(
-                                                sql: @"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
-                                                param: new
-                                                {
-                                                    idpdam = settings.IdPdam
-                                                },
-                                                transaction: trans);
-                                            var listRayon = await conn.QueryAsync(
-                                                sql: @"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
-                                                param: new
-                                                {
-                                                    idpdam = settings.IdPdam
-                                                },
-                                                transaction: trans);
-
-                                            int id = 1;
-                                            foreach (var item in jadwalbaca)
-                                            {
-                                                dynamic o = new
-                                                {
-                                                    idpdam = settings.IdPdam,
-                                                    idjadwalbaca = id++,
-                                                    idpetugasbaca =
-                                                        listPetugas
-                                                            .Where(s => s.petugasbaca.ToLower() == item.petugasbaca.ToLower())
-                                                            .Select(s => s.idpetugasbaca).FirstOrDefault(),
-                                                    idrayon =
-                                                        listRayon
-                                                            .Where(s => s.koderayon == item.koderayon)
-                                                            .Select(s => s.idrayon).FirstOrDefault()
-                                                };
-
-                                                if (o.idpetugasbaca != null && o.idrayon != null)
-                                                {
-                                                    data.Add(o);
-                                                }
-                                            }
-
-                                            if (data.Count != 0)
-                                            {
-                                                await conn.ExecuteAsync(
-                                                    sql: @"
-                                                            REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
-                                                            VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)",
-                                                    param: data,
-                                                    transaction: trans);
-                                            }
-                                        });
-                                    }
-                                });
-                            });
-                        }
-
-                        if (prosesPelanggan)
-                        {
-                            await Utils.TrackProgress("master_pelanggan_air", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_pelanggan_air",
-                                    queryPath: @"Queries\bacameter\master_pelanggan_air.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.BsbsConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_pelanggan_air_detail",
-                                    queryPath: @"Queries\bacameter\master_pelanggan_air_detail.sql",
-                                    parameters: new()
-                                    {
-                                                { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                        }
-
-                        if (prosesRekening)
-                        {
-                            var lastId = 0;
-                            await Utils.MainConnectionWrapper(async (conn, trans) =>
-                            {
-                                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                            });
-
-                            await Utils.BulkCopy(
-                                sourceConnection: AppSettings.BsbsConnectionString,
-                                targetConnection: AppSettings.MainConnectionString,
-                                table: "rekening_air",
-                                queryPath: @"Queries\bacameter\drd.sql",
-                                parameters: new()
-                                {
-                                    { "@idpdam", settings.IdPdam },
-                                    { "@lastid", lastId },
-                                });
-
-                            await Utils.BulkCopy(
-                                sourceConnection: AppSettings.BsbsConnectionString,
-                                targetConnection: AppSettings.MainConnectionString,
-                                table: "rekening_air_detail",
-                                queryPath: @"Queries\bacameter\drd_detail.sql",
-                                parameters: new()
-                                {
-                                    { "@idpdam", settings.IdPdam }
-                                });
-                        }
-                    });
-
-                AnsiConsole.MarkupLine("");
-                AnsiConsole.MarkupLine($"[bold green]Migrasi data bacameter finish.[/]");
 
                 return 0;
             }
@@ -1271,7 +645,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "rekening_nonair",
-                queryPath: @"Queries\nonair\nonair.sql",
+                queryPath: @"queries\nonair\nonair.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1292,7 +666,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "rekening_nonair_detail",
-                queryPath: @"Queries\nonair\nonair_detail.sql",
+                queryPath: @"queries\nonair\nonair_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1315,36 +689,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "rekening_nonair_transaksi",
-                queryPath: @"Queries\nonair\nonair_transaksi.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-        }
-        private static async Task PiutangAir(Settings settings)
-        {
-            var lastId = 0;
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
-            {
-                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-            });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_air",
-                queryPath: @"Queries\piutang\piutang.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastId },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_air_detail",
-                queryPath: @"Queries\piutang\piutang_detail.sql",
+                queryPath: @"queries\nonair\nonair_transaksi.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1358,7 +703,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air_transaksi",
-                    queryPath: @"Queries\bayar\bayar_transaksi.sql",
+                    queryPath: @"queries\bayar\bayar_transaksi.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
@@ -1480,7 +825,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\rab_lainnya_pelanggan\rab_lainnya.sql",
+                queryPath: @"queries\rab_lainnya_pelanggan\rab_lainnya.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1491,7 +836,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_rab",
-                queryPath: @"Queries\rab_lainnya_pelanggan\rab.sql",
+                queryPath: @"queries\rab_lainnya_pelanggan\rab.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1502,7 +847,7 @@ namespace Migrasi.Commands
             //    sConnectionStr: AppSettings.ConnectionStringLoket,
             //    tConnectionStr: AppSettings.ConnectionString,
             //    tableName: "permohonan_pelanggan_air_rab_detail",
-            //    queryPath: @"Queries\sambung_kembali\rab_detail.sql",
+            //    queryPath: @"queries\sambung_kembali\rab_detail.sql",
             //    parameters: new()
             //    {
             //        { "@idpdam", settings.IdPdam },
@@ -1514,7 +859,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\rab_lainnya_pelanggan\spk_pasang.sql",
+                queryPath: @"queries\rab_lainnya_pelanggan\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1525,7 +870,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\rab_lainnya_pelanggan\ba.sql",
+                queryPath: @"queries\rab_lainnya_pelanggan\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1536,7 +881,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\sambung_kembali\ba_detail.sql",
+                queryPath: @"queries\sambung_kembali\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1592,7 +937,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\air_tangki_pelanggan\pengaduan.sql",
+                queryPath: @"queries\air_tangki_pelanggan\pengaduan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1604,7 +949,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\air_tangki_pelanggan\detail.sql",
+                queryPath: @"queries\air_tangki_pelanggan\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1615,7 +960,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\air_tangki_pelanggan\spk_pasang.sql",
+                queryPath: @"queries\air_tangki_pelanggan\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1626,7 +971,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\air_tangki_pelanggan\ba.sql",
+                queryPath: @"queries\air_tangki_pelanggan\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1637,7 +982,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\air_tangki_pelanggan\ba_detail.sql",
+                queryPath: @"queries\air_tangki_pelanggan\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1687,7 +1032,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan",
-                queryPath: @"Queries\air_tangki_non_pelanggan\pengaduan.sql",
+                queryPath: @"queries\air_tangki_non_pelanggan\pengaduan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1699,7 +1044,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_detail",
-                queryPath: @"Queries\air_tangki_non_pelanggan\detail.sql",
+                queryPath: @"queries\air_tangki_non_pelanggan\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1710,7 +1055,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_spk_pasang",
-                queryPath: @"Queries\air_tangki_non_pelanggan\spk_pasang.sql",
+                queryPath: @"queries\air_tangki_non_pelanggan\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1721,7 +1066,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_ba",
-                queryPath: @"Queries\air_tangki_non_pelanggan\ba.sql",
+                queryPath: @"queries\air_tangki_non_pelanggan\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1732,7 +1077,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_ba_detail",
-                queryPath: @"Queries\air_tangki_non_pelanggan\ba_detail.sql",
+                queryPath: @"queries\air_tangki_non_pelanggan\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -1784,44 +1129,40 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "rekening_nonair",
-                queryPath: @"Queries\angsuran_nonair\nonair.sql",
+                queryPath: @"queries\angsuran_nonair\nonair.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@cutoff", settings.Cutoff },
                 });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "rekening_nonair_detail",
-                queryPath: @"Queries\angsuran_nonair\nonair_detail.sql",
+                queryPath: @"queries\angsuran_nonair\nonair_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@cutoff", settings.Cutoff },
                 });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "rekening_nonair_angsuran",
-                queryPath: @"Queries\angsuran_nonair\nonair_angsuran.sql",
+                queryPath: @"queries\angsuran_nonair\nonair_angsuran.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@cutoff", settings.Cutoff },
                 });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "rekening_nonair_angsuran_detail",
-                queryPath: @"Queries\angsuran_nonair\nonair_angsuran_detail.sql",
+                queryPath: @"queries\angsuran_nonair\nonair_angsuran_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
-                    { "@cutoff", settings.Cutoff },
                 });
 
             await Utils.TrackProgress($"angsuran nonair|patch0", async () =>
@@ -1829,7 +1170,7 @@ namespace Migrasi.Commands
                 await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
-                        sql: await File.ReadAllTextAsync(@"Queries\nonair\patch.sql"),
+                        sql: await File.ReadAllTextAsync(@"queries\nonair\patch.sql"),
                         transaction: trans);
                 });
             });
@@ -1839,7 +1180,7 @@ namespace Migrasi.Commands
                 await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
-                        sql: await File.ReadAllTextAsync(@"Queries\angsuran_nonair\patch.sql"),
+                        sql: await File.ReadAllTextAsync(@"queries\angsuran_nonair\patch.sql"),
                         transaction: trans);
                 });
             });
@@ -1872,12 +1213,11 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air",
-                    queryPath: @"Queries\angsuran_air\piutang_rekening_air.sql",
+                    queryPath: @"queries\angsuran_air\piutang_rekening_air.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@lastid", lastId },
-                        { "@cutoff", settings.Cutoff },
                     });
             });
 
@@ -1887,11 +1227,10 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air_detail",
-                    queryPath: @"Queries\angsuran_air\piutang_rekening_air_detail.sql",
+                    queryPath: @"queries\angsuran_air\piutang_rekening_air_detail.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
-                        { "@cutoff", settings.Cutoff },
                     });
             });
 
@@ -1907,12 +1246,11 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air",
-                    queryPath: @"Queries\angsuran_air\bayar_rekening_air.sql",
+                    queryPath: @"queries\angsuran_air\bayar_rekening_air.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@lastid", lastId },
-                        { "@cutoff", settings.Cutoff },
                     });
             });
 
@@ -1922,11 +1260,10 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air_detail",
-                    queryPath: @"Queries\angsuran_air\bayar_rekening_air_detail.sql",
+                    queryPath: @"queries\angsuran_air\bayar_rekening_air_detail.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
-                        { "@cutoff", settings.Cutoff },
                     });
             });
 
@@ -1942,12 +1279,11 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air_angsuran",
-                    queryPath: @"Queries\angsuran_air\rekening_air_angsuran.sql",
+                    queryPath: @"queries\angsuran_air\rekening_air_angsuran.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
                         { "@jnsnonair", jnsNonair },
-                        { "@cutoff", settings.Cutoff },
                     });
             });
 
@@ -1957,11 +1293,10 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air_angsuran_detail",
-                    queryPath: @"Queries\angsuran_air\rekening_air_angsuran_detail.sql",
+                    queryPath: @"queries\angsuran_air\rekening_air_angsuran_detail.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
-                        { "@cutoff", settings.Cutoff },
                     });
             });
 
@@ -1970,7 +1305,7 @@ namespace Migrasi.Commands
                 await Utils.MainConnectionWrapper(async (conn, trans) =>
                 {
                     await conn.ExecuteAsync(
-                        sql: await File.ReadAllTextAsync(@"Queries\angsuran_air\patch.sql"),
+                        sql: await File.ReadAllTextAsync(@"queries\angsuran_air\patch.sql"),
                         transaction: trans);
                 });
             });
@@ -1981,7 +1316,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_pelanggan_air_riwayat_koreksi",
-                queryPath: @"Queries\koreksi_data\koreksi_data.sql",
+                queryPath: @"queries\koreksi_data\koreksi_data.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2027,7 +1362,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_pelanggan_air_riwayat_koreksi_detail",
-                queryPath: @"Queries\koreksi_data\koreksi_data_detail.sql",
+                queryPath: @"queries\koreksi_data\koreksi_data_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2042,7 +1377,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_label_report",
-                    queryPath: @"Queries\master\report\master_attribute_label_report.sql",
+                    queryPath: @"queries\master\report\master_attribute_label_report.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2055,7 +1390,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_report_maingroup",
-                    queryPath: @"Queries\master\report\master_report_maingroup.sql",
+                    queryPath: @"queries\master\report\master_report_maingroup.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2068,7 +1403,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_report_subgroup",
-                    queryPath: @"Queries\master\report\master_report_subgroup.sql");
+                    queryPath: @"queries\master\report\master_report_subgroup.sql");
             });
 
             await Utils.TrackProgress("report_api", async () =>
@@ -2077,7 +1412,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_api",
-                    queryPath: @"Queries\master\report\report_api.sql");
+                    queryPath: @"queries\master\report\report_api.sql");
             });
 
             await Utils.TrackProgress("report_models", async () =>
@@ -2086,7 +1421,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_models",
-                    queryPath: @"Queries\master\report\report_models.sql",
+                    queryPath: @"queries\master\report\report_models.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2099,7 +1434,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_sources",
-                    queryPath: @"Queries\master\report\report_model_sources.sql",
+                    queryPath: @"queries\master\report\report_model_sources.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2112,7 +1447,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_sorts",
-                    queryPath: @"Queries\master\report\report_model_sorts.sql",
+                    queryPath: @"queries\master\report\report_model_sorts.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2125,7 +1460,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_props",
-                    queryPath: @"Queries\master\report\report_model_props.sql",
+                    queryPath: @"queries\master\report\report_model_props.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2138,7 +1473,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_model_params",
-                    queryPath: @"Queries\master\report\report_model_params.sql",
+                    queryPath: @"queries\master\report\report_model_params.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2151,7 +1486,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_filter_custom",
-                    queryPath: @"Queries\master\report\report_filter_custom.sql");
+                    queryPath: @"queries\master\report\report_filter_custom.sql");
             });
 
             await Utils.TrackProgress("report_filter_custom_detail", async () =>
@@ -2160,7 +1495,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "report_filter_custom_detail",
-                    queryPath: @"Queries\master\report\report_filter_custom_detail.sql");
+                    queryPath: @"queries\master\report\report_filter_custom_detail.sql");
             });
         }
         private static async Task PaketRab(Settings settings)
@@ -2179,7 +1514,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_paket",
-                    queryPath: @"Queries\master\master_attribute_paket.sql",
+                    queryPath: @"queries\master\master_attribute_paket.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2204,7 +1539,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_ongkos",
-                    queryPath: @"Queries\master\paket_ongkos\master_attribute_ongkos.sql",
+                    queryPath: @"queries\master\paket_ongkos\master_attribute_ongkos.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2217,7 +1552,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_ongkos_paket",
-                    queryPath: @"Queries\master\paket_ongkos\master_attribute_ongkos_paket.sql",
+                    queryPath: @"queries\master\paket_ongkos\master_attribute_ongkos_paket.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2230,7 +1565,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_ongkos_paket_detail",
-                    queryPath: @"Queries\master\paket_ongkos\master_attribute_ongkos_paket_detail.sql",
+                    queryPath: @"queries\master\paket_ongkos\master_attribute_ongkos_paket_detail.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2255,7 +1590,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_material",
-                    queryPath: @"Queries\master\paket_material\master_attribute_material.sql",
+                    queryPath: @"queries\master\paket_material\master_attribute_material.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2268,7 +1603,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_material_paket",
-                    queryPath: @"Queries\master\paket_material\master_attribute_material_paket.sql",
+                    queryPath: @"queries\master\paket_material\master_attribute_material_paket.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2281,7 +1616,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_material_paket_detail",
-                    queryPath: @"Queries\master\paket_material\master_attribute_material_paket_detail.sql",
+                    queryPath: @"queries\master\paket_material\master_attribute_material_paket_detail.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2296,7 +1631,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan",
-                    queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan.sql",
+                    queryPath: @"queries\master\tipe_permohonan\master_attribute_tipe_permohonan.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2309,7 +1644,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan_detail",
-                    queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail.sql",
+                    queryPath: @"queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2322,7 +1657,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan_detail_ba",
-                    queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_ba.sql",
+                    queryPath: @"queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_ba.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2335,7 +1670,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_tipe_permohonan_detail_spk",
-                    queryPath: @"Queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_spk.sql",
+                    queryPath: @"queries\master\tipe_permohonan\master_attribute_tipe_permohonan_detail_spk.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2347,7 +1682,7 @@ namespace Migrasi.Commands
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
-                queryPath: @"Queries\master\master_attribute_flag.sql",
+                queryPath: @"queries\master\master_attribute_flag.sql",
                 table: "master_attribute_flag",
                 parameters: new()
                 {
@@ -2358,7 +1693,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_status",
-                queryPath: @"Queries\master\master_attribute_status.sql",
+                queryPath: @"queries\master\master_attribute_status.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2368,7 +1703,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_jenis_bangunan",
-                queryPath: @"Queries\master\master_attribute_jenis_bangunan.sql",
+                queryPath: @"queries\master\master_attribute_jenis_bangunan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2378,7 +1713,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_kepemilikan",
-                queryPath: @"Queries\master\master_attribute_kepemilikan.sql",
+                queryPath: @"queries\master\master_attribute_kepemilikan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2388,7 +1723,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_pekerjaan",
-                queryPath: @"Queries\master\master_attribute_pekerjaan.sql",
+                queryPath: @"queries\master\master_attribute_pekerjaan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2398,7 +1733,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_peruntukan",
-                queryPath: @"Queries\master\master_attribute_peruntukan.sql",
+                queryPath: @"queries\master\master_attribute_peruntukan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2408,7 +1743,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_jenis_pipa",
-                queryPath: @"Queries\master\master_attribute_jenis_pipa.sql",
+                queryPath: @"queries\master\master_attribute_jenis_pipa.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2418,7 +1753,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_kwh",
-                queryPath: @"Queries\master\master_attribute_kwh.sql",
+                queryPath: @"queries\master\master_attribute_kwh.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2428,7 +1763,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_tarif_golongan",
-                queryPath: @"Queries\master\master_tarif_golongan.sql",
+                queryPath: @"queries\master\master_tarif_golongan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2438,7 +1773,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_tarif_golongan_detail",
-                queryPath: @"Queries\master\master_tarif_golongan_detail.sql",
+                queryPath: @"queries\master\master_tarif_golongan_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2448,7 +1783,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_tarif_diameter",
-                queryPath: @"Queries\master\master_tarif_diameter.sql",
+                queryPath: @"queries\master\master_tarif_diameter.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2458,7 +1793,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_tarif_diameter_detail",
-                queryPath: @"Queries\master\master_tarif_diameter_detail.sql",
+                queryPath: @"queries\master\master_tarif_diameter_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2468,7 +1803,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_wilayah",
-                queryPath: @"Queries\master\master_attribute_wilayah.sql",
+                queryPath: @"queries\master\master_attribute_wilayah.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2478,7 +1813,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_area",
-                queryPath: @"Queries\master\master_attribute_area.sql",
+                queryPath: @"queries\master\master_attribute_area.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2488,7 +1823,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_rayon",
-                queryPath: @"Queries\master\master_attribute_rayon.sql",
+                queryPath: @"queries\master\master_attribute_rayon.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2498,7 +1833,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_blok",
-                queryPath: @"Queries\master\master_attribute_blok.sql",
+                queryPath: @"queries\master\master_attribute_blok.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2508,7 +1843,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_cabang",
-                queryPath: @"Queries\master\master_attribute_cabang.sql",
+                queryPath: @"queries\master\master_attribute_cabang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2518,7 +1853,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_kecamatan",
-                queryPath: @"Queries\master\master_attribute_kecamatan.sql",
+                queryPath: @"queries\master\master_attribute_kecamatan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2528,7 +1863,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_kelurahan",
-                queryPath: @"Queries\master\master_attribute_kelurahan.sql",
+                queryPath: @"queries\master\master_attribute_kelurahan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2538,7 +1873,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_dma",
-                queryPath: @"Queries\master\master_attribute_dma.sql",
+                queryPath: @"queries\master\master_attribute_dma.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2548,7 +1883,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_dmz",
-                queryPath: @"Queries\master\master_attribute_dmz.sql",
+                queryPath: @"queries\master\master_attribute_dmz.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2558,7 +1893,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_tarif_administrasi_lain",
-                queryPath: @"Queries\master\master_tarif_administrasi_lain.sql",
+                queryPath: @"queries\master\master_tarif_administrasi_lain.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2568,7 +1903,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_tarif_pemeliharaan_lain",
-                queryPath: @"Queries\master\master_tarif_pemeliharaan_lain.sql",
+                queryPath: @"queries\master\master_tarif_pemeliharaan_lain.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2578,7 +1913,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_tarif_retribusi_lain",
-                queryPath: @"Queries\master\master_tarif_retribusi_lain.sql",
+                queryPath: @"queries\master\master_tarif_retribusi_lain.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2597,7 +1932,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_kolektif",
-                queryPath: @"Queries\master\master_attribute_kolektif.sql",
+                queryPath: @"queries\master\master_attribute_kolektif.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2607,7 +1942,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_sumber_air",
-                queryPath: @"Queries\master\master_attribute_sumber_air.sql",
+                queryPath: @"queries\master\master_attribute_sumber_air.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2617,7 +1952,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_merek_meter",
-                queryPath: @"Queries\master\master_attribute_merek_meter.sql",
+                queryPath: @"queries\master\master_attribute_merek_meter.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2636,7 +1971,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_kondisi_meter",
-                queryPath: @"Queries\master\master_attribute_kondisi_meter.sql",
+                queryPath: @"queries\master\master_attribute_kondisi_meter.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2646,7 +1981,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_kelainan",
-                queryPath: @"Queries\master\master_attribute_kelainan.sql",
+                queryPath: @"queries\master\master_attribute_kelainan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2656,7 +1991,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_petugas_baca",
-                queryPath: @"Queries\master\master_attribute_petugas_baca.sql",
+                queryPath: @"queries\master\master_attribute_petugas_baca.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2666,7 +2001,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_periode",
-                queryPath: @"Queries\master\master_periode.sql",
+                queryPath: @"queries\master\master_periode.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2676,7 +2011,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_periode_billing",
-                queryPath: @"Queries\master\master_periode_billing.sql",
+                queryPath: @"queries\master\master_periode_billing.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2759,7 +2094,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_loket",
-                queryPath: @"Queries\master\master_attribute_loket.sql",
+                queryPath: @"queries\master\master_attribute_loket.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2769,7 +2104,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_user",
-                queryPath: @"Queries\master\master_user.sql",
+                queryPath: @"queries\master\master_user.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2779,7 +2114,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_tipe_pendaftaran_sambungan",
-                queryPath: @"Queries\master\master_attribute_tipe_pendaftaran_sambungan.sql",
+                queryPath: @"queries\master\master_attribute_tipe_pendaftaran_sambungan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2789,7 +2124,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "master_attribute_sumber_pengaduan",
-                queryPath: @"Queries\master\master_attribute_sumber_pengaduan.sql",
+                queryPath: @"queries\master\master_attribute_sumber_pengaduan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2799,7 +2134,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "personalia_master_pegawai",
-                queryPath: @"Queries\master\personalia_master_pegawai.sql",
+                queryPath: @"queries\master\personalia_master_pegawai.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -2813,7 +2148,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_jenis_nonair",
-                    queryPath: @"Queries\master\jenis_nonair\master_attribute_jenis_nonair.sql",
+                    queryPath: @"queries\master\jenis_nonair\master_attribute_jenis_nonair.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2826,7 +2161,7 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.StagingConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "master_attribute_jenis_nonair_detail",
-                    queryPath: @"Queries\master\jenis_nonair\master_attribute_jenis_nonair_detail.sql",
+                    queryPath: @"queries\master\jenis_nonair\master_attribute_jenis_nonair_detail.sql",
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam }
@@ -2889,7 +2224,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\rotasimeter_nonrutin\rotasimeter_nonrutin.sql",
+                queryPath: @"queries\rotasimeter_nonrutin\rotasimeter_nonrutin.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2901,7 +2236,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk",
-                queryPath: @"Queries\rotasimeter_nonrutin\spk_rotasimeter_nonrutin.sql",
+                queryPath: @"queries\rotasimeter_nonrutin\spk_rotasimeter_nonrutin.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2911,7 +2246,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_rab",
-                queryPath: @"Queries\rotasimeter_nonrutin\rab_rotasimeter_nonrutin.sql",
+                queryPath: @"queries\rotasimeter_nonrutin\rab_rotasimeter_nonrutin.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2922,7 +2257,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_rab_detail",
-                queryPath: @"Queries\rotasimeter_nonrutin\rabdetail_rotasimeter_nonrutin.sql",
+                queryPath: @"queries\rotasimeter_nonrutin\rabdetail_rotasimeter_nonrutin.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2933,7 +2268,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\rotasimeter_nonrutin\spkp_rotasimeter_nonrutin.sql",
+                queryPath: @"queries\rotasimeter_nonrutin\spkp_rotasimeter_nonrutin.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2943,7 +2278,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\rotasimeter_nonrutin\ba_rotasimeter_nonrutin.sql",
+                queryPath: @"queries\rotasimeter_nonrutin\ba_rotasimeter_nonrutin.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -2995,7 +2330,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\rotasimeter\rotasimeter.sql",
+                queryPath: @"queries\rotasimeter\rotasimeter.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3007,7 +2342,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\rotasimeter\spk_pasang.sql",
+                queryPath: @"queries\rotasimeter\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3018,7 +2353,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\rotasimeter\ba.sql",
+                queryPath: @"queries\rotasimeter\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3029,7 +2364,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\rotasimeter\ba_detail.sql",
+                queryPath: @"queries\rotasimeter\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3050,7 +2385,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\koreksi_rekair\koreksi_rekair.sql",
+                queryPath: @"queries\koreksi_rekair\koreksi_rekair.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3099,7 +2434,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_koreksi_rekening",
-                queryPath: @"Queries\koreksi_rekair\koreksi_rekair_periode.sql",
+                queryPath: @"queries\koreksi_rekair\koreksi_rekair_periode.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3112,7 +2447,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan",
-                queryPath: @"Queries\sambung_baru\sambung_baru.sql",
+                queryPath: @"queries\sambung_baru\sambung_baru.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3133,7 +2468,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_detail",
-                queryPath: @"Queries\sambung_baru\detail.sql",
+                queryPath: @"queries\sambung_baru\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3143,7 +2478,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_spk",
-                queryPath: @"Queries\sambung_baru\spk.sql",
+                queryPath: @"queries\sambung_baru\spk.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3153,7 +2488,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_spk_detail",
-                queryPath: @"Queries\sambung_baru\spk_detail.sql",
+                queryPath: @"queries\sambung_baru\spk_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3163,7 +2498,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_rab",
-                queryPath: @"Queries\sambung_baru\rab.sql",
+                queryPath: @"queries\sambung_baru\rab.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3201,7 +2536,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_rab_detail",
-                queryPath: @"Queries\sambung_baru\rab_detail.sql",
+                queryPath: @"queries\sambung_baru\rab_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3212,7 +2547,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_spk_pasang",
-                queryPath: @"Queries\sambung_baru\spk_pasang.sql",
+                queryPath: @"queries\sambung_baru\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3222,7 +2557,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_ba",
-                queryPath: @"Queries\sambung_baru\ba.sql",
+                queryPath: @"queries\sambung_baru\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3232,7 +2567,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_ba_detail",
-                queryPath: @"Queries\sambung_baru\ba_detail.sql",
+                queryPath: @"queries\sambung_baru\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3244,7 +2579,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\buka_segel\buka_segel.sql",
+                queryPath: @"queries\buka_segel\buka_segel.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3265,7 +2600,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\buka_segel\detail.sql",
+                queryPath: @"queries\buka_segel\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3275,7 +2610,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\buka_segel\spk_pasang.sql",
+                queryPath: @"queries\buka_segel\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3285,7 +2620,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\buka_segel\ba.sql",
+                queryPath: @"queries\buka_segel\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3295,7 +2630,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\buka_segel\ba_detail.sql",
+                queryPath: @"queries\buka_segel\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3307,7 +2642,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\sambung_kembali\sambung_kembali.sql",
+                queryPath: @"queries\sambung_kembali\sambung_kembali.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3328,7 +2663,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\sambung_kembali\detail.sql",
+                queryPath: @"queries\sambung_kembali\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3338,7 +2673,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk",
-                queryPath: @"Queries\sambung_kembali\spk.sql",
+                queryPath: @"queries\sambung_kembali\spk.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3348,7 +2683,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_detail",
-                queryPath: @"Queries\sambung_kembali\spk_detail.sql",
+                queryPath: @"queries\sambung_kembali\spk_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3358,7 +2693,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_rab",
-                queryPath: @"Queries\sambung_kembali\rab.sql",
+                queryPath: @"queries\sambung_kembali\rab.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3396,7 +2731,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_rab_detail",
-                queryPath: @"Queries\sambung_kembali\rab_detail.sql",
+                queryPath: @"queries\sambung_kembali\rab_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3407,7 +2742,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\sambung_kembali\spk_pasang.sql",
+                queryPath: @"queries\sambung_kembali\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3417,7 +2752,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\sambung_kembali\ba.sql",
+                queryPath: @"queries\sambung_kembali\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3427,7 +2762,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\sambung_kembali\ba_detail.sql",
+                queryPath: @"queries\sambung_kembali\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3439,7 +2774,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\rubah_rayon\rubah_rayon.sql",
+                queryPath: @"queries\rubah_rayon\rubah_rayon.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3460,7 +2795,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\rubah_rayon\detail.sql",
+                queryPath: @"queries\rubah_rayon\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3470,7 +2805,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\rubah_rayon\ba.sql",
+                queryPath: @"queries\rubah_rayon\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3480,7 +2815,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\rubah_rayon\ba_detail.sql",
+                queryPath: @"queries\rubah_rayon\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3492,7 +2827,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\rubah_tarif\rubah_tarif.sql",
+                queryPath: @"queries\rubah_tarif\rubah_tarif.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3513,7 +2848,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\rubah_tarif\detail.sql",
+                queryPath: @"queries\rubah_tarif\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3523,7 +2858,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk",
-                queryPath: @"Queries\rubah_tarif\spk.sql",
+                queryPath: @"queries\rubah_tarif\spk.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3533,7 +2868,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_detail",
-                queryPath: @"Queries\rubah_tarif\spk_detail.sql",
+                queryPath: @"queries\rubah_tarif\spk_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3543,7 +2878,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\rubah_tarif\ba.sql",
+                queryPath: @"queries\rubah_tarif\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3553,7 +2888,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\rubah_tarif\ba_detail.sql",
+                queryPath: @"queries\rubah_tarif\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3565,7 +2900,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\balik_nama\balik_nama.sql",
+                queryPath: @"queries\balik_nama\balik_nama.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3586,7 +2921,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\balik_nama\detail.sql",
+                queryPath: @"queries\balik_nama\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3596,7 +2931,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\balik_nama\ba.sql",
+                queryPath: @"queries\balik_nama\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -3608,7 +2943,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\tutup_total\tutup_total.sql",
+                queryPath: @"queries\tutup_total\tutup_total.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3629,7 +2964,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\tutup_total\detail.sql",
+                queryPath: @"queries\tutup_total\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3639,7 +2974,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk",
-                queryPath: @"Queries\tutup_total\spk.sql",
+                queryPath: @"queries\tutup_total\spk.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3649,7 +2984,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\tutup_total\spk_pasang.sql",
+                queryPath: @"queries\tutup_total\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3659,7 +2994,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\tutup_total\ba.sql",
+                queryPath: @"queries\tutup_total\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3669,7 +3004,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\tutup_total\ba_detail.sql",
+                queryPath: @"queries\tutup_total\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3753,7 +3088,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air",
-                queryPath: @"Queries\pengaduan_pelanggan\pengaduan.sql",
+                queryPath: @"queries\pengaduan_pelanggan\pengaduan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3764,7 +3099,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\pengaduan_pelanggan\detail.sql",
+                queryPath: @"queries\pengaduan_pelanggan\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3775,7 +3110,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_detail",
-                queryPath: @"Queries\pengaduan_pelanggan\detail2.sql",
+                queryPath: @"queries\pengaduan_pelanggan\detail2.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3786,7 +3121,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"Queries\pengaduan_pelanggan\spk_pasang.sql",
+                queryPath: @"queries\pengaduan_pelanggan\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3797,7 +3132,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba",
-                queryPath: @"Queries\pengaduan_pelanggan\ba.sql",
+                queryPath: @"queries\pengaduan_pelanggan\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3808,7 +3143,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan\ba_detail.sql",
+                queryPath: @"queries\pengaduan_pelanggan\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3819,7 +3154,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan\ba_detail2.sql",
+                queryPath: @"queries\pengaduan_pelanggan\ba_detail2.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3830,7 +3165,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan\ba_detail3.sql",
+                queryPath: @"queries\pengaduan_pelanggan\ba_detail3.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3841,7 +3176,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"Queries\pengaduan_pelanggan\ba_detail4.sql",
+                queryPath: @"queries\pengaduan_pelanggan\ba_detail4.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3851,7 +3186,7 @@ namespace Migrasi.Commands
             await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
                 await conn.ExecuteAsync(
-                    sql: await File.ReadAllTextAsync(@"Queries\pengaduan_pelanggan\patches\p1.sql"),
+                    sql: await File.ReadAllTextAsync(@"queries\pengaduan_pelanggan\patches\p1.sql"),
                     param: new
                     {
                         idpdam = settings.IdPdam,
@@ -3942,7 +3277,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan",
-                queryPath: @"Queries\pengaduan_non_pelanggan\pengaduan.sql",
+                queryPath: @"queries\pengaduan_non_pelanggan\pengaduan.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3953,7 +3288,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_detail",
-                queryPath: @"Queries\pengaduan_non_pelanggan\detail.sql",
+                queryPath: @"queries\pengaduan_non_pelanggan\detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3964,7 +3299,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_spk_pasang",
-                queryPath: @"Queries\pengaduan_non_pelanggan\spk_pasang.sql",
+                queryPath: @"queries\pengaduan_non_pelanggan\spk_pasang.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3975,7 +3310,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_ba",
-                queryPath: @"Queries\pengaduan_non_pelanggan\ba.sql",
+                queryPath: @"queries\pengaduan_non_pelanggan\ba.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3986,7 +3321,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_ba_detail",
-                queryPath: @"Queries\pengaduan_non_pelanggan\ba_detail.sql",
+                queryPath: @"queries\pengaduan_non_pelanggan\ba_detail.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },
@@ -3997,7 +3332,7 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.LoketConnectionString,
                 targetConnection: AppSettings.MainConnectionString,
                 table: "permohonan_non_pelanggan_ba_detail",
-                queryPath: @"Queries\pengaduan_non_pelanggan\ba_detail2.sql",
+                queryPath: @"queries\pengaduan_non_pelanggan\ba_detail2.sql",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam },

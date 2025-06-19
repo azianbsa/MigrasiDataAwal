@@ -3,6 +3,7 @@ using DotNetEnv;
 using Microsoft.Data.Sqlite;
 using Migrasi.Commands;
 using Migrasi.Helpers;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using SQLitePCL;
 using System.Reflection;
@@ -14,8 +15,12 @@ namespace Migrasi
     {
         public static async Task<int> Main(string[] args)
         {
-            Console.WriteLine($"{Assembly.GetExecutingAssembly().GetName().Name} {Assembly.GetExecutingAssembly().GetName().Version}");
+            Env.Load(".env");
+            AppSettings.Environment = (Environment)Enum.Parse(typeof(Environment), Env.GetString("ENVIRONMENT", "Development"));
+
+            Console.WriteLine($"{Assembly.GetExecutingAssembly().GetName().Name} {Assembly.GetExecutingAssembly().GetName().Version} {AppSettings.Environment}");
             Console.WriteLine();
+
             await LoadEnv();
             await PrepareColumnMappingConfigurations();
 
@@ -31,8 +36,10 @@ namespace Migrasi
                         .WithDescription("Setup new pdam untuk paket basic");
                     config.AddCommand<NewBacameterCommand>("new-bacameter")
                         .WithDescription("Setup new pdam untuk paket bacameter only");
-                    config.AddCommand<PaketCommand>("paket")
-                        .WithDescription("Migrasi data paket bacameter only, basic");
+                    config.AddCommand<BacameterCommand>("bacameter")
+                        .WithDescription("Migrasi data bacameter");
+                    config.AddCommand<BasicCommand>("basic")
+                        .WithDescription("Migrasi data basic");
                     config.AddCommand<GenerateExampleQueryCommand>("example")
                         .WithDescription("Generate contoh query");
                 });
@@ -49,11 +56,7 @@ namespace Migrasi
         {
             await Utils.TrackProgress("Load env", async () =>
             {
-                Env.Load(".env");
-
-                AppSettings.Environment = (Environment)Enum.Parse(typeof(Environment), Env.GetString("ENVIRONMENT", "Development"));
-
-                var dbSuffix = (Environment)Enum.Parse(typeof(Environment), Env.GetString("ENVIRONMENT", "Development")) switch
+                var dbSuffix = AppSettings.Environment switch
                 {
                     Environment.Development => "_DEV",
                     Environment.Staging => "_STG",
