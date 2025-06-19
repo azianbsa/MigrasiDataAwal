@@ -3,7 +3,6 @@ using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Sprache;
-using System.Reflection;
 
 namespace Migrasi.Commands
 {
@@ -50,38 +49,37 @@ namespace Migrasi.Commands
 
         private async Task<int> Basic(Settings settings)
         {
-            const string PROSES_DATA_MASTER = "Proses data master";
-            const string PROSES_DATA_PELANGGAN = "Proses data pelanggan";
-            const string PROSES_PIUTANG_AIR = "Proses piutang air";
-            const string PROSES_BAYAR_AIR = "Proses bayar air";
-            const string PROSES_PIUTANG_NONAIR = "Proses piutang nonair";
-            const string PROSES_BAYAR_NONAIR = "Proses bayar nonair";
-            const string PROSES_PERMOHONAN_SAMBUNG_BARU = "Proses permohonan sambung baru";
-            const string PROSES_PERMOHONAN_BALIK_NAMA = "Proses permohonan balik nama";
-            const string PROSES_PERMOHONAN_BUKA_SEGEL = "Proses permohonan buka segel";
-            const string PROSES_PERMOHONAN_KOREKSI_DATA = "Proses permohonan koreksi data";
-            const string PROSES_PERMOHONAN_KOREKSI_REKENING = "Proses permohonan koreksi rekening";
-            const string PROSES_PERMOHONAN_TUTUP_TOTAL = "Proses permohonan tutup total";
-            const string PROSES_PERMOHONAN_RUBAH_TARIF = "Proses permohonan rubah tarif";
-            const string PROSES_PERMOHONAN_RUBAH_RAYON = "Proses permohonan rubah rayon";
-            const string PROSES_PERMOHONAN_SAMBUNG_KEMBALI = "Proses permohonan sambung kembali";
+            const string MASTER_DATA = "Master data"; //TODO: hanya proses data master yg blm ada di basic
+            const string BAYAR_AIR = "Bayar air";
+            const string PIUTANG_NONAIR = "Piutang nonair";
+            const string BAYAR_NONAIR = "Bayar nonair";
+            const string ANGSURAN_NONAIR = "Angsuran nonair";
+            const string PERMOHONAN_SAMBUNG_BARU = "Permohonan sambung baru";
+            const string PERMOHONAN_BALIK_NAMA = "Permohonan balik nama";
+            const string PERMOHONAN_BUKA_SEGEL = "Permohonan buka segel";
+            const string PERMOHONAN_KOREKSI_DATA = "Permohonan koreksi data";
+            const string PERMOHONAN_KOREKSI_REKENING = "Permohonan koreksi rekening";
+            const string PERMOHONAN_TUTUP_TOTAL = "Permohonan tutup total";
+            const string PERMOHONAN_RUBAH_TARIF = "Permohonan rubah tarif";
+            const string PERMOHONAN_RUBAH_RAYON = "Permohonan rubah rayon";
+            const string PERMOHONAN_SAMBUNG_KEMBALI = "Permohonan sambung kembali";
 
             List<string> prosesList =
             [
-                PROSES_DATA_MASTER,
-                PROSES_DATA_PELANGGAN,
-                PROSES_PIUTANG_AIR,
-                PROSES_BAYAR_AIR,
-                PROSES_PIUTANG_NONAIR,
-                PROSES_PERMOHONAN_SAMBUNG_BARU,
-                PROSES_PERMOHONAN_BALIK_NAMA,
-                PROSES_PERMOHONAN_BUKA_SEGEL,
-                PROSES_PERMOHONAN_KOREKSI_DATA,
-                PROSES_PERMOHONAN_KOREKSI_REKENING,
-                PROSES_PERMOHONAN_TUTUP_TOTAL,
-                PROSES_PERMOHONAN_RUBAH_TARIF,
-                PROSES_PERMOHONAN_RUBAH_RAYON,
-                PROSES_PERMOHONAN_SAMBUNG_KEMBALI,
+                MASTER_DATA,
+                BAYAR_AIR,
+                PIUTANG_NONAIR,
+                BAYAR_NONAIR,
+                ANGSURAN_NONAIR,
+                PERMOHONAN_SAMBUNG_BARU,
+                PERMOHONAN_BALIK_NAMA,
+                PERMOHONAN_BUKA_SEGEL,
+                PERMOHONAN_KOREKSI_DATA,
+                PERMOHONAN_KOREKSI_REKENING,
+                PERMOHONAN_TUTUP_TOTAL,
+                PERMOHONAN_RUBAH_TARIF,
+                PERMOHONAN_RUBAH_RAYON,
+                PERMOHONAN_SAMBUNG_KEMBALI,
             ];
 
             string? namaPdam = "";
@@ -102,20 +100,20 @@ namespace Migrasi.Commands
                 .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
                 .AddChoices(prosesList));
 
-            var prosesMaster = selectedProses.Exists(s => s == PROSES_DATA_MASTER);
-            var prosesPelanggan = selectedProses.Exists(s => s == PROSES_DATA_PELANGGAN);
-            var prosesPiutangAir = selectedProses.Exists(s => s == PROSES_PIUTANG_AIR);
-            var prosesBayarAir = selectedProses.Exists(s => s == PROSES_BAYAR_AIR);
-            var prosesPiutangNonair = selectedProses.Exists(s => s == PROSES_PIUTANG_NONAIR);
-            var prosesPermohonanSambungBaru = selectedProses.Exists(s => s == PROSES_PERMOHONAN_SAMBUNG_BARU);
-            var prosesPermohonanBalikNama = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BALIK_NAMA);
-            var prosesPermohonanBukaSegel = selectedProses.Exists(s => s == PROSES_PERMOHONAN_BUKA_SEGEL);
-            var prosesPermohonanKoreksiData = selectedProses.Exists(s => s == PROSES_PERMOHONAN_KOREKSI_DATA);
-            var prosesPermohonanKoreksiRekening = selectedProses.Exists(s => s == PROSES_PERMOHONAN_KOREKSI_REKENING);
-            var prosesPermohonanTutupTotal = selectedProses.Exists(s => s == PROSES_PERMOHONAN_TUTUP_TOTAL);
-            var prosesPermohonanRubahTarif = selectedProses.Exists(s => s == PROSES_PERMOHONAN_RUBAH_TARIF);
-            var prosesPermohonanRubahRayon = selectedProses.Exists(s => s == PROSES_PERMOHONAN_RUBAH_RAYON);
-            var prosesPermohonanSambungKembali = selectedProses.Exists(s => s == PROSES_PERMOHONAN_SAMBUNG_KEMBALI);
+            var prosesMaster = selectedProses.Exists(s => s == MASTER_DATA);
+            var prosesBayarAir = selectedProses.Exists(s => s == BAYAR_AIR);
+            var prosesPiutangNonair = selectedProses.Exists(s => s == PIUTANG_NONAIR);
+            var prosesBayarNonair = selectedProses.Exists(s => s == BAYAR_NONAIR);
+            var prosesAngsuranNonair = selectedProses.Exists(s => s == ANGSURAN_NONAIR);
+            var prosesPermohonanSambungBaru = selectedProses.Exists(s => s == PERMOHONAN_SAMBUNG_BARU);
+            var prosesPermohonanBalikNama = selectedProses.Exists(s => s == PERMOHONAN_BALIK_NAMA);
+            var prosesPermohonanBukaSegel = selectedProses.Exists(s => s == PERMOHONAN_BUKA_SEGEL);
+            var prosesPermohonanKoreksiData = selectedProses.Exists(s => s == PERMOHONAN_KOREKSI_DATA);
+            var prosesPermohonanKoreksiRekening = selectedProses.Exists(s => s == PERMOHONAN_KOREKSI_REKENING);
+            var prosesPermohonanTutupTotal = selectedProses.Exists(s => s == PERMOHONAN_TUTUP_TOTAL);
+            var prosesPermohonanRubahTarif = selectedProses.Exists(s => s == PERMOHONAN_RUBAH_TARIF);
+            var prosesPermohonanRubahRayon = selectedProses.Exists(s => s == PERMOHONAN_RUBAH_RAYON);
+            var prosesPermohonanSambungKembali = selectedProses.Exists(s => s == PERMOHONAN_SAMBUNG_KEMBALI);
 
             AnsiConsole.WriteLine();
             AnsiConsole.WriteLine($"Paket: {settings.NamaPaket}");
@@ -130,24 +128,6 @@ namespace Migrasi.Commands
 
             try
             {
-                //await Utils.MainConnectionWrapper(async (conn, trans) =>
-                //{
-                //    await conn.ExecuteAsync(
-                //        sql: @"
-                //        SET GLOBAL foreign_key_checks=0;
-                //        SET GLOBAL innodb_flush_log_at_trx_commit=2;
-                //        -- SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
-                //        transaction: trans);
-                //});
-
-                //await Utils.LoketConnectionWrapper(async (conn, trans) =>
-                //{
-                //    await conn.ExecuteAsync(
-                //        sql: @"
-                //        SET GLOBAL max_allowed_packet = 1073741824; -- 1GB",
-                //        transaction: trans);
-                //});
-
                 await AnsiConsole.Status()
                     .StartAsync("Sedang diproses...", async _ =>
                     {
@@ -159,117 +139,68 @@ namespace Migrasi.Commands
                             await PaketRab(settings);
                         }
 
-                        //await Utils.TrackProgress("Copy data master ke db tampung", async () =>
-                        //{
-                        //    await LoadDataMaster(settings);
-                        //});
-
-                        if (prosesPelanggan)
-                        {
-                            await Utils.TrackProgress("master_pelanggan_air", async () =>
-                            {
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.LoketConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_pelanggan_air",
-                                    queryPath: @"Queries\master_pelanggan_air.sql",
-                                    parameters: new()
-                                    {
-                                        { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                            await Utils.TrackProgress("master_pelanggan_air_detail", async () =>
-                            {
-                                await Utils.MainConnectionWrapper(async (conn, trans) =>
-                                {
-                                    await conn.ExecuteAsync(
-                                        sql: @"
-                                        ALTER TABLE master_pelanggan_air_detail
-                                        CHANGE alamatpemilik alamatpemilik VARCHAR (250) CHARSET latin1 COLLATE latin1_swedish_ci NULL",
-                                        transaction: trans);
-                                });
-
-                                await Utils.BulkCopy(
-                                    sourceConnection: AppSettings.LoketConnectionString,
-                                    targetConnection: AppSettings.MainConnectionString,
-                                    table: "master_pelanggan_air_detail",
-                                    queryPath: @"Queries\master_pelanggan_air_detail.sql",
-                                    parameters: new()
-                                    {
-                                        { "@idpdam", settings.IdPdam }
-                                    });
-                            });
-                        }
-
-                        if (prosesPiutangAir)
-                        {
-                            await Utils.TrackProgress("Proses data piutang", async () =>
-                            {
-                                await Piutang(settings);
-                            });
-                        }
-
                         if (prosesBayarAir)
                         {
-                            await Bayar(settings);
+                            await BayarAir(settings);
                         }
 
                         if (prosesPiutangNonair)
                         {
-                            await Nonair(settings);
+                            await PiutangNonair(settings);
+                        }
+
+                        if (prosesBayarNonair)
+                        {
+                            await BayarNonair(settings);
+                        }
+
+                        if (prosesAngsuranNonair)
+                        {
+                            await AngsuranNonair(settings);
                         }
 
                         if (prosesPermohonanSambungBaru)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan sambung baru");
                             await SambungBaru(settings);
                         }
 
                         if (prosesPermohonanBalikNama)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan balik nama");
                             await BalikNama(settings);
                         }
 
                         if (prosesPermohonanBukaSegel)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan balik nama");
                             await BukaSegel(settings);
                         }
 
                         if (prosesPermohonanKoreksiData)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan koreksi data");
                             await KoreksiData(settings);
                         }
 
                         if (prosesPermohonanKoreksiRekening)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan koreksi rekening");
                             await KoreksiRekair(settings);
                         }
 
                         if (prosesPermohonanTutupTotal)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan tutup total");
                             await TutupTotal(settings);
                         }
 
                         if (prosesPermohonanRubahTarif)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan rubah tarif");
                             await RubahTarif(settings);
                         }
 
                         if (prosesPermohonanRubahRayon)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan rubah rayon");
                             await RubahRayon(settings);
                         }
 
                         if (prosesPermohonanSambungKembali)
                         {
-                            Utils.WriteLogMessage("Proses data permohonan sambung kembali");
                             await SambungKembali(settings);
                         }
 
@@ -325,17 +256,6 @@ namespace Migrasi.Commands
             catch (Exception)
             {
                 throw;
-            }
-            finally
-            {
-                //await Utils.MainConnectionWrapper(async (conn, trans) =>
-                //{
-                //    await conn.ExecuteAsync(
-                //        sql: @"
-                //        SET GLOBAL foreign_key_checks = 1;
-                //        SET GLOBAL innodb_flush_log_at_trx_commit = 1;",
-                //        transaction: trans);
-                //});
             }
         }
         private static async Task<int> Bacameter(Settings settings)
@@ -1348,7 +1268,7 @@ namespace Migrasi.Commands
                 });
 
         }
-        private static async Task Nonair(Settings settings)
+        private static async Task PiutangNonair(Settings settings)
         {
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -1361,15 +1281,15 @@ namespace Migrasi.Commands
                 });
 
             //copy terbaru
-            await Utils.CopyToDiffrentHost(
-                sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.TampungConnectionString,
-                table: "tampung_rekening_nonair",
-                query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam }
-                });
+            //await Utils.CopyToDiffrentHost(
+            //    sourceConnection: AppSettings.MainConnectionString,
+            //    targetConnection: AppSettings.TampungConnectionString,
+            //    table: "tampung_rekening_nonair",
+            //    query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
+            //    parameters: new()
+            //    {
+            //        { "@idpdam", settings.IdPdam }
+            //    });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -1380,6 +1300,19 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                 });
+        }
+        private static async Task BayarNonair(Settings settings)
+        {
+            //copy terbaru
+            //await Utils.CopyToDiffrentHost(
+            //    sourceConnection: AppSettings.MainConnectionString,
+            //    targetConnection: AppSettings.TampungConnectionString,
+            //    table: "tampung_rekening_nonair",
+            //    query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
+            //    parameters: new()
+            //    {
+            //        { "@idpdam", settings.IdPdam }
+            //    });
 
             await Utils.BulkCopy(
                 sourceConnection: AppSettings.LoketConnectionString,
@@ -1390,18 +1323,8 @@ namespace Migrasi.Commands
                 {
                     { "@idpdam", settings.IdPdam },
                 });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair_transaksi",
-                queryPath: @"Queries\nonair\nonair_transaksi_batal.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
         }
-        private static async Task Piutang(Settings settings)
+        private static async Task PiutangAir(Settings settings)
         {
             var lastId = 0;
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -1430,7 +1353,7 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                 });
         }
-        private static async Task Bayar(Settings settings)
+        private static async Task BayarAir(Settings settings)
         {
             await Utils.TrackProgress($"bayar|rekening_air_transaksi", async () =>
             {
@@ -1444,19 +1367,6 @@ namespace Migrasi.Commands
                         { "@idpdam", settings.IdPdam },
                     });
             });
-
-            //await Utils.TrackProgress("bayar batal|rekening_air_transaksi", async () =>
-            //{
-            //    await Utils.BulkCopy(
-            //        sourceConnection: AppSettings.LoketConnectionString,
-            //        targetConnection: AppSettings.MainConnectionString,
-            //        table: "rekening_air_transaksi",
-            //        queryPath: @"Queries\bayar\bayar_transaksi_batal.sql",
-            //        parameters: new()
-            //        {
-            //            { "@idpdam", settings.IdPdam },
-            //        });
-            //});
         }
         private async Task RabLainnyaPelanggan(Settings settings)
         {

@@ -207,6 +207,15 @@
     <None Update="Queries\master\personalia_master_pegawai.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\nonair\nonair.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\nonair\nonair_detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Queries\nonair\nonair_transaksi.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\nonair\patch.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

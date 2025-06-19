@@ -18,8 +18,8 @@ JOIN `maros_awal`.`periodemaros` per ON per.kodeperiode=rek.`periode`
 LEFT JOIN `maros_awal`.`t_user` u ON u.`NO_ID`=rek.`USER_BAYAR`
 LEFT JOIN `maros_awal`.`usermaros` us ON `us`.`nama`=u.`NAMA_USER`
 LEFT JOIN `maros_awal`.`loketmaros` l ON l.`kodeloket`=rek.`LOKET_BAYAR`
-LEFT JOIN `maros_awal`.`t_penjualan_hps` hps ON hps.`nosamb`=rek.`nosamb` AND hps.`periode`=rek.`periode` AND hps.`NO_BUKTI`=rek.`NO_BUKTI`
+LEFT JOIN `maros_awal`.`t_penjualan_hps` hps ON hps.`nosamb`=rek.`nosamb` AND hps.`periode`=rek.`periode`
 WHERE rek.`TANGGALBAYAR` IS NOT NULL 
-AND rek.`TANGGALBAYAR`>='2001-01-01' 
-AND rek.`TANGGALBAYAR`<'2008-01-01'
+AND rek.`TANGGALBAYAR`>='2024-01-01' 
+AND rek.`TANGGALBAYAR`<'2025-06-01'
 AND hps.`NO_BUKTI` IS NULL;
