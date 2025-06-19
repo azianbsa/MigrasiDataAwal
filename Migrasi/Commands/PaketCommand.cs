@@ -248,9 +248,6 @@ namespace Migrasi.Commands
                         }
                     });
 
-                AnsiConsole.MarkupLine("");
-                AnsiConsole.MarkupLine($"[bold green]Migrasi data basic finish.[/]");
-
                 return 0;
             }
             catch (Exception)
