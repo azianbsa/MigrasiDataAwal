@@ -38,8 +38,6 @@ namespace Migrasi.Commands
                     },
                     transaction: trans);
             });
-
-            Console.WriteLine();
             Console.WriteLine($"{settings.IdPdam} {namaPdam}");
 
             var selectedProses = AnsiConsole.Prompt(

@@ -21,7 +21,6 @@ namespace Migrasi.Commands
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            Console.WriteLine();
             AnsiConsole.WriteLine($"{settings.IdPdam} {settings.NamaPdam}");
             AnsiConsole.WriteLine($"ID pdam copy: {settings.IdPdamCopy}");
 
@@ -50,9 +49,6 @@ namespace Migrasi.Commands
                             await SetupPdam(settings);
                         });
                     });
-
-                AnsiConsole.MarkupLine("");
-                AnsiConsole.MarkupLine($"[bold green]Setup {settings.NamaPdam} finish.[/]");
             }
             catch (Exception)
             {

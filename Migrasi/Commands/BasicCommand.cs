@@ -16,13 +16,6 @@ namespace Migrasi.Commands
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            await Basic(settings);
-
-            return 0;
-        }
-
-        private async Task<int> Basic(Settings settings)
-        {
             const string MASTER_DATA = "Master data"; //TODO: hanya proses data master yg blm ada di basic
             const string BAYAR_AIR = "Bayar air";
             const string PIUTANG_NONAIR = "Piutang nonair";
@@ -61,8 +54,6 @@ namespace Migrasi.Commands
             {
                 namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
             });
-            
-            Console.WriteLine();
             AnsiConsole.WriteLine($"{settings.IdPdam} {namaPdam}");
 
             var selectedProses = AnsiConsole.Prompt(
@@ -217,14 +208,15 @@ namespace Migrasi.Commands
 
                         }
                     });
-
-                return 0;
             }
             catch (Exception)
             {
                 throw;
             }
+
+            return 0;
         }
+
         private static async Task LoadDataMaster(Settings settings)
         {
             await Utils.CopyToDiffrentHost(

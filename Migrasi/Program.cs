@@ -3,7 +3,6 @@ using DotNetEnv;
 using Microsoft.Data.Sqlite;
 using Migrasi.Commands;
 using Migrasi.Helpers;
-using Spectre.Console;
 using Spectre.Console.Cli;
 using SQLitePCL;
 using System.Reflection;
@@ -41,6 +40,7 @@ namespace Migrasi
                     config.AddCommand<GenerateExampleQueryCommand>("example")
                         .WithDescription("Generate contoh query");
                 });
+
                 return app.Run(args);
             }
             catch (Exception e)
