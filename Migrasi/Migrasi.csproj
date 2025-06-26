@@ -177,6 +177,9 @@
     <None Update="queries\bacameter\setup_pdam.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="queries\balik_nama\balik_nama.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="queries\balik_nama\detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -184,9 +187,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\balik_nama\ba.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\balik_nama\patches\p1.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\bayar\bayar_transaksi.v4.sql">
@@ -241,6 +241,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\rotasimeter\ba_detail.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_baru\sambung_baru.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\tutup_total\ba.sql">

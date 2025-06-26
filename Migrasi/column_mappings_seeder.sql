@@ -583,7 +583,6 @@ INSERT INTO column_mappings (TableName, SourceOrdinal, DestinationColumn) VALUES
 ('rekening_nonair',25,'iduser'),
 ('rekening_nonair',26,'waktuupdate'),
 ('rekening_nonair',27,'created_at'),
-('rekening_nonair',28,'urutan'),
 
 ('rekening_nonair_detail',0,'idpdam'),
 ('rekening_nonair_detail',1,'idnonair'),

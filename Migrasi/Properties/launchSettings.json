@@ -2,7 +2,7 @@
   "profiles": {
     "Migrasi": {
       "commandName": "Project",
-      "commandLineArgs": "new 1 tes"
+      "commandLineArgs": "basic 40"
     }
   }
 }

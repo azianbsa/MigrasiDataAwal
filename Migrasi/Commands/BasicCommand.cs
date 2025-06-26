@@ -633,59 +633,46 @@ namespace Migrasi.Commands
         }
         private static async Task PiutangNonair(Settings settings)
         {
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair",
-                queryPath: @"queries\nonair\nonair.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
+            await Utils.TrackProgress("piutang|rekening_nonair", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_nonair",
+                    queryPath: @"queries\nonair\nonair.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
 
-            //copy terbaru
-            //await Utils.CopyToDiffrentHost(
-            //    sourceConnection: AppSettings.MainConnectionString,
-            //    targetConnection: AppSettings.TampungConnectionString,
-            //    table: "tampung_rekening_nonair",
-            //    query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
-            //    parameters: new()
-            //    {
-            //        { "@idpdam", settings.IdPdam }
-            //    });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair_detail",
-                queryPath: @"queries\nonair\nonair_detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
+            await Utils.TrackProgress("piutang|rekening_nonair_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_nonair_detail",
+                    queryPath: @"queries\nonair\nonair_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
         }
         private static async Task BayarNonair(Settings settings)
         {
-            //copy terbaru
-            //await Utils.CopyToDiffrentHost(
-            //    sourceConnection: AppSettings.MainConnectionString,
-            //    targetConnection: AppSettings.TampungConnectionString,
-            //    table: "tampung_rekening_nonair",
-            //    query: @"SELECT idpdam,`idnonair`,`nomornonair`,urutan FROM `rekening_nonair` WHERE idpdam=@idpdam",
-            //    parameters: new()
-            //    {
-            //        { "@idpdam", settings.IdPdam }
-            //    });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair_transaksi",
-                queryPath: @"queries\nonair\nonair_transaksi.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
+            await Utils.TrackProgress("bayar|rekening_nonair_transaksi", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_nonair_transaksi",
+                    queryPath: @"queries\nonair\nonair_transaksi.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
         }
         private static async Task BayarAir(Settings settings)
         {
