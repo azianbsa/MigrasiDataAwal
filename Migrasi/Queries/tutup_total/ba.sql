@@ -1,27 +1,12 @@
-﻿-- permohonan_pelanggan_air_ba
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "nomorba")
--- new(3, "tanggalba")
--- new(4, "iduser")
--- new(5, "persilnamapaket")
--- new(6, "persilflagdialihkankevendor")
--- new(7, "persilflagbiayadibebankankepdam")
--- new(8, "distribusinamapaket")
--- new(9, "distribusiflagdialihkankevendor")
--- new(10, "distribusiflagbiayadibebankankepdam")
--- new(11, "flagbatal")
--- new(12, "idalasanbatal")
--- new(13, "flag_dari_verifikasi")
--- new(14, "statusberitaacara")
--- new(15, "waktuupdate")
+﻿SET @tgl_reg_awal='2017-03-31';
+SET @tgl_reg_akhir='2025-06-26';
 
 SELECT
 @idpdam AS idpdam,
-pp.`idpermohonan` AS idpermohonan,
-p.`nomorba` AS nomorba,
-p.`tanggalba` AS tanggalba,
-u.`iduser` AS iduser,
+g.`idpermohonan` AS idpermohonan,
+g.`nomorpermohonan` AS nomorba,
+a.`tgl_cm` AS tanggalba,
+-1 AS iduser,
 NULL AS persilnamapaket,
 0 AS persilflagdialihkankevendor,
 0 AS persilflagbiayadibebankankepdam,
@@ -30,10 +15,10 @@ NULL AS distribusinamapaket,
 0 AS distribusiflagbiayadibebankankepdam,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-0 AS flag_dari_verifikasi,
+NULL AS flag_dari_verifikasi,
 'Berhasil Dikerjakan' AS statusberitaacara,
-p.`tanggalba` AS waktuupdate
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan`
-LEFT JOIN `kotaparepare_dataawal`.`master_user` u ON u.`nama`=p.`user`
-WHERE p.`flaghapus`=0
+a.`tgl_cm` AS waktuupdate
+FROM `t_reg_cm` a
+JOIN `tutuptotaltunggakan` g ON g.`no_cm`=a.`no_cm`
+WHERE a.`tgl_cm`>=@tgl_reg_awal
+AND a.`tgl_cm`<@tgl_reg_akhir

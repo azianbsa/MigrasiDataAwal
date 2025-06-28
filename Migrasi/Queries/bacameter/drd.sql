@@ -1,126 +1,117 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
-CREATE TEMPORARY TABLE __tmp_periode AS
-SELECT
-@id:=@id+1 AS idperiode,
-periode
-FROM
-periode
-,(SELECT @id:=0) AS id
-ORDER BY periode;
-
-SELECT
-@idpdam,
-@id:=@id+1 AS idrekeningair,
-pel.id AS idpelangganair,
+﻿SELECT
+@idpdam AS idpdam,
+@id:=@id+1 as idrekeningair,
+pel.idpelangganair AS idpelangganair,
 per.idperiode AS idperiode,
-coalesce(gol.id,-1) AS idgolongan,
-coalesce(dia.id,-1) AS iddiameter,
+COALESCE(gol.idgolongan,-1) AS idgolongan,
+COALESCE(dia.iddiameter,-1) AS iddiameter,
 1 AS idjenispipa,
 1 AS idkwh,
-ray.id AS idrayon,
-kel.id AS idkelurahan,
-kol.id AS idkolektif,
-adm.id AS idadministrasilain,
-pem.id AS idpemeliharaanlain,
-ret.id AS idretribusilain,
-rek.flagaktif AS idstatus,
+ray.idrayon AS idrayon,
+kel.idkelurahan AS idkelurahan,
+kol.idkolektif AS idkolektif,
+1 AS idadministrasilain,
+1 AS idpemeliharaanlain,
+1 AS idretribusilain,
+p.status AS idstatus,
 1 AS idflag,
-rek.stanlalu AS stanlalu,
-IFNULL(rek.stanskrg, 0) AS stanskrg,
-IFNULL(rek.stanangkat, 0) AS stanangkat,
-IFNULL(rek.pakai, 0) AS pakai,
-0 AS pakaikalkulasi,
-IFNULL(rek.biayapemakaian, 0) AS biayapemakaian,
-IFNULL(rek.administrasi, 0) AS administrasi,
-IFNULL(rek.pemeliharaan, 0) AS pemeliharaan,
-IFNULL(rek.retribusi, 0) AS retribusi,
-IFNULL(rek.pelayanan, 0) AS pelayanan,
-IFNULL(rek.airlimbah, 0) AS airlimbah,
-IFNULL(rek.dendapakai0, 0) AS dendapakai0,
-IFNULL(rek.administrasilain, 0) AS administrasilain,
-IFNULL(rek.pemeliharaanlain, 0) AS pemeliharaanlain,
-IFNULL(rek.retribusilain, 0) AS retribusilain,
-IFNULL(rek.ppn, 0) AS ppn,
-IFNULL(rek.meterai, 0) AS meterai,
-IFNULL(rek.rekair, 0) AS rekair,
-IFNULL(rek.dendatunggakan, 0) AS denda,
+rek.meter1 AS stanlalu,
+IFNULL(rek.meter2, 0) AS stanskrg,
+IFNULL(rek.stan_angkat, 0) AS stanangkat,
+IFNULL(rek.pemakaian, 0) AS pakai,
+IFNULL(rek.pemakaian, 0) AS pakaikalkulasi,
+IFNULL(rek.hargaair, 0) AS biayapemakaian,
+IFNULL(rek.byadm, 0) AS administrasi,
+IFNULL(rek.danameter, 0) AS pemeliharaan,
+0 AS retribusi,
+0 AS pelayanan,
+0 AS airlimbah,
+0 AS dendapakai0,
+0 AS administrasilain,
+0 AS pemeliharaanlain,
+0 AS retribusilain,
+0 AS ppn,
+0 AS meterai,
+IFNULL((rek.jumlahbayar-rek.denda), 0) AS rekair,
+IFNULL(rek.denda, 0) AS denda,
 0 AS diskon,
 0 AS deposit,
-IFNULL(rek.total, 0) AS total,
+IFNULL(rek.jumlahbayar, 0) AS total,
 0 AS hapussecaraakuntansi,
 NULL AS waktuhapussecaraakuntansi,
 NULL AS iddetailcyclepembacaan,
 NULL AS tglpenentuanbaca,
-rek.flagkoreksi AS flagbaca,
-IF(rek.flagkoreksi=1, 0, NULL) AS metodebaca,
-IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktubaca,
-IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jambaca,
-pbc.kodepetugas AS petugasbaca,
-kln.idkelainan AS kelainan,
-0 AS stanbaca,
-IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktukirimhasilbaca,
-IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jamkirimhasilbaca,
-NULL AS memolapangan,
-NULL AS lampiran,
+hsl.sudahbaca AS flagbaca,
+IF(hsl.sudahbaca=1, 4, NULL) AS metodebaca,
+DATE(hsl.waktubaca)AS waktubaca,
+TIME(hsl.waktubaca) AS jambaca,
+hsl.kodepetugas AS petugasbaca,
+IF(hsl.idkelainan=0, NULL, hsl.idkelainan) AS kelainan,
+IFNULL(rek.meter2, 0) AS stanbaca,
+DATE(hsl.waktuupload) AS waktukirimhasilbaca,
+TIME(hsl.waktuupload) AS jamkirimhasilbaca,
+hsl.memolapangan AS memolapangan,
+hsl.lampiran AS lampiran,
 0 AS taksasi,
-0 AS taksir,
+hsl.taksir AS taksir,
 0 AS flagrequestbacaulang,
 NULL AS waktuupdaterequestbacaulang,
-rek.flagkoreksi AS flagkoreksi,
-IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktukoreksi,
-IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jamkoreksi,
-1 AS flagverifikasi,
-IF(rek.flagkoreksi=1, DATE(NOW()), NULL) AS waktuverifikasi,
-IF(rek.flagkoreksi=1, DATE_FORMAT(NOW(), '%H:%i:%s'), NULL) AS jamverifikasi,
+hsl.sudahbaca AS flagkoreksi,
+DATE(hsl.waktubaca) AS waktukoreksi,
+TIME(hsl.waktubaca) AS jamkoreksi,
+hsl.verifikasi AS flagverifikasi,
+DATE(hsl.waktuverifikasi) AS waktuverifikasi,
+TIME(hsl.waktuverifikasi) AS jamverifikasi,
 NULL AS userverifikasi,
-rek.flagpublish AS flagpublish,
-DATE(rek.tglpublish) AS waktupublish,
-DATE_FORMAT(rek.tglpublish, '%H:%i:%s') AS jampublish,
+1 AS flagpublish,
+DATE(NOW())AS waktupublish,
+DATE_FORMAT(NOW(), '%H:%i:%s')  AS jampublish,
 NULL AS userpublish,
-NULL AS latitude,
-NULL AS longitude,
-NULL AS latitudebulanlalu,
-NULL AS longitudebulanlalu,
+hsl.latitude AS latitude,
+hsl.longitude AS longitude,
+hsl.latitude AS latitudebulanlalu,
+hsl.longitude AS longitudebulanlalu,
 1 AS adafotometer,
 0 AS adafotorumah,
 0 AS adavideo,
 0 AS flagminimumpakai,
-0 AS pakaibulanlalu,
-0 AS pakai2bulanlalu,
-0 AS pakai3bulanlalu,
+hsl.pakai1 AS pakaibulanlalu,
+hsl.pakai2 AS pakai2bulanlalu,
+hsl.pakai3 AS pakai3bulanlalu,
 0 AS pakai4bulanlalu,
-0 AS persentasebulanlalu,
-0 AS persentase2bulanlalu,
-0 AS persentase3bulanlalu,
-NULL AS kelainanbulanlalu,
+hsl.persen1 AS persentasebulanlalu,
+hsl.persen2 AS persentase2bulanlalu,
+hsl.persen3 AS persentase3bulanlalu,
+hsl.kelainanlalu AS kelainanbulanlalu,
 NULL AS kelainan2bulanlalu,
 0 AS flagangsur,
 NULL AS idangsuran,
 NULL AS idmodule,
 0 AS flagkoreksibilling,
-rek.tglmulaidenda AS tglmulaidenda1,
-rek.tglmulaidenda2 AS tglmulaidenda2,
-rek.tglmulaidenda3 AS tglmulaidenda3,
-rek.tglmulaidenda4 AS tglmulaidenda4,
-rek.tglmulaidendaperbulan AS tglmulaidendaperbulan,
+CONCAT(rek.periode2,'-',LPAD(rek.periode1,2,'0'),'-26') + INTERVAL 1 MONTH AS tglmulaidenda1,
+CONCAT(rek.periode2,'-',LPAD(rek.periode1,2,'0'),'-26') + INTERVAL 1 MONTH AS tglmulaidenda2,
+CONCAT(rek.periode2,'-',LPAD(rek.periode1,2,'0'),'-26') + INTERVAL 1 MONTH AS tglmulaidenda3,
+CONCAT(rek.periode2,'-',LPAD(rek.periode1,2,'0'),'-26') + INTERVAL 1 MONTH AS tglmulaidenda4,
+CONCAT(rek.periode2,'-',LPAD(rek.periode1,2,'0'),'-26') + INTERVAL 1 MONTH AS tglmulaidendaperbulan,
 NULL AS tglmulaidendaperhari,
-rek.flagpublish AS flaghasbeenpublish,
+IF(hsl.sudahbaca=1, 1, NULL) AS flaghasbeenpublish,
 0 AS flagdrdsusulan,
 NULL AS waktudrdsusulan,
 NOW() AS waktuupdate,
 0 AS flaghapus
-FROM
-drd[tahunbulan] rek
-JOIN pelanggan pel ON pel.nosamb = rek.nosamb
-JOIN __tmp_periode per ON per.periode = [tahunbulan]
-LEFT JOIN golongan gol ON gol.kodegol = rek.kodegol AND gol.aktif = 1
-LEFT JOIN diameter dia ON dia.kodediameter = rek.kodediameter AND dia.aktif = 1
-LEFT JOIN rayon ray ON ray.koderayon = rek.koderayon
-LEFT JOIN kelurahan kel ON kel.kodekelurahan = rek.kodekelurahan
-LEFT JOIN kolektif kol ON kol.kodekolektif = rek.kodekolektif
-LEFT JOIN byadministrasi_lain adm ON adm.kode = rek.kodeadministrasilain
-LEFT JOIN bypemeliharaan_lain pem ON pem.kode = rek.kodepemeliharaanlain
-LEFT JOIN byretribusi_lain ret ON ret.kode = rek.koderetribusilain
-LEFT JOIN [bacameter].petugasbaca pbc ON pbc.nama = TRIM(SUBSTRING_INDEX(rek.pembacameter, '(', 1))
-LEFT JOIN [bacameter].kelainan kln ON kln.kelainan = rek.kelainan
-,(SELECT @id := 0) AS id;
+FROM t_penjualan rek
+JOIN maros_awal.pelangganmaros pel ON pel.nosamb = rek.nosamb
+JOIN maros_awal.periodemaros per ON per.kodeperiode = CONCAT(rek.periode2,LPAD(rek.periode1,2,'0'))
+LEFT JOIN kabmaros_loket4.pelanggan p ON rek.nosamb=p.nosamb
+LEFT JOIN maros_awal.golonganmaros gol ON gol.kodegolongan = rek.goltarif
+LEFT JOIN maros_awal.diametermaros dia ON dia.kodediameter = p.kodediameter
+LEFT JOIN maros_awal.rayonmaros ray ON ray.koderayon = p.koderayon
+LEFT JOIN maros_awal.kelurahanmaros kel ON kel.kodekelurahan = p.kodekelurahan
+LEFT JOIN maros_awal.kolektifmaros kol ON kol.kodekolektif = p.kodekolektif
+LEFT JOIN `maros_awal`.`t_ptgs_met` ptgs ON ptgs.id_ptgs_met=rek.ptgs_met
+LEFT JOIN `bacameter_maros`.hasilbaca0525 hsl ON hsl.idpelanggan=rek.nosamb
+,(select @id:=@lastid) as id
+WHERE rek.`PERIODE2`='2025' AND rek.`PERIODE1`='5'
+AND pel.`idpelangganair` IN (
+23945, 23946, 23947, 23948, 23950, 23954, 23955, 23956, 23957, 23958, 23959, 23961, 23962, 23963, 23964, 23965, 23966, 23967, 23968, 23969, 23970, 23971, 23972, 23973, 23975, 23976, 23977, 23978, 23979, 23981, 23982, 23983, 23984, 23985, 23988, 23989, 23991, 23992, 23994, 23999, 24001, 24002, 24004, 24005, 24007, 24009, 24010, 24011, 24012, 24015, 24018, 24019, 24020, 24021, 24023, 24024, 24026, 24027, 24028, 24029, 24030, 24032, 24034, 24035, 24042, 24044, 24045, 24048, 24050, 24051, 24053, 24055, 24056, 24057, 24059, 24061, 24062, 24063, 24064, 24065, 24067, 24068, 24069, 24071, 24072, 24073, 24075, 24076, 24077, 24078, 24081, 24082, 24083, 24085, 24088, 24089, 24091, 24092, 24093, 24096, 24101, 24102, 24104, 24105, 24106, 24108, 24110, 24111, 24112, 24116, 24117, 24118, 24120, 24121, 24125, 24127, 24128, 24129, 24131, 24132, 24133, 24134, 24135, 24137, 24138, 24139, 24140, 24141, 24142, 24143, 24144, 24145, 24146, 24150, 24151, 24152, 24154, 24155, 24156, 24157, 24158, 24159, 24160, 24162, 24163, 24165, 24166, 24167, 24168, 24169, 24170, 24171, 24172, 24173, 24174, 24177, 24178, 24179, 24180, 24181, 24182, 24184, 24185, 24187, 24188, 24190, 24191, 24192, 24193, 24195, 24196, 24198, 24199, 24200, 24201, 24202, 24203, 24207, 24210, 24211, 24212, 24214, 24217, 24218, 24220, 24221, 24222, 24223, 24224, 24225, 24226, 24229, 24231, 24234, 24235, 24236, 24237, 24238, 24239, 24241, 24242, 24244, 24246, 24247, 24250, 24253, 24257, 24258, 24260, 24263, 24264, 24265, 24267, 24270, 24271, 24272, 24273, 24274, 24275, 24282, 24283, 24286, 24287, 24289, 24290, 24291, 24292, 24293, 24295, 24296, 24299, 24300, 24303, 24304, 24307, 24308, 24309, 24313, 24314, 24315, 24316, 24317, 24319, 24320, 24321, 24322, 24324, 24326, 24328, 24329, 24330, 24331, 24333, 24336, 24337, 24338, 24339, 24341, 24342, 24346, 24347, 24348, 24351, 24352, 24353, 24354, 24355, 24358, 24359, 24360, 24362, 24363, 24364, 24365, 24366, 24369, 24370, 24372, 24373, 24374, 24375, 24377, 24380, 24381, 24385, 24386, 24389, 24390, 24392, 24393, 24394, 24396, 24398, 24399, 24400, 24404, 24407, 24408, 24409, 24410, 24411, 24412, 24414, 24416, 24418, 24420, 24421, 24422, 24424, 24425, 24426, 24427, 24429, 24431, 24432, 24433, 24434, 24435, 24436, 24437, 24438, 24439, 24440, 24441, 24442, 24443, 24444, 24445, 24446, 24447, 24450, 24453, 24455, 24456, 24457, 24458, 24459, 24460, 24461, 24462, 24464, 24465, 24466, 24467, 24468, 24469, 24470, 24471, 24473, 24475, 24477, 24478, 24480, 24481, 24482, 24483, 24484, 24485, 24486, 24487, 24488, 24490, 24491, 24493, 24494, 24495, 24498, 24500, 24501, 24504, 24506, 24507, 24510, 24512, 24513, 24515, 24516, 24517, 24519, 24520, 24521, 24522, 24523, 24524, 24525, 24526, 24527, 24529, 24530, 24532, 24533, 24534, 24535, 24539, 24540, 24541, 24545, 24546, 24552, 24553, 24554, 24556, 24557, 24558, 24559, 24561, 24564, 24567, 24568, 24569, 24571, 24572, 24573, 24576, 24577, 24585, 24587, 24588, 24589, 24590, 24594, 24595, 24597, 24598, 24599, 24600, 24601, 24602, 24603, 24604, 24605, 24608, 24611, 24613, 24615, 24617, 24618, 24619, 24620, 24622, 24623, 24625, 24626, 24627, 24629, 24631, 24633, 24634, 24635, 24637, 24638, 24640, 24641, 24642, 24643, 24647, 24649, 24650, 24651, 24652, 24653, 24654, 24655, 24656, 24658, 24659, 24660, 24661, 24662, 24663
+)

@@ -1,133 +1,67 @@
-﻿-- permohonan_pelanggan_air_ba_detail
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "parameter")
--- new(3, "tipedata")
--- new(4, "valuestring")
--- new(5, "valuedecimal")
--- new(6, "valueinteger")
--- new(7, "valuedate")
--- new(8, "valuebool")
--- new(9, "waktuupdate")
+﻿SET @tgl_reg_awal='2017-03-31';
+SET @tgl_reg_akhir='2025-06-26';
 
 SELECT
 @idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
+g.`idpermohonan` AS `idpermohonan`,
 'Angka Meter' AS `parameter`,
 'decimal' AS `tipedata`,
 NULL AS `valuestring`,
-p.`angkameter` AS `valuedecimal`,
+a.`met_akh` AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-WHERE p.`flaghapus`=0
+a.`tgl_cm` AS `waktuupdate`
+FROM `t_reg_cm` a
+JOIN `tutuptotaltunggakan` g ON g.`no_cm`=a.`no_cm`
+WHERE a.`tgl_cm`>=@tgl_reg_awal
+AND a.`tgl_cm`<@tgl_reg_akhir
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
-'Keterangan' AS `parameter`,
-'string' AS `tipedata`,
-p.memo AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-WHERE p.`flaghapus`=0
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
-'Keterangan Putus' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-WHERE p.`flaghapus`=0
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
+g.`idpermohonan` AS `idpermohonan`,
 'Merk Meter' AS `parameter`,
 'int' AS `tipedata`,
 NULL AS `valuestring`,
 NULL AS `valuedecimal`,
-m.idmerekmeter AS `valueinteger`,
+-1 AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-LEFT JOIN `kotaparepare_dataawal`.`master_attribute_merek_meter` m ON m.namamerekmeter=p.`merkmeter`
-WHERE p.`flaghapus`=0
+a.`tgl_cm` AS `waktuupdate`
+FROM `t_reg_cm` a
+JOIN `tutuptotaltunggakan` g ON g.`no_cm`=a.`no_cm`
+WHERE a.`tgl_cm`>=@tgl_reg_awal
+AND a.`tgl_cm`<@tgl_reg_akhir
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
+g.`idpermohonan` AS `idpermohonan`,
 'Seri Meter' AS `parameter`,
 'string' AS `tipedata`,
-p.`serimeter` AS `valuestring`,
+COALESCE(p.`serimeter`,'-') AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-WHERE p.`flaghapus`=0
+a.`tgl_cm` AS `waktuupdate`
+FROM `t_reg_cm` a
+JOIN `tutuptotaltunggakan` g ON g.`no_cm`=a.`no_cm`
+LEFT JOIN `kabmaros_loket4`.`pelanggan` p ON p.nosamb=a.`nosamb`
+WHERE a.`tgl_cm`>=@tgl_reg_awal
+AND a.`tgl_cm`<@tgl_reg_akhir
 UNION ALL
 SELECT
 @idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
+g.`idpermohonan` AS `idpermohonan`,
 'Seri Segel' AS `parameter`,
 'string' AS `tipedata`,
-NULL AS `valuestring`,
+'-' AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-WHERE p.`flaghapus`=0
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
-'Status Rangkaian Meter' AS `parameter`,
-'string' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-WHERE p.`flaghapus`=0
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
-'Warna Segel' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-w.idwarnasegel AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-p.`tanggalba` AS `waktuupdate`
-FROM ba_pemutusan_sementara p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-LEFT JOIN `kotaparepare_dataawal`.`master_attribute_warna_segel` w ON w.warnasegel=p.`warnasegel`
-WHERE p.`flaghapus`=0
+a.`tgl_cm` AS `waktuupdate`
+FROM `t_reg_cm` a
+JOIN `tutuptotaltunggakan` g ON g.`no_cm`=a.`no_cm`
+WHERE a.`tgl_cm`>=@tgl_reg_awal
+AND a.`tgl_cm`<@tgl_reg_akhir

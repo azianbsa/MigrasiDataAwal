@@ -1,5 +1,5 @@
-﻿SET @tgl_ent_awal='2023-01-01';
-SET @tgl_ent_akhir='2025-06-01';
+﻿SET @tgl_ent_awal='2025-05-21';
+SET @tgl_ent_akhir='2025-06-27';
 
 SELECT
 @idpdam AS idpdam,

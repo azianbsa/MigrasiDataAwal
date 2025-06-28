@@ -19,8 +19,8 @@
 SELECT
 @idpdam AS idpdam,
 pp.`idpermohonan` AS idpermohonan,
-p.`nomorba` AS nomorba,
-p.`tanggalba` AS tanggalba,
+p.nomorba AS nomorba,
+p.tanggalba AS tanggalba,
 NULL AS iduser,
 NULL AS persilnamapaket,
 0 AS persilflagdialihkankevendor,
@@ -30,9 +30,9 @@ NULL AS distribusinamapaket,
 0 AS distribusiflagbiayadibebankankepdam,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-0 AS flag_dari_verifikasi,
+1 AS flag_dari_verifikasi,
 'Berhasil Dikerjakan' AS statusberitaacara,
-p.`tanggalba` AS waktuupdate
-FROM `ba_rubah_gol` p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomorpermohonan`
-WHERE p.`flaghapus`=0
+NOW() AS waktuupdate
+FROM ba_balik_nama p
+JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan`
+WHERE p.flaghapus=0

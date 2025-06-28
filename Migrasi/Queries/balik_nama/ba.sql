@@ -1,27 +1,12 @@
-﻿-- permohonan_pelanggan_air_ba
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "nomorba")
--- new(3, "tanggalba")
--- new(4, "iduser")
--- new(5, "persilnamapaket")
--- new(6, "persilflagdialihkankevendor")
--- new(7, "persilflagbiayadibebankankepdam")
--- new(8, "distribusinamapaket")
--- new(9, "distribusiflagdialihkankevendor")
--- new(10, "distribusiflagbiayadibebankankepdam")
--- new(11, "flagbatal")
--- new(12, "idalasanbatal")
--- new(13, "flag_dari_verifikasi")
--- new(14, "statusberitaacara")
--- new(15, "waktuupdate")
+﻿SET @tgl_reg_awal='2017-01-01';
+SET @tgl_reg_akhir='2025-07-01';
 
 SELECT
 @idpdam AS idpdam,
-pp.`idpermohonan` AS idpermohonan,
-p.nomorba AS nomorba,
-p.tanggalba AS tanggalba,
-NULL AS iduser,
+b.`idpermohonan` AS idpermohonan,
+a.`no_reg` AS nomorba,
+a.`tgl_bn` AS tanggalba,
+-1 AS iduser,
 NULL AS persilnamapaket,
 0 AS persilflagdialihkankevendor,
 0 AS persilflagbiayadibebankankepdam,
@@ -31,8 +16,10 @@ NULL AS distribusinamapaket,
 0 AS flagbatal,
 NULL AS idalasanbatal,
 1 AS flag_dari_verifikasi,
-'Berhasil Dikerjakan' AS statusberitaacara,
-NOW() AS waktuupdate
-FROM ba_balik_nama p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan`
-WHERE p.flaghapus=0
+NULL AS statusberitaacara,
+a.`tgl_bn` AS waktuupdate
+FROM `t_reg_bn` a
+JOIN `baliknama` b ON b.`no_reg`=a.`no_reg`
+WHERE a.tgl_reg>=@tgl_reg_awal
+AND a.tgl_reg<@tgl_reg_akhir
+AND a.`tgl_bn` IS NOT NULL

@@ -64,24 +64,24 @@ namespace Migrasi.Commands
                 await AnsiConsole.Status()
                     .StartAsync("Sedang diproses...", async ctx =>
                     {
-                        await Utils.TrackProgress("Tambah idpelanggan di bsbs tabel pelanggan", async () =>
-                        {
-                            await Utils.BsbsConnectionWrapper(async (conn, trans) =>
-                            {
-                                var cek = await conn.QueryFirstOrDefaultAsync<int?>(
-                                    sql: "SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
-                                    param: new
-                                    {
-                                        schema = AppSettings.BsbsDatabase
-                                    },
-                                    transaction: trans);
-                                if (cek is null)
-                                {
-                                    var query = await File.ReadAllTextAsync(@"queries\patches\tambah_field_id_tabel_pelanggan.sql");
-                                    await conn.ExecuteAsync(query, transaction: trans);
-                                }
-                            });
-                        });
+                        //await Utils.TrackProgress("Tambah idpelanggan di bsbs tabel pelanggan", async () =>
+                        //{
+                        //    await Utils.BsbsConnectionWrapper(async (conn, trans) =>
+                        //    {
+                        //        var cek = await conn.QueryFirstOrDefaultAsync<int?>(
+                        //            sql: "SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
+                        //            param: new
+                        //            {
+                        //                schema = AppSettings.BsbsDatabase
+                        //            },
+                        //            transaction: trans);
+                        //        if (cek is null)
+                        //        {
+                        //            var query = await File.ReadAllTextAsync(@"queries\patches\tambah_field_id_tabel_pelanggan.sql");
+                        //            await conn.ExecuteAsync(query, transaction: trans);
+                        //        }
+                        //    });
+                        //});
 
                         if (prosesMasterData)
                         {
@@ -570,32 +570,7 @@ namespace Migrasi.Commands
 
                         if (prosesRekeningAir)
                         {
-                            var lastId = 0;
-                            await Utils.MainConnectionWrapper(async (conn, trans) =>
-                            {
-                                lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
-                            });
-
-                            await Utils.BulkCopy(
-                                sourceConnection: AppSettings.BsbsConnectionString,
-                                targetConnection: AppSettings.MainConnectionString,
-                                table: "rekening_air",
-                                queryPath: @"queries\bacameter\drd.sql",
-                                parameters: new()
-                                {
-                                    { "@idpdam", settings.IdPdam },
-                                    { "@lastid", lastId },
-                                });
-
-                            await Utils.BulkCopy(
-                                sourceConnection: AppSettings.BsbsConnectionString,
-                                targetConnection: AppSettings.MainConnectionString,
-                                table: "rekening_air_detail",
-                                queryPath: @"queries\bacameter\drd_detail.sql",
-                                parameters: new()
-                                {
-                                    { "@idpdam", settings.IdPdam }
-                                });
+                            await RekeningAir(settings);
                         }
                     });
             }
@@ -605,6 +580,42 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private static async Task RekeningAir(Settings settings)
+        {
+            await Utils.TrackProgress("drd|rekening_air", async () =>
+            {
+                var lastId = 0;
+                await Utils.MainConnectionWrapper(async (conn, trans) =>
+                {
+                    lastId = await conn.QueryFirstOrDefaultAsync<int>("SELECT IFNULL(MAX(idrekeningair),0) FROM rekening_air", transaction: trans);
+                });
+
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.BsbsConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_air",
+                    queryPath: @"queries\bacameter\drd.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                        { "@lastid", lastId },
+                    });
+            });
+
+            await Utils.TrackProgress("drddetail|rekening_air", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.BsbsConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_air_detail",
+                    queryPath: @"queries\bacameter\drd_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam }
+                    });
+            });
         }
     }
 }

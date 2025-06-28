@@ -12,14 +12,14 @@ NULL AS idkolektiftransaksi,
 0 AS idalasanbatal,
 NULL AS keterangan,
 rek.`TANGGALBAYAR` AS waktuupdate
-FROM `maros_awal`.`t_penjualan_copy` rek
+FROM `t_penjualan` rek
 JOIN `maros_awal`.`pelangganmaros` pel ON pel.nosamb=rek.nosamb
-JOIN `maros_awal`.`periodemaros` per ON per.kodeperiode=rek.`periode`
+JOIN `maros_awal`.`periodemaros` per ON per.kodeperiode=CONCAT(rek.`PERIODE2`,LPAD(rek.`PERIODE1`,2,'0'))
 LEFT JOIN `maros_awal`.`t_user` u ON u.`NO_ID`=rek.`USER_BAYAR`
 LEFT JOIN `maros_awal`.`usermaros` us ON `us`.`nama`=u.`NAMA_USER`
 LEFT JOIN `maros_awal`.`loketmaros` l ON l.`kodeloket`=rek.`LOKET_BAYAR`
-LEFT JOIN `maros_awal`.`t_penjualan_hps` hps ON hps.`nosamb`=rek.`nosamb` AND hps.`periode`=rek.`periode`
+LEFT JOIN `t_penjualan_hps` hps ON hps.`nosamb`=rek.`nosamb` AND CONCAT(hps.`PERIODE2`,LPAD(hps.`PERIODE1`,2,'0'))=CONCAT(rek.`PERIODE2`,LPAD(rek.`PERIODE1`,2,'0'))
 WHERE rek.`TANGGALBAYAR` IS NOT NULL 
-AND rek.`TANGGALBAYAR`>='2022-01-01' 
-AND rek.`TANGGALBAYAR`<'2025-06-01'
+AND rek.`TANGGALBAYAR`>='2025-05-20' 
+AND rek.`TANGGALBAYAR`<'2025-06-27'
 AND (hps.`NO_BUKTI` IS NULL OR rek.`TANGGALBAYAR`>hps.`TANGGALBAYAR`)

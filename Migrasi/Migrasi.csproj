@@ -63,7 +63,13 @@
     <None Update="queries\angsuran_nonair\nonair_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="queries\bacameter\drd.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="queries\bacameter\drd.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\bacameter\drd_detail.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\bacameter\drd_detail.sql">
@@ -177,7 +183,13 @@
     <None Update="queries\bacameter\setup_pdam.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="queries\balik_nama\ba.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="queries\balik_nama\balik_nama.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\balik_nama\detail.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\balik_nama\detail.sql">
@@ -243,7 +255,25 @@
     <None Update="queries\rotasimeter\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="queries\sambung_baru\detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_baru\rab.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_baru\rab_detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="queries\sambung_baru\sambung_baru.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_baru\spk.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_baru\spk_detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_baru\spk_pasang.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\tutup_total\ba.sql">
@@ -252,13 +282,7 @@
     <None Update="queries\tutup_total\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\tutup_total\spk.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="queries\tutup_total\tutup_total.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\tutup_total\detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\tutup_total\spk_pasang.sql">
@@ -711,25 +735,22 @@
     <None Update="queries\rubah_rayon\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\rubah_tarif\detail.sql">
+    <None Update="queries\rubah_gol\detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\rubah_tarif\ba_detail.sql">
+    <None Update="queries\rubah_gol\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\rubah_tarif\patches\p1.sql">
+    <None Update="queries\rubah_gol\spk_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\rubah_tarif\spk_detail.sql">
+    <None Update="queries\rubah_gol\rubah_gol.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\rubah_tarif\rubah_tarif.sql">
+    <None Update="queries\rubah_gol\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\rubah_tarif\ba.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\rubah_tarif\spk.sql">
+    <None Update="queries\rubah_gol\spk.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\rubah_rayon\ba.sql">
