@@ -30,6 +30,7 @@ namespace Migrasi.Commands
             const string PERMOHONAN_RUBAH_GOL = "Permohonan rubah golongan";
             const string PERMOHONAN_RUBAH_RAYON = "Permohonan rubah rayon";
             const string PERMOHONAN_SAMBUNG_KEMBALI = "Permohonan sambung kembali";
+            const string PERMOHONAN_SEGEL = "Permohonan segel";
 
             List<string> prosesList =
             [
@@ -47,6 +48,7 @@ namespace Migrasi.Commands
                 PERMOHONAN_RUBAH_GOL,
                 PERMOHONAN_RUBAH_RAYON,
                 PERMOHONAN_SAMBUNG_KEMBALI,
+                PERMOHONAN_SEGEL,
             ];
 
             string? namaPdam = "";
@@ -78,6 +80,7 @@ namespace Migrasi.Commands
             var prosesPermohonanRubahGol = selectedProses.Exists(s => s == PERMOHONAN_RUBAH_GOL);
             var prosesPermohonanRubahRayon = selectedProses.Exists(s => s == PERMOHONAN_RUBAH_RAYON);
             var prosesPermohonanSambungKembali = selectedProses.Exists(s => s == PERMOHONAN_SAMBUNG_KEMBALI);
+            var prosesPermohonanSegel = selectedProses.Exists(s => s == PERMOHONAN_SEGEL);
 
             AnsiConsole.WriteLine("Proses dipilih:");
             AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
@@ -165,6 +168,11 @@ namespace Migrasi.Commands
                             await SambungKembali(settings);
                         }
 
+                        if (prosesPermohonanSegel)
+                        {
+                            await Segel(settings);
+                        }
+
                         if (false)
                         {
                             await Report(settings);
@@ -215,6 +223,61 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private static async Task Segel(Settings settings)
+        {
+            await Utils.TrackProgress("segel|permohonan_pelanggan_air", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air",
+                    queryPath: @"queries\segel\segel.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("segel|permohonan_pelanggan_air_spk_pasang", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_spk_pasang",
+                    queryPath: @"queries\segel\spk_pasang.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("segel|permohonan_pelanggan_air_ba", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_ba",
+                    queryPath: @"queries\segel\ba.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("segel|permohonan_pelanggan_air_ba_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_ba_detail",
+                    queryPath: @"queries\segel\ba_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
         }
 
         private static async Task LoadDataMaster(Settings settings)

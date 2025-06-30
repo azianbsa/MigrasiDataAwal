@@ -17,5 +17,5 @@ LEFT JOIN `maros_awal`.`t_user` u ON u.`NO_ID`=a.`opr`
 LEFT JOIN `maros_awal`.`usermaros` um ON um.`nama`=u.`NAMA_USER`
 LEFT JOIN `maros_awal`.`loketmaros` l ON l.`kodeloket`=a.`loket`
 WHERE a.`no_byr`<>'-' 
-AND a.`tgl_byr`>='2025-05-21'
-AND a.`tgl_byr`<'2025-06-27'
+AND a.`tgl_byr`>='2025-06-26'
+AND a.`tgl_byr`<'2025-06-28'
