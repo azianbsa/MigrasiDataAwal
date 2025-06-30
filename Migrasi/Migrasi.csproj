@@ -54,15 +54,6 @@
     <None Update="queries\angsuran_air\bayar_rekening_air_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\angsuran_nonair\patch.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\angsuran_nonair\nonair.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\angsuran_nonair\nonair_detail.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="queries\bacameter\drd.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

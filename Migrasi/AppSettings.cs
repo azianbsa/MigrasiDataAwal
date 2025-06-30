@@ -7,8 +7,8 @@ namespace Migrasi
     {
         public static Environment Environment { get; set; }
 
-        public static uint ConnectionTimeout { get; set; } = (uint)TimeSpan.FromMinutes(5).TotalSeconds;
-        public static uint CommandTimeout { get; set; } = (uint)TimeSpan.FromMinutes(5).TotalSeconds;
+        public static uint ConnectionTimeout { get; set; } = (uint)TimeSpan.FromMinutes(10).TotalSeconds;
+        public static uint CommandTimeout { get; set; } = (uint)TimeSpan.FromMinutes(10).TotalSeconds;
 
         public static string ConfigHost { get; set; }
         public static uint ConfigPort { get; set; }
