@@ -181,10 +181,6 @@ namespace Migrasi.Commands
                             {
                                 await AngsuranAir(settings);
                             });
-                            await Utils.TrackProgress("angsuran nonair", async () =>
-                            {
-                                await AngsuranNonair(settings);
-                            });
                             await Utils.TrackProgress("pengaduan pelanggan", async () =>
                             {
                                 await PengaduanPelanggan(settings);
@@ -1126,113 +1122,32 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
-        private async Task AngsuranNonair(Settings settings)
+        private static async Task AngsuranNonair(Settings settings)
         {
-            IEnumerable<dynamic>? jenis = [];
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
+            await Utils.TrackProgress("angsurannonair|rekening_nonair_angsuran", async () =>
             {
-                await conn.ExecuteAsync(sql:
-                    @"
-                    TRUNCATE TABLE `rekening_nonair_angsuran`;
-                    TRUNCATE TABLE `rekening_nonair_angsuran_detail`;",
-                    transaction: trans);
-                jenis = await conn.QueryAsync(
-                    sql: @"SELECT idjenisnonair,kodejenisnonair FROM master_attribute_jenis_nonair WHERE idpdam=@idpdam AND flaghapus=0",
-                    param: new
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_nonair_angsuran",
+                    queryPath: @"queries\angsuran_nonair\nonair_angsuran.sql",
+                    parameters: new()
                     {
-                        idpdam = settings.IdPdam
-                    },
-                    transaction: trans);
+                        { "@idpdam", settings.IdPdam },
+                    });
             });
 
-            await Utils.LoketConnectionWrapper(async (conn, trans) =>
+            await Utils.TrackProgress("angsurannonair|rekening_nonair_angsuran_detail", async () =>
             {
-                if (jenis != null)
-                {
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        DROP TABLE IF EXISTS __tmp_jenisnonair;
-
-                        CREATE TABLE __tmp_jenisnonair (
-                        idjenisnonair INT,
-                        kodejenisnonair VARCHAR(50))",
-                        transaction: trans);
-
-                    await conn.ExecuteAsync(
-                        sql: @"
-                        INSERT INTO __tmp_jenisnonair
-                        VALUES (@idjenisnonair,@kodejenisnonair)",
-                        param: jenis,
-                        transaction: trans);
-                }
-            });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair",
-                queryPath: @"queries\angsuran_nonair\nonair.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair_detail",
-                queryPath: @"queries\angsuran_nonair\nonair_detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair_angsuran",
-                queryPath: @"queries\angsuran_nonair\nonair_angsuran.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "rekening_nonair_angsuran_detail",
-                queryPath: @"queries\angsuran_nonair\nonair_angsuran_detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            await Utils.TrackProgress($"angsuran nonair|patch0", async () =>
-            {
-                await Utils.MainConnectionWrapper(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(
-                        sql: await File.ReadAllTextAsync(@"queries\nonair\patch.sql"),
-                        transaction: trans);
-                });
-            });
-
-            await Utils.TrackProgress("angsuran nonair|patch1", async () =>
-            {
-                await Utils.MainConnectionWrapper(async (conn, trans) =>
-                {
-                    await conn.ExecuteAsync(
-                        sql: await File.ReadAllTextAsync(@"queries\angsuran_nonair\patch.sql"),
-                        transaction: trans);
-                });
-            });
-
-            await Utils.LoketConnectionWrapper(async (conn, trans) =>
-            {
-                await conn.ExecuteAsync(
-                    sql: @"
-                    DROP TABLE IF EXISTS __tmp_jenisnonair;",
-                    transaction: trans);
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "rekening_nonair_angsuran_detail",
+                    queryPath: @"queries\angsuran_nonair\nonair_angsuran_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
             });
         }
         private async Task AngsuranAir(Settings settings)

@@ -64,7 +64,7 @@ namespace Migrasi.Helpers
                 var bulkCopy = new MySqlBulkCopy(tConnection, trans)
                 {
                     DestinationTableName = table,
-                    ConflictOption = MySqlBulkLoaderConflictOption.Replace,
+                    //ConflictOption = MySqlBulkLoaderConflictOption.Replace,
                 };
 
                 if (columnMappings.Count > 0)
