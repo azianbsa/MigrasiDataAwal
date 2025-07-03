@@ -1,59 +1,25 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_pengaduan;
-CREATE TEMPORARY TABLE __tmp_pengaduan AS
-SELECT
-@id:=@id+1 AS id,
-p.nomor,
-p.`kategori`
-FROM pengaduan p
-JOIN `__tmp_tipepermohonan` t ON t.`kodejenisnonair`=p.`kategori`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0 AND `flagpel`=1;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket AS
-SELECT
-@idpdam,
-@id := @id + 1 AS iduser,
-a.nama,
-a.namauser
-FROM (
-SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses` WHERE aktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses` WHERE aktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket` WHERE flagaktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl` WHERE flagaktif=1
-) a,
-(SELECT @id := 0) AS id
-GROUP BY a.namauser;
+﻿SET @tgladu_awal='2014-01-04';
+SET @tgladu_akhir='2025-07-02';
 
 SELECT
-@idpdam,
-p.id AS idpermohonan,
-b.nomorba,
-b.tgldiselesaikan AS tanggalba,
-u.iduser AS iduser,
+@idpdam AS idpdam,
+a.`idpermohonan` idpermohonan,
+a.`no_bukti` AS nomorba,
+a.`tglenttl` AS tanggalba,
+COALESCE(u.`iduser`,-1) iduser,
 NULL AS persilnamapaket,
 0 AS persilflagdialihkankevendor,
 0 AS persilflagbiayadibebankankepdam,
 NULL AS distribusinamapaket,
 0 AS distribusiflagdialihkankevendor,
 0 AS distribusiflagbiayadibebankankepdam,
-NULL AS fotobukti1,
-NULL AS fotobukti2,
-NULL AS fotobukti3,
-NULL AS `fotobukti4`,
-NULL AS `fotobukti5`,
-NULL AS `fotobukti6`,
-NULL AS kategoriputus,
 0 AS flagbatal,
 NULL AS idalasanbatal,
-0 AS flag_dari_verifikasi,
-CASE WHEN b.status='Dapat Di Kerjakan' THEN 'Berhasil Dikerjakan'  WHEN b.status='Tidak Dapat Dikerjakan' THEN 'Tidak Berhasil Dikerjakan' WHEN b.status IS NULL THEN 'Berhasil Dikerjakan'  END AS statusberitaacara,
-COALESCE(b.tgldiselesaikan,NOW()) AS waktuupdate
-FROM
-__tmp_pengaduan p
-JOIN spk_pengaduan b ON b.nomorpengaduan=p.nomor
-LEFT JOIN __tmp_userloket u ON u.nama=b.user_ba
-WHERE b.flaghapus=0 AND b.nomorba IS NOT NULL AND b.tgldiselesaikan IS NOT NULL
+NULL AS flag_dari_verifikasi,
+'Berhasil Dikerjakan' AS statusberitaacara,
+a.`tglenttl` AS waktuupdate
+FROM `pengaduanplg` a
+LEFT JOIN `maros_awal`.`usermaros` u ON u.`nama`=a.`nmusertl`
+WHERE a.`tgladu`>=@tgladu_awal
+AND a.`tgladu`<@tgladu_akhir
+AND a.`tglenttl` IS NOT NULL

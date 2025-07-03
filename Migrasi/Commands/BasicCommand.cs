@@ -31,6 +31,7 @@ namespace Migrasi.Commands
             const string PERMOHONAN_RUBAH_RAYON = "Permohonan rubah rayon";
             const string PERMOHONAN_SAMBUNG_KEMBALI = "Permohonan sambung kembali";
             const string PERMOHONAN_SEGEL = "Permohonan segel";
+            const string PENGADUAN_PLG = "PENGADUAN_PLG";
 
             List<string> prosesList =
             [
@@ -49,6 +50,7 @@ namespace Migrasi.Commands
                 PERMOHONAN_RUBAH_RAYON,
                 PERMOHONAN_SAMBUNG_KEMBALI,
                 PERMOHONAN_SEGEL,
+                PENGADUAN_PLG,
             ];
 
             string? namaPdam = "";
@@ -81,6 +83,7 @@ namespace Migrasi.Commands
             var prosesPermohonanRubahRayon = selectedProses.Exists(s => s == PERMOHONAN_RUBAH_RAYON);
             var prosesPermohonanSambungKembali = selectedProses.Exists(s => s == PERMOHONAN_SAMBUNG_KEMBALI);
             var prosesPermohonanSegel = selectedProses.Exists(s => s == PERMOHONAN_SEGEL);
+            var prosesPengaduanPlg = selectedProses.Exists(s => s == PENGADUAN_PLG);
 
             AnsiConsole.WriteLine("Proses dipilih:");
             AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
@@ -173,6 +176,11 @@ namespace Migrasi.Commands
                             await Segel(settings);
                         }
 
+                        if (prosesPengaduanPlg)
+                        {
+                            await PengaduanPlg(settings);
+                        }
+
                         if (false)
                         {
                             await Report(settings);
@@ -209,7 +217,6 @@ namespace Migrasi.Commands
                             {
                                 await RabLainnyaPelanggan(settings);
                             });
-
                         }
                     });
             }
@@ -219,6 +226,74 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private static async Task PengaduanPlg(Settings settings)
+        {
+            await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air",
+                    queryPath: @"queries\pengaduan_pelanggan\pengaduan.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_detail",
+                    queryPath: @"queries\pengaduan_pelanggan\detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air_spk_pasang", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_spk_pasang",
+                    queryPath: @"queries\pengaduan_pelanggan\spk_pasang.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air_ba", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_ba",
+                    queryPath: @"queries\pengaduan_pelanggan\ba.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air_ba_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_ba_detail",
+                    queryPath: @"queries\pengaduan_pelanggan\ba_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
         }
 
         private static async Task Segel(Settings settings)
@@ -690,6 +765,7 @@ namespace Migrasi.Commands
                 });
 
         }
+
         private static async Task PiutangNonair(Settings settings)
         {
             await Utils.TrackProgress("piutang|rekening_nonair", async () =>
@@ -718,6 +794,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task BayarNonair(Settings settings)
         {
             await Utils.TrackProgress("bayar|rekening_nonair_transaksi", async () =>
@@ -733,6 +810,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task BayarAir(Settings settings)
         {
             await Utils.TrackProgress($"bayar|rekening_air_transaksi", async () =>
@@ -748,6 +826,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private async Task RabLainnyaPelanggan(Settings settings)
         {
             var lastId = 0;
@@ -932,6 +1011,7 @@ namespace Migrasi.Commands
                 await conn.ExecuteAsync(sql: @"DROP TABLE IF EXISTS __tmp_badetail", transaction: trans);
             });
         }
+
         private async Task AirTangkiPelanggan(Settings settings)
         {
             var lastId = 0;
@@ -1027,6 +1107,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
+
         private async Task AirTangkiNonPelanggan(Settings settings)
         {
             var lastId = 0;
@@ -1122,6 +1203,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
+
         private static async Task AngsuranNonair(Settings settings)
         {
             await Utils.TrackProgress("angsurannonair|rekening_nonair_angsuran", async () =>
@@ -1150,6 +1232,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private async Task AngsuranAir(Settings settings)
         {
             await Utils.TrackProgress($"angsuran air piutang|rekening_air", async () =>
@@ -1267,6 +1350,7 @@ namespace Migrasi.Commands
                 });
             });
         }
+
         private static async Task KoreksiData(Settings settings)
         {
             await Utils.BulkCopy(
@@ -1326,6 +1410,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastIdKoreksiDetail },
                 });
         }
+
         private async Task Report(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_label_report", async () =>
@@ -1455,6 +1540,7 @@ namespace Migrasi.Commands
                     queryPath: @"queries\master\report\report_filter_custom_detail.sql");
             });
         }
+
         private static async Task PaketRab(Settings settings)
         {
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -1478,6 +1564,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task PaketOngkos(Settings settings)
         {
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -1529,6 +1616,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task PaketMaterial(Settings settings)
         {
             await Utils.MainConnectionWrapper(async (conn, trans) =>
@@ -1580,6 +1668,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private async Task TipePermohonan(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_tipe_permohonan", async () =>
@@ -1634,6 +1723,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task MasterData(Settings settings)
         {
             await Utils.BulkCopy(
@@ -2097,6 +2187,7 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam }
                 });
         }
+
         private async Task JenisNonair(Settings settings)
         {
             await Utils.TrackProgress("master_attribute_jenis_nonair", async () =>
@@ -2125,6 +2216,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private async Task RotasimeterNonrutin(Settings settings)
         {
             var lastId = 0;
@@ -2249,6 +2341,7 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
         }
+
         private async Task Rotasimeter(Settings settings)
         {
             var lastId = 0;
@@ -2336,6 +2429,7 @@ namespace Migrasi.Commands
                     transaction: trans);
             });
         }
+
         private static async Task KoreksiRekair(Settings settings)
         {
             await Utils.BulkCopy(
@@ -2398,6 +2492,7 @@ namespace Migrasi.Commands
                     { "@lastid", lastId },
                 });
         }
+
         private static async Task SambungBaru(Settings settings)
         {
             await Utils.TrackProgress("sambbaru|permohonan_non_pelanggan", async () =>
@@ -2517,6 +2612,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task BukaSegel(Settings settings)
         {
             await Utils.BulkCopy(
@@ -2580,6 +2676,7 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam }
                 });
         }
+
         private static async Task SambungKembali(Settings settings)
         {
             await Utils.BulkCopy(
@@ -2712,6 +2809,7 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                 });
         }
+
         private static async Task RubahRayon(Settings settings)
         {
             await Utils.BulkCopy(
@@ -2765,6 +2863,7 @@ namespace Migrasi.Commands
                     { "@idpdam", settings.IdPdam },
                 });
         }
+
         private static async Task RubahGolongan(Settings settings)
         {
             await Utils.TrackProgress("rubahgol|permohonan_pelanggan_air", async () =>
@@ -2819,6 +2918,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task BalikNama(Settings settings)
         {
             await Utils.TrackProgress("baliknama|permohonan_pelanggan_air", async () =>
@@ -2860,6 +2960,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private static async Task TutupTotal(Settings settings)
         {
             await Utils.TrackProgress("tutuptotal|permohonan_pelanggan_air", async () =>
@@ -2914,6 +3015,7 @@ namespace Migrasi.Commands
                     });
             });
         }
+
         private async Task PengaduanPelanggan(Settings settings)
         {
             var lastId = 0;
@@ -3103,6 +3205,7 @@ namespace Migrasi.Commands
                 await conn.ExecuteAsync(@"DROP TABLE IF EXISTS __tmp_tipepermohonan", transaction: trans);
             });
         }
+
         private async Task PengaduanNonPelanggan(Settings settings)
         {
             var lastId = 0;

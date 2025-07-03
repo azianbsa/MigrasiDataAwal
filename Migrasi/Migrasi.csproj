@@ -654,25 +654,10 @@
     <None Update="queries\pengaduan_pelanggan\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\pengaduan_pelanggan\ba_detail4.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\pengaduan_pelanggan\ba_detail3.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\pengaduan_pelanggan\ba_detail2.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="queries\pengaduan_pelanggan\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="queries\pengaduan_pelanggan\detail2.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="queries\pengaduan_pelanggan\detail.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="queries\pengaduan_pelanggan\patches\p1.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="queries\pengaduan_pelanggan\spk_pasang.sql">
