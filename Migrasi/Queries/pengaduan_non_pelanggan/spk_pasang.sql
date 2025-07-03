@@ -1,56 +1,19 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_pengaduan;
-CREATE TEMPORARY TABLE __tmp_pengaduan AS
-SELECT
-@id:=@id+1 AS id,
-p.nomor,
-p.`kategori`
-FROM pengaduan p
-JOIN `__tmp_tipepermohonan` t ON t.`kodejenisnonair`=p.`kategori`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0 AND `flagpel`=0;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket AS
-SELECT
-@idpdam,
-@id := @id + 1 AS iduser,
-a.nama,
-a.namauser
-FROM (
-SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses` WHERE aktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses` WHERE aktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket` WHERE flagaktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl` WHERE flagaktif=1
-) a,
-(SELECT @id := 0) AS id
-GROUP BY a.namauser;
+﻿SET @tgladu_awal='2014-01-04';
+SET @tgladu_akhir='2025-07-02';
 
 SELECT
-@idpdam AS `idpdam`,
-pp.id AS `idpermohonan`,
-p.nomorspk,
-p.tanggalspk,
-NULL AS `nomorsppb`,
-NULL AS `tanggalsppb`,
-u.iduser,
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
-0 AS `flagbatal`,
-NULL AS `idalasanbatal`,
-COALESCE(p.tanggalspk,NOW()) AS `waktuupdate`
-FROM
-__tmp_pengaduan pp 
-JOIN spk_pengaduan p ON p.nomorpengaduan=pp.nomor
-LEFT JOIN __tmp_userloket u ON u.nama=p.user_spk
-WHERE p.flaghapus=0 AND p.nomorspk IS NOT NULL AND p.tanggalspk IS NOT NULL
-AND pp.kategori IN (
-'JNS-113',
-'JNS-108',
-'JNS-119',
-'JNS-109',
-'JNS-142'
-)
+@idpdam AS idpdam,
+a.`idpermohonan` AS idpermohonan,
+CONCAT(noadu,DATE_FORMAT(tgladu,'%Y%m%d'),REPLACE(jamadu,':',''),DATE_FORMAT (tgltl, '%Y%m%d')) AS nomorspk,
+a.`tgltl` AS tanggalspk,
+CONCAT(noadu,DATE_FORMAT(tgladu,'%Y%m%d'),REPLACE(jamadu,':',''),DATE_FORMAT (tgltl, '%Y%m%d')) AS nomorsppb,
+a.`tgltl` AS tanggalsppb,
+COALESCE(u.`iduser`,-1) AS iduser,
+0 AS flagbatal,
+NULL AS idalasanbatal,
+a.`tgltl` AS waktuupdate
+FROM `pengaduannonplg` a
+LEFT JOIN `maros_awal`.`usermaros` u ON u.`nama`=a.`nmusertl`
+WHERE a.`tgladu`>=@tgladu_awal
+AND a.`tgladu`<@tgladu_akhir
+AND a.`tgltl` IS NOT NULL

@@ -1,133 +1,74 @@
-﻿DROP TEMPORARY TABLE IF EXISTS __tmp_sumberpengaduan;
-CREATE TEMPORARY TABLE __tmp_sumberpengaduan AS
-SELECT
-@id := @id+1 AS id,
-sumberpengaduan
-FROM sumberpengaduan
-,(SELECT @id := 0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_userloket;
-CREATE TEMPORARY TABLE __tmp_userloket AS
-SELECT
-@idpdam,
-@id := @id + 1 AS iduser,
-a.nama,
-a.namauser
-FROM (
-SELECT nama,namauser,`passworduser`,alamat,aktif FROM [bacameter].`userakses` WHERE aktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,aktif FROM [bsbs].`userakses` WHERE aktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userloket` WHERE flagaktif=1
-UNION
-SELECT nama,namauser,`passworduser`,NULL AS alamat,flagaktif AS aktif FROM `userbshl` WHERE flagaktif=1
-) a,
-(SELECT @id := 0) AS id
-GROUP BY a.namauser;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
-CREATE TEMPORARY TABLE __tmp_golongan AS
-SELECT
-@id:=@id+1 AS id,
-kodegol,
-aktif
-FROM
-golongan,
-(SELECT @id:=0) AS id;
-
-DROP TEMPORARY TABLE IF EXISTS __tmp_pengaduan;
-CREATE TEMPORARY TABLE __tmp_pengaduan AS
-SELECT
-@id:=@id+1 AS id,
-p.nomor,
-p.`kategori`
-FROM pengaduan p
-JOIN `__tmp_tipepermohonan` t ON t.`kodejenisnonair`=p.`kategori`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0 AND `flagpel`=0;
+﻿SET @tgladu_awal='2014-01-04';
+SET @tgladu_akhir='2025-07-02';
 
 SELECT
-@idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
-t.idtipepermohonan AS `idtipepermohonan`,
-s.id AS `idsumberpengaduan`,
-pp.`nomor` AS `nomorpermohonan`,
-pp.`tglditerima` AS `waktupermohonan`,
-0 AS `flagpendaftaran`,
-NULL AS `idtipependaftaransambungan`,
-pp.`namapelapor` AS `nama`,
-LEFT(pp.`alamatpelapor`,200) AS `alamat`,
-NULL AS `idgolongan`,
-0 AS `iddiameter`,
-r.`id` AS `idrayon`,
-k.`id` AS `idkelurahan`,
-NULL AS `idblok`,
-NULL AS `idperuntukan`,
-NULL AS `idjenisbangunan`,
-NULL AS `idkepemilikan`,
-NULL AS `idpekerjaan`,
-NULL AS `idkolektif`,
-NULL AS `idsumberair`,
-NULL AS `iddma`,
-NULL AS `iddmz`,
-NULL AS `idmerekmeter`,
-NULL AS `idkondisimeter`,
-NULL AS `idadministrasilain`,
-NULL AS `idpemeliharaanlain`,
-NULL AS `idretribusilain`,
-NULL AS `idkategorikawasan`,
-NULL AS `noserimeter`,
-NULL AS `tglmeter`,
-NULL AS `urutanbaca`,
-NULL AS `stanawalpasang`,
-LEFT(pp.`notelppelapor`,20) AS `notelp`,
-NULL AS `email`,
-NULL AS `noktp`,
-NULL AS `nokk`,
-NULL AS `kodepost`,
-0 AS `dayalistrik`,
-0 AS `luastanah`,
-0 AS `luasrumah`,
-NULL AS `rt`,
-NULL AS `rw`,
-LEFT(pp.`nohppelapor`,20) AS `nohp`,
-pp.`uraianlaporan` AS `keterangan`,
-NULL AS `nosambyangdiberikan`,
-NULL AS `nosambdepan`,
-NULL AS `nosambbelakang`,
-NULL AS `nosambkiri`,
-NULL AS `nosambkanan`,
-0 AS `penghuni`,
-NULL AS `namapemilik`,
-NULL AS `alamatpemilik`,
-NULL AS `iduser`,
-NULL AS `idnonair`,
-NULL AS `latitude`,
-NULL AS `longitude`,
-NULL AS `alamatmap`,
-NULL AS `fotoktp`,
-NULL AS `fotokk`,
-NULL AS `fotosuratpernyataan`,
-NULL AS `fotoimb`,
-NULL AS `fotobukti1`,
-NULL AS `fotobukti2`,
-NULL AS `fotobukti3`,
-0 AS `flagverifikasi`,
-NULL AS `waktuverifikasi`,
-0 AS `flagusulan`,
-0 AS `flaglanjutkelanggananlimbah`,
-0 AS `flagpelanggankavlingan`,
-0 AS `flaghapus`,
-COALESCE(pp.`tglditerima`,NOW()) AS `waktuupdate`,
-NULL AS `airyangdigunakansebelumnya`,
-IF(ba.nomorba IS NOT NULL,'Selesai',IF(ba.nomorspk IS NOT NULL,'Menunggu Berita Acara','Menunggu SPK Pemasangan')) AS statuspermohonan
-FROM
-__tmp_pengaduan p
-JOIN pengaduan pp ON p.nomor=pp.nomor
-LEFT JOIN spk_pengaduan ba ON ba.nomorpengaduan=pp.nomor AND ba.flaghapus=0
-LEFT JOIN __tmp_userloket usr ON usr.nama=pp.user
-LEFT JOIN __tmp_sumberpengaduan s ON s.sumberpengaduan=pp.sumberpengaduan
-LEFT JOIN __tmp_tipepermohonan t ON t.kodejenisnonair=pp.kategori
-LEFT JOIN [bsbs].rayon r ON r.koderayon=pp.koderayon
-LEFT JOIN [bsbs].kelurahan k ON k.kodekelurahan=pp.kodekelurahan
-LEFT JOIN __tmp_golongan g ON g.kodegol=pp.kodegol AND g.aktif=1
+@idpdam AS idpdam,
+a.`idpermohonan` AS idpermohonan,
+t.`idtipepermohonan` AS idtipepermohonan,
+COALESCE(s.`idsumberpengaduan`,1) AS idsumberpengaduan,
+CONCAT(noadu,DATE_FORMAT(tgladu,'%Y%m%d'),REPLACE(jamadu,':','')) AS nomorpermohonan,
+COALESCE(a.`tgladu`,' ',a.`jamadu`) AS waktupermohonan,
+0 AS flagpendaftaran,
+NULL AS idtipependaftaransambungan,
+a.`nama` AS nama,
+a.`alamat` AS alamat,
+NULL AS idgolongan,
+NULL AS iddiameter,
+NULL AS idrayon,
+NULL AS idkelurahan,
+NULL AS idblok,
+NULL AS idperuntukan,
+NULL AS idjenisbangunan,
+NULL AS idkepemilikan,
+NULL AS idpekerjaan,
+NULL AS idkolektif,
+NULL AS idsumberair,
+NULL AS iddma,
+NULL AS iddmz,
+NULL AS idmerekmeter,
+NULL AS idkondisimeter,
+NULL AS idadministrasilain,
+NULL AS idpemeliharaanlain,
+NULL AS idretribusilain,
+NULL AS noserimeter,
+NULL AS tglmeter,
+NULL AS urutanbaca,
+NULL AS stanawalpasang,
+a.`telp` AS notelp,
+NULL AS email,
+NULL AS noktp,
+NULL AS nokk,
+NULL AS kodepost,
+NULL AS dayalistrik,
+NULL AS luastanah,
+NULL AS luasrumah,
+NULL AS rt,
+NULL AS rw,
+a.`telp` AS nohp,
+a.`uraian` AS keterangan,
+NULL AS nosambyangdiberikan,
+NULL AS nosambdepan,
+NULL AS nosambbelakang,
+NULL AS nosambkiri,
+NULL AS nosambkanan,
+0 AS penghuni,
+NULL AS namapemilik,
+NULL AS alamatpemilik,
+COALESCE(u.`iduser`,-1) AS iduser,
+NULL AS idnonair,
+SUBSTRING_INDEX(a.`k_lat_long`,';',1) AS latitude,
+SUBSTRING_INDEX(a.`k_lat_long`,';',-1) AS longitude,
+NULL AS alamatmap,
+0 AS flagverifikasi,
+NULL AS waktuverifikasi,
+0 AS flagpelanggankavlingan,
+0 AS flaghapus,
+a.`tgladu` AS waktuupdate,
+NULL AS airyangdigunakansebelumnya,
+IF(a.`tgltl` IS NOT NULL,'Selesai',NULL) AS statuspermohonan
+FROM `pengaduannonplg` a
+JOIN `maros_awal`.`tipepermohonan` t ON t.`kodejenisnonair`=a.`jns`
+LEFT JOIN `maros_awal`.`sumberpengaduanmaros` s ON s.`namasumberpengaduan`=a.via
+LEFT JOIN `maros_awal`.`usermaros` u ON u.`nama`=a.`nmuseradu`
+WHERE a.`tgladu`>=@tgladu_awal
+AND a.`tgladu`<@tgladu_akhir

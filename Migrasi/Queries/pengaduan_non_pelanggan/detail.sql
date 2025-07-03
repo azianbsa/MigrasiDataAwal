@@ -1,132 +1,25 @@
-﻿DROP TABLE IF EXISTS __tmp_pengaduan;
-CREATE TABLE __tmp_pengaduan AS
-SELECT
-@id:=@id+1 AS id,
-p.nomor,
-p.`kategori`
-FROM pengaduan p
-JOIN `__tmp_tipepermohonan` t ON t.`kodejenisnonair`=p.`kategori`
-,(SELECT @id:=@lastid) AS id
-WHERE `flaghapus`=0 AND `flagpel`=0;
-
-DROP TABLE IF EXISTS __tmp_bagian;
-CREATE TABLE __tmp_bagian AS
-SELECT @id:=@id+1 AS id,kodebagian,namabagian 
-FROM `pengaduan_bagian`,(SELECT @id:=0) AS id;
+﻿SET @tgladu_awal='2014-01-04';
+SET @tgladu_akhir='2025-07-02';
 
 SELECT
 @idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
-'Alamat Pelapor' AS `parameter`,
-'string' AS `tipedata`,
-LEFT(b.`alamatpelapor`,250) AS `valuestring`,
+a.`idpermohonan` AS `idpermohonan`,
+b.`parameter` AS `parameter`,
+b.`tipedata` AS `tipedata`,
+CASE 
+	WHEN b.`parameter`='Alamat Pelapor' THEN TRIM(a.`alamat`)
+	WHEN b.`parameter`='HP Pelapor' THEN a.telp
+	WHEN b.`parameter`='Nama Pelapor' THEN TRIM(a.nama)
+	WHEN b.`parameter`='Telp. Pelapor' THEN a.telp
+END AS `valuestring`,
 NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
+CASE WHEN b.`parameter`='Bagian' THEN COALESCE(u.idurusan,-1) END AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_pengaduan p
-JOIN pengaduan b ON b.`nomor`=p.`nomor`
-LEFT JOIN __tmp_bagian u ON u.`kodebagian`=b.`diteruskankebagian`
-WHERE p.`kategori` IN (
-'JNS-113',
-'JNS-108',
-'JNS-119',
-'JNS-109',
-'JNS-137',
-'JNS-142',
-'JNS-143'
-)
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
-'Bagian' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-u.`id` AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_pengaduan p
-JOIN pengaduan b ON b.`nomor`=p.`nomor`
-LEFT JOIN __tmp_bagian u ON u.`kodebagian`=b.`diteruskankebagian`
-WHERE p.`kategori` IN (
-'JNS-113',
-'JNS-108',
-'JNS-119',
-'JNS-109',
-'JNS-137',
-'JNS-142',
-'JNS-143'
-)
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
-'HP Pelapor' AS `parameter`,
-'string' AS `tipedata`,
-LEFT(b.`nohppelapor`,250) AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_pengaduan p
-JOIN `pengaduan` b ON b.nomor=p.`nomor`
-WHERE p.`kategori` IN (
-'JNS-113',
-'JNS-108',
-'JNS-119',
-'JNS-109',
-'JNS-137',
-'JNS-142',
-'JNS-143'
-)
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
-'Nama Pelapor' AS `parameter`,
-'string' AS `tipedata`,
-LEFT(b.`namapelapor`,250) AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_pengaduan p
-JOIN `pengaduan` b ON b.nomor=p.`nomor`
-WHERE p.`kategori` IN (
-'JNS-113',
-'JNS-108',
-'JNS-119',
-'JNS-109',
-'JNS-137',
-'JNS-142',
-'JNS-143'
-)
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`id` AS `idpermohonan`,
-'Telp. Pelapor' AS `parameter`,
-'string' AS `tipedata`,
-b.`ditagih_setelah` AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-NOW() AS `waktuupdate`
-FROM __tmp_pengaduan p
-JOIN `pengaduan` b ON b.nomor=p.`nomor`
-WHERE p.`kategori` IN (
-'JNS-113',
-'JNS-108',
-'JNS-119',
-'JNS-109',
-'JNS-137',
-'JNS-142',
-'JNS-143'
-)
+a.tgladu AS `waktuupdate`
+FROM `pengaduannonplg` a
+JOIN `maros_awal`.`tipepermohonan` t ON t.`kodejenisnonair`=a.`jns`
+JOIN `maros_awal`.`tipepermohonandetail` b ON b.`idtipepermohonan`=t.`idtipepermohonan`
+LEFT JOIN `maros_awal`.`urusanmaros` u ON u.kodeurusan=a.id_subagian
+WHERE a.`tgladu`>=@tgladu_awal
+AND a.`tgladu`<@tgladu_akhir

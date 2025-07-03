@@ -32,6 +32,7 @@ namespace Migrasi.Commands
             const string PERMOHONAN_SAMBUNG_KEMBALI = "Permohonan sambung kembali";
             const string PERMOHONAN_SEGEL = "Permohonan segel";
             const string PENGADUAN_PLG = "PENGADUAN_PLG";
+            const string PENGADUAN_NON_PLG = "PENGADUAN_NON_PLG";
 
             List<string> prosesList =
             [
@@ -51,6 +52,7 @@ namespace Migrasi.Commands
                 PERMOHONAN_SAMBUNG_KEMBALI,
                 PERMOHONAN_SEGEL,
                 PENGADUAN_PLG,
+                PENGADUAN_NON_PLG,
             ];
 
             string? namaPdam = "";
@@ -84,6 +86,7 @@ namespace Migrasi.Commands
             var prosesPermohonanSambungKembali = selectedProses.Exists(s => s == PERMOHONAN_SAMBUNG_KEMBALI);
             var prosesPermohonanSegel = selectedProses.Exists(s => s == PERMOHONAN_SEGEL);
             var prosesPengaduanPlg = selectedProses.Exists(s => s == PENGADUAN_PLG);
+            var prosesPengaduanNonPlg = selectedProses.Exists(s => s == PENGADUAN_NON_PLG);
 
             AnsiConsole.WriteLine("Proses dipilih:");
             AnsiConsole.Write(new Rows(selectedProses.Select(s => new Text($"- {s}")).ToList()));
@@ -181,6 +184,11 @@ namespace Migrasi.Commands
                             await PengaduanPlg(settings);
                         }
 
+                        if (prosesPengaduanNonPlg)
+                        {
+                            await PengaduanNonPlg(settings);
+                        }
+
                         if (false)
                         {
                             await Report(settings);
@@ -226,6 +234,74 @@ namespace Migrasi.Commands
             }
 
             return 0;
+        }
+
+        private static async Task PengaduanNonPlg(Settings settings)
+        {
+            await Utils.TrackProgress("pengaduannonplg|permohonan_non_pelanggan", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_non_pelanggan",
+                    queryPath: @"queries\pengaduan_non_pelanggan\pengaduan.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduannonplg|permohonan_non_pelanggan_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_non_pelanggan_detail",
+                    queryPath: @"queries\pengaduan_non_pelanggan\detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduannonplg|permohonan_non_pelanggan_spk_pasang", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_non_pelanggan_spk_pasang",
+                    queryPath: @"queries\pengaduan_non_pelanggan\spk_pasang.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduannonplg|permohonan_non_pelanggan_ba", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_non_pelanggan_ba",
+                    queryPath: @"queries\pengaduan_non_pelanggan\ba.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("pengaduannonplg|permohonan_non_pelanggan_ba_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_non_pelanggan_ba_detail",
+                    queryPath: @"queries\pengaduan_non_pelanggan\ba_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
         }
 
         private static async Task PengaduanPlg(Settings settings)
