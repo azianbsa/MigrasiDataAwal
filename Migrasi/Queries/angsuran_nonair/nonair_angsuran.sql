@@ -1,4 +1,4 @@
-﻿SET @tgl_ent_awal='2014-01-01';
+﻿SET @tgl_ent_awal='2013-09-14';
 SET @tgl_ent_akhir='2018-11-07';
 
 SET SESSION net_read_timeout=600;
@@ -8,7 +8,7 @@ SET SESSION interactive_timeout=600;
 
 SELECT
 @idpdam AS `idpdam`,
-n.`idangs` AS `idangsuran`,
+n.`id` AS `idangsuran`,
 n.`noreg` AS `noangsuran`,
 NULL AS `idnonair`,
 -1 AS `idjenisnonair`,
@@ -27,7 +27,7 @@ n.`tgl_ent` AS `waktudaftar`,
 n.`angs_tot` AS `jumlahtermin`,
 n.`jml_tag` AS `jumlahangsuranpokok`,
 0 AS `jumlahangsuranbunga`,
-IF(n.`angs_tot`=10,70000,n.`jml_tag`) AS `jumlahuangmuka`,
+n.`uangmuka` AS `jumlahuangmuka`,
 n.`jml_tag` AS `total`,
 -1 AS `iduser`,
 n.`tgl_ent` AS `tglmulaitagihpertama`,

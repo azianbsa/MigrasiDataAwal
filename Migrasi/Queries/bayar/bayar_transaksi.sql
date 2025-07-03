@@ -20,6 +20,6 @@ LEFT JOIN `maros_awal`.`usermaros` us ON `us`.`nama`=u.`NAMA_USER`
 LEFT JOIN `maros_awal`.`loketmaros` l ON l.`kodeloket`=rek.`LOKET_BAYAR`
 LEFT JOIN `t_penjualan_hps` hps ON hps.`nosamb`=rek.`nosamb` AND CONCAT(hps.`PERIODE2`,LPAD(hps.`PERIODE1`,2,'0'))=CONCAT(rek.`PERIODE2`,LPAD(rek.`PERIODE1`,2,'0'))
 WHERE rek.`TANGGALBAYAR` IS NOT NULL 
-AND rek.`TANGGALBAYAR`>='2025-06-26' 
-AND rek.`TANGGALBAYAR`<'2025-06-28'
+AND rek.`TANGGALBAYAR`>='2025-06-28' 
+AND rek.`TANGGALBAYAR`<'2025-06-30'
 AND (hps.`NO_BUKTI` IS NULL OR rek.`TANGGALBAYAR`>hps.`TANGGALBAYAR`)

@@ -6,7 +6,7 @@ a.`no_byr` AS nomortransaksi,
 a.`tgl_byr` AS waktutransaksi,
 YEAR(a.`tgl_byr`) AS tahuntransaksi,
 um.`iduser` AS iduser,
-l.`idloket` AS idloket,
+COALESCE(l.`idloket`,10) AS idloket,
 NULL AS idkolektiftransaksi,
 NULL AS idalasanbatal,
 a.`ket` AS keterangan,
@@ -17,5 +17,5 @@ LEFT JOIN `maros_awal`.`t_user` u ON u.`NO_ID`=a.`opr`
 LEFT JOIN `maros_awal`.`usermaros` um ON um.`nama`=u.`NAMA_USER`
 LEFT JOIN `maros_awal`.`loketmaros` l ON l.`kodeloket`=a.`loket`
 WHERE a.`no_byr`<>'-' 
-AND a.`tgl_byr`>='2025-06-26'
-AND a.`tgl_byr`<'2025-06-28'
+AND a.`tgl_byr`>='2025-06-27'
+AND a.`tgl_byr`<'2025-06-30'
