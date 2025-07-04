@@ -1,132 +1,34 @@
-﻿SET @tgl_reg_awal='2013-01-01';
-SET @tgl_reg_akhir='2025-06-01';
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
 @idpdam AS `idpdam`,
 b.`idpermohonan` AS `idpermohonan`,
-'Diameter' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-d.`iddiameter` AS `valueinteger`,
-NULL AS `valuedate`,
+c.`parameter` AS `parameter`,
+c.`tipedata` AS `tipedata`,
+CASE
+	WHEN c.parameter='Keterangan Survey' THEN ''
+END AS `valuestring`,
+CASE
+	WHEN c.parameter='Jarak Pipa Distribusi (Meter)' THEN 0
+END AS `valuedecimal`,
+CASE
+	WHEN c.parameter='Diameter' THEN d.iddiameter
+	WHEN c.parameter='Diameter Distribusi' THEN d.iddiameter
+	WHEN c.parameter='Golongan' THEN COALESCE(g.`idgolongan`,30)
+	WHEN c.parameter='Peruntukan' THEN COALESCE(bg.`idperuntukan`,1)
+END AS `valueinteger`,
+CASE
+	WHEN c.parameter='Tanggal Realisasi Survey' THEN a.tgl_spko
+END AS `valuedate`,
 NULL AS `valuebool`,
 a.`tgl_spko` AS waktuupdate
 FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-LEFT JOIN `diametermaros` d ON d.`kodediameter`=a.`dia_met`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
+JOIN `sambunganbaru` b ON b.`no_reg`=a.`no_reg`
+JOIN `maros_awal`.`tipepermohonandetailspk` c ON c.`idtipepermohonan`=b.idtipepermohonan
+LEFT JOIN `maros_awal`.`diametermaros` d ON d.`kodediameter`=a.`dia_met`
+LEFT JOIN `maros_awal`.`golonganmaros` g ON g.kodegolongan=a.`KDGT`
+LEFT JOIN `maros_awal`.`t_fg_bgn` bg ON bg.`kd_fg_bgn`=a.`fgbgn`
+WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Diameter Distribusi' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-d.`iddiameter` AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-a.`tgl_spko` AS waktuupdate
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-LEFT JOIN `diametermaros` d ON d.`kodediameter`=a.`dia_met`
-WHERE a.`no_reg` NOT IN ('`','-','s')
 AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Golongan' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-COALESCE(g.`idgolongan`,30) AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-a.`tgl_spko` AS waktuupdate
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-LEFT JOIN `golonganmaros` g ON g.kodegolongan=a.`KDGT`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Jarak Pipa Distribusi (Meter)' AS `parameter`,
-'decimal' AS `tipedata`,
-NULL AS `valuestring`,
-0 AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-a.`tgl_spko` AS waktuupdate
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Keterangan Survey' AS `parameter`,
-'string' AS `tipedata`,
-'' AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-a.`tgl_spko` AS waktuupdate
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Peruntukan' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-COALESCE(bg.`idperuntukan`,1) AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-a.`tgl_spko` AS waktuupdate
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-LEFT JOIN `t_fg_bgn` bg ON bg.`kd_fg_bgn`=a.`fgbgn`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Tanggal Realisasi Survey' AS `parameter`,
-'date' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-a.`tgl_spko` AS `valuedate`,
-NULL AS `valuebool`,
-a.`tgl_spko` AS waktuupdate
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir

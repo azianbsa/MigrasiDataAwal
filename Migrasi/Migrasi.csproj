@@ -255,6 +255,12 @@
     <None Update="queries\rotasimeter\ba_detail.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="queries\sambung_baru\ba.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_baru\ba_detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="queries\sambung_baru\detail.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

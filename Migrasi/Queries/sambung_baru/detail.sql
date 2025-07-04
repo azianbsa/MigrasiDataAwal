@@ -1,138 +1,29 @@
-﻿SET @tgl_reg_awal='2013-01-01';
-SET @tgl_reg_akhir='2025-06-01';
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
 @idpdam AS `idpdam`,
 b.idpermohonan AS `idpermohonan`,
-'Denah Lokasi' AS `parameter`,
-'bool' AS `tipedata`,
-NULL AS `valuestring`,
+c.`parameter` AS `parameter`,
+c.`tipedata` AS `tipedata`,
+CASE
+	WHEN c.parameter='Ditagih Setelah' THEN ''
+END AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
-0 AS `valuebool`,
+CASE
+	WHEN c.parameter='Denah Lokasi' THEN 0
+	WHEN c.parameter='Foto Copy IMB/Keterangan Lurah' THEN 0
+	WHEN c.parameter='Foto Copy KK' THEN 1
+	WHEN c.parameter='Foto Copy KTP' THEN 1
+	WHEN c.parameter='Map Snelhecter Plastik' THEN 0
+	WHEN c.parameter='Meterai 10.000' THEN 0
+	WHEN c.parameter='Surat Pernyataan' THEN 0
+END AS `valuebool`,
 a.`tgl_reg` AS `waktuupdate`
 FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Ditagih Setelah' AS `parameter`,
-'string' AS `tipedata`,
-'' AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-a.`tgl_reg` AS `waktuupdate`
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Foto Copy IMB/Keterangan Lurah' AS `parameter`,
-'bool' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-0 AS `valuebool`,
-a.`tgl_reg` AS `waktuupdate`
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Foto Copy KK' AS `parameter`,
-'bool' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-1 AS `valuebool`,
-a.`tgl_reg` AS `waktuupdate`
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Foto Copy KTP' AS `parameter`,
-'bool' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-1 AS `valuebool`,
-a.`tgl_reg` AS `waktuupdate`
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Map Snelhecter Plastik' AS `parameter`,
-'bool' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-0 AS `valuebool`,
-a.`tgl_reg` AS `waktuupdate`
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Meterai 10.000' AS `parameter`,
-'bool' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-0 AS `valuebool`,
-a.`tgl_reg` AS `waktuupdate`
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
-AND a.`tgl_reg`<@tgl_reg_akhir
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-b.`idpermohonan` AS `idpermohonan`,
-'Surat Pernyataan' AS `parameter`,
-'bool' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-0 AS `valuebool`,
-a.`tgl_reg` AS `waktuupdate`
-FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
+JOIN `sambunganbaru` b ON b.`no_reg`=a.`no_reg`
+JOIN `maros_awal`.`tipepermohonandetail` c ON c.`idtipepermohonan`=b.idtipepermohonan
+WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir

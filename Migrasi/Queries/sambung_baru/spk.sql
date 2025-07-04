@@ -1,5 +1,5 @@
-﻿SET @tgl_reg_awal='2013-01-01';
-SET @tgl_reg_akhir='2025-06-01';
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
 @idpdam AS idpdam,
@@ -12,8 +12,7 @@ a.`tgl_spko` AS tanggalspk,
 NULL AS idalasanbatal,
 a.`tgl_spko` AS waktuupdate
 FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`no_spko`<>'-'
-AND a.`tgl_reg`>=@tgl_reg_awal
+JOIN `sambunganbaru` b ON b.`no_reg`=a.`no_reg`
+WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir
+AND a.`no_spko`<>'-'

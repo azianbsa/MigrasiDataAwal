@@ -1,5 +1,5 @@
-﻿SET @tgl_reg_awal='2013-01-01';
-SET @tgl_reg_akhir='2025-06-01';
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
 @idpdam AS idpdam,
@@ -10,13 +10,13 @@ a.`no_reg` AS nomorpermohonan,
 a.`tgl_reg` AS waktupermohonan,
 1 AS flagpendaftaran,
 1 AS idtipependaftaransambungan,
-`nama` AS nama,
-`alamat` AS alamat,
+a.`nama` AS nama,
+a.`alamat` AS alamat,
 COALESCE(g.`idgolongan`,30) idgolongan,
 -1 AS iddiameter,
 COALESCE(r.`idrayon`,-1) AS idrayon,
--1 AS idkelurahan,
--1 AS idblok,
+1 AS idkelurahan,
+1 AS idblok,
 COALESCE(bg.`idperuntukan`,1) AS idperuntukan,
 -1 AS idjenisbangunan,
 1 AS idkepemilikan,
@@ -34,11 +34,11 @@ a.`no_met` AS noserimeter,
 a.`tgl_met` AS tglmeter,
 0 AS urutanbaca,
 0 AS stanawalpasang,
-`telp` AS notelp,
+a.`telp` AS notelp,
 NULL AS email,
-`ktp` AS noktp,
+a.`ktp` AS noktp,
 NULL AS nokk,
-`kodepos` AS kodepost,
+a.`kodepos` AS kodepost,
 0 AS dayalistrik,
 0 AS luastanah,
 0 AS luasrumah,
@@ -65,14 +65,13 @@ IF(a.`no_aktf`<>'-',a.`tgl_aktf`,NULL) AS waktuverifikasi,
 0 AS flaghapus,
 a.`tgl_reg` AS waktuupdate,
 NULL AS airyangdigunakansebelumnya,
-NULL AS statuspermohonan
+IF(a.`no_aktf`<>'-','Selesai',NULL) AS statuspermohonan
 FROM `t_pelanggan_reg` a
-JOIN `pelanggan_reg` b ON b.`no_reg`=a.`no_reg`
-LEFT JOIN `golonganmaros` g ON g.`kodegolongan`=a.`goltarif`
-LEFT JOIN (SELECT * FROM `migrasi_nonair` WHERE `jns`='B01' GROUP BY `no_reg`) n ON n.no_reg=a.`no_reg`
-LEFT JOIN `rayonmaros` r ON r.`koderayon`=a.`kd_jalan`
-LEFT JOIN `t_fg_bgn` bg ON bg.`kd_fg_bgn`=a.`fgbgn`
-LEFT JOIN `kolektifmaros` k ON k.`kodekolektif`=a.`loketkol`
-WHERE a.`no_reg` NOT IN ('`','-','s')
-AND a.`tgl_reg`>=@tgl_reg_awal
+JOIN `sambunganbaru` b ON b.`no_reg`=a.`no_reg`
+LEFT JOIN `maros_awal`.`golonganmaros` g ON g.`kodegolongan`=a.`goltarif`
+LEFT JOIN `nonairmaros` n ON n.`nomornonair`=a.`no_reg` AND n.`idjenisnonair`=86
+LEFT JOIN `maros_awal`.`rayonmaros` r ON r.`koderayon`=a.`kd_jalan`
+LEFT JOIN `maros_awal`.`t_fg_bgn` bg ON bg.`kd_fg_bgn`=a.`fgbgn`
+LEFT JOIN `maros_awal`.`kolektifmaros` k ON k.`kodekolektif`=a.`loketkol`
+WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir

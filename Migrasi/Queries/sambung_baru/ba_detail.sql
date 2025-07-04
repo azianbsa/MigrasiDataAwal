@@ -1,118 +1,31 @@
-﻿-- permohonan_non_pelanggan_ba_detail
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "parameter")
--- new(3, "tipedata")
--- new(4, "valuestring")
--- new(5, "valuedecimal")
--- new(6, "valueinteger")
--- new(7, "valuedate")
--- new(8, "valuebool")
--- new(9, "waktuupdate")
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
 @idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-'Keterangan' AS `parameter`,
-'string' AS `tipedata`,
-r.`keteranganmeter` AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
+b.`idpermohonan` AS `idpermohonan`,
+c.`parameter` AS `parameter`,
+c.`tipedata` AS `tipedata`,
+CASE
+	WHEN c.parameter='Keterangan' THEN ''
+	WHEN c.parameter='No Segel' THEN ''
+	WHEN c.parameter='Seri Meter' THEN ''
+END AS `valuestring`,
+CASE
+	WHEN c.parameter='Stan Meter' THEN 0
+END AS `valuedecimal`,
+CASE
+	WHEN c.parameter='Kondisi Meter' THEN 1
+	WHEN c.parameter='Merk Meter' THEN -1
+END AS `valueinteger`,
+CASE
+	WHEN c.parameter='Tanggal Pasang' THEN a.tgl_bst
+END AS `valuedate`,
 NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM rab r
-JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-'Kondisi Meter' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-k.`idkondisimeter` AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM rab r
-JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg`
-LEFT JOIN [dataawal].`master_attribute_kondisi_meter` k ON k.`kodekondisimeter`=r.`kondisimeter`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-'Merek Meter' AS `parameter`,
-'int' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-m.`idmerekmeter` AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM rab r
-JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg`
-LEFT JOIN [dataawal].`master_attribute_merek_meter` m ON m.namamerekmeter=r.`merkmeter`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-'No Segel' AS `parameter`,
-'string' AS `tipedata`,
-r.`nosegelmeter` AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM rab r
-JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-'Seri Meter' AS `parameter`,
-'string' AS `tipedata`,
-r.`serimeter` AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM rab r
-JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-'Stan Meter' AS `parameter`,
-'decimal' AS `tipedata`,
-NULL AS `valuestring`,
-r.`stanawalpasang` AS `valuedecimal`,
-NULL AS `valueinteger`,
-NULL AS `valuedate`,
-NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM rab r
-JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
-UNION ALL
-SELECT
-@idpdam AS `idpdam`,
-p.`idpermohonan` AS `idpermohonan`,
-'Tanggal Pasang' AS `parameter`,
-'date' AS `tipedata`,
-NULL AS `valuestring`,
-NULL AS `valuedecimal`,
-NULL AS `valueinteger`,
-r.`tglpasang` AS `valuedate`,
-NULL AS `valuebool`,
-r.tglpasang AS `waktuupdate`
-FROM rab r
-JOIN [dataawal].`tampung_permohonan_non_pelanggan` p ON p.`nomorpermohonan`=r.`nomorreg`
-WHERE r.`flaghapus`=0 AND r.`flagpasang`=1
+a.`tgl_bst` AS `waktuupdate`
+FROM `t_pelanggan_reg` a
+JOIN `sambunganbaru` b ON b.`no_reg`=a.`no_reg`
+JOIN `maros_awal`.`tipepermohonandetailba` c ON c.`idtipepermohonan`=b.idtipepermohonan
+WHERE a.`tgl_reg`>=@tgl_reg_awal
+AND a.`tgl_reg`<@tgl_reg_akhir
+AND a.`no_bst`<>'-'
