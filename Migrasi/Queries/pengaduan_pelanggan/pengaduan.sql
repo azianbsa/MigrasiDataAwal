@@ -22,7 +22,7 @@ NULL AS alamatmap,
 0 AS flagverifikasi,
 NULL AS waktuverifikasi,
 0 AS flagusulan,
-IF(a.`tgltl` IS NOT NULL,'Selesai',NULL) AS statuspermohonan,
+IF(a.`tglenttl` IS NOT NULL,'Selesai',NULL) AS statuspermohonan,
 0 AS flaghapus,
 a.`tgladu` AS waktuupdate
 FROM `pengaduanplg` a
@@ -35,5 +35,5 @@ LEFT JOIN maros_awal.diametermaros dia ON dia.kodediameter = pe.kodediameter
 LEFT JOIN maros_awal.rayonmaros ray ON ray.koderayon = pe.koderayon
 LEFT JOIN maros_awal.kelurahanmaros kel ON kel.kodekelurahan = pe.kodekelurahan
 LEFT JOIN `maros_awal`.`usermaros` u ON u.`nama`=a.`nmuseradu`
-WHERE a.`tgladu`>=@tgladu_awal
-AND a.`tgladu`<@tgladu_akhir
+-- WHERE a.`tgladu`>=@tgladu_awal
+-- AND a.`tgladu`<@tgladu_akhir

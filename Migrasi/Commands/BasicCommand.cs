@@ -306,31 +306,31 @@ namespace Migrasi.Commands
 
         private static async Task PengaduanPlg(Settings settings)
         {
-            await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air", async () =>
-            {
-                await Utils.BulkCopy(
-                    sourceConnection: AppSettings.LoketConnectionString,
-                    targetConnection: AppSettings.MainConnectionString,
-                    table: "permohonan_pelanggan_air",
-                    queryPath: @"queries\pengaduan_pelanggan\pengaduan.sql",
-                    parameters: new()
-                    {
-                        { "@idpdam", settings.IdPdam },
-                    });
-            });
+            //await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air", async () =>
+            //{
+            //    await Utils.BulkCopy(
+            //        sourceConnection: AppSettings.LoketConnectionString,
+            //        targetConnection: AppSettings.MainConnectionString,
+            //        table: "permohonan_pelanggan_air",
+            //        queryPath: @"queries\pengaduan_pelanggan\pengaduan.sql",
+            //        parameters: new()
+            //        {
+            //            { "@idpdam", settings.IdPdam },
+            //        });
+            //});
 
-            await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air_detail", async () =>
-            {
-                await Utils.BulkCopy(
-                    sourceConnection: AppSettings.LoketConnectionString,
-                    targetConnection: AppSettings.MainConnectionString,
-                    table: "permohonan_pelanggan_air_detail",
-                    queryPath: @"queries\pengaduan_pelanggan\detail.sql",
-                    parameters: new()
-                    {
-                        { "@idpdam", settings.IdPdam },
-                    });
-            });
+            //await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air_detail", async () =>
+            //{
+            //    await Utils.BulkCopy(
+            //        sourceConnection: AppSettings.LoketConnectionString,
+            //        targetConnection: AppSettings.MainConnectionString,
+            //        table: "permohonan_pelanggan_air_detail",
+            //        queryPath: @"queries\pengaduan_pelanggan\detail.sql",
+            //        parameters: new()
+            //        {
+            //            { "@idpdam", settings.IdPdam },
+            //        });
+            //});
 
             await Utils.TrackProgress("pengaduanplg|permohonan_pelanggan_air_spk_pasang", async () =>
             {

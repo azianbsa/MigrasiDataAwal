@@ -70,5 +70,6 @@ FROM `pengaduannonplg` a
 JOIN `maros_awal`.`tipepermohonan` t ON t.`kodejenisnonair`=a.`jns`
 LEFT JOIN `maros_awal`.`sumberpengaduanmaros` s ON s.`namasumberpengaduan`=a.via
 LEFT JOIN `maros_awal`.`usermaros` u ON u.`nama`=a.`nmuseradu`
-WHERE a.`tgladu`>=@tgladu_awal
-AND a.`tgladu`<@tgladu_akhir
+WHERE a.idpermohonan=5114
+-- a.`tgladu`>=@tgladu_awal
+-- AND a.`tgladu`<@tgladu_akhir

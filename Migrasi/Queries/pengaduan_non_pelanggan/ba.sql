@@ -20,6 +20,7 @@ NULL AS flag_dari_verifikasi,
 a.`tglenttl` AS waktuupdate
 FROM `pengaduannonplg` a
 LEFT JOIN `maros_awal`.`usermaros` u ON u.`nama`=a.`nmusertl`
-WHERE a.`tgladu`>=@tgladu_awal
-AND a.`tgladu`<@tgladu_akhir
-AND a.`tglenttl` IS NOT NULL
+WHERE a.idpermohonan=5114
+-- a.`tgladu`>=@tgladu_awal
+-- AND a.`tgladu`<@tgladu_akhir
+-- AND a.`tglenttl` IS NOT NULL

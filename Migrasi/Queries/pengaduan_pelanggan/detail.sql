@@ -21,5 +21,5 @@ FROM `pengaduanplg` a
 JOIN `maros_awal`.`tipepermohonan` t ON t.`kodejenisnonair`=a.`jns`
 JOIN `maros_awal`.`tipepermohonandetail` b ON b.`idtipepermohonan`=t.`idtipepermohonan`
 LEFT JOIN `maros_awal`.`urusanmaros` u ON u.kodeurusan=a.id_subagian
-WHERE a.`tgladu`>=@tgladu_awal
-AND a.`tgladu`<@tgladu_akhir
+-- WHERE a.`tgladu`>=@tgladu_awal
+-- AND a.`tgladu`<@tgladu_akhir
