@@ -16,3 +16,6 @@ JOIN `sambunganbaru` b ON b.`no_reg`=a.`no_reg`
 WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir
 AND a.`no_spko`<>'-'
+AND a.no_reg IN (
+'0005/PMP/HL/VI/2025'
+)

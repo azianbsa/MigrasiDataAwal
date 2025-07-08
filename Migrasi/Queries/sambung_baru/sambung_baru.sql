@@ -46,7 +46,7 @@ a.`rt` AS rt,
 a.`rw` AS rw,
 NULL AS nohp,
 NULL AS keterangan,
-a.`nosamb` AS nosambyangdiberikan,
+IF(a.`nosamb`='-',NULL,a.`nosamb`) AS nosambyangdiberikan,
 NULL AS nosambdepan,
 NULL AS nosambbelakang,
 NULL AS nosambkiri,
@@ -69,9 +69,12 @@ IF(a.`no_aktf`<>'-','Selesai',NULL) AS statuspermohonan
 FROM `t_pelanggan_reg` a
 JOIN `sambunganbaru` b ON b.`no_reg`=a.`no_reg`
 LEFT JOIN `maros_awal`.`golonganmaros` g ON g.`kodegolongan`=a.`goltarif`
-LEFT JOIN `nonairmaros` n ON n.`nomornonair`=a.`no_reg` AND n.`idjenisnonair`=86
+LEFT JOIN `nonairmaros` n ON n.`nomornonair`=a.`no_reg` AND n.`idjenisnonair`=82
 LEFT JOIN `maros_awal`.`rayonmaros` r ON r.`koderayon`=a.`kd_jalan`
 LEFT JOIN `maros_awal`.`t_fg_bgn` bg ON bg.`kd_fg_bgn`=a.`fgbgn`
 LEFT JOIN `maros_awal`.`kolektifmaros` k ON k.`kodekolektif`=a.`loketkol`
 WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir
+AND a.no_reg IN (
+'0005/PMP/HL/VI/2025'
+)

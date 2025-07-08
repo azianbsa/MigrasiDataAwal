@@ -32,3 +32,6 @@ LEFT JOIN `maros_awal`.`t_fg_bgn` bg ON bg.`kd_fg_bgn`=a.`fgbgn`
 WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir
 AND a.`no_spko`<>'-'
+AND a.no_reg IN (
+'0005/PMP/HL/VI/2025'
+)

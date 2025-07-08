@@ -29,3 +29,6 @@ JOIN `maros_awal`.`tipepermohonandetailba` c ON c.`idtipepermohonan`=b.idtipeper
 WHERE a.`tgl_reg`>=@tgl_reg_awal
 AND a.`tgl_reg`<@tgl_reg_akhir
 AND a.`no_bst`<>'-'
+AND a.no_reg IN (
+'0005/PMP/HL/VI/2025'
+)
