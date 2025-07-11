@@ -1796,135 +1796,122 @@ namespace Migrasi.Commands
 
         private static async Task SambungKembali(Settings settings)
         {
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air",
-                queryPath: @"queries\sambung_kembali\sambung_kembali.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            //copy lg supaya dapet yg terbaru
-            await Utils.CopyToDiffrentHost(
-                sourceConnection: AppSettings.MainConnectionString,
-                targetConnection: AppSettings.TampungConnectionString,
-                table: "tampung_permohonan_pelanggan_air",
-                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam }
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_detail",
-                queryPath: @"queries\sambung_kembali\detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_spk",
-                queryPath: @"queries\sambung_kembali\spk.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_spk_detail",
-                queryPath: @"queries\sambung_kembali\spk_detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_rab",
-                queryPath: @"queries\sambung_kembali\rab.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
-
-            var lastIdRabDetail = 0;
-            await Utils.MainConnectionWrapper(async (conn, trans) =>
+            await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air", async () =>
             {
-                var idPermohonanList = await conn.QueryAsync<int>(
-                    sql: @"
-                    SELECT a.`idpermohonan` FROM permohonan_pelanggan_air a
-                    JOIN `master_attribute_tipe_permohonan` b ON b.`idpdam`=a.`idpdam` AND b.`idtipepermohonan`=a.`idtipepermohonan`
-                    WHERE a.`idpdam`=@idpdam AND b.`kodetipepermohonan`='SAMBUNG_KEMBALI'",
-                    param: new
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air",
+                    queryPath: @"queries\sambung_kembali\sambung_kembali.sql",
+                    parameters: new()
                     {
-                        idpdam = settings.IdPdam,
-                    },
-                    transaction: trans);
-                if (idPermohonanList.Any())
-                {
-                    await conn.ExecuteAsync(
-                        sql: @"delete from permohonan_pelanggan_air_rab_detail where idpdam=@idpdam and idpermohonan in @idpermohonan",
-                        param: new
-                        {
-                            idpdam = settings.IdPdam,
-                            idpermohonan = idPermohonanList.ToList(),
-                        },
-                        transaction: trans);
-                }
-                lastIdRabDetail = await conn.QueryFirstOrDefaultAsync<int>(
-                    sql: @"SELECT COALESCE(MAX(`id`),0) AS maxid FROM `permohonan_pelanggan_air_rab_detail`",
-                    transaction: trans);
+                        { "@idpdam", settings.IdPdam },
+                    });
             });
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_rab_detail",
-                queryPath: @"queries\sambung_kembali\rab_detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                    { "@lastid", lastIdRabDetail },
-                });
 
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_spk_pasang",
-                queryPath: @"queries\sambung_kembali\spk_pasang.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
+            await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_detail",
+                    queryPath: @"queries\sambung_kembali\detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
 
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_ba",
-                queryPath: @"queries\sambung_kembali\ba.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
+            await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_spk", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_spk",
+                    queryPath: @"queries\sambung_kembali\spk.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
 
-            await Utils.BulkCopy(
-                sourceConnection: AppSettings.LoketConnectionString,
-                targetConnection: AppSettings.MainConnectionString,
-                table: "permohonan_pelanggan_air_ba_detail",
-                queryPath: @"queries\sambung_kembali\ba_detail.sql",
-                parameters: new()
-                {
-                    { "@idpdam", settings.IdPdam },
-                });
+            await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_spk_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_spk_detail",
+                    queryPath: @"queries\sambung_kembali\spk_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_rab", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_rab",
+                    queryPath: @"queries\sambung_kembali\rab.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_rab_detail", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_rab_detail",
+                    queryPath: @"queries\sambung_kembali\rab_detail.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_spk_pasang", async () =>
+            {
+                await Utils.BulkCopy(
+                    sourceConnection: AppSettings.LoketConnectionString,
+                    targetConnection: AppSettings.MainConnectionString,
+                    table: "permohonan_pelanggan_air_spk_pasang",
+                    queryPath: @"queries\sambung_kembali\spk_pasang.sql",
+                    parameters: new()
+                    {
+                        { "@idpdam", settings.IdPdam },
+                    });
+            });
+
+            //await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_ba", async () =>
+            //{
+            //    await Utils.BulkCopy(
+            //        sourceConnection: AppSettings.LoketConnectionString,
+            //        targetConnection: AppSettings.MainConnectionString,
+            //        table: "permohonan_pelanggan_air_ba",
+            //        queryPath: @"queries\sambung_kembali\ba.sql",
+            //        parameters: new()
+            //        {
+            //            { "@idpdam", settings.IdPdam },
+            //        });
+            //});
+
+            //await Utils.TrackProgress("sambkembali|permohonan_pelanggan_air_ba_detail", async () =>
+            //{
+            //    await Utils.BulkCopy(
+            //        sourceConnection: AppSettings.LoketConnectionString,
+            //        targetConnection: AppSettings.MainConnectionString,
+            //        table: "permohonan_pelanggan_air_ba_detail",
+            //        queryPath: @"queries\sambung_kembali\ba_detail.sql",
+            //        parameters: new()
+            //        {
+            //            { "@idpdam", settings.IdPdam },
+            //        });
+            //});
         }
 
         private static async Task RubahRayon(Settings settings)

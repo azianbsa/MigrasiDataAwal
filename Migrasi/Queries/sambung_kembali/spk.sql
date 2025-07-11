@@ -1,25 +1,17 @@
-﻿-- permohonan_pelanggan_air_spk
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "nomorspk")
--- new(3, "tanggalspk")
--- new(4, "iduser")
--- new(5, "flagsurvey")
--- new(6, "flagbatal")
--- new(7, "idalasanbatal")
--- new(8, "waktuupdate")
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
-@idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
-p.`nomorspkopname` AS `nomorspk`,
-p.`tglspko` AS `tanggalspk`,
-u.iduser AS `iduser`,
-p.`disetujui` AS `flagsurvey`,
-0 AS `flagbatal`,
-NULL AS `idalasanbatal`,
-p.`tglspko` AS `waktuupdate`
-FROM `spk_opname_sambung_kembali` p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan`
-LEFT JOIN `kotaparepare_dataawal`.`master_user` u ON u.`nama`=p.`user`
-WHERE p.`flaghapus`
+@idpdam AS idpdam,
+a.`idpermohonan` AS idpermohonan,
+a.`no_spko` AS nomorspk,
+a.`tgl_spko` AS tanggalspk,
+-1 AS iduser,
+1 AS flagsurvey,
+0 AS flagbatal,
+NULL AS idalasanbatal,
+a.`tgl_spko` AS waktuupdate
+FROM `sambungkembali` a
+WHERE a.`tgl_reg`>=@tgl_reg_awal
+AND a.`tgl_reg`<@tgl_reg_akhir
+AND a.`no_spko`<>'-'

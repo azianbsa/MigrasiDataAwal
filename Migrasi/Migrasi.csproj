@@ -282,6 +282,33 @@
     <None Update="queries\sambung_baru\spk_pasang.v4.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="queries\sambung_kembali\ba.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\ba_detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\rab.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\rab_detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\sambung_kembali.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\spk.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\spk_detail.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="queries\sambung_kembali\spk_pasang.v4.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="queries\segel\ba.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

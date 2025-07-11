@@ -1,25 +1,24 @@
-﻿-- permohonan_pelanggan_air_detail
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "parameter")
--- new(3, "tipedata")
--- new(4, "valuestring")
--- new(5, "valuedecimal")
--- new(6, "valueinteger")
--- new(7, "valuedate")
--- new(8, "valuebool")
--- new(9, "waktuupdate")
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
 @idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
-'Ditagih Setelah' AS `parameter`,
-'string' AS `tipedata`,
-NULL AS `valuestring`,
+a.idpermohonan AS `idpermohonan`,
+b.`parameter` AS `parameter`,
+b.`tipedata` AS `tipedata`,
+CASE
+	WHEN b.parameter='Nama Pelapor' THEN a.nama
+	WHEN b.parameter='Alamat Pelapor' THEN a.alamat
+	WHEN b.parameter='Telp. Pelapor' THEN a.telp
+	WHEN b.parameter='HP Pelapor' THEN a.telp
+	WHEN b.parameter='Ditagih Setelah' THEN ''
+END AS `valuestring`,
 NULL AS `valuedecimal`,
 NULL AS `valueinteger`,
 NULL AS `valuedate`,
 NULL AS `valuebool`,
-p.`tanggal` AS `waktuupdate`
-FROM `permohonan_sambung_kembali` p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.`nomorpermohonan`=p.`nomor`
+a.`tgl_reg` AS `waktuupdate`
+FROM `sambungkembali` a
+JOIN `maros_awal`.`tipepermohonandetail` b ON b.`idtipepermohonan`=a.idtipepermohonan
+WHERE a.`tgl_reg`>=@tgl_reg_awal
+AND a.`tgl_reg`<@tgl_reg_akhir

@@ -1,27 +1,18 @@
-﻿-- permohonan_pelanggan_air_spk_pasang
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "nomorspk")
--- new(3, "tanggalspk")
--- new(4, "nomorsppb")
--- new(5, "tanggalsppb")
--- new(6, "iduser,")
--- new(7, "flagbatal")
--- new(8, "idalasanbatal")
--- new(9, "waktuupdate")
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
-@idpdam AS `idpdam`,
-p.idpermohonan AS `idpermohonan`,
-r.`nomorspkp` AS `nomorspk`,
-r.`tanggalspk` AS `tanggalspk`,
-r.`nomorsppb` AS `nomorsppb`,
-r.`tanggalspk` AS `tanggalsppb`,
-u.iduser AS `iduser`, -- harus ambil dari logakses bukan rab, karna ini user pembuat rab bukan user pembuat spkp
-0 AS `flagbatal`,
-NULL AS `idalasanbatal`,
-r.tanggalspk AS `waktuupdate`
-FROM `rab_sambung_kembali` r
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` p ON p.`nomorpermohonan`=r.`nomorpermohonan`
-LEFT JOIN `kotaparepare_dataawal`.`master_user` u ON u.nama=r.`user`
-WHERE r.flaghapus=0 AND r.`flagaktif`=1
+@idpdam AS idpdam,
+a.`idpermohonan` AS idpermohonan,
+a.`no_spk` AS nomorspk,
+a.`tgl_spk` AS tanggalspk,
+a.`no_spk` AS nomorsppb,
+a.`tgl_spk` AS tanggalsppb,
+-1 AS iduser,
+0 AS flagbatal,
+NULL AS idalasanbatal,
+a.`tgl_spk` AS waktuupdate
+FROM `sambungkembali` a
+WHERE a.`tgl_reg`>=@tgl_reg_awal
+AND a.`tgl_reg`<@tgl_reg_akhir
+AND a.`no_spk`<>'-'

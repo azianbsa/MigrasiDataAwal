@@ -1,70 +1,42 @@
-﻿-- permohonan_pelanggan_air_rab
--- new(0, "idpdam")
--- new(1, "idpermohonan")
--- new(2, "idjenisnonair")
--- new(3, "idnonair")
--- new(4, "nomorrab")
--- new(5, "tanggalrab")
--- new(6, "nomorbppi")
--- new(7, "tanggalbppi")
--- new(8, "iduserbppi")
--- new(9, "iduser")
--- new(10, "tanggalkadaluarsa")
--- new(11, "persilnamapaket")
--- new(12, "persilflagdialihkankevendor")
--- new(13, "persilflagbiayadibebankankepdam")
--- new(14, "persilsubtotal")
--- new(15, "persildibebankankepdam")
--- new(16, "persiltotal")
--- new(17, "distribusinamapaket")
--- new(18, "distribusiflagdialihkankevendor")
--- new(19, "distribusiflagbiayadibebankankepdam")
--- new(20, "distribusisubtotal")
--- new(21, "distribusidibebankankepdam")
--- new(22, "distribusitotal")
--- new(23, "rekapsubtotal")
--- new(24, "rekapdibebankankepdam")
--- new(25, "rekaptotal")
--- new(26, "flagrablainnya")
--- new(27, "flagbatal")
--- new(28, "idalasanbatal")
--- new(29, "waktuupdate")
-
-SET @idjenisnonair=(SELECT `idjenisnonair` FROM `kotaparepare_dataawal`.`master_attribute_jenis_nonair` WHERE idpdam=@idpdam AND `namajenisnonair`='SAMB.KEMBALI');
+﻿SET @tgl_reg_awal='2014-11-21';
+SET @tgl_reg_akhir='2025-06-20';
 
 SELECT
-@idpdam AS `idpdam`,
-pp.`idpermohonan` AS `idpermohonan`,
-@idjenisnonair AS `idjenisnonair`,
-n.`idnonair` AS `idnonair`,
-p.`norab` AS `nomorrab`,
-p.`tglrab` AS `tanggalrab`,
-REPLACE(p.`norab`,'/RAB SAMB.KEMBALI/','/BPPI SAMB.KEMBALI/') AS `nomorbppi`,
-p.`tglrab` AS `tanggalbppi`,
-NULL AS `iduserbppi`,
-u.iduser AS `iduser`,
-p.`validdate` AS `tanggalkadaluarsa`,
-p.`namapaketrab` AS  `persilnamapaket`,
-IFNULL(p.`dialihkankevendor`,0) AS `persilflagdialihkankevendor`,
-IFNULL(p.`biayadibebankankepdam`,0) AS `persilflagbiayadibebankankepdam`,
-0 AS `persilsubtotal`,
-0 AS `persildibebankankepdam`,
-0 AS `persiltotal`,
-NULL AS `distribusinamapaket`,
-0 AS `distribusiflagdialihkankevendor`,
-0 AS `distribusiflagbiayadibebankankepdam`,
-0 AS `distribusisubtotal`,
-0 AS `distribusidibebankankepdam`,
-0 AS `distribusitotal`,
-0 AS `rekapsubtotal`,
-0 AS `rekapdibebankankepdam`,
-p.`grandtotal` AS `rekaptotal`,
-0 AS `flagrablainnya`,
-0 AS `flagbatal`,
-NULL AS `idalasanbatal`,
-p.`tglrab` AS `waktuupdate`
-FROM `rab_sambung_kembali` p
-JOIN `kotaparepare_dataawal`.`tampung_permohonan_pelanggan_air` pp ON pp.nomorpermohonan=p.`nomorpermohonan`
-LEFT JOIN `kotaparepare_dataawal`.`tampung_rekening_nonair` n ON n.`urutan`=p.`norab`
-LEFT JOIN `kotaparepare_dataawal`.`master_user` u ON u.nama=p.`user`
-WHERE p.`flaghapus`=0
+@idpdam AS idpdam,
+a.`idpermohonan` AS idpermohonan,
+9 AS idjenisnonair,
+n.`idnonair` AS idnonair,
+a.`no_rab` AS nomorrab,
+a.`tgl_rab` AS tanggalrab,
+a.`no_bppi` AS nomorbppi,
+a.`tgl_bppi` AS tanggalbppi,
+-1 AS iduserbppi,
+-1 AS iduser,
+a.`tgl_rab` AS tanggalkadaluarsa,
+'PAKET RAB SAM BARU 1/2' AS persilnamapaket,
+0 AS persilflagdialihkankevendor,
+0 AS persilflagbiayadibebankankepdam,
+c.jumlah AS persilsubtotal,
+0 AS persildibebankankepdam,
+c.jumlah AS persiltotal,
+NULL AS distribusinamapaket,
+0 AS distribusiflagdialihkankevendor,
+0 AS distribusiflagbiayadibebankankepdam,
+0 AS distribusisubtotal,
+0 AS distribusidibebankankepdam,
+0 AS distribusitotal,
+c.jumlah AS rekapsubtotal,
+0 AS rekapdibebankankepdam,
+c.jumlah AS rekaptotal,
+0 AS flagrablainnya,
+0 AS flagbatal,
+NULL AS idalasanbatal,
+a.`tgl_rab` AS waktuupdate
+FROM `sambungkembali` a
+JOIN (
+SELECT SUM(jumlah) AS jumlah FROM `maros_awal`.`rabmaros` WHERE namapaket='PAKET RAB SAM BARU 1/2'
+) c ON 1=1
+JOIN `nonairmaros` n ON n.`nomornonair`=a.`no_reg` AND n.`idjenisnonair`=9 AND n.`keterangan`='rab'
+WHERE a.`tgl_reg`>=@tgl_reg_awal
+AND a.`tgl_reg`<@tgl_reg_akhir
+AND a.`no_rab`<>'-'
