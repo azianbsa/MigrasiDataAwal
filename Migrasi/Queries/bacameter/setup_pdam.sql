@@ -1,12 +1,11 @@
 ﻿SET FOREIGN_KEY_CHECKS = 0;
 
-REPLACE INTO master_attribute_pdam (`idpdam`, `namapdam`, `tipe`)
-SELECT
-@idpdam,
-@namapdam,
-'basic' AS tipe;
+INSERT IGNORE INTO master_attribute_pdam
+(`idpdam`,`namapdam`,`tipe`)
+VALUES
+(@idpdam,@namapdam,'basic');
 
-REPLACE INTO master_attribute_pdam_detail
+INSERT IGNORE INTO master_attribute_pdam_detail
 SELECT
 @idpdam,
 `key`,
@@ -16,7 +15,7 @@ FROM
 master_attribute_pdam_detail
 WHERE idpdam = @idpdamcopy;
 
-REPLACE INTO setting_configuration
+INSERT IGNORE INTO setting_configuration
 SELECT
 @idpdam,
 `setting_id`,
@@ -26,7 +25,7 @@ FROM
 setting_configuration
 WHERE idpdam = @idpdamcopy;
 
-REPLACE INTO setting_mobile
+INSERT IGNORE INTO setting_mobile
 SELECT
 @idpdam,
 `idmobileitem`,
@@ -36,28 +35,14 @@ FROM
 setting_mobile
 WHERE idpdam = @idpdamcopy;
 
-REPLACE INTO master_tarif_meterai (id,idpdam, kodeperiodemulaiberlaku)
+INSERT IGNORE INTO master_tarif_meterai
+(id,idpdam,kodeperiodemulaiberlaku)
 VALUES
-(1,@idpdam, '100001');
+(1,@idpdam,'100001');
 
-REPLACE INTO `master_user` (
-idpdam,
-iduser,
-nama,
-namauser,
-passworduser,
-aktif,
-idrole
-)
+INSERT IGNORE INTO `master_user`
+(idpdam,iduser,nama,namauser,passworduser,aktif,idrole)
 VALUES
-(
-@idpdam,
-1,
-'Bsa-Azian',
-CONCAT ('azian', @idpdam),
-'$2a$11$kAPalx0K4eCytIlUHvmdb.DIptN4.yydS.O6p5KWPgAqNQ4SzYTR6',
-1,
-1
-);
+(@idpdam,1,'Bsa-Azian',CONCAT ('azian',@idpdam),'$2a$11$kAPalx0K4eCytIlUHvmdb.DIptN4.yydS.O6p5KWPgAqNQ4SzYTR6',1,1);
 
 SET FOREIGN_KEY_CHECKS = 1;

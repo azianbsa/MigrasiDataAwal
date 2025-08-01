@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Migrasi": {
-      "commandName": "Project",
-      "commandLineArgs": "basic 40"
+      "commandName": "Project"
     }
   }
 }

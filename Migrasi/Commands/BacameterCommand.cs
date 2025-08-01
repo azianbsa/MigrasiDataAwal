@@ -11,7 +11,7 @@ namespace Migrasi.Commands
         public class Settings : CommandSettings
         {
             [CommandArgument(0, "<idpdam>")]
-            public int? IdPdam { get; set; }
+            public int IdPdam { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -64,25 +64,6 @@ namespace Migrasi.Commands
                 await AnsiConsole.Status()
                     .StartAsync("Sedang diproses...", async ctx =>
                     {
-                        //await Utils.TrackProgress("Tambah idpelanggan di bsbs tabel pelanggan", async () =>
-                        //{
-                        //    await Utils.BsbsConnectionWrapper(async (conn, trans) =>
-                        //    {
-                        //        var cek = await conn.QueryFirstOrDefaultAsync<int?>(
-                        //            sql: "SELECT 1 FROM information_schema.COLUMNS WHERE table_schema=@schema AND table_name='pelanggan' AND column_name='id'",
-                        //            param: new
-                        //            {
-                        //                schema = AppSettings.BsbsDatabase
-                        //            },
-                        //            transaction: trans);
-                        //        if (cek is null)
-                        //        {
-                        //            var query = await File.ReadAllTextAsync(@"queries\patches\tambah_field_id_tabel_pelanggan.sql");
-                        //            await conn.ExecuteAsync(query, transaction: trans);
-                        //        }
-                        //    });
-                        //});
-
                         if (prosesMasterData)
                         {
                             await Utils.TrackProgress("master_attribute_flag", async () =>

@@ -10,19 +10,24 @@ namespace Migrasi.Commands
         public class Settings : CommandSettings
         {
             [CommandArgument(0, "<idpdam>")]
-            public int? IdPdam { get; set; }
+            public int IdPdam { get; set; }
 
-            [CommandArgument(1, "<nama>")]
-            public string? NamaPdam { get; set; }
+            [CommandArgument(1, "<namapdam>")]
+            public string NamaPdam { get; set; }
 
             [CommandArgument(2, "[idpdamcopy]")]
-            public int? IdPdamCopy { get; set; } = 1;
+            public int? IdPdamCopy { get; set; } = 0;
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            AnsiConsole.WriteLine($"{settings.IdPdam} {settings.NamaPdam}");
-            AnsiConsole.WriteLine($"ID pdam copy: {settings.IdPdamCopy}");
+            var tableSummary = new Table();
+            tableSummary.AddColumn(new TableColumn("Parameter"));
+            tableSummary.AddColumn(new TableColumn("Value"));
+            tableSummary.AddRow("ID PDAM", settings.IdPdam.ToString());
+            tableSummary.AddRow("Nama PDAM", settings.NamaPdam);
+            tableSummary.AddRow("Copy PDAM", settings.IdPdamCopy?.ToString() ?? "");
+            AnsiConsole.Write(tableSummary);
 
             if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
             {
@@ -37,11 +42,6 @@ namespace Migrasi.Commands
                         await Utils.TrackProgress("setup partition", async () =>
                         {
                             await SetupPartition(settings);
-                        });
-
-                        await Utils.TrackProgress("setup db config", async () =>
-                        {
-                            await SetupDbConfig(settings);
                         });
 
                         await Utils.TrackProgress("setup pdam", async () =>
@@ -76,13 +76,13 @@ namespace Migrasi.Commands
                             {
                                 schema = AppSettings.MainDatabase,
                                 table = table,
-                                partisi = $"pdam{settings.IdPdam}"
+                                partisi = $"`pdam{settings.IdPdam}`"
                             },
                             transaction: trans);
                         if (!cek.HasValue)
                         {
                             await conn.ExecuteAsync(
-                                sql: $"ALTER TABLE {table} ADD PARTITION (PARTITION pdam{settings.IdPdam} VALUES IN (@value) ENGINE = INNODB)",
+                                sql: $"ALTER TABLE {table} ADD PARTITION (PARTITION `pdam{settings.IdPdam}` VALUES IN (@value) ENGINE = INNODB)",
                                 param: new { value = settings.IdPdam },
                                 transaction: trans);
                         }
@@ -95,24 +95,7 @@ namespace Migrasi.Commands
         {
             await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
-                var query = await File.ReadAllTextAsync(@"queries\\bacameter\setup_pdam.sql");
-                await conn.ExecuteAsync(
-                    sql: query,
-                    param: new
-                    {
-                        idpdam = settings.IdPdam,
-                        namapdam = settings.NamaPdam,
-                        idpdamcopy = settings.IdPdamCopy
-                    },
-                    transaction: trans);
-            });
-        }
-
-        public async Task SetupDbConfig(Settings settings)
-        {
-            await Utils.ConfigConnectionWrapper(async (conn, trans) =>
-            {
-                var query = await File.ReadAllTextAsync(@"queries\\bacameter\setup_config.sql");
+                var query = await File.ReadAllTextAsync(@"queries\bacameter\setup_pdam.sql");
                 await conn.ExecuteAsync(
                     sql: query,
                     param: new

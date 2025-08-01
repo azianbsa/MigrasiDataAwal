@@ -22,6 +22,7 @@ namespace Migrasi
 
             await LoadEnv();
             await PrepareColumnMappingConfigurations();
+            Console.WriteLine();
 
             try
             {
@@ -31,6 +32,8 @@ namespace Migrasi
 #if DEBUG
                     config.PropagateExceptions();
 #endif
+                    config.AddCommand<ConfigCommand>("config")
+                        .WithDescription("Setup config baru");
                     config.AddCommand<NewCommand>("new")
                         .WithDescription("Setup pdam baru");
                     config.AddCommand<BacameterCommand>("bacameter")
