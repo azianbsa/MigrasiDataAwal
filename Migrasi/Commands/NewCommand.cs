@@ -76,10 +76,10 @@ namespace Migrasi.Commands
                             {
                                 schema = AppSettings.MainDatabase,
                                 table = table,
-                                partisi = $"`pdam{settings.IdPdam}`"
+                                partisi = $"pdam{settings.IdPdam}"
                             },
                             transaction: trans);
-                        if (!cek.HasValue)
+                        if (cek is null)
                         {
                             await conn.ExecuteAsync(
                                 sql: $"ALTER TABLE {table} ADD PARTITION (PARTITION `pdam{settings.IdPdam}` VALUES IN (@value) ENGINE = INNODB)",
