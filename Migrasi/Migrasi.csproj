@@ -84,6 +84,9 @@
     <None Update="queries\bacameter\master_attribute_flag.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="queries\bacameter\master_attribute_jadwal_baca.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="queries\bacameter\master_attribute_jenis_bangunan.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

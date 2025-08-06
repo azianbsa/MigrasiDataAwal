@@ -452,72 +452,15 @@ namespace Migrasi.Commands
                             });
                             await Utils.TrackProgress("master_attribute_jadwal_baca", async () =>
                             {
-                                await Utils.BacameterConnectionWrapper(async (conn, trans) =>
-                                {
-                                    var jadwalbaca = await conn.QueryAsync(
-                                        sql: @"SELECT
-                                        b.nama AS petugasbaca,
-                                        c.koderayon
-                                        FROM
-                                        jadwalbaca a
-                                        JOIN petugasbaca b ON a.idpetugas=b.idpetugas
-                                        JOIN rayon c ON a.idrayon=c.idrayon",
-                                        transaction: trans);
-                                    if (jadwalbaca.Any())
+                                await Utils.BulkCopy(
+                                    sourceConnection: AppSettings.BsbsConnectionString,
+                                    targetConnection: AppSettings.MainConnectionString,
+                                    table: "master_attribute_jadwal_baca",
+                                    queryPath: @"queries\bacameter\master_attribute_jadwal_baca.sql",
+                                    parameters: new()
                                     {
-                                        await Utils.MainConnectionWrapper(async (conn, trans) =>
-                                        {
-                                            List<dynamic> data = [];
-                                            var listPetugas = await conn.QueryAsync(
-                                                sql: @"SELECT idpetugasbaca,petugasbaca FROM master_attribute_petugas_baca WHERE idpdam=@idpdam",
-                                                param: new
-                                                {
-                                                    idpdam = settings.IdPdam
-                                                },
-                                                transaction: trans);
-                                            var listRayon = await conn.QueryAsync(
-                                                sql: @"SELECT idrayon,koderayon FROM master_attribute_rayon WHERE idpdam=@idpdam",
-                                                param: new
-                                                {
-                                                    idpdam = settings.IdPdam
-                                                },
-                                                transaction: trans);
-
-                                            int id = 1;
-                                            foreach (var item in jadwalbaca)
-                                            {
-                                                dynamic o = new
-                                                {
-                                                    idpdam = settings.IdPdam,
-                                                    idjadwalbaca = id++,
-                                                    idpetugasbaca =
-                                                        listPetugas
-                                                            .Where(s => s.petugasbaca.ToLower() == item.petugasbaca.ToLower())
-                                                            .Select(s => s.idpetugasbaca).FirstOrDefault(),
-                                                    idrayon =
-                                                        listRayon
-                                                            .Where(s => s.koderayon == item.koderayon)
-                                                            .Select(s => s.idrayon).FirstOrDefault()
-                                                };
-
-                                                if (o.idpetugasbaca != null && o.idrayon != null)
-                                                {
-                                                    data.Add(o);
-                                                }
-                                            }
-
-                                            if (data.Count != 0)
-                                            {
-                                                await conn.ExecuteAsync(
-                                                    sql: @"
-                                                    REPLACE master_attribute_jadwal_baca (idpdam,idjadwalbaca,idpetugasbaca,idrayon)
-                                                    VALUES (@idpdam,@idjadwalbaca,@idpetugasbaca,@idrayon)",
-                                                    param: data,
-                                                    transaction: trans);
-                                            }
-                                        });
-                                    }
-                                });
+                                        { "@idpdam", settings.IdPdam }
+                                    });
                             });
                         }
 

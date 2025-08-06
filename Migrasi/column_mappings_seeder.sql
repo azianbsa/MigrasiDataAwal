@@ -287,6 +287,15 @@ INSERT INTO column_mappings (TableName, SourceOrdinal, DestinationColumn) VALUES
 ('master_attribute_petugas_baca',16,'waktucreate'),
 ('master_attribute_petugas_baca',17,'waktuupdate'),
 
+('master_attribute_jadwal_baca',0,'idpdam'),
+('master_attribute_jadwal_baca',1,'idjadwalbaca'),
+('master_attribute_jadwal_baca',2,'idpetugasbaca'),
+('master_attribute_jadwal_baca',3,'idrayon'),
+('master_attribute_jadwal_baca',4,'idblok'),
+('master_attribute_jadwal_baca',5,'tanggalmulaibaca'),
+('master_attribute_jadwal_baca',6,'toleransiminus'),
+('master_attribute_jadwal_baca',7,'toleransiplus'),
+
 ('master_periode',0,'idpdam'),
 ('master_periode',1,'idperiode'),
 ('master_periode',2,'tahun'),
