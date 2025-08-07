@@ -2,7 +2,6 @@
 using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using System;
 
 namespace Migrasi.Commands
 {
@@ -36,15 +35,6 @@ namespace Migrasi.Commands
 
             [CommandArgument(8, "<storage>")]
             public string Storage { get; set; } = "GCS";
-
-            [CommandArgument(9, "<bucket>")]
-            public string Bucket { get; set; }
-
-            [CommandArgument(10, "<fotometerpath>")]
-            public string FotoMeterPath { get; set; }
-
-            [CommandArgument(11, "<credential>")]
-            public string Credential { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -61,9 +51,6 @@ namespace Migrasi.Commands
             tableSummary.AddRow("User", settings.DbUser);
             tableSummary.AddRow("Password", settings.DbPassword);
             tableSummary.AddRow("Storage", settings.Storage.ToUpper());
-            tableSummary.AddRow("Bucket", settings.Bucket);
-            tableSummary.AddRow("Foto Meter Path", settings.FotoMeterPath);
-            tableSummary.AddRow("Credential", settings.Credential);
             AnsiConsole.Write(tableSummary);
 
             if (!Utils.ConfirmationPrompt("Yakin untuk melanjutkan?"))
@@ -115,9 +102,6 @@ namespace Migrasi.Commands
                         dbuser = settings.DbUser,
                         dbpassword = settings.DbPassword,
                         storage = settings.Storage.ToUpper(),
-                        bucket = settings.Bucket,
-                        fotometerpath = settings.FotoMeterPath,
-                        credential = settings.Credential,
                     },
                     transaction: trans);
             });

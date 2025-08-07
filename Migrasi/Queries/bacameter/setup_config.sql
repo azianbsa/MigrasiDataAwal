@@ -259,8 +259,9 @@ INSERT IGNORE INTO `master_role_access` (`idpdam`,`idrole`,`idmoduleaccess`,`val
 INSERT IGNORE INTO `master_role_access` (`idpdam`,`idrole`,`idmoduleaccess`,`value`,`flaghapus`,`waktuupdate`) VALUES (@idpdam,1,370,1,0,NOW());
 
 INSERT IGNORE INTO setting_gcs
-(idpdam,idgcssetting,credential,bucket,fotometerpath,flagaktif,flaghapus,waktuupdate)
-VALUES
-(@idpdam,1,@credential,@bucket,CONCAT(@fotometerpath,'/',@idpdam,'-',LOWER(REPLACE(@namapdam,' ','-')),'/'),1,0,NOW());
+(idpdam, idgcssetting, credential, bucket, fotometerpath, flagaktif, flaghapus, waktuupdate)
+SELECT
+@idpdam, idgcssetting, credential, bucket, CONCAT(SUBSTRING_INDEX(fotometerpath,'/',1),'/',@idpdam,'-',LOWER(REPLACE(@namapdam,' ','-')),'/'), flagaktif, flaghapus, waktuupdate
+FROM setting_gcs WHERE idpdam =1 AND @storage='GCS';
 
 SET FOREIGN_KEY_CHECKS=0;
