@@ -6,11 +6,6 @@ namespace Migrasi.Helpers
 {
     public static class Utils
     {
-        public static void WriteLogMessage(string message, bool skip = false)
-        {
-            AnsiConsole.MarkupLine($"[grey]LOG: {DateTime.Now}[/] {message}[grey]...[/]" + (skip ? "skip" : ""));
-        }
-
         public static async Task BulkCopy(
             string sourceConnection,
             string targetConnection,

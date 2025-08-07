@@ -29,9 +29,7 @@ namespace Migrasi
                 var app = new CommandApp();
                 app.Configure(config =>
                 {
-#if DEBUG
                     config.PropagateExceptions();
-#endif
                     config.AddCommand<ConfigCommand>("config")
                         .WithDescription("Setup config baru");
                     config.AddCommand<NewCommand>("new")
