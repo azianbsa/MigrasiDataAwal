@@ -1,1 +1,0 @@
-﻿SELECT * FROM master_query_global

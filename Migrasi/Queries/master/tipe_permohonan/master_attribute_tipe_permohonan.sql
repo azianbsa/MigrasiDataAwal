@@ -1,1 +1,0 @@
-﻿SELECT * FROM master_attribute_tipe_permohonan WHERE idpdam = @idpdam

@@ -1,1 +1,0 @@
-﻿SELECT * FROM report_model_params WHERE idpdam = @idpdam

@@ -1,2 +1,0 @@
-﻿DELETE FROM `rekening_nonair_detail` WHERE idpdam=3 AND `idnonair` NOT IN (SELECT idnonair FROM `rekening_nonair` WHERE idpdam=3);
-DELETE FROM `rekening_nonair_transaksi` WHERE idpdam=3 AND `idnonair` NOT IN (SELECT idnonair FROM `rekening_nonair` WHERE idpdam=3);

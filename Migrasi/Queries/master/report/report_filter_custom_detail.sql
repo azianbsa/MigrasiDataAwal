@@ -1,1 +1,0 @@
-﻿SELECT * FROM report_filter_custom_detail

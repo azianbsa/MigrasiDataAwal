@@ -1,1 +1,0 @@
-﻿SELECT * FROM app_setting_module

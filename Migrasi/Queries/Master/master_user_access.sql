@@ -1,1 +1,0 @@
-﻿SELECT * FROM master_user_access

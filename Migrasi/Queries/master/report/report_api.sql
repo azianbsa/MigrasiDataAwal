@@ -1,1 +1,0 @@
-﻿SELECT * FROM report_api WHERE idpdam = @idpdam

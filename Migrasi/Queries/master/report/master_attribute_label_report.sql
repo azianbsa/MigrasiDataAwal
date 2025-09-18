@@ -1,1 +1,0 @@
-﻿SELECT * FROM master_attribute_label_report WHERE idpdam = @idpdam

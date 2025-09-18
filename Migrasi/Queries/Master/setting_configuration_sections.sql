@@ -1,1 +1,0 @@
-﻿SELECT * FROM setting_configuration_sections
