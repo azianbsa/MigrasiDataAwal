@@ -1,7 +1,44 @@
-﻿SELECT
+﻿/*
+DROP TEMPORARY TABLE IF EXISTS __tmp_periode;
+CREATE TEMPORARY TABLE __tmp_periode AS
+SELECT
+id AS idperiode,
+periode,
+LEFT(periode,4) AS tahun,
+CAST(RIGHT(periode,2) AS UNSIGNED) AS bulan,
+tglmulaidenda,
+tglmulaidenda2,
+tglmulaidenda3,
+tglmulaidenda4,
+tglmulaidendaperbulan
+FROM periode_map
+,(SELECT @id:=0) AS id
+ORDER BY periode;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_golongan;
+CREATE TEMPORARY TABLE __tmp_golongan AS
+SELECT
+id AS id,
+kodegol,
+aktif
+FROM golongan_map,
+(SELECT @id:=0) AS id;
+
+DROP TEMPORARY TABLE IF EXISTS __tmp_diameter;
+CREATE TEMPORARY TABLE __tmp_diameter AS
+SELECT
+id AS id,
+kodediameter,
+periodemulaiberlaku,
+aktif
+FROM diameter_map,
+(SELECT @id:=0) AS id;
+*/
+
+SELECT
 @idpdam AS idpdam,
 @id:=@id+1 AS idrekeningair,
-pel.idsamb AS idpelangganair,
+pm.id AS idpelangganair,
 per.id AS idperiode,
 COALESCE(gol.id,-1) AS idgolongan,
 COALESCE(dia.id,-1) AS iddiameter,
@@ -102,18 +139,17 @@ NOW() AS waktuupdate,
 FROM [bacameter].`tbl_rekair` rek
 JOIN [bacameter].`tbl_samb` pel ON pel.nosamb = rek.nosamb
 JOIN periode_map per ON per.periode = CONCAT(rek.tahun, LPAD(rek.bulan,2,'0'))
+LEFT JOIN `pelanggan_map` pm ON rek.nosamb=pm.nosamb
 LEFT JOIN golongan_map gol ON gol.kodegol = rek.gol AND gol.aktif = 1
-LEFT JOIN `pelanggan_dia_map` dia1 ON rek.nosamb=dia1.nosamb
-LEFT JOIN diameter_map dia ON dia.kodediameter = dia1.kodediameter AND dia.aktif = 1
+LEFT JOIN diameter_map dia ON dia.kodediameter = pm.kodediameter AND dia.aktif = 1
 LEFT JOIN rayon_map ray ON ray.koderayon = pel.kdipa
 LEFT JOIN kelurahan_map kel ON kel.kelurahan = pel.kel
 -- LEFT JOIN kolektif_map kol ON kol.kodekolektif = rek.kodekolektif
 -- LEFT JOIN byadministrasi_lain_map adm ON adm.kode = rek.kodeadministrasilain
 -- LEFT JOIN bypemeliharaan_lain_map pem ON pem.kode = rek.kodepemeliharaanlain
-LEFT JOIN `pelanggan_ret_map` ret1 ON ret1.nosamb = rek.nosamb
-LEFT JOIN byretribusi_lain_map ret ON ret.kode = ret1.koderetribusilain
+LEFT JOIN byretribusi_lain_map ret ON ret.kode = pm.koderetribusilain
 -- LEFT JOIN [bacameter].hasilbaca0825 hsl ON hsl.idpelanggan=rek.nosamb
 LEFT JOIN [bsbs].petugasbaca_map pbc ON pbc.nama = rek.pencatat
 -- LEFT JOIN kelainan_map kln ON kln.kelainan = rek.kelainan
 ,(SELECT @id := 0) AS id
-WHERE rek.tahun='2025' AND rek.bulan='7';
+where rek.tahun=2025 and rek.bulan=9
