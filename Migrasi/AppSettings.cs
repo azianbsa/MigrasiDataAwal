@@ -15,6 +15,7 @@ namespace Migrasi
         public static string ConfigUserId { get; set; }
         public static string ConfigPassword { get; set; }
         public static string ConfigDatabase { get; set; }
+
         public static string ConfigConnectionString => new MySqlConnectionStringBuilder
         {
             Server = ConfigHost,
@@ -30,6 +31,7 @@ namespace Migrasi
         public static string MainUserId { get; set; }
         public static string MainPassword { get; set; }
         public static string MainDatabase { get; set; }
+
         public static string MainConnectionString => new MySqlConnectionStringBuilder
         {
             Server = MainHost,
@@ -41,6 +43,7 @@ namespace Migrasi
             AllowLoadLocalInfile = true,
             ConnectionTimeout = ConnectionTimeout,
             DefaultCommandTimeout = CommandTimeout,
+            SslMode = MySqlSslMode.None
         }.ConnectionString;
 
         public static string StagingHost { get; set; }
@@ -48,6 +51,7 @@ namespace Migrasi
         public static string StagingUserId { get; set; }
         public static string StagingPassword { get; set; }
         public static string StagingDatabase { get; set; }
+
         public static string StagingConnectionString => new MySqlConnectionStringBuilder
         {
             Server = StagingHost,
@@ -64,6 +68,7 @@ namespace Migrasi
         public static string BsbsUserId { get; set; }
         public static string BsbsPassword { get; set; }
         public static string BsbsDatabase { get; set; }
+
         public static string BsbsConnectionString => new MySqlConnectionStringBuilder
         {
             Server = BsbsHost,
@@ -82,6 +87,7 @@ namespace Migrasi
         public static string BacameterUserId { get; set; }
         public static string BacameterPassword { get; set; }
         public static string BacameterDatabase { get; set; }
+
         public static string BacameterConnectionString => new MySqlConnectionStringBuilder
         {
             Server = BacameterHost,
@@ -100,6 +106,7 @@ namespace Migrasi
         public static string LoketUserId { get; set; }
         public static string LoketPassword { get; set; }
         public static string LoketDatabase { get; set; }
+
         public static string LoketConnectionString => new MySqlConnectionStringBuilder
         {
             Server = LoketHost,
@@ -111,6 +118,7 @@ namespace Migrasi
             AllowLoadLocalInfile = true,
             ConnectionTimeout = ConnectionTimeout,
             DefaultCommandTimeout = CommandTimeout,
+            SslMode = MySqlSslMode.None
         }.ConnectionString;
 
         public static string TampungHost { get; set; }
@@ -118,6 +126,7 @@ namespace Migrasi
         public static string TampungUserId { get; set; }
         public static string TampungPassword { get; set; }
         public static string TampungDatabase { get; set; }
+
         public static string TampungConnectionString => new MySqlConnectionStringBuilder
         {
             Server = TampungHost,
@@ -129,9 +138,11 @@ namespace Migrasi
             AllowLoadLocalInfile = true,
             ConnectionTimeout = ConnectionTimeout,
             DefaultCommandTimeout = CommandTimeout,
+            SslMode = MySqlSslMode.None
         }.ConnectionString;
 
         public static List<ColumnMapping> ColumnMappings { get; set; }
+
         public static Dictionary<string, string> Placeholders => new()
         {
             { "[bacameter]", BacameterDatabase },

@@ -530,6 +530,9 @@
     <None Update="queries\basic\tmp\sambung_kembali\sambung_kembali.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update=".env">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,6 @@
 using Migrasi.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using Sprache;
 
 namespace Migrasi.Commands
 {
@@ -10,8 +9,7 @@ namespace Migrasi.Commands
     {
         public class Settings : CommandSettings
         {
-            [CommandArgument(0, "<idpdam>")]
-            public int? IdPdam { get; set; }
+            [CommandArgument(0, "<idpdam>")] public int? IdPdam { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -58,17 +56,19 @@ namespace Migrasi.Commands
             string? namaPdam = "";
             await Utils.MainConnectionWrapper(async (conn, trans) =>
             {
-                namaPdam = await conn.QueryFirstOrDefaultAsync<string>(@"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam", new { idpdam = settings.IdPdam }, trans);
+                namaPdam = await conn.QueryFirstOrDefaultAsync<string>(
+                    @"SELECT namapdam FROM master_attribute_pdam WHERE idpdam=@idpdam",
+                    new { idpdam = settings.IdPdam }, trans);
             });
             AnsiConsole.WriteLine($"{settings.IdPdam} {namaPdam}");
 
             var selectedProses = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
-                .Title("Pilih proses:")
-                .Required()
-                .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
-                .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
-                .AddChoices(prosesList));
+                    .Title("Pilih proses:")
+                    .Required()
+                    .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
+                    .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
+                    .AddChoices(prosesList));
 
             var prosesMaster = selectedProses.Exists(s => s == MASTER_DATA);
             var prosesPenerimaanAir = selectedProses.Exists(s => s == PENERIMAAN_AIR);
@@ -442,7 +442,8 @@ namespace Migrasi.Commands
                     sourceConnection: AppSettings.LoketConnectionString,
                     targetConnection: AppSettings.MainConnectionString,
                     table: "rekening_air_transaksi",
-                    queryPath: @"queries\basic\penerimaan_air\rekening_air_transaksi.sql",
+                    // queryPath: @"queries\basic\penerimaan_air\rekening_air_transaksi.sql",
+                    queryPath: Path.Combine("queries", "basic", "penerimaan_air", "rekening_air_transaksi.sql"),
                     parameters: new()
                     {
                         { "@idpdam", settings.IdPdam },
@@ -496,7 +497,8 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_koreksi_data",
-                query: @"SELECT idpdam,`idkoreksi`,nomor FROM `master_pelanggan_air_riwayat_koreksi` WHERE idpdam=@idpdam",
+                query:
+                @"SELECT idpdam,`idkoreksi`,nomor FROM `master_pelanggan_air_riwayat_koreksi` WHERE idpdam=@idpdam",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -515,7 +517,8 @@ namespace Migrasi.Commands
                 if (idPermohonanList.Any())
                 {
                     await conn.ExecuteAsync(
-                        sql: @"delete from master_pelanggan_air_riwayat_koreksi_detail where idpdam=@idpdam and idkoreksi in @idkoreksi",
+                        sql:
+                        @"delete from master_pelanggan_air_riwayat_koreksi_detail where idpdam=@idpdam and idkoreksi in @idkoreksi",
                         param: new
                         {
                             idpdam = settings.IdPdam,
@@ -523,6 +526,7 @@ namespace Migrasi.Commands
                         },
                         transaction: trans);
                 }
+
                 lastIdKoreksiDetail = await conn.QueryFirstOrDefaultAsync<int>(
                     sql: @"SELECT COALESCE(MAX(`id`),0) AS maxid FROM `master_pelanggan_air_riwayat_koreksi_detail`",
                     transaction: trans);
@@ -737,7 +741,8 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
-                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
+                query:
+                @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -759,7 +764,8 @@ namespace Migrasi.Commands
                 if (idPermohonanList.Any())
                 {
                     await conn.ExecuteAsync(
-                        sql: @"delete from permohonan_pelanggan_air_koreksi_rekening where idpdam=@idpdam and idpermohonan in @idpermohonan",
+                        sql:
+                        @"delete from permohonan_pelanggan_air_koreksi_rekening where idpdam=@idpdam and idpermohonan in @idpermohonan",
                         param: new
                         {
                             idpdam = settings.IdPdam,
@@ -767,6 +773,7 @@ namespace Migrasi.Commands
                         },
                         transaction: trans);
                 }
+
                 lastId = await conn.QueryFirstOrDefaultAsync<int>(
                     sql: @"SELECT COALESCE(MAX(`id`),0) AS maxid FROM `permohonan_pelanggan_air_koreksi_rekening`",
                     transaction: trans);
@@ -920,7 +927,8 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
-                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
+                query:
+                @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
@@ -1104,7 +1112,8 @@ namespace Migrasi.Commands
                 sourceConnection: AppSettings.MainConnectionString,
                 targetConnection: AppSettings.TampungConnectionString,
                 table: "tampung_permohonan_pelanggan_air",
-                query: @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
+                query:
+                @"SELECT idpdam,`idpermohonan`,idtipepermohonan,`nomorpermohonan` FROM `permohonan_pelanggan_air` WHERE idpdam=@idpdam",
                 parameters: new()
                 {
                     { "@idpdam", settings.IdPdam }
